@@ -1,0 +1,34 @@
+# Historical supervised recipe: stopped at step 1200. New training needs a new experiment.
+# Current evaluation compares saved checkpoints by placement and points, not this NLL selector.
+base = "Qwen/Qwen3.5-0.8B"
+base_revision = "2fc06364715b967f1860aea9cf38778875588b17"
+init_from = "runs/semantic-2026-freegpu/checkpoints/step-002000"
+data = "data/semantic-2026-round2/train.jsonl"
+out = "runs/semantic-2026-round2"
+device = "cuda"
+weights_dtype = "bf16"
+dtype = "bf16"
+lora = 16
+head_dim = 256
+epochs = 1
+max_steps = 4000
+lr = 0.00002
+batch = 16
+accum = 1
+checkpointing = 1
+checkpoint_every_steps = 200
+seed = 4242
+p_none = 0.0
+p_none_distract = 0.0
+p_distract = 0.0
+max_state = 4096
+max_branch = 8192
+max_packed = 8192
+eval_before_start = true
+eval_every_steps = 400
+eval_records = 0
+eval_data = "data/semantic-2026-round2/validation.jsonl"
+early_stop_patience = 3
+early_stop_metric = "development_nll"
+early_stop_min_delta = 0.001
+wandb_mode = "disabled"
