@@ -1,0 +1,25 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+.env.*
+!.env.example
+data/
+runs/
+logs/
+vendor/
+*.safetensors
+*.pt
+*.pth
+*.onnx
+*.tar
+*.tar.gz
+*.zip
+*.zst
+*.npz
+# Local cluster/session notes; portable instructions live in README.md.
+MIGRATION.txt
+PROGRESS.txt
+RUN.txt
+research-plan.txt
