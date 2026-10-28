@@ -1,0 +1,248 @@
+{
+  "status": "complete",
+  "policies": [
+    {
+      "games": 128,
+      "independent_seeds": 32,
+      "mean_rank": 2.171875,
+      "first_rate": 0.4140625,
+      "fourth_rate": 0.1640625,
+      "hand_win_rate": 0.21052631578947367,
+      "dealin_rate": 0.061527057079318014,
+      "paired_rank_delta": -0.328125,
+      "paired_rank_delta_ci95": [
+        -0.5075746067537579,
+        -0.14867539324624207
+      ],
+      "checkpoint": "runs/semantic-2026-freegpu/checkpoints/step-002000",
+      "guarded": true,
+      "model_calls": 22275,
+      "wall_seconds_this_invocation": 954.9217832162976,
+      "note": "Negative rank delta is better; few seeds are a smoke test, not strength evidence.",
+      "name": "previous-guarded",
+      "mean_final_points": 28524.21875,
+      "mean_net_points": 3524.21875,
+      "vs_rule": {
+        "independent_seeds": 32,
+        "games": 128,
+        "first_delta": 0.1640625,
+        "first_delta_ci": [
+          0.07396779072429907,
+          0.25415720927570096
+        ],
+        "rank_delta": -0.328125,
+        "rank_delta_ci": [
+          -0.5075746067537579,
+          -0.14867539324624207
+        ],
+        "points_delta": 3524.21875,
+        "points_delta_ci": [
+          1816.5336676868997,
+          5231.903832313101
+        ]
+      },
+      "vs_previous_guarded": {
+        "independent_seeds": 32,
+        "games": 128,
+        "first_delta": 0,
+        "first_delta_ci": [
+          0.0,
+          0.0
+        ],
+        "rank_delta": 0,
+        "rank_delta_ci": [
+          0.0,
+          0.0
+        ],
+        "points_delta": 0,
+        "points_delta_ci": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    {
+      "games": 128,
+      "independent_seeds": 32,
+      "mean_rank": 2.7265625,
+      "first_rate": 0.2265625,
+      "fourth_rate": 0.328125,
+      "hand_win_rate": 0.18830242510699002,
+      "dealin_rate": 0.08059914407988587,
+      "paired_rank_delta": 0.2265625,
+      "paired_rank_delta_ci95": [
+        -0.046598553941939014,
+        0.499723553941939
+      ],
+      "checkpoint": "runs/semantic-2026-round2/checkpoints/step-000400",
+      "guarded": true,
+      "model_calls": 24249,
+      "wall_seconds_this_invocation": 1016.1592280175537,
+      "note": "Negative rank delta is better; few seeds are a smoke test, not strength evidence.",
+      "name": "step-000400-guarded",
+      "mean_final_points": 23710.9375,
+      "mean_net_points": -1289.0625,
+      "vs_rule": {
+        "independent_seeds": 32,
+        "games": 128,
+        "first_delta": -0.0234375,
+        "first_delta_ci": [
+          -0.12008440229776814,
+          0.07320940229776814
+        ],
+        "rank_delta": 0.2265625,
+        "rank_delta_ci": [
+          -0.046598553941939014,
+          0.499723553941939
+        ],
+        "points_delta": -1289.0625,
+        "points_delta_ci": [
+          -3312.637714763659,
+          734.512714763659
+        ]
+      },
+      "vs_previous_guarded": {
+        "independent_seeds": 32,
+        "games": 128,
+        "first_delta": -0.1875,
+        "first_delta_ci": [
+          -0.2932681381905056,
+          -0.08173186180949436
+        ],
+        "rank_delta": 0.5546875,
+        "rank_delta_ci": [
+          0.2736062374359251,
+          0.8357687625640748
+        ],
+        "points_delta": -4813.28125,
+        "points_delta_ci": [
+          -7102.018021030687,
+          -2524.544478969313
+        ]
+      }
+    },
+    {
+      "games": 128,
+      "independent_seeds": 32,
+      "mean_rank": 3.171875,
+      "first_rate": 0.0625,
+      "fourth_rate": 0.4609375,
+      "hand_win_rate": 0.17849462365591398,
+      "dealin_rate": 0.12974910394265232,
+      "paired_rank_delta": 0.671875,
+      "paired_rank_delta_ci95": [
+        0.4866758057398236,
+        0.8570741942601764
+      ],
+      "checkpoint": "runs/semantic-2026-round2/checkpoints/step-000800",
+      "guarded": true,
+      "model_calls": 25076,
+      "wall_seconds_this_invocation": 1044.0124548831955,
+      "note": "Negative rank delta is better; few seeds are a smoke test, not strength evidence.",
+      "name": "step-000800-guarded",
+      "mean_final_points": 20276.5625,
+      "mean_net_points": -4723.4375,
+      "vs_rule": {
+        "independent_seeds": 32,
+        "games": 128,
+        "first_delta": -0.1875,
+        "first_delta_ci": [
+          -0.2403840690952528,
+          -0.1346159309047472
+        ],
+        "rank_delta": 0.671875,
+        "rank_delta_ci": [
+          0.4866758057398236,
+          0.8570741942601764
+        ],
+        "points_delta": -4723.4375,
+        "points_delta_ci": [
+          -6361.353236499639,
+          -3085.521763500361
+        ]
+      },
+      "vs_previous_guarded": {
+        "independent_seeds": 32,
+        "games": 128,
+        "first_delta": -0.3515625,
+        "first_delta_ci": [
+          -0.45000138621506885,
+          -0.25312361378493115
+        ],
+        "rank_delta": 1.0,
+        "rank_delta_ci": [
+          0.7609773856050009,
+          1.239022614394999
+        ],
+        "points_delta": -8247.65625,
+        "points_delta_ci": [
+          -10663.113427583101,
+          -5832.199072416899
+        ]
+      }
+    },
+    {
+      "games": 128,
+      "independent_seeds": 32,
+      "mean_rank": 2.9140625,
+      "first_rate": 0.1328125,
+      "fourth_rate": 0.375,
+      "hand_win_rate": 0.1948529411764706,
+      "dealin_rate": 0.11176470588235295,
+      "paired_rank_delta": 0.4140625,
+      "paired_rank_delta_ci95": [
+        0.20347383722408802,
+        0.6246511627759119
+      ],
+      "checkpoint": "runs/semantic-2026-round2/checkpoints/step-001200",
+      "guarded": true,
+      "model_calls": 24654,
+      "wall_seconds_this_invocation": 1049.5448537953198,
+      "note": "Negative rank delta is better; few seeds are a smoke test, not strength evidence.",
+      "name": "step-001200-guarded",
+      "mean_final_points": 21282.03125,
+      "mean_net_points": -3717.96875,
+      "vs_rule": {
+        "independent_seeds": 32,
+        "games": 128,
+        "first_delta": -0.1171875,
+        "first_delta_ci": [
+          -0.18706842465770201,
+          -0.047306575342297985
+        ],
+        "rank_delta": 0.4140625,
+        "rank_delta_ci": [
+          0.20347383722408802,
+          0.6246511627759119
+        ],
+        "points_delta": -3717.96875,
+        "points_delta_ci": [
+          -5341.6402989613025,
+          -2094.2972010386975
+        ]
+      },
+      "vs_previous_guarded": {
+        "independent_seeds": 32,
+        "games": 128,
+        "first_delta": -0.28125,
+        "first_delta_ci": [
+          -0.39574736822995116,
+          -0.16675263177004881
+        ],
+        "rank_delta": 0.7421875,
+        "rank_delta_ci": [
+          0.46986722078086024,
+          1.0145077792191397
+        ],
+        "points_delta": -7242.1875,
+        "points_delta_ci": [
+          -9472.80833257785,
+          -5011.56666742215
+        ]
+      }
+    }
+  ],
+  "screen_best": "previous-guarded",
+  "default_policy_changed": false,
+  "note": "First rate breaks ties using mean net points then mean rank. A trained screen winner requires independent confirmation on fresh seeds; screening alone never enables a model."
+}

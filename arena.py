@@ -23,6 +23,23 @@ class EfficiencyAgent:
         return actions[heuristic_index(obs, actions, feats)]
 
 
+def guarded_indices(obs, actions, feats):
+    """The common admissible action set for deployment and head-only RL."""
+    eligible = list(range(len(actions)))
+    if any(feats):
+        ref = heuristic_index(obs, actions, feats)
+        if feats[ref]:
+            d = obs.to_dict()
+            threats = {p for p in range(4) if p != obs.player_id and d["riichi_declared"][p]}
+            fold = bool(threats) and min(f["sh"] for f in feats if f) >= 1
+            ref_risk = len(threats - set(feats[ref]["safe"]))
+            eligible = [i for i, f in enumerate(feats) if f and f["sh"] <= feats[ref]["sh"]
+                        and (not fold or len(threats - set(f["safe"])) <= ref_risk)]
+    if not eligible:
+        raise ValueError("Guarded action set is empty")
+    return eligible
+
+
 class ModelAgent:
     def __init__(self, checkpoint, guarded=False):
         from jevany import JevModel
@@ -46,18 +63,7 @@ class ModelAgent:
         keys = list(request["questions"]["action"]["criteria"])
         probabilities, _ = validate_distribution(result["answers"]["action"]["probabilities"], keys)
         self.calls += 1
-        eligible = list(range(len(actions)))
-        if self.guarded and any(feats):
-            # Restrict discard choices to the heuristic's shanten and safety level.
-            # This variant is evaluated independently; it is not assumed stronger.
-            ref = heuristic_index(obs, actions, feats)
-            if feats[ref]:
-                d = obs.to_dict()
-                threats = {p for p in range(4) if p != obs.player_id and d["riichi_declared"][p]}
-                fold = bool(threats) and min(f["sh"] for f in feats if f) >= 1
-                ref_risk = len(threats - set(feats[ref]["safe"]))
-                eligible = [i for i, f in enumerate(feats) if f and f["sh"] <= feats[ref]["sh"]
-                            and (not fold or len(threats - set(f["safe"])) <= ref_risk)]
+        eligible = guarded_indices(obs, actions, feats) if self.guarded else list(range(len(actions)))
         return actions[max(eligible, key=lambda i: probabilities[i])]
 
 
