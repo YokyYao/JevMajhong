@@ -13,6 +13,7 @@ export PYTHONUNBUFFERED=1
 .venv/bin/python scripts/check_gpu.py
 .venv/bin/python scripts/smoke_head_rl.py
 .venv/bin/python scripts/train_head_rl.py
-if [ -f runs/head-rl-pilot-v1/confirmation-selection.json ]; then
-  sbatch --parsable --partition=ws-ia head_rl_confirm.slurm | tee runs/head-rl-pilot-v1/confirmation-job-id.txt
+task_rl_out=$(.venv/bin/python -c 'import json; print(json.load(open("head-rl-pilot.json"))["out"])')
+if [ -f "$task_rl_out/confirmation-selection.json" ]; then
+  sbatch --parsable --partition=ws-ia head_rl_confirm.slurm "$task_rl_out" | tee "$task_rl_out/confirmation-job-id.txt"
 fi

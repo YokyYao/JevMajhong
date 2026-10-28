@@ -19,14 +19,15 @@ def main():
         seeds = sorted({x["candidate"]["seed"] for x in rows})
         first_deltas = [statistics.mean(int(x["candidate"]["rank"] == 1) - int(x["baseline"]["rank"] == 1)
                                        for x in rows if x["candidate"]["seed"] == seed) for seed in seeds]
-        first_ci = ci(first_deltas, confidence=0.975)  # two predeclared policy comparisons
+        independent = report.get("seed_scheme") == "spaced-v1" and report.get("seed_independence_validated", True)
+        first_ci = ci(first_deltas, confidence=0.975) if independent else None
         rank_ci = report["paired_rank_delta_ci95"]
-        qualified = (len(seeds) >= 32 and first_ci is not None and first_ci[0] > 0
+        qualified = (independent and len(seeds) >= 32 and first_ci is not None and first_ci[0] > 0
                      and rank_ci is not None and rank_ci[1] <= 0 and report["fourth_rate"] <= 0.25)
         decisions.append({"arena": str(directory), "checkpoint": report["checkpoint"],
                           "guarded": report["guarded"], "first_rate": report["first_rate"],
                           "first_delta_ci97_5": first_ci, "mean_rank": report["mean_rank"],
-                          "qualified": qualified})
+                          "qualified": qualified, "seed_independence_accepted": independent})
     eligible = [d for d in decisions if d["qualified"]]
     selected = max(eligible, key=lambda x: (x["first_rate"], -x["mean_rank"])) if eligible else None
     result = {"active_policy": "model" if selected else "efficiency", "selected": selected,

@@ -59,8 +59,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, default=ROOT/"head-rl-pilot.json")
     parser.add_argument("--resume", type=Path, help="Resume a complete stage-boundary RL checkpoint")
+    parser.add_argument("--seed-protocol-migration", action="store_true",
+                        help="Explicitly migrate a saved stage boundary to independent wall streams")
     args = parser.parse_args()
     config = json.loads(args.config.read_text())
+    if config.get("seed_scheme") != "spaced-v1":
+        raise ValueError("Raw contiguous episode seeds are retired; use the reviewed spaced-v1 protocol")
     out = ROOT/config["out"]
     config_hash = __import__('hashlib').sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()
     if out.exists() and not args.resume:
@@ -79,6 +83,19 @@ def main():
     update, start_stage, pending_stage = 0, 1, None
     if args.resume:
         state = torch.load(args.resume/"rl_state.pt", map_location="cpu", weights_only=False)
+        if state["config_hash"] != config_hash and args.seed_protocol_migration:
+            previous = json.loads((args.resume.parent.parent/"protocol.json").read_text())
+            allowed = {"out", "seed_scheme", "development_seed_start", "confirmation_seed_start"}
+            if (previous["sha256"] != state["config_hash"]
+                    or previous["config"].get("seed_scheme", "raw") != "raw"
+                    or any(previous["config"].get(k) != config.get(k) for k in set(previous["config"]) | set(config) if k not in allowed)
+                    or config.get("seed_scheme") != "spaced-v1"):
+                raise ValueError("Only the reviewed seed-isolation migration may change a resume protocol")
+            write(out/"seed-migration.json", {"source": str(args.resume), "source_protocol": previous,
+                                             "reason": "Raw adjacent seeds share shifted hand-wall streams",
+                                             "preserved_update_budget": config["max_stages"]*config["updates_per_stage"],
+                                             "inherited_updates": state["update"]})
+            state["config_hash"] = config_hash
         if state["config_hash"] != config_hash or state["stage_update"] not in (0, config["updates_per_stage"]):
             raise ValueError("Resume requires an unchanged protocol and complete stage boundary")
         update = state["update"]
@@ -89,6 +106,8 @@ def main():
         if update:
             pending_stage = state["stage"]
             start_stage = pending_stage
+        if args.seed_protocol_migration:
+            save_checkpoint(policy, trainer, out, update, state["stage"], state["stage_update"], config_hash)
     actor_parameters = sum(p.numel() for p in policy.head.parameters())
     print(json.dumps({"phase": "initialized", "actor_trainable_parameters": actor_parameters,
                       "backbone_trainable_parameters": sum(p.numel() for p in policy.model.lm.parameters() if p.requires_grad),

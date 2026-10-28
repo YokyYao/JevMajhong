@@ -1,5 +1,6 @@
 """One frozen candidate, fresh confirmation seeds, no further training or selection."""
 import json
+import argparse
 from pathlib import Path
 import subprocess
 import sys
@@ -11,7 +12,10 @@ from head_rl import summarize, write
 
 
 def main():
-    out = ROOT/'runs/head-rl-pilot-v1'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--run', type=Path, default=ROOT/'runs/head-rl-pilot-v1')
+    args = parser.parse_args()
+    out = args.run
     selection = json.loads((out/'confirmation-selection.json').read_text())
     config = selection['config']
     data = {}
@@ -19,6 +23,7 @@ def main():
         directory = out/('confirmation-'+name)
         command = [sys.executable, str(ROOT/'arena.py'), '--checkpoint', checkpoint, '--guarded',
                    '--seeds', str(config['confirmation_seeds']), '--seed-start', str(config['confirmation_seed_start']),
+                   '--seed-scheme', config.get('seed_scheme', 'spaced-v1'),
                    '--out', str(directory)]
         if directory.exists():
             command.append('--resume')

@@ -152,5 +152,7 @@
         ]
       }
     }
-  }
+  },
+  "statistical_warning": "Raw adjacent seeds share shifted per-hand wall streams in RiichiEnv 0.4.11. Historical independent-seed confidence claims are withdrawn; use spaced-v1.",
+  "seed_independence_validated": false
 }

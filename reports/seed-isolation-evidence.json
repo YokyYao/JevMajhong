@@ -1,0 +1,12 @@
+{
+  "version": "0.4.11",
+  "raw_second_deal": "980d450e3b9338c1a8aedee3deeb7de11639584e7489dd6fd5169d4be4a01a12",
+  "raw_next_episode_first_deal": "980d450e3b9338c1a8aedee3deeb7de11639584e7489dd6fd5169d4be4a01a12",
+  "raw_overlap_reproduced": true,
+  "spaced_second_deal": "009f200397f7d34654dce89ef30d5307aabe672dc8d9b264d2e70b242ecb491f",
+  "spaced_next_episode_first_deal": "92997fccadc0661a905e0c79e7852f4b07b4cb6b041d245f019328ba7ba58e91",
+  "spaced_overlap": false,
+  "stride": 4294967296,
+  "max_environment_steps": 100000,
+  "source": "https://github.com/smly/RiichiEnv/blob/v0.4.11/riichienv-core/src/state/wall.rs#L36-L47"
+}

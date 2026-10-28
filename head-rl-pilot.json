@@ -1,10 +1,10 @@
 {
   "reference": "runs/semantic-2026-freegpu/checkpoints/step-002000",
-  "out": "runs/head-rl-pilot-v1",
+  "out": "runs/head-rl-pilot-fresh",
   "seed": 20261029,
   "reward": "1 if final hanchan rank is first, otherwise 0",
   "guarded": true,
-  "actor_lr": 0.000001,
+  "actor_lr": 1e-06,
   "critic_lr": 0.0001,
   "clip_ratio": 0.1,
   "reference_kl_beta": 1.0,
@@ -16,9 +16,9 @@
   "checkpoint_every": 4,
   "training_seeds_per_stage": 4,
   "training_seed_start": 1201000,
-  "development_seed_start": 1301000,
+  "development_seed_start": 1302000,
   "development_seeds": 16,
-  "confirmation_seed_start": 1401000,
+  "confirmation_seed_start": 1402000,
   "confirmation_seeds": 128,
   "max_reference_kl": 0.01,
   "first_drop_stop": 0.0625,
@@ -29,5 +29,6 @@
   "target_first_gain": 0.05,
   "target_fourth_tolerance": 0.03125,
   "pilot_wall_minutes": 75,
-  "notes": "Frozen backbone and LoRA; train pointer head and separate visible-state value baseline. Development is a repeated exploratory gate; confirm only a frozen development winner on unused seeds. No raw score, hand-win, shanten or imitation reward."
+  "notes": "Frozen backbone and LoRA; train pointer head and separate visible-state value baseline. Development is a repeated exploratory gate; confirm only a frozen development winner on unused seeds. No raw score, hand-win, shanten or imitation reward.",
+  "seed_scheme": "spaced-v1"
 }

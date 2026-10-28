@@ -15,6 +15,7 @@ from torch import nn
 from riichienv import ActionType, GameRule, RiichiEnv
 from arena import EfficiencyAgent, guarded_indices
 from semantic import build_request, legal_candidates
+from seed_control import engine_seed
 
 
 def write(path, data):
@@ -173,7 +174,8 @@ class HeadPolicy:
         return actions[eligible[index]]
 
     def game(self, seed, seat, training=False, frozen=False, old_opponent=False):
-        env = RiichiEnv(game_mode="4p-red-half", rule=GameRule.default_mjsoul(), seed=seed)
+        actual_seed = engine_seed(seed, self.config.get("seed_scheme", "raw"))
+        env = RiichiEnv(game_mode="4p-red-half", rule=GameRule.default_mjsoul(), seed=actual_seed)
         observations = env.reset()
         baseline, trace, steps = EfficiencyAgent(), [], 0
         while not env.done():
@@ -190,7 +192,8 @@ class HeadPolicy:
             steps += 1
             if steps > 100000:
                 raise RuntimeError("Game failed to terminate")
-        row = {"seed": seed, "seat": seat, "rank": int(env.ranks()[seat]),
+        row = {"seed": seed, "engine_seed": actual_seed, "seed_scheme": self.config.get("seed_scheme", "raw"),
+               "seat": seat, "rank": int(env.ranks()[seat]),
                "score": int(env.scores()[seat]), "environment_steps": steps,
                "reward": terminal_reward(int(env.ranks()[seat])), "trainable_decisions": len(trace),
                "old_opponent": old_opponent}

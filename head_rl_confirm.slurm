@@ -11,4 +11,4 @@ export OMP_NUM_THREADS=8
 export TOKENIZERS_PARALLELISM=false
 export PYTHONUNBUFFERED=1
 .venv/bin/python scripts/check_gpu.py
-.venv/bin/python scripts/confirm_head_rl.py
+.venv/bin/python scripts/confirm_head_rl.py --run "${1:-runs/head-rl-pilot-v1}"

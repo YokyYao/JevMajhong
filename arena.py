@@ -8,6 +8,7 @@ import time
 
 from riichienv import ActionType, GameRule, RiichiEnv
 from semantic import build_request, features, describe, heuristic_index, legal_candidates
+from seed_control import engine_seed
 
 
 class EfficiencyAgent:
@@ -67,8 +68,8 @@ class ModelAgent:
         return actions[max(eligible, key=lambda i: probabilities[i])]
 
 
-def play(agent, seat, seed):
-    env = RiichiEnv(game_mode="4p-red-half", rule=GameRule.default_mjsoul(), seed=seed)
+def play(agent, seat, seed, seed_scheme="spaced-v1"):
+    env = RiichiEnv(game_mode="4p-red-half", rule=GameRule.default_mjsoul(), seed=engine_seed(seed, seed_scheme))
     baseline = EfficiencyAgent()
     obs = env.reset()
     steps = 0
@@ -82,7 +83,8 @@ def play(agent, seat, seed):
     starts = sum(e["type"] == "start_kyoku" for e in log)
     wins = sum(e["type"] == "hora" and e.get("actor") == seat for e in log)
     dealins = sum(e["type"] == "hora" and e.get("target") == seat and e.get("actor") != seat for e in log)
-    return {"seed": seed, "seat": seat, "rank": env.ranks()[seat],
+    return {"seed": seed, "engine_seed": engine_seed(seed, seed_scheme), "seed_scheme": seed_scheme,
+            "seat": seat, "rank": env.ranks()[seat],
             "score": env.scores()[seat], "hands": starts, "hand_wins": wins,
             "dealins": dealins, "steps": steps}
 
@@ -102,6 +104,8 @@ def main():
     parser.add_argument("--guarded", action="store_true")
     parser.add_argument("--seeds", type=int, default=4)
     parser.add_argument("--seed-start", type=int, default=510000)
+    parser.add_argument("--seed-scheme", choices=("spaced-v1", "raw"), default="spaced-v1",
+                        help="spaced-v1 isolates wall streams; raw only reproduces legacy results")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
@@ -109,10 +113,12 @@ def main():
         parser.error("--seeds must be positive")
     args.out.mkdir(parents=True, exist_ok=args.resume)
     config = {"checkpoint": args.checkpoint, "guarded": args.guarded,
-              "seeds": args.seeds, "seed_start": args.seed_start}
+              "seeds": args.seeds, "seed_start": args.seed_start, "seed_scheme": args.seed_scheme}
     config_path = args.out / "arena_config.json"
     if config_path.exists():
-        if json.loads(config_path.read_text()) != config:
+        saved = json.loads(config_path.read_text())
+        saved.setdefault("seed_scheme", "raw")
+        if saved != config:
             raise ValueError("Arena resume configuration differs from original run")
     else:
         config_path.write_text(json.dumps(config, indent=2))
@@ -131,8 +137,8 @@ def main():
                 if (seed, seat) in completed:
                     continue
                 calls_before = getattr(candidate, "calls", 0)
-                base = play(EfficiencyAgent(), seat, seed)
-                result = play(candidate, seat, seed) if args.checkpoint else base.copy()
+                base = play(EfficiencyAgent(), seat, seed, args.seed_scheme)
+                result = play(candidate, seat, seed, args.seed_scheme) if args.checkpoint else base.copy()
                 row = {"baseline": base, "candidate": result,
                        "model_calls": getattr(candidate, "calls", 0) - calls_before}
                 rows.append(row)
@@ -145,12 +151,14 @@ def main():
     deltas = [statistics.mean(x["candidate"]["rank"] - x["baseline"]["rank"]
                              for x in rows if x["candidate"]["seed"] == seed)
               for seed in range(args.seed_start, args.seed_start + args.seeds)]
-    report = {"games": len(rows), "independent_seeds": args.seeds,
+    report = {"games": len(rows), "independent_seeds": args.seeds if args.seed_scheme == "spaced-v1" else None,
+        "nominal_seed_groups": args.seeds, "seed_scheme": args.seed_scheme,
         "mean_rank": statistics.mean(ranks), "first_rate": ranks.count(1)/len(ranks),
         "fourth_rate": ranks.count(4)/len(ranks),
         "hand_win_rate": sum(x["hand_wins"] for x in candidate_rows)/sum(x["hands"] for x in candidate_rows),
         "dealin_rate": sum(x["dealins"] for x in candidate_rows)/sum(x["hands"] for x in candidate_rows),
-        "paired_rank_delta": statistics.mean(deltas), "paired_rank_delta_ci95": ci(deltas),
+        "paired_rank_delta": statistics.mean(deltas),
+        "paired_rank_delta_ci95": ci(deltas) if args.seed_scheme == "spaced-v1" else None,
         "checkpoint": args.checkpoint, "guarded": args.guarded,
         "model_calls": sum(x.get("model_calls", 0) for x in rows),
         "wall_seconds_this_invocation": time.monotonic()-started,
