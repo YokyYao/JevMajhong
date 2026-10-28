@@ -2,7 +2,20 @@
 
 基于 JevAny 的四人立直麻将训练与离线推荐原型。用高段位雀魂牌谱训练合法动作评分器，并在四人模拟环境中检查一位率、平均顺位和末位风险。
 
-**当前状态：训练已按用户要求停止。** 语义预热模型完成了 128 步训练，后续完整训练停在 370/2000 步，尚未到第一个 500 步检查点。已有的小样本结果不能证明实战胜率提升。本仓库不包含牌谱、模型权重、虚拟环境或用户凭据，也不提供雀魂客户端接入。
+**当前状态：训练已恢复。** 已公开主训练阶段第 600/2000 步检查点，训练继续进行。已有的小样本结果不能证明实战胜率提升。指定检查点以分片归档保存在 `checkpoints/`，不包含原始牌谱、冻结的 Qwen 底座、虚拟环境或用户凭据，也不提供雀魂客户端接入。
+
+## 检查点恢复
+
+`checkpoints/step-000600` 包含第600步的 LoRA、动作评分头、tokenizer，以及优化器、调度器和随机状态。为适应上传接口，归档拆为32片，无需Git LFS。每片、整个归档和还原文件均有SHA-256校验。
+
+```bash
+python3 scripts/restore_checkpoint.py checkpoints/step-000600/manifest.json \
+  --out runs/restored-step-000600
+# 安装下述环境，并准备相同数据后，在单卡GPU上继续剩余训练：
+.venv/bin/jevany train --resume runs/restored-step-000600 --out runs/resumed-step-000600
+```
+
+恢复训练须保持原来的单卡 world size、设备类型、数据内容及兼容的软件环境。冻结底座从固定版本另行下载。检查点详情和已完成的验证见其目录下的 README。
 
 ## 结构
 
@@ -85,7 +98,7 @@ sbatch --account=YOUR_ACCOUNT --partition=YOUR_GPU_PARTITION full.slurm
 sbatch --account=YOUR_ACCOUNT --partition=YOUR_GPU_PARTITION ddp.slurm
 ```
 
-上述命令会实际申请 GPU。当前停止状态下不会自动提交或恢复训练。
+上述命令会实际申请 GPU；仅克隆仓库或还原检查点不会启动训练。
 
 ## 评测与推荐
 
@@ -104,6 +117,8 @@ sbatch --account=YOUR_ACCOUNT --partition=YOUR_GPU_PARTITION ddp.slurm
 当前基线是保守的牌效防守策略。`--guarded` 版本限制模型的弃牌向听与现物风险，须单独评测，不能假设它一定更强。`promote.py` 的自动选择只支持相对这一基线的判断，不代表雀魂段位。默认推荐入口在没有通过评测的候选时使用基线。
 
 动作概率不是和牌率。语义预热在 512 条验证决策上的一致率为 58.98%、NLL 为 1.190；仅两个独立牌山种子的对局检查不能支持胜率结论。正式评测需冻结模型、指标和对手，使用未参与调参的新牌山，并扩大独立种子数量。旧的预热与完整训练脚本存在评测种子重合，不能把其结果直接作为最终测试证据。
+
+正在运行的训练使用保存的检查点每200步做一次固定验证子集推理：32场验证牌谱各4个决策，共128条。结果输出在对应运行目录的 `periodic-validation/curve.json` 和 `best-validation.json`。此监测不更新参数、不读取测试集，也不会自行停止训练；最终仍需完整验证和独立对局评测。
 
 ## 来源
 

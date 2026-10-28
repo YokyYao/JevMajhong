@@ -1,0 +1,10 @@
+{
+  "n": 128,
+  "accuracy": 0.578125,
+  "nll": 1.0456179856168983,
+  "optimizer_step": 600,
+  "validation_matches": 32,
+  "subset_sha256": "b2523049a6cc490aa63895bf16c91b0063d037d8e45bb879dc2a276735162882",
+  "test_set_used": false,
+  "note": "Action imitation agreement, not Mahjong win rate; no calibration fitting."
+}
