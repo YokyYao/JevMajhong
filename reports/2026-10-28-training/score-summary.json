@@ -1,0 +1,31 @@
+{
+  "unit": "raw riichi points at the end of a complete hanchan, without placement bonus conversion",
+  "initial_points_per_player": 25000,
+  "aggregation": "128 candidate games per policy, 32 independent seed clusters; matched all-baseline counterfactuals",
+  "policies": {
+    "model": {
+      "games": 128,
+      "independent_seeds": 32,
+      "mean_final_points": 27132.8125,
+      "mean_net_points_from_start": 2132.8125,
+      "baseline_mean_final_points": 25000,
+      "paired_points_delta": 2132.8125,
+      "paired_points_delta_ci95": [
+        -103.55200490791776,
+        4369.177004907918
+      ]
+    },
+    "guarded": {
+      "games": 128,
+      "independent_seeds": 32,
+      "mean_final_points": 28849.21875,
+      "mean_net_points_from_start": 3849.21875,
+      "baseline_mean_final_points": 25000,
+      "paired_points_delta": 3849.21875,
+      "paired_points_delta_ci95": [
+        2365.9183764974377,
+        5332.519123502562
+      ]
+    }
+  }
+}

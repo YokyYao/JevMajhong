@@ -25,6 +25,7 @@
       "matches_step_2000": true
     }
   ],
-  "published_checkpoint_step": 600,
-  "note": "Results evaluate local final step 2000. The checkpoint currently published under checkpoints/ is step 600."
+  "published_checkpoint_step": 2000,
+  "note": "Published step 2000 matches the final model evaluated in this report; restore archive parts before loading.",
+  "published_checkpoint_path": "checkpoints/step-002000"
 }

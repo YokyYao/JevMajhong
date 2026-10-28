@@ -1,0 +1,156 @@
+{
+  "optimizer_step": 2000,
+  "validation": {
+    "n": 1024,
+    "correct": 693,
+    "accuracy": 0.6767578125,
+    "nll": 0.8754937015929215,
+    "matches": 32,
+    "single_option_records": 0,
+    "by_target_action": {
+      "chi": {
+        "n": 17,
+        "correct": 17,
+        "accuracy": 1.0,
+        "nll": 2.7164358490449165e-05
+      },
+      "dahai": {
+        "n": 770,
+        "correct": 445,
+        "accuracy": 0.577922077922078,
+        "nll": 1.1492525572450862
+      },
+      "hora": {
+        "n": 10,
+        "correct": 10,
+        "accuracy": 1.0,
+        "nll": 0.00012606829762386857
+      },
+      "kakan": {
+        "n": 2,
+        "correct": 0,
+        "accuracy": 0.0,
+        "nll": 1.8346076669870977
+      },
+      "none": {
+        "n": 199,
+        "correct": 199,
+        "accuracy": 1.0,
+        "nll": 0.001363883081687613
+      },
+      "pon": {
+        "n": 17,
+        "correct": 17,
+        "accuracy": 1.0,
+        "nll": 0.00021570865504849044
+      },
+      "reach": {
+        "n": 9,
+        "correct": 5,
+        "accuracy": 0.5555555555555556,
+        "nll": 0.8483404178887524
+      }
+    },
+    "note": "Action imitation agreement, not playing strength. Target labels and metadata are stripped before inference."
+  },
+  "arena_model": {
+    "games": 128,
+    "independent_seeds": 32,
+    "mean_rank": 2.4453125,
+    "first_rate": 0.25,
+    "fourth_rate": 0.140625,
+    "hand_win_rate": 0.16178521617852162,
+    "dealin_rate": 0.08228730822873083,
+    "paired_rank_delta": -0.0546875,
+    "paired_rank_delta_ci95": [
+      -0.24449472393665728,
+      0.13511972393665728
+    ],
+    "checkpoint": "runs/semantic-2026-freegpu",
+    "guarded": false,
+    "model_calls": 21352,
+    "wall_seconds_this_invocation": 926.9668304417282,
+    "note": "Negative rank delta is better; few seeds are a smoke test, not strength evidence."
+  },
+  "arena_guarded": {
+    "games": 128,
+    "independent_seeds": 32,
+    "mean_rank": 2.328125,
+    "first_rate": 0.3125,
+    "fourth_rate": 0.171875,
+    "hand_win_rate": 0.20906432748538012,
+    "dealin_rate": 0.06871345029239766,
+    "paired_rank_delta": -0.171875,
+    "paired_rank_delta_ci95": [
+      -0.31195597736965275,
+      -0.03179402263034725
+    ],
+    "checkpoint": "runs/semantic-2026-freegpu",
+    "guarded": true,
+    "model_calls": 21592,
+    "wall_seconds_this_invocation": 947.6534585170448,
+    "note": "Negative rank delta is better; few seeds are a smoke test, not strength evidence."
+  },
+  "selection": {
+    "active_policy": "efficiency",
+    "selected": null,
+    "comparisons": [
+      {
+        "arena": "runs/arena-freegpu-model",
+        "checkpoint": "runs/semantic-2026-freegpu",
+        "guarded": false,
+        "first_rate": 0.25,
+        "first_delta_ci97_5": [
+          -0.09893703388645811,
+          0.09893703388645811
+        ],
+        "mean_rank": 2.4453125,
+        "qualified": false
+      },
+      {
+        "arena": "runs/arena-freegpu-guarded",
+        "checkpoint": "runs/semantic-2026-freegpu",
+        "guarded": true,
+        "first_rate": 0.3125,
+        "first_delta_ci97_5": [
+          -0.029097894583960934,
+          0.15409789458396095
+        ],
+        "mean_rank": 2.328125,
+        "qualified": false
+      }
+    ],
+    "note": "Selection is versus this fixed efficiency baseline only; not a Mahjong Soul rank claim."
+  },
+  "scores": {
+    "unit": "raw riichi points at the end of a complete hanchan, without placement bonus conversion",
+    "initial_points_per_player": 25000,
+    "aggregation": "128 candidate games per policy, 32 independent seed clusters; matched all-baseline counterfactuals",
+    "policies": {
+      "model": {
+        "games": 128,
+        "independent_seeds": 32,
+        "mean_final_points": 27132.8125,
+        "mean_net_points_from_start": 2132.8125,
+        "baseline_mean_final_points": 25000,
+        "paired_points_delta": 2132.8125,
+        "paired_points_delta_ci95": [
+          -103.55200490791776,
+          4369.177004907918
+        ]
+      },
+      "guarded": {
+        "games": 128,
+        "independent_seeds": 32,
+        "mean_final_points": 28849.21875,
+        "mean_net_points_from_start": 3849.21875,
+        "baseline_mean_final_points": 25000,
+        "paired_points_delta": 3849.21875,
+        "paired_points_delta_ci95": [
+          2365.9183764974377,
+          5332.519123502562
+        ]
+      }
+    }
+  }
+}

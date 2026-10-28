@@ -4,22 +4,20 @@
 
 **当前状态：本轮 2000 步训练、完整验证和两组仿真均已完成。** 完整验证动作一致率为 67.68%；纯模型一位率为 25.00%，牌效防守约束版本为 31.25%，各评估 128 场。约束版本有改善信号，但一位率提升未通过预设的置信区间门槛，默认策略仍为规则基线。详见[本轮结果总结及逐场证据](reports/2026-10-28-training/README.md)。
 
-GitHub 上的 `checkpoints/step-000600` 仍是第 600 步快照，本轮结果对应本地最终第 2000 步模型。检查点分片不包含原始牌谱、冻结的 Qwen 底座、虚拟环境或用户凭据，也不提供雀魂客户端接入。
+已发布[最终第 2000 步权重](checkpoints/step-002000/README.md)，与本轮结果报告评估的模型一致；第 600 步快照仍保留。检查点分片不包含原始牌谱、冻结的 Qwen 底座、虚拟环境或用户凭据，也不提供雀魂客户端接入。
 
 下一轮的数据扩充、弃牌采样、训练参数、选模与独立仿真判据见[第二轮训练方案](plans/round-2-training.md)。方案中的指标门槛是预设实验协议，不是已完成结果。
 
 ## 检查点恢复
 
-`checkpoints/step-000600` 包含第600步的 LoRA、动作评分头、tokenizer，以及优化器、调度器和随机状态。为适应上传接口，归档拆为32片，无需Git LFS。每片、整个归档和还原文件均有SHA-256校验。
+`checkpoints/step-002000` 包含最终第2000步的 LoRA、动作评分头、tokenizer，以及优化器、调度器和随机状态。为适应上传接口，归档拆为32片，无需Git LFS。每片、整个归档和还原文件均有SHA-256校验。
 
 ```bash
-python3 scripts/restore_checkpoint.py checkpoints/step-000600/manifest.json \
-  --out runs/restored-step-000600
-# 安装下述环境，并准备相同数据后，在单卡GPU上继续剩余训练：
-.venv/bin/jevany train --resume runs/restored-step-000600 --out runs/resumed-step-000600
+python3 scripts/restore_checkpoint.py checkpoints/step-002000/manifest.json \
+  --out runs/restored-step-002000
 ```
 
-恢复训练须保持原来的单卡 world size、设备类型、数据内容及兼容的软件环境。冻结底座从固定版本另行下载。检查点详情和已完成的验证见其目录下的 README。
+安装下述环境后即可加载还原目录。冻结底座从固定版本另行下载。第2000步已经完成原定训练计划；新增训练应创建新配置并用 `init_from` 初始化。仍可用第600步快照在相同单卡 world size、设备类型、数据及兼容环境下恢复其剩余训练。检查点详情和已完成的验证见各自目录下的 README。
 
 ## 结构
 
