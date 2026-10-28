@@ -1,0 +1,4 @@
+riichienv
+numpy
+huggingface-hub
+zstandard

@@ -1,0 +1,29 @@
+This repository contains project-specific orchestration and evaluation code.
+Third-party source code, datasets and model weights are not bundled.
+
+JevAny — SimpleJev / Tianxin Wei
+https://github.com/SimpleJev/JevAny
+Pinned commit: c740121a4532592b09b6272104d5f29a94c232e5
+Upstream license: Apache-2.0. Retain its LICENSE and NOTICE when installing or redistributing it.
+
+RiichiEnv — smly and contributors
+https://github.com/smly/RiichiEnv
+Runtime wheel used: 0.4.11; source inspected at 0ee1236a283b15508f3ac28407027f340b81e1de.
+Upstream license: Apache-2.0.
+
+Qwen/Qwen3.5-0.8B — Qwen team
+https://huggingface.co/Qwen/Qwen3.5-0.8B
+Pinned revision: 2fc06364715b967f1860aea9cf38778875588b17.
+Weights are downloaded separately and remain subject to the publisher's license.
+
+Tenhou/Mahjong Soul MJAI corpus — NikkeTryHard/tenhou-to-mjai
+https://huggingface.co/datasets/nikketryhard/tenhou-houou-mjai
+https://github.com/NikkeTryHard/tenhou-to-mjai
+Pinned revision: 6450bb584cef43ede3b514df48e301a832c6818b.
+Upstream declares the dataset CC BY 4.0. Attribute NikkeTryHard and the original
+Mahjong Soul / Tenhou record source as applicable. Review upstream source terms
+before redistribution or commercial use.
+
+Earlier processed NPZ dataset — 1nfrared218
+https://huggingface.co/datasets/1nfrared218/tenhou-mjai-riichi-training
+Dataset card declares CC BY 4.0; also attribute NikkeTryHard and Tenhou.
