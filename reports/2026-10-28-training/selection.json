@@ -1,0 +1,31 @@
+{
+  "active_policy": "efficiency",
+  "selected": null,
+  "comparisons": [
+    {
+      "arena": "runs/arena-freegpu-model",
+      "checkpoint": "runs/semantic-2026-freegpu",
+      "guarded": false,
+      "first_rate": 0.25,
+      "first_delta_ci97_5": [
+        -0.09893703388645811,
+        0.09893703388645811
+      ],
+      "mean_rank": 2.4453125,
+      "qualified": false
+    },
+    {
+      "arena": "runs/arena-freegpu-guarded",
+      "checkpoint": "runs/semantic-2026-freegpu",
+      "guarded": true,
+      "first_rate": 0.3125,
+      "first_delta_ci97_5": [
+        -0.029097894583960934,
+        0.15409789458396095
+      ],
+      "mean_rank": 2.328125,
+      "qualified": false
+    }
+  ],
+  "note": "Selection is versus this fixed efficiency baseline only; not a Mahjong Soul rank claim."
+}

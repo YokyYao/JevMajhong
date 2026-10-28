@@ -1,0 +1,53 @@
+{
+  "n": 1024,
+  "correct": 693,
+  "accuracy": 0.6767578125,
+  "nll": 0.8754937015929215,
+  "matches": 32,
+  "single_option_records": 0,
+  "by_target_action": {
+    "chi": {
+      "n": 17,
+      "correct": 17,
+      "accuracy": 1.0,
+      "nll": 2.7164358490449165e-05
+    },
+    "dahai": {
+      "n": 770,
+      "correct": 445,
+      "accuracy": 0.577922077922078,
+      "nll": 1.1492525572450862
+    },
+    "hora": {
+      "n": 10,
+      "correct": 10,
+      "accuracy": 1.0,
+      "nll": 0.00012606829762386857
+    },
+    "kakan": {
+      "n": 2,
+      "correct": 0,
+      "accuracy": 0.0,
+      "nll": 1.8346076669870977
+    },
+    "none": {
+      "n": 199,
+      "correct": 199,
+      "accuracy": 1.0,
+      "nll": 0.001363883081687613
+    },
+    "pon": {
+      "n": 17,
+      "correct": 17,
+      "accuracy": 1.0,
+      "nll": 0.00021570865504849044
+    },
+    "reach": {
+      "n": 9,
+      "correct": 5,
+      "accuracy": 0.5555555555555556,
+      "nll": 0.8483404178887524
+    }
+  },
+  "note": "Action imitation agreement, not playing strength. Target labels and metadata are stripped before inference."
+}

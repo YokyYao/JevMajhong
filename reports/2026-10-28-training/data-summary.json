@@ -1,0 +1,27 @@
+{
+  "source": "https://huggingface.co/datasets/nikketryhard/tenhou-houou-mjai",
+  "source_revision": "6450bb584cef43ede3b514df48e301a832c6818b",
+  "archive": "majsoul-throne-2026.tar",
+  "archive_sha256": "86319ea7d42ff9ec6d877567ad83d1788c5840a49abaf672e6330d6132501f02",
+  "train_jsonl_sha256": "1b81b1c6d4708eab90f11606d73dca0bf91568f5a5c03b90e4f1af5d812b7fd3",
+  "admitted_dataset_fingerprint": "1cc08ad43eebc2b70b36a4f350aa6aabce2479818a41413d69a03e36f514e3c2",
+  "fingerprint_note": "The trainer hashes loaded normalized records, not raw JSONL bytes.",
+  "counts": {
+    "train": 32000,
+    "validation": 1024,
+    "test": 1024
+  },
+  "matches": {
+    "train": 1000,
+    "validation": 32,
+    "test": 32
+  },
+  "match_splits_disjoint": true,
+  "excluded_matches": 126,
+  "schema": "semantic-v1",
+  "rule": "mjsoul",
+  "test_evaluated": false,
+  "exclusion_reasons": {
+    "Visible tile count exceeds four": 126
+  }
+}

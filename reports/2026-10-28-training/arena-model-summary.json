@@ -1,0 +1,19 @@
+{
+  "games": 128,
+  "independent_seeds": 32,
+  "mean_rank": 2.4453125,
+  "first_rate": 0.25,
+  "fourth_rate": 0.140625,
+  "hand_win_rate": 0.16178521617852162,
+  "dealin_rate": 0.08228730822873083,
+  "paired_rank_delta": -0.0546875,
+  "paired_rank_delta_ci95": [
+    -0.24449472393665728,
+    0.13511972393665728
+  ],
+  "checkpoint": "runs/semantic-2026-freegpu",
+  "guarded": false,
+  "model_calls": 21352,
+  "wall_seconds_this_invocation": 926.9668304417282,
+  "note": "Negative rank delta is better; few seeds are a smoke test, not strength evidence."
+}

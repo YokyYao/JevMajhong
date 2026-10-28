@@ -1,0 +1,30 @@
+{
+  "step": 2000,
+  "world_size": 1,
+  "base": "Qwen/Qwen3.5-0.8B",
+  "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
+  "dataset_sha256": "1cc08ad43eebc2b70b36a4f350aa6aabce2479818a41413d69a03e36f514e3c2",
+  "checkpoint_path": "runs/semantic-2026-freegpu/checkpoints/step-002000",
+  "files": [
+    {
+      "name": "adapter_model.safetensors",
+      "bytes": 43338624,
+      "sha256": "3f056c2d8b810ccaa6cc8763ce5cd8940f4cc4faa0673af2ac627c24a147d020",
+      "matches_step_2000": true
+    },
+    {
+      "name": "head.pt",
+      "bytes": 2103679,
+      "sha256": "3c586e1bf6e86892c29a1f76bbab4fda4f714b17a31f87c6fe871157748a7d5b",
+      "matches_step_2000": true
+    },
+    {
+      "name": "trainer_state.json",
+      "bytes": 1878,
+      "sha256": "4efaf86d394d9a02d21eb47be95c3d6fbcbefe7bb57d7ec3977f30c9db3ab833",
+      "matches_step_2000": true
+    }
+  ],
+  "published_checkpoint_step": 600,
+  "note": "Results evaluate local final step 2000. The checkpoint currently published under checkpoints/ is step 600."
+}
