@@ -1,0 +1,14 @@
+{
+  "states": 5090,
+  "all_eligible_probabilities_underflowed": 0,
+  "legacy_vs_masked_argmax_mismatches": 0,
+  "greedy_flips_update16_vs_reference": 10,
+  "stable_greedy_flips": 10,
+  "reference_kl_mean": 6.731720718297405e-06,
+  "reference_kl_max": 7.197124796221033e-05,
+  "mean_largest_guarded_probability": 0.7013668237740727,
+  "mean_logit_margin": 3.1687061719142617,
+  "minibatch_state_exposures": 4096,
+  "exposures_per_collected_state": 0.8047151277013752,
+  "critic_issue": "stage2 training MSE55.90 vs zero baseline54.11; predictions -1.13 to -1.08"
+}

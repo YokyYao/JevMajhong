@@ -76,6 +76,41 @@ def plateau_checks(baseline, previous, current):
     return stale
 
 
+def rloo_advantages(games, rows, group_size=2, scale=10.0):
+    """Leave out the episode itself: a baseline from independent same-deal replicas."""
+    if group_size < 2 or not math.isfinite(scale) or scale <= 0:
+        raise ValueError("RLOO needs multiple replicas and a finite positive advantage scale")
+    groups, episodes = {}, {}
+    for game in games:
+        key = (game['seed'], game['seat'], game['replica'])
+        if key in episodes or not math.isfinite(game['reward']):
+            raise ValueError("Duplicate episode or invalid return")
+        episodes[key] = game
+        groups.setdefault(key[:2], []).append(game)
+    contrasts = 0
+    for group in groups.values():
+        if len(group) != group_size or len({g['replica'] for g in group}) != group_size:
+            raise ValueError("Incomplete same-deal replica group")
+        if len({(g['engine_seed'], g['game_mode'], g['old_opponent']) for g in group}) != 1:
+            raise ValueError("RLOO replicas must have identical environment and opponents")
+        contrasts += int(len({g['reward'] for g in group}) > 1)
+    counts = {k: 0 for k in episodes}
+    for row in rows:
+        key = tuple(row['episode_key'])
+        if key not in episodes or row['return'] != episodes[key]['reward']:
+            raise ValueError("Trace return/episode alignment mismatch")
+        group = groups[key[:2]]
+        baseline = sum(g['reward'] for g in group if g['replica'] != key[2])/(group_size-1)
+        row['baseline_return'] = baseline
+        row['advantage'] = (row['return']-baseline)/scale
+        counts[key] += 1
+    if any(counts[k] != g['trainable_decisions'] for k, g in episodes.items()):
+        raise ValueError("Episode decision counts do not match RLOO traces")
+    return {'groups': len(groups), 'replicas_per_group': group_size, 'informative_groups': contrasts,
+            'episodes': len(games), 'states': len(rows), 'advantage_scale': scale,
+            'mean_abs_advantage': sum(abs(r['advantage']) for r in rows)/max(1, len(rows))}
+
+
 def paired_primary_comparison(candidate, reference, config, confidence=.95):
     from arena import ci
     from scripts.evaluate_round2 import paired_comparison
@@ -138,7 +173,7 @@ def development_gate(stage, candidate, baseline, config):
             return "target_reached", details
         if stage >= 2 and points < config["stage_two_min_net_points_gain"]:
             return "stop_no_early_progress", details
-        if stage >= config["max_stages"]:
+        if stage >= config.get("max_validation_checks", config["max_stages"]):
             return "stop_target_not_reached", details
         return "continue", details
     if config.get("reward_mode", "first") == "top2":
@@ -195,6 +230,8 @@ class HeadPolicy:
         dimension = self.head.q.in_features
         self.critic = nn.Linear(dimension, 1).to("cuda")
         nn.init.zeros_(self.critic.weight); nn.init.zeros_(self.critic.bias)
+        if config.get('advantage_estimator') == 'rloo':
+            self.critic.requires_grad_(False)
         self.capture = None
         self.head.register_forward_pre_hook(self._capture)
         self.checks = 0
@@ -249,13 +286,18 @@ class HeadPolicy:
                 index = deployment_greedy_index(logits, eligible)
             if trace is not None and len(eligible) > 1:
                 reference = mixed_probabilities(self.reference(decide, options), eligible, epsilon)
-                value = float(state_value(self.critic, decide, self.config))
+                value = 0.0 if self.config.get('advantage_estimator') == 'rloo' else float(state_value(self.critic, decide, self.config))
                 trace.append({"decide": decide.cpu(), "options": options.cpu(), "eligible": eligible,
                               "action": index, "old_logp": float(probabilities[index].log()),
                               "reference": reference.cpu(), "old_value": value})
         return actions[eligible[index]]
 
-    def game(self, seed, seat, training=False, frozen=False, old_opponent=False):
+    def game(self, seed, seat, training=False, frozen=False, old_opponent=False, replica=0):
+        sampling_seed = None
+        if training and self.config.get('advantage_estimator') == 'rloo':
+            material = f"{self.config['seed']}:{seed}:{seat}:{replica}".encode()
+            sampling_seed = int.from_bytes(hashlib.sha256(material).digest()[:8], 'little')
+            self.generator.manual_seed(sampling_seed)
         actual_seed = engine_seed(seed, self.config.get("seed_scheme", "raw"))
         game_mode = self.config.get("game_mode", "4p-red-half")
         if game_mode not in ("4p-red-east", "4p-red-half"):
@@ -284,23 +326,25 @@ class HeadPolicy:
                "reward_scale": self.config.get("reward_scale", 1000.0),
                "reward": terminal_reward(int(env.ranks()[seat]), self.config.get("reward_mode", "first"),
                                          score=int(env.scores()[seat]), scale=self.config.get("reward_scale", 1000.0)),
-               "trainable_decisions": len(trace),
+               "trainable_decisions": len(trace), "replica": replica, "sampling_seed": sampling_seed,
                "old_opponent": old_opponent}
         for item in trace:
             item["return"] = float(row["reward"])
+            item["episode_key"] = (seed, seat, replica)
         return row, trace
 
 
 class PPO:
     def __init__(self, policy):
         self.policy, self.config = policy, policy.config
-        self.optimizer = torch.optim.AdamW([
-            {"params": policy.head.parameters(), "lr": self.config["actor_lr"]},
-            {"params": policy.critic.parameters(), "lr": self.config["critic_lr"]}], weight_decay=0.0)
+        groups = [{"params": policy.head.parameters(), "lr": self.config["actor_lr"]}]
+        if self.config.get('advantage_estimator') != 'rloo':
+            groups.append({"params": policy.critic.parameters(), "lr": self.config["critic_lr"]})
+        self.optimizer = torch.optim.AdamW(groups, weight_decay=0.0)
 
     def update(self, batch):
         head, critic, config = self.policy.head, self.policy.critic, self.config
-        losses, policy_losses, values, kls, entropies = [], [], [], [], []
+        losses, policy_losses, values, kls, entropies, clipped = [], [], [], [], [], []
         advantages = torch.tensor([r["advantage"] for r in batch], device="cuda")
         for index, row in enumerate(batch):
             decide, options = row["decide"].to("cuda"), row["options"].to("cuda")
@@ -308,11 +352,14 @@ class PPO:
             logp = probability[row["action"]].log()
             advantage = advantages[index]
             actor = ppo_surrogate(logp, row["old_logp"], advantage, config["clip_ratio"])
+            clipped.append(((logp-row['old_logp']).exp()-1).abs().detach() > config['clip_ratio'])
             reference = row["reference"].to("cuda")
             kl = (probability*(probability.log()-reference.log())).sum()
             entropy = -(probability*probability.log()).sum()
-            value = state_value(critic, decide, config)
-            value_loss = .5*(value-row["return"]).square()
+            value_loss = torch.zeros((), device=decide.device)
+            if config.get('advantage_estimator') != 'rloo':
+                value = state_value(critic, decide, config)
+                value_loss = .5*(value-row["return"]).square()
             losses.append(actor + config["reference_kl_beta"]*kl - config["entropy_beta"]*entropy + value_loss)
             policy_losses.append(actor.detach()); values.append(value_loss.detach())
             kls.append(kl.detach()); entropies.append(entropy.detach())
@@ -322,16 +369,19 @@ class PPO:
         self.optimizer.zero_grad()
         loss.backward()
         grad = torch.nn.utils.clip_grad_norm_(head.parameters(), .5)
-        critic_grad = torch.nn.utils.clip_grad_norm_(critic.parameters(), .5)
+        critic_grad = torch.zeros((), device=grad.device) if config.get('advantage_estimator') == 'rloo' else torch.nn.utils.clip_grad_norm_(critic.parameters(), .5)
         if not torch.isfinite(grad) or not torch.isfinite(critic_grad):
             raise FloatingPointError("Nonfinite head or critic gradient")
         self.optimizer.step()
         if any(p.grad is not None for p in self.policy.model.lm.parameters()):
             raise ValueError("Frozen backbone received a gradient")
+        if config.get('advantage_estimator') == 'rloo' and any(p.grad is not None for p in critic.parameters()):
+            raise ValueError('RLOO must not train a critic')
         return {"loss": float(loss.detach()), "policy_loss": float(torch.stack(policy_losses).mean()),
                 "value_loss": float(torch.stack(values).mean()), "reference_kl_batch": float(torch.stack(kls).mean()),
                 "entropy": float(torch.stack(entropies).mean()), "head_grad_norm": float(grad),
-                "critic_grad_norm": float(critic_grad)}
+                "critic_grad_norm": float(critic_grad),
+                "clip_fraction": float(torch.stack(clipped).float().mean())}
 
     @torch.no_grad()
     def reference_kl(self, rows):
@@ -365,6 +415,7 @@ def save_checkpoint(policy, optimizer, out, update, stage, stage_update, config_
                    extra={"args": {k: v for k, v in policy.reference_meta.extra.get("args", {}).items()
                                    if k in ("lora_targets", "lora_target_modules", "lora_dropout")},
                           "training_method": "pointer-head PPO with terminal "+policy.config.get("reward_mode", "first")+" reward",
+                          'advantage_estimator': policy.config.get('advantage_estimator', 'critic_mc'),
                           "rl_update": update, "parent": str(source), "protocol_sha256": config_hash,
                           "rl_config": policy.config})
     write_meta(path, meta)

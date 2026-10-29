@@ -53,6 +53,10 @@ def main():
     result['game_mode'] = config.get('game_mode', '4p-red-half')
     result['reward_mode'] = config.get('reward_mode', 'first')
     result['synthetic_return_range'] = [min(r['return'] for r in trace), max(r['return'] for r in trace)]
+    result['advantage_estimator'] = config.get('advantage_estimator', 'critic_mc')
+    result['critic_received_gradients'] = any(p.grad is not None for p in policy.critic.parameters())
+    if config.get('advantage_estimator') == 'rloo' and result['critic_received_gradients']:
+        raise ValueError('RLOO actor-only smoke trained the disabled critic')
     write(args.out, result)
     print('head_rl_smoke '+json.dumps(result), flush=True)
 
