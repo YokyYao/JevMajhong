@@ -38,4 +38,4 @@
 
 配置为[head-rl-score-carry8.json](../head-rl-score-carry8.json)，入口为[head_rl_score_carry8.slurm](../head_rl_score_carry8.slurm)。训练/开发上限150分钟，申请第二张GPU、Slurm3小时。若阶段达标，在本作业成功结束后串行复用同节点GPU运行最终确认，时限2小时、内部100分钟；完整记录和原训练停止状态保留。
 
-训练结果目录`runs/head-rl-score-carry8/`，最终对照目录`runs/head-rl-score-carry8-final/`。完整结果出来后公开摘要、代码和判断；原始逐场记录与梯度明细保留本地，公开分享待明确授权。候选推理权重已准备并校验，最终通过后交付。未达最终目标则继续分析和新数据训练；默认策略不自动替换。所有结论限于指定规则对手下的模拟表现。
+训练结果目录`runs/head-rl-score-carry8/`，最终对照目录`runs/head-rl-score-carry8-final/`。完整结果出来后公开摘要、代码和判断；按用户选择，原始逐场记录与梯度明细保留本地，GitHub只公开摘要和代码。候选推理权重已准备并校验，最终通过后交付。未达最终目标则继续分析和新数据训练；默认策略不自动替换。所有结论限于指定规则对手下的模拟表现。

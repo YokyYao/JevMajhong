@@ -41,4 +41,4 @@ R是候选采样终局回报，C是同初始条件冻结旧模型贪心回报。
 
 最终确认3402000至3402127，双方各512场，对手为同样三个规则基线。最终仍要求相对原2000步模型至少+500点/场、候选均值非负、按128个牌山流聚类的配对95%区间下界大于0。不能把训练残差RMS下降当成达标。
 
-配置为[head-rl-score-calibrated-cache.json](../head-rl-score-calibrated-cache.json)，入口为[head_rl_calibrated_cache.slurm](../head_rl_calibrated_cache.slurm)。单卡训练/开发上限60分钟、Slurm75分钟；若首次开发达标，串行复用同节点GPU进行2小时最终确认。另一张GPU上的新增数据续训照原方案继续，最多同时两张卡。结果摘要、代码和停止原因推送，完整原始记录保留本地、公开分享待明确授权，最终仍只说明指定模拟对手下的表现。
+配置为[head-rl-score-calibrated-cache.json](../head-rl-score-calibrated-cache.json)，入口为[head_rl_calibrated_cache.slurm](../head_rl_calibrated_cache.slurm)。单卡训练/开发上限60分钟、Slurm75分钟；若首次开发达标，串行复用同节点GPU进行2小时最终确认。另一张GPU上的新增数据续训照原方案继续，最多同时两张卡。结果摘要、代码和停止原因推送，完整原始记录按用户选择保留本地，最终仍只说明指定模拟对手下的表现。
