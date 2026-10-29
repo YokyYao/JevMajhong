@@ -1,0 +1,366 @@
+[
+  {
+    "stage": 1,
+    "seed_scheme": "raw",
+    "games": [
+      {
+        "seed": 1201000,
+        "seat": 0,
+        "rank": 1,
+        "score": 51600,
+        "environment_steps": 600,
+        "reward": 1.0,
+        "trainable_decisions": 123,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201000,
+        "seat": 1,
+        "rank": 3,
+        "score": 9000,
+        "environment_steps": 913,
+        "reward": 0.0,
+        "trainable_decisions": 182,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201000,
+        "seat": 2,
+        "rank": 2,
+        "score": 9100,
+        "environment_steps": 699,
+        "reward": 0.0,
+        "trainable_decisions": 142,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201000,
+        "seat": 3,
+        "rank": 3,
+        "score": 16400,
+        "environment_steps": 1259,
+        "reward": 0.0,
+        "trainable_decisions": 246,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201001,
+        "seat": 0,
+        "rank": 3,
+        "score": 6500,
+        "environment_steps": 1122,
+        "reward": 0.0,
+        "trainable_decisions": 228,
+        "old_opponent": true
+      },
+      {
+        "seed": 1201001,
+        "seat": 1,
+        "rank": 3,
+        "score": 10200,
+        "environment_steps": 565,
+        "reward": 0.0,
+        "trainable_decisions": 109,
+        "old_opponent": true
+      },
+      {
+        "seed": 1201001,
+        "seat": 2,
+        "rank": 3,
+        "score": -5400,
+        "environment_steps": 500,
+        "reward": 0.0,
+        "trainable_decisions": 90,
+        "old_opponent": true
+      },
+      {
+        "seed": 1201001,
+        "seat": 3,
+        "rank": 4,
+        "score": -800,
+        "environment_steps": 630,
+        "reward": 0.0,
+        "trainable_decisions": 115,
+        "old_opponent": true
+      },
+      {
+        "seed": 1201002,
+        "seat": 0,
+        "rank": 4,
+        "score": 8800,
+        "environment_steps": 1047,
+        "reward": 0.0,
+        "trainable_decisions": 213,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201002,
+        "seat": 1,
+        "rank": 2,
+        "score": 14500,
+        "environment_steps": 527,
+        "reward": 0.0,
+        "trainable_decisions": 110,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201002,
+        "seat": 2,
+        "rank": 3,
+        "score": -4700,
+        "environment_steps": 417,
+        "reward": 0.0,
+        "trainable_decisions": 86,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201002,
+        "seat": 3,
+        "rank": 3,
+        "score": 15400,
+        "environment_steps": 745,
+        "reward": 0.0,
+        "trainable_decisions": 138,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201003,
+        "seat": 0,
+        "rank": 2,
+        "score": 14200,
+        "environment_steps": 385,
+        "reward": 0.0,
+        "trainable_decisions": 84,
+        "old_opponent": true
+      },
+      {
+        "seed": 1201003,
+        "seat": 1,
+        "rank": 3,
+        "score": 12500,
+        "environment_steps": 824,
+        "reward": 0.0,
+        "trainable_decisions": 172,
+        "old_opponent": true
+      },
+      {
+        "seed": 1201003,
+        "seat": 2,
+        "rank": 3,
+        "score": -7500,
+        "environment_steps": 362,
+        "reward": 0.0,
+        "trainable_decisions": 73,
+        "old_opponent": true
+      },
+      {
+        "seed": 1201003,
+        "seat": 3,
+        "rank": 4,
+        "score": -9500,
+        "environment_steps": 381,
+        "reward": 0.0,
+        "trainable_decisions": 87,
+        "old_opponent": true
+      }
+    ]
+  },
+  {
+    "stage": 2,
+    "seed_scheme": "spaced-v1",
+    "games": [
+      {
+        "seed": 1201004,
+        "engine_seed": 5158272902365184,
+        "seed_scheme": "spaced-v1",
+        "seat": 0,
+        "rank": 2,
+        "score": 23300,
+        "environment_steps": 814,
+        "reward": 0.0,
+        "trainable_decisions": 184,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201004,
+        "engine_seed": 5158272902365184,
+        "seed_scheme": "spaced-v1",
+        "seat": 1,
+        "rank": 4,
+        "score": -4400,
+        "environment_steps": 580,
+        "reward": 0.0,
+        "trainable_decisions": 131,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201004,
+        "engine_seed": 5158272902365184,
+        "seed_scheme": "spaced-v1",
+        "seat": 2,
+        "rank": 2,
+        "score": 32400,
+        "environment_steps": 742,
+        "reward": 0.0,
+        "trainable_decisions": 156,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201004,
+        "engine_seed": 5158272902365184,
+        "seed_scheme": "spaced-v1",
+        "seat": 3,
+        "rank": 1,
+        "score": 44500,
+        "environment_steps": 894,
+        "reward": 1.0,
+        "trainable_decisions": 184,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201005,
+        "engine_seed": 5158277197332480,
+        "seed_scheme": "spaced-v1",
+        "seat": 0,
+        "rank": 3,
+        "score": 19500,
+        "environment_steps": 597,
+        "reward": 0.0,
+        "trainable_decisions": 127,
+        "old_opponent": true
+      },
+      {
+        "seed": 1201005,
+        "engine_seed": 5158277197332480,
+        "seed_scheme": "spaced-v1",
+        "seat": 1,
+        "rank": 4,
+        "score": 600,
+        "environment_steps": 760,
+        "reward": 0.0,
+        "trainable_decisions": 168,
+        "old_opponent": true
+      },
+      {
+        "seed": 1201005,
+        "engine_seed": 5158277197332480,
+        "seed_scheme": "spaced-v1",
+        "seat": 2,
+        "rank": 3,
+        "score": 18000,
+        "environment_steps": 627,
+        "reward": 0.0,
+        "trainable_decisions": 123,
+        "old_opponent": true
+      },
+      {
+        "seed": 1201005,
+        "engine_seed": 5158277197332480,
+        "seed_scheme": "spaced-v1",
+        "seat": 3,
+        "rank": 2,
+        "score": 31200,
+        "environment_steps": 594,
+        "reward": 0.0,
+        "trainable_decisions": 117,
+        "old_opponent": true
+      },
+      {
+        "seed": 1201006,
+        "engine_seed": 5158281492299776,
+        "seed_scheme": "spaced-v1",
+        "seat": 0,
+        "rank": 4,
+        "score": 17600,
+        "environment_steps": 731,
+        "reward": 0.0,
+        "trainable_decisions": 159,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201006,
+        "engine_seed": 5158281492299776,
+        "seed_scheme": "spaced-v1",
+        "seat": 1,
+        "rank": 2,
+        "score": 27300,
+        "environment_steps": 782,
+        "reward": 0.0,
+        "trainable_decisions": 166,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201006,
+        "engine_seed": 5158281492299776,
+        "seed_scheme": "spaced-v1",
+        "seat": 2,
+        "rank": 3,
+        "score": 12800,
+        "environment_steps": 834,
+        "reward": 0.0,
+        "trainable_decisions": 178,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201006,
+        "engine_seed": 5158281492299776,
+        "seed_scheme": "spaced-v1",
+        "seat": 3,
+        "rank": 3,
+        "score": 19900,
+        "environment_steps": 730,
+        "reward": 0.0,
+        "trainable_decisions": 156,
+        "old_opponent": false
+      },
+      {
+        "seed": 1201007,
+        "engine_seed": 5158285787267072,
+        "seed_scheme": "spaced-v1",
+        "seat": 0,
+        "rank": 2,
+        "score": 29900,
+        "environment_steps": 713,
+        "reward": 0.0,
+        "trainable_decisions": 149,
+        "old_opponent": true
+      },
+      {
+        "seed": 1201007,
+        "engine_seed": 5158285787267072,
+        "seed_scheme": "spaced-v1",
+        "seat": 1,
+        "rank": 3,
+        "score": 17600,
+        "environment_steps": 914,
+        "reward": 0.0,
+        "trainable_decisions": 186,
+        "old_opponent": true
+      },
+      {
+        "seed": 1201007,
+        "engine_seed": 5158285787267072,
+        "seed_scheme": "spaced-v1",
+        "seat": 2,
+        "rank": 1,
+        "score": 66600,
+        "environment_steps": 1216,
+        "reward": 1.0,
+        "trainable_decisions": 240,
+        "old_opponent": true
+      },
+      {
+        "seed": 1201007,
+        "engine_seed": 5158285787267072,
+        "seed_scheme": "spaced-v1",
+        "seat": 3,
+        "rank": 2,
+        "score": 29300,
+        "environment_steps": 814,
+        "reward": 0.0,
+        "trainable_decisions": 155,
+        "old_opponent": true
+      }
+    ]
+  }
+]

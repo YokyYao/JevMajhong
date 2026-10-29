@@ -1,0 +1,124 @@
+{
+  "status": "pilot_complete",
+  "stop_reason": "stop_no_early_progress",
+  "updates": 32,
+  "baseline": {
+    "games": 64,
+    "independent_seeds": 16,
+    "firsts": 18,
+    "first_rate": 0.28125,
+    "mean_rank": 2.234375,
+    "fourth_rate": 0.140625,
+    "mean_final_points": 28387.5,
+    "mean_net_points": 3387.5
+  },
+  "development": [
+    {
+      "stage": 1,
+      "update": 16,
+      "metrics": {
+        "games": 64,
+        "independent_seeds": 16,
+        "firsts": 17,
+        "first_rate": 0.265625,
+        "mean_rank": 2.296875,
+        "fourth_rate": 0.15625,
+        "mean_final_points": 27778.125,
+        "mean_net_points": 2778.125
+      },
+      "decision": "continue",
+      "changes": {
+        "first_gain": -0.015625,
+        "net_points_gain": -609.375,
+        "fourth_increase": 0.015625,
+        "required_first_rate": 0.45
+      },
+      "paired_exploratory": {
+        "independent_seeds": 16,
+        "games": 64,
+        "first_delta": -0.015625,
+        "first_delta_ci": [
+          -0.05452937036687332,
+          0.023279370366873317
+        ],
+        "rank_delta": 0.0625,
+        "rank_delta_ci": [
+          -0.014412060555815134,
+          0.13941206055581512
+        ],
+        "points_delta": -609.375,
+        "points_delta_ci": [
+          -1347.6646820751084,
+          128.91468207510832
+        ]
+      },
+      "checkpoint": "runs/head-rl-pilot-v2/checkpoints/update-000016"
+    },
+    {
+      "stage": 2,
+      "update": 32,
+      "metrics": {
+        "games": 64,
+        "independent_seeds": 16,
+        "firsts": 18,
+        "first_rate": 0.28125,
+        "mean_rank": 2.296875,
+        "fourth_rate": 0.15625,
+        "mean_final_points": 27776.5625,
+        "mean_net_points": 2776.5625
+      },
+      "decision": "stop_no_early_progress",
+      "changes": {
+        "first_gain": 0.0,
+        "net_points_gain": -610.9375,
+        "fourth_increase": 0.015625,
+        "required_first_rate": 0.45
+      },
+      "paired_exploratory": {
+        "independent_seeds": 16,
+        "games": 64,
+        "first_delta": 0,
+        "first_delta_ci": [
+          0.0,
+          0.0
+        ],
+        "rank_delta": 0.0625,
+        "rank_delta_ci": [
+          -0.014412060555815134,
+          0.13941206055581512
+        ],
+        "points_delta": -610.9375,
+        "points_delta_ci": [
+          -1386.2624769332149,
+          164.38747693321488
+        ]
+      },
+      "checkpoint": "runs/head-rl-pilot-v2/checkpoints/update-000032"
+    }
+  ],
+  "last_rollout": {
+    "stage": 2,
+    "games": {
+      "games": 16,
+      "independent_seeds": 4,
+      "firsts": 2,
+      "first_rate": 0.125,
+      "mean_rank": 2.5625,
+      "fourth_rate": 0.1875,
+      "mean_final_points": 24131.25,
+      "mean_net_points": -868.75
+    },
+    "diagnostics": {
+      "sampled_states": 2579,
+      "greedy_flips_vs_reference": 1,
+      "greedy_flip_fraction": 0.00038774718883288094,
+      "mean_entropy": 0.7970110403504562
+    }
+  },
+  "selected_for_confirmation": null,
+  "default_policy_changed": false,
+  "inference_feature_checks_passed": 32,
+  "actor_trainable_parameters": 524800,
+  "backbone_trainable_parameters": 0,
+  "interpretation": "Repeated 64-game development checks are exploratory; thresholds stop wasted training, not a claim of statistical improvement. Frozen reference remains available."
+}

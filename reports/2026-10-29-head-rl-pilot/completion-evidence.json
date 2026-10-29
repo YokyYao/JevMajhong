@@ -1,0 +1,105 @@
+{
+  "phase_goal_first_rate": 0.45,
+  "phase_goal_first_gain": 0.05,
+  "required_firsts_at_64_games": 29,
+  "early_progress_required_firsts": 20,
+  "actual_update32_firsts": 18,
+  "actual_update32_mean_net_points": 2776.5625,
+  "actual_stop_reason": "stop_no_early_progress",
+  "actual_updates": 32,
+  "max_updates": 64,
+  "corrected_development_games_per_policy": 64,
+  "independent_wall_streams_per_policy": 16,
+  "source_update16_preserved": true,
+  "checkpoints_verified": [
+    0,
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    28,
+    32
+  ],
+  "reference_weights_unchanged": true,
+  "no_confirmation_selected": true,
+  "reference_kl_after_update32": 2.5097691060628685e-06,
+  "reference_kl_limit": 0.01,
+  "stage_counterfactual_changes": [
+    {
+      "update": 16,
+      "changed_final_outcomes": 4,
+      "identical_final_outcomes": 60,
+      "changes": [
+        {
+          "seed": 1302000,
+          "seat": 3,
+          "reference_rank": 2,
+          "candidate_rank": 4,
+          "points_delta": -19700
+        },
+        {
+          "seed": 1302003,
+          "seat": 3,
+          "reference_rank": 2,
+          "candidate_rank": 3,
+          "points_delta": -6000
+        },
+        {
+          "seed": 1302005,
+          "seat": 3,
+          "reference_rank": 1,
+          "candidate_rank": 2,
+          "points_delta": -11300
+        },
+        {
+          "seed": 1302011,
+          "seat": 1,
+          "reference_rank": 3,
+          "candidate_rank": 3,
+          "points_delta": -2000
+        }
+      ]
+    },
+    {
+      "update": 32,
+      "changed_final_outcomes": 3,
+      "identical_final_outcomes": 61,
+      "changes": [
+        {
+          "seed": 1302000,
+          "seat": 3,
+          "reference_rank": 2,
+          "candidate_rank": 4,
+          "points_delta": -19700
+        },
+        {
+          "seed": 1302001,
+          "seat": 1,
+          "reference_rank": 2,
+          "candidate_rank": 3,
+          "points_delta": -13400
+        },
+        {
+          "seed": 1302003,
+          "seat": 3,
+          "reference_rank": 2,
+          "candidate_rank": 3,
+          "points_delta": -6000
+        }
+      ]
+    }
+  ],
+  "physical_termination_checked_separately": true,
+  "scheduler": {
+    "job_id": "252522",
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "runtime": "00:25:17",
+    "start_time": "2026-10-29T03:42:20+04:00",
+    "end_time": "2026-10-29T04:07:37+04:00",
+    "source": "scontrol show job 252522"
+  },
+  "no_stage_three_started": true
+}

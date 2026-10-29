@@ -1,0 +1,125 @@
+{
+  "audited_through_update": 32,
+  "terminal_run_audit": true,
+  "training": [
+    {
+      "stage": 1,
+      "games": 16,
+      "firsts": 1,
+      "states": 2198,
+      "positive_return_states": 123,
+      "all_episode_rewards_verified": true,
+      "logprob_parity_sample_count": 32,
+      "max_logprob_error": 7.152557373046875e-07,
+      "seed_scheme": "raw"
+    },
+    {
+      "stage": 2,
+      "games": 16,
+      "firsts": 2,
+      "states": 2579,
+      "positive_return_states": 424,
+      "all_episode_rewards_verified": true,
+      "logprob_parity_sample_count": 32,
+      "max_logprob_error": 4.76837158203125e-07,
+      "seed_scheme": "spaced-v1"
+    }
+  ],
+  "total_real_training_games": 32,
+  "total_real_training_firsts": 3,
+  "distinct_saved_updates": [
+    0,
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    28,
+    32
+  ],
+  "checkpoints": [
+    {
+      "path": "runs/head-rl-pilot-v1/checkpoints/update-000000",
+      "update": 0,
+      "head_sha256": "2769d3629514eb29b1968fec8fd73d0ae71831a42ff4109ca8807e3bc54a9ed7",
+      "optimizer_saved": true,
+      "optimizer_state_initialized": false
+    },
+    {
+      "path": "runs/head-rl-pilot-v1/checkpoints/update-000004",
+      "update": 4,
+      "head_sha256": "6cc516e4952c7d278f753396acdc20b95817eca6eb24ac1cc3e2da50efc083f4",
+      "optimizer_saved": true,
+      "optimizer_state_initialized": true
+    },
+    {
+      "path": "runs/head-rl-pilot-v1/checkpoints/update-000008",
+      "update": 8,
+      "head_sha256": "aff4bee15323c2f7cdff6d0e9c70230daa893ad2cdde350fb15e37d2dd1e647a",
+      "optimizer_saved": true,
+      "optimizer_state_initialized": true
+    },
+    {
+      "path": "runs/head-rl-pilot-v1/checkpoints/update-000012",
+      "update": 12,
+      "head_sha256": "57ae33dde423df2345f897a44ebae5211330b82e994c29264d620bc0846b43ab",
+      "optimizer_saved": true,
+      "optimizer_state_initialized": true
+    },
+    {
+      "path": "runs/head-rl-pilot-v1/checkpoints/update-000016",
+      "update": 16,
+      "head_sha256": "457479a1e55f005f0b4f905331a1d89196a5a7b25eca6d0bf061123441051cb0",
+      "optimizer_saved": true,
+      "optimizer_state_initialized": true
+    },
+    {
+      "path": "runs/head-rl-pilot-v2/checkpoints/update-000016",
+      "update": 16,
+      "head_sha256": "58ba83f14cc1850253ad9a243d8463e99d9b8a8cee3a4091339c42c8f96397c0",
+      "optimizer_saved": true,
+      "optimizer_state_initialized": true
+    },
+    {
+      "path": "runs/head-rl-pilot-v2/checkpoints/update-000020",
+      "update": 20,
+      "head_sha256": "ed56a6c6359d697b3d0f1d848794745228847e5a4b84608cc5b7d571d66f22ea",
+      "optimizer_saved": true,
+      "optimizer_state_initialized": true
+    },
+    {
+      "path": "runs/head-rl-pilot-v2/checkpoints/update-000024",
+      "update": 24,
+      "head_sha256": "558c36643d1ff14be9c61e2ce98fbb2cc6c894fd80c3abc4c0edc086efab3536",
+      "optimizer_saved": true,
+      "optimizer_state_initialized": true
+    },
+    {
+      "path": "runs/head-rl-pilot-v2/checkpoints/update-000028",
+      "update": 28,
+      "head_sha256": "1f5b321cb9c27bc8edd9b13ab9eee42b15a0a852397ead5cf20de3cdf174467a",
+      "optimizer_saved": true,
+      "optimizer_state_initialized": true
+    },
+    {
+      "path": "runs/head-rl-pilot-v2/checkpoints/update-000032",
+      "update": 32,
+      "head_sha256": "029b977ad7e6e07fafae3f2895382917bce064703ad3fb708e19db8cbf30ce8a",
+      "optimizer_saved": true,
+      "optimizer_state_initialized": true
+    }
+  ],
+  "frozen_lora_sha256": "3f056c2d8b810ccaa6cc8763ce5cd8940f4cc4faa0673af2ac627c24a147d020",
+  "head_parameters_actually_changed": true,
+  "note": "Full training, saved-checkpoint, corrected-development, stop-gate and scheduler-termination evidence checked after completion.",
+  "scheduler": {
+    "job_id": "252522",
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "runtime": "00:25:17",
+    "start_time": "2026-10-29T03:42:20+04:00",
+    "end_time": "2026-10-29T04:07:37+04:00",
+    "source": "scontrol show job 252522"
+  }
+}

@@ -67,6 +67,10 @@ def main():
         raise ValueError("Raw contiguous episode seeds are retired; use the reviewed spaced-v1 protocol")
     out = ROOT/config["out"]
     config_hash = __import__('hashlib').sha256(json.dumps(config, sort_keys=True).encode()).hexdigest()
+    if (out/"status.json").exists():
+        existing = json.loads((out/"status.json").read_text()).get("status", "")
+        if existing in {"stopped", "awaiting_confirmation", "confirmed", "stopped_confirmation_not_qualified"}:
+            raise ValueError("Run is terminal; preserve its frozen evidence and create a new experiment")
     if out.exists() and not args.resume:
         raise ValueError("Run already exists; never overwrite an experiment")
     out.mkdir(parents=True, exist_ok=True)
