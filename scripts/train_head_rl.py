@@ -143,9 +143,10 @@ def main():
         write(out/"status.json", {"status": "development_validation", "stage": stage, "updates": update})
         report, rows = evaluate(policy, out/f"development-update-{update:06d}", config, deadline)
         check = update//config.get('validation_every', config['updates_per_stage'])
-        decision, changes = development_gate(check, report, baseline, config)
+        paired = paired_primary_comparison(rows, baseline_rows, config)
+        decision, changes = development_gate(check, report, baseline, config, paired=paired)
         item = {"stage": stage, "validation_check": check, "update": update, "metrics": report, "decision": decision,
-                "changes": changes, "paired_exploratory": paired_primary_comparison(rows, baseline_rows, config),
+                "changes": changes, "paired_exploratory": paired,
                 "checkpoint": str((checkpoints/f"update-{update:06d}").relative_to(ROOT))}
         if config.get("plateau_patience") and decision == "continue":
             history = [r["metrics"][metric] for r in results if r["update"] < update]
@@ -288,7 +289,7 @@ def main():
                 "backbone_trainable_parameters": 0,
                 'advantage_estimator': config.get('advantage_estimator', 'critic_mc'),
                 'critic_trainable_parameters': sum(p.numel() for p in policy.critic.parameters() if p.requires_grad),
-                "interpretation": "Repeated 64-game development checks are exploratory; thresholds stop wasted training, "
+                "interpretation": "Repeated development checks are exploratory; thresholds stop wasted training, "
                                   "not a claim of statistical improvement. Frozen reference remains available."}
     write(out/"pilot-analysis.json", analysis)
     lines = ["# 评分头强化学习阶段结果", "", f"停止原因：`{reason}`；完成 {update} 次小批更新。", "",
@@ -308,6 +309,7 @@ def main():
     if selected:
         lines += ["", "开发门槛达到，冻结该检查点，进入新牌山确认；开发数据不作为最终收益证明。"]
         write(out/"confirmation-selection.json", {"checkpoint": selected["checkpoint"],
+                                                   "candidate_head_sha256": fingerprint(ROOT/selected['checkpoint']/'head.pt'),
                                                    "development_update": selected["update"], "config": config})
     (out/"analysis.md").write_text("\n".join(lines)+"\n")
     write(out/"status.json", {"status": "awaiting_confirmation" if selected else "stopped",

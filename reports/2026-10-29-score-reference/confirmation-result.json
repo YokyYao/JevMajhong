@@ -1,0 +1,66 @@
+{
+  "status": "complete",
+  "qualified": false,
+  "candidate": {
+    "games": 512,
+    "independent_seeds": 128,
+    "firsts": 139,
+    "first_rate": 0.271484375,
+    "top2s": 270,
+    "top2_rate": 0.52734375,
+    "mean_rank": 2.3984375,
+    "fourth_rate": 0.197265625,
+    "mean_final_points": 26172.8515625,
+    "mean_net_points": 1172.8515625
+  },
+  "reference": {
+    "games": 512,
+    "independent_seeds": 128,
+    "firsts": 137,
+    "first_rate": 0.267578125,
+    "top2s": 271,
+    "top2_rate": 0.529296875,
+    "mean_rank": 2.412109375,
+    "fourth_rate": 0.208984375,
+    "mean_final_points": 25977.734375,
+    "mean_net_points": 977.734375
+  },
+  "primary_metric": "mean_net_points",
+  "primary_delta_ci95": [
+    -316.18719117766017,
+    706.4215661776602
+  ],
+  "game_mode": "4p-red-east",
+  "first_delta_ci95": [
+    -0.015089744939224825,
+    0.022902244939224825
+  ],
+  "paired": {
+    "independent_seeds": 128,
+    "games": 512,
+    "first_delta": 0.00390625,
+    "first_delta_ci": [
+      -0.017868538330981388,
+      0.025681038330981388
+    ],
+    "rank_delta": -0.013671875,
+    "rank_delta_ci": [
+      -0.06890218663672007,
+      0.04155843663672007
+    ],
+    "points_delta": 195.1171875,
+    "points_delta_ci": [
+      -316.18719117766017,
+      706.4215661776602
+    ],
+    "primary_metric": "mean_net_points",
+    "primary_delta": 195.1171875,
+    "primary_delta_ci95": [
+      -316.18719117766017,
+      706.4215661776602
+    ]
+  },
+  "checkpoint": "runs/head-rl-score-reference/checkpoints/update-000016",
+  "default_policy_changed": false,
+  "note": "One preselected candidate, 128 independent seeds; no training on confirmation seeds."
+}

@@ -1,0 +1,13 @@
+{
+  "created_at_utc": "2026-10-29T12:03:17.817927+00:00",
+  "initial_job_id": 253371,
+  "continuation_job_id": 253448,
+  "dependency": "afterany:253371",
+  "run": "runs/head-rl-score-reference",
+  "selection_sha256": "e6efeebc002c75306c3d79a421a1464660ca9e1cfd647e6ca7bfee84225f5c1b",
+  "head_sha256": "1004636a124542cab81197f1e189b3b52ef7cf4a0e428e6a5bdc78b08f6379c6",
+  "reason": "Preserve fixed confirmation coverage when the original 55 minute Python deadline expires. evaluate() loads unique saved keys and executes only missing games. Existing result causes immediate return. Scheduler dependency prevents concurrent writers.",
+  "candidate_changes": false,
+  "seed_changes": false,
+  "training_on_confirmation": false
+}

@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import torch
 from arena import EfficiencyAgent
-from head_rl import HeadPolicy, development_gate, format_metric, paired_primary_comparison, state_value, summarize, terminal_reward
+from head_rl import HeadPolicy, development_gate, fingerprint, format_metric, paired_primary_comparison, state_value, summarize, terminal_reward
 
 
 class ScoreRewardTests(unittest.TestCase):
@@ -62,6 +62,18 @@ class ScoreRewardTests(unittest.TestCase):
         self.assertEqual(result['reward_mode'], 'net_points')
         self.assertEqual(trace, [])
 
+    def test_optional_development_precision_gate_cannot_select_noisy_gain(self):
+        config = dict(self.config, development_min_ci95_lower=0, max_validation_checks=4)
+        base = dict(mean_net_points=1000, first_rate=.25, top2_rate=.5, fourth_rate=.25)
+        improved = dict(base, mean_net_points=2000)
+        noisy = {'primary_delta_ci95': [-100, 2100]}
+        positive = {'primary_delta_ci95': [10, 1990]}
+        self.assertEqual(development_gate(1, improved, base, config, paired=noisy)[0], 'continue')
+        self.assertEqual(development_gate(1, improved, base, config, paired=positive)[0], 'target_reached')
+        self.assertEqual(development_gate(4, improved, base, config, paired=noisy)[0], 'stop_target_not_reached')
+        with self.assertRaisesRegex(ValueError, 'finite paired development interval'):
+            development_gate(1, improved, base, config)
+
     def test_paired_point_units_and_confirmation_use_net_points(self):
         from scripts import confirm_head_rl
         config = dict(self.config, confirmation_seeds=2)
@@ -92,6 +104,24 @@ class ScoreRewardTests(unittest.TestCase):
         self.assertFalse(a & b or a & d or b & d)
         self.assertEqual(c['max_stages']*c['updates_per_stage'], 16)
         self.assertEqual(len(a)*4, 64)
+
+    def test_confirmation_rejects_changed_preselected_head_before_loading(self):
+        from scripts import confirm_head_rl
+        with tempfile.TemporaryDirectory() as temporary:
+            out = Path(temporary)
+            checkpoint = out / 'checkpoint'
+            checkpoint.mkdir()
+            head = checkpoint / 'head.pt'
+            head.write_bytes(b'frozen candidate')
+            selection = {'config': self.config, 'checkpoint': str(checkpoint),
+                         'candidate_head_sha256': fingerprint(head)}
+            (out / 'confirmation-selection.json').write_text(json.dumps(selection))
+            head.write_bytes(b'changed candidate')
+            with patch('sys.argv', ['confirm_head_rl.py', '--run', str(out)]), \
+                 patch.object(confirm_head_rl, 'HeadPolicy') as loader:
+                with self.assertRaisesRegex(ValueError, 'Preselected confirmation head changed'):
+                    confirm_head_rl.main()
+                loader.assert_not_called()
 
 
 if __name__ == '__main__':

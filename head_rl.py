@@ -199,7 +199,7 @@ def summarize(rows):
             "mean_net_points": sum(r["score"]-25000 for r in rows)/n}
 
 
-def development_gate(stage, candidate, baseline, config):
+def development_gate(stage, candidate, baseline, config, paired=None):
     first = candidate["first_rate"] - baseline["first_rate"]
     points = candidate["mean_net_points"] - baseline["mean_net_points"]
     fourth = candidate["fourth_rate"] - baseline["fourth_rate"]
@@ -208,9 +208,17 @@ def development_gate(stage, candidate, baseline, config):
         details = {"net_points_gain": points, "required_mean_net_points": required,
                    "first_gain": first, "top2_gain": candidate["top2_rate"]-baseline["top2_rate"],
                    "fourth_increase": fourth}
+        precision_passed = True
+        if config.get('development_min_ci95_lower') is not None:
+            interval = paired.get('primary_delta_ci95') if paired else None
+            if interval is None or len(interval) != 2 or not all(math.isfinite(x) for x in interval):
+                raise ValueError('A finite paired development interval is required')
+            precision_passed = interval[0] > config['development_min_ci95_lower']
+            details['paired_net_points_ci95'] = interval
+            details['development_precision_passed'] = precision_passed
         if points <= -config["net_points_drop_stop"]:
             return "stop_regression", details
-        if candidate["mean_net_points"] >= required:
+        if candidate["mean_net_points"] >= required and precision_passed:
             return "target_reached", details
         if stage >= 2 and points < config["stage_two_min_net_points_gain"]:
             return "stop_no_early_progress", details

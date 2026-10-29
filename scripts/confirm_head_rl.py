@@ -9,7 +9,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from arena import ci
-from head_rl import HeadPolicy, format_metric, paired_primary_comparison, primary_metric, summarize, write
+from head_rl import HeadPolicy, fingerprint, format_metric, paired_primary_comparison, primary_metric, summarize, write
 from scripts.train_head_rl import evaluate
 
 
@@ -23,6 +23,9 @@ def main():
     if (out/'confirmation-result.json').exists():
         print((out/'confirmation-result.json').read_text(), flush=True)
         return
+    if selection.get('candidate_head_sha256'):
+        if fingerprint(ROOT/selection['checkpoint']/'head.pt') != selection['candidate_head_sha256']:
+            raise ValueError('Preselected confirmation head changed')
     # Use the same unmerged native runtime and guarded greedy path as development.
     # Keep the checkpoint frozen and reuse its unchanged backbone for both heads.
     policy = HeadPolicy(config, selection['checkpoint'])
