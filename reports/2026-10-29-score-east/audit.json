@@ -1,0 +1,120 @@
+{
+  "scheduler": {
+    "job_id": 253165,
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "runtime": "00:17:45",
+    "source": "scontrol show job 253165 -o"
+  },
+  "actual_updates": 16,
+  "max_updates": 16,
+  "stop_reason": "stop_no_early_progress",
+  "real_training_games": 64,
+  "decision_states": 5090,
+  "target_gain_points": 1000,
+  "early_progress_required_points": 250,
+  "actual_gain_points": 15.625,
+  "required_mean_net_points": 3068.75,
+  "reference_weights_unchanged": true,
+  "no_confirmation_submitted": true,
+  "default_policy_changed": false,
+  "checkpoints": [
+    {
+      "update": 0,
+      "head_sha256": "59b377518fdc17f897c5e7901bf6b6499f8513b2c16ab678b55e90d89b00f03b",
+      "head_tensors_changed_vs_reference": false,
+      "optimizer_saved": true,
+      "optimizer_initialized": false
+    },
+    {
+      "update": 4,
+      "head_sha256": "2ee838f138c10d7db2983849f85b949230aa354dbe626efeb849e24366f5d1e0",
+      "head_tensors_changed_vs_reference": true,
+      "optimizer_saved": true,
+      "optimizer_initialized": true
+    },
+    {
+      "update": 8,
+      "head_sha256": "e8c93df32ec0f757676547e8acc9891e717e8a0313ac285820e418643a49098e",
+      "head_tensors_changed_vs_reference": true,
+      "optimizer_saved": true,
+      "optimizer_initialized": true
+    },
+    {
+      "update": 12,
+      "head_sha256": "3e7443768309d9d12ef517c5cbbaf164631c86a122192560fcfdff6174da2165",
+      "head_tensors_changed_vs_reference": true,
+      "optimizer_saved": true,
+      "optimizer_initialized": true
+    },
+    {
+      "update": 16,
+      "head_sha256": "f715053e085c7a0a766e7b3e923114537eb0c209ab4afff03c9452a47265e92b",
+      "head_tensors_changed_vs_reference": true,
+      "optimizer_saved": true,
+      "optimizer_initialized": true
+    }
+  ],
+  "counterfactual": [
+    {
+      "update": 8,
+      "same_final_outcomes": 63,
+      "changes": [
+        {
+          "seed": 1902015,
+          "seat": 1,
+          "old_rank": 3,
+          "new_rank": 3,
+          "points_delta": 1000
+        }
+      ],
+      "total_points_delta": 1000
+    },
+    {
+      "update": 16,
+      "same_final_outcomes": 63,
+      "changes": [
+        {
+          "seed": 1902015,
+          "seat": 1,
+          "old_rank": 3,
+          "new_rank": 3,
+          "points_delta": 1000
+        }
+      ],
+      "total_points_delta": 1000
+    }
+  ],
+  "signed_reward_audits": [
+    {
+      "stage": 1,
+      "real_training_games": 32,
+      "decision_states": 2416,
+      "all_rewards_and_returns_verified": true,
+      "return_min": -25.299999237060547,
+      "return_max": 12.899999618530273,
+      "positive_return_states": 777,
+      "negative_return_states": 1591,
+      "critic_prediction_min": -1.0948163270950317,
+      "critic_prediction_max": -1.0367473363876343,
+      "critic_training_mse": 100.42461395263672,
+      "zero_baseline_mse": 105.89578247070312,
+      "head_tensors_actually_changed": true
+    },
+    {
+      "stage": 2,
+      "real_training_games": 32,
+      "decision_states": 2674,
+      "all_rewards_and_returns_verified": true,
+      "return_min": -26.0,
+      "return_max": 19.5,
+      "positive_return_states": 1441,
+      "negative_return_states": 1168,
+      "critic_prediction_min": -1.134756326675415,
+      "critic_prediction_max": -1.0808781385421753,
+      "critic_training_mse": 55.90373611450195,
+      "zero_baseline_mse": 54.108795166015625
+    }
+  ],
+  "note": "All 192 development records, 64 episode returns, 5090 decision returns, saved optimizer states and frozen weights checked. Four seats are grouped within each of 16 independent wall streams."
+}

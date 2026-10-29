@@ -1,0 +1,148 @@
+{
+  "status": "pilot_complete",
+  "stop_reason": "stop_no_early_progress",
+  "updates": 16,
+  "baseline": {
+    "games": 64,
+    "independent_seeds": 16,
+    "firsts": 22,
+    "first_rate": 0.34375,
+    "top2s": 35,
+    "top2_rate": 0.546875,
+    "mean_rank": 2.265625,
+    "fourth_rate": 0.15625,
+    "mean_final_points": 27068.75,
+    "mean_net_points": 2068.75
+  },
+  "development": [
+    {
+      "stage": 1,
+      "update": 8,
+      "metrics": {
+        "games": 64,
+        "independent_seeds": 16,
+        "firsts": 22,
+        "first_rate": 0.34375,
+        "top2s": 35,
+        "top2_rate": 0.546875,
+        "mean_rank": 2.265625,
+        "fourth_rate": 0.15625,
+        "mean_final_points": 27084.375,
+        "mean_net_points": 2084.375
+      },
+      "decision": "continue",
+      "changes": {
+        "net_points_gain": 15.625,
+        "required_mean_net_points": 3068.75,
+        "first_gain": 0.0,
+        "top2_gain": 0.0,
+        "fourth_increase": 0.0
+      },
+      "paired_exploratory": {
+        "independent_seeds": 16,
+        "games": 64,
+        "first_delta": 0,
+        "first_delta_ci": [
+          0.0,
+          0.0
+        ],
+        "rank_delta": 0,
+        "rank_delta_ci": [
+          0.0,
+          0.0
+        ],
+        "points_delta": 15.625,
+        "points_delta_ci": [
+          -17.678899149371496,
+          48.928899149371496
+        ],
+        "primary_metric": "mean_net_points",
+        "primary_delta": 15.625,
+        "primary_delta_ci95": [
+          -17.678899149371496,
+          48.928899149371496
+        ]
+      },
+      "checkpoint": "runs/head-rl-score-east/checkpoints/update-000008"
+    },
+    {
+      "stage": 2,
+      "update": 16,
+      "metrics": {
+        "games": 64,
+        "independent_seeds": 16,
+        "firsts": 22,
+        "first_rate": 0.34375,
+        "top2s": 35,
+        "top2_rate": 0.546875,
+        "mean_rank": 2.265625,
+        "fourth_rate": 0.15625,
+        "mean_final_points": 27084.375,
+        "mean_net_points": 2084.375
+      },
+      "decision": "stop_no_early_progress",
+      "changes": {
+        "net_points_gain": 15.625,
+        "required_mean_net_points": 3068.75,
+        "first_gain": 0.0,
+        "top2_gain": 0.0,
+        "fourth_increase": 0.0
+      },
+      "paired_exploratory": {
+        "independent_seeds": 16,
+        "games": 64,
+        "first_delta": 0,
+        "first_delta_ci": [
+          0.0,
+          0.0
+        ],
+        "rank_delta": 0,
+        "rank_delta_ci": [
+          0.0,
+          0.0
+        ],
+        "points_delta": 15.625,
+        "points_delta_ci": [
+          -17.678899149371496,
+          48.928899149371496
+        ],
+        "primary_metric": "mean_net_points",
+        "primary_delta": 15.625,
+        "primary_delta_ci95": [
+          -17.678899149371496,
+          48.928899149371496
+        ]
+      },
+      "checkpoint": "runs/head-rl-score-east/checkpoints/update-000016"
+    }
+  ],
+  "last_rollout": {
+    "stage": 2,
+    "games": {
+      "games": 32,
+      "independent_seeds": 8,
+      "firsts": 3,
+      "first_rate": 0.09375,
+      "top2s": 17,
+      "top2_rate": 0.53125,
+      "mean_rank": 2.5625,
+      "fourth_rate": 0.1875,
+      "mean_final_points": 24415.625,
+      "mean_net_points": -584.375
+    },
+    "diagnostics": {
+      "sampled_states": 2674,
+      "greedy_flips_vs_reference": 5,
+      "greedy_flip_fraction": 0.0018698578908002991,
+      "mean_entropy": 0.8032031612040262
+    }
+  },
+  "primary_metric": "mean_net_points",
+  "game_mode": "4p-red-east",
+  "selected_for_confirmation": null,
+  "default_policy_changed": false,
+  "inference_feature_checks_passed": 32,
+  "actor_trainable_parameters": 524800,
+  "backbone_trainable_parameters": 0,
+  "interpretation": "Repeated 64-game development checks are exploratory; thresholds stop wasted training, not a claim of statistical improvement. Frozen reference remains available."
+}

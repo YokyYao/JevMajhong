@@ -1,0 +1,22 @@
+{
+  "native_feature_checks": 16,
+  "synthetic_gradient_test": true,
+  "head_parameters_changed_then_restored": true,
+  "backbone_received_gradients": false,
+  "reference_file_unchanged": true,
+  "losses": {
+    "loss": 81.24935913085938,
+    "policy_loss": 0.0,
+    "value_loss": 81.25,
+    "reference_kl_batch": 0.0,
+    "entropy": 0.6433298587799072,
+    "head_grad_norm": 0.5708028078079224,
+    "critic_grad_norm": 151.80755615234375
+  },
+  "game_mode": "4p-red-east",
+  "reward_mode": "net_points",
+  "synthetic_return_range": [
+    -10.0,
+    15.0
+  ]
+}
