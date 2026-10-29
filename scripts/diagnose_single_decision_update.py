@@ -27,13 +27,22 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--source', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--checkpoint', type=Path, help='Inspect an existing complete checkpoint before final selection')
     args = parser.parse_args()
     if args.out.exists():
         raise ValueError('Preserve previous diagnostics')
     protocol = json.loads((args.source/'protocol.json').read_text())
     config = protocol['config']
-    selected = json.loads((args.source/'confirmation-selection.json').read_text())
-    checkpoint = ROOT/selected['checkpoint']
+    if args.checkpoint:
+        checkpoint = ROOT/args.checkpoint
+    else:
+        selected = json.loads((args.source/'confirmation-selection.json').read_text())
+        checkpoint = ROOT/selected['checkpoint']
+    if not checkpoint.resolve().is_relative_to((args.source/'checkpoints').resolve()):
+        raise ValueError('Checkpoint must belong to the diagnosed source run')
+    complete = json.loads((checkpoint/'complete.json').read_text())
+    if hashlib.sha256((checkpoint/'head.pt').read_bytes()).hexdigest() != complete['head_sha256']:
+        raise ValueError('Checkpoint completion fingerprint differs')
     start = args.source/'checkpoints/update-000000'
     rows = torch.load(args.source/'rollout-stage-01.pt', map_location='cpu', weights_only=False)
     initial_state = torch.load(start/'rl_state.pt', map_location='cpu', weights_only=False)
