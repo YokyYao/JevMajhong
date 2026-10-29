@@ -147,3 +147,5 @@ sbatch --account=YOUR_ACCOUNT --partition=YOUR_GPU_PARTITION ddp.slurm
 第三方项目和数据署名见 `THIRD_PARTY_NOTICES.txt`。本项目采用开放的 JevAny 训练框架，不包含 TypeSafe Jev 的权重或私有实现。
 
 [得分差加权的参考相对排序试验](plans/score-east-relative-ranking.md)在同一批单步反事实数据上改用成对排序损失，针对多数有利替代动作也被压低的问题；阶段门槛要求超过失败PPO更新2的开发均值250点，最终仍使用全新牌山对照原2000步模型。训练起点第三组补测只作事后诊断，不重用为独立通过证据。 作业254438已完成2次更新，首轮完整开发验证中，见[训练摘要](reports/2026-10-29-score-relative-ranking/README.md)。
+
+后续按[增量续训规则](plans/score-east-incremental-continuation.md)保留正向检查点并补充新牌山，+250/+500仅作期望目标。宣布有效提高仍需原2000步模型对照、全新牌山和配对区间下界大于0；历史结果按原协议保留。
