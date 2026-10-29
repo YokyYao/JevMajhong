@@ -1,0 +1,18 @@
+{
+  "scope": "training_update8_only_development_pending",
+  "candidate_matches": 256,
+  "independent_training_streams": 32,
+  "frozen_controls": 128,
+  "decision_states": 20266,
+  "unique_sampling_seeds": 256,
+  "all_rewards_and_advantages_verified": true,
+  "controls_excluded_from_policy_gradient": true,
+  "head_weights_changed": true,
+  "critic_unchanged_zero": true,
+  "optimizer_groups": 1,
+  "source_weights_unchanged": true,
+  "numerical_code_unchanged": true,
+  "checkpoint": "runs/head-rl-score-coverage/checkpoints/update-000008",
+  "head_sha256": "7808b4a70fb44fff07ea18fe38b954fbf6a9b1a8f06296609ab29a80a2674d11",
+  "goal_complete": false
+}

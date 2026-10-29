@@ -1,0 +1,26 @@
+[
+  {
+    "update": 4,
+    "mean_reference_kl": 0.0009499677399805304,
+    "actor_lr_used": 0.0001,
+    "actor_lr_next": 0.0001
+  },
+  {
+    "update": 8,
+    "mean_reference_kl": 0.0008146909690392541,
+    "actor_lr_used": 0.0001,
+    "actor_lr_next": 0.0001
+  },
+  {
+    "update": 12,
+    "mean_reference_kl": 0.0003699780075259305,
+    "actor_lr_used": 0.0001,
+    "actor_lr_next": 0.0001
+  },
+  {
+    "update": 16,
+    "mean_reference_kl": 0.0006528742144209547,
+    "actor_lr_used": 0.0001,
+    "actor_lr_next": 0.0001
+  }
+]
