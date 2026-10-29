@@ -62,6 +62,10 @@ def state_value(critic, features, config):
     return value if config.get("reward_mode", "first") == "net_points" else torch.sigmoid(value)
 
 
+def actor_only(config):
+    return config.get('advantage_estimator') in ('rloo', 'greedy_reference')
+
+
 def format_metric(value, metric):
     return f"{value:+.1f}点" if metric == "mean_net_points" else f"{value:.2%}"
 
@@ -109,6 +113,43 @@ def rloo_advantages(games, rows, group_size=2, scale=10.0):
     return {'groups': len(groups), 'replicas_per_group': group_size, 'informative_groups': contrasts,
             'episodes': len(games), 'states': len(rows), 'advantage_scale': scale,
             'mean_abs_advantage': sum(abs(r['advantage']) for r in rows)/max(1, len(rows))}
+
+
+def reference_advantages(controls, games, rows, group_size=2, scale=10.0):
+    """Fixed greedy-reference return, collected separately on the same initial deal."""
+    if group_size < 1 or not math.isfinite(scale) or scale <= 0:
+        raise ValueError('Invalid reference-baseline settings')
+    refs = {(g['seed'], g['seat']): g for g in controls}
+    if len(refs) != len(controls) or any(not g.get('frozen_control') or g['trainable_decisions'] != 0 for g in controls):
+        raise ValueError('Controls must be unique frozen episodes without training traces')
+    episodes, groups = {}, {}
+    for game in games:
+        key = (game['seed'], game['seat'], game['replica'])
+        if key in episodes or key[:2] not in refs:
+            raise ValueError('Duplicate candidate episode or missing frozen control')
+        control = refs[key[:2]]
+        fields = ('engine_seed', 'game_mode', 'old_opponent')
+        if any(game[f] != control[f] for f in fields) or not math.isfinite(game['reward']) or not math.isfinite(control['reward']):
+            raise ValueError('Candidate and control environment/opponents differ or reward is invalid')
+        episodes[key] = game; groups.setdefault(key[:2], []).append(game)
+    if groups.keys() != refs.keys() or any(len(g) != group_size or {x['replica'] for x in g} != set(range(group_size)) for g in groups.values()):
+        raise ValueError('Incomplete candidate/control coverage')
+    counts = {key: 0 for key in episodes}
+    for row in rows:
+        key = tuple(row['episode_key'])
+        if key not in episodes or row['return'] != episodes[key]['reward']:
+            raise ValueError('Candidate trace/return mismatch')
+        baseline = refs[key[:2]]['reward']
+        row['baseline_return'] = baseline
+        row['advantage'] = (row['return']-baseline)/scale
+        counts[key] += 1
+    if any(counts[k] != g['trainable_decisions'] for k, g in episodes.items()):
+        raise ValueError('Candidate decision counts differ from traces')
+    gains = [g['reward']-refs[g['seed'],g['seat']]['reward'] for g in games]
+    return {'groups':len(groups), 'control_episodes':len(controls), 'episodes':len(games),
+            'informative_groups':sum(any(g['reward'] != refs[k]['reward'] for g in group) for k,group in groups.items()),
+            'states':len(rows), 'advantage_scale':scale, 'mean_candidate_minus_control_return':sum(gains)/max(1,len(gains)),
+            'mean_abs_advantage':sum(abs(r['advantage']) for r in rows)/max(1,len(rows))}
 
 
 def paired_primary_comparison(candidate, reference, config, confidence=.95):
@@ -230,7 +271,7 @@ class HeadPolicy:
         dimension = self.head.q.in_features
         self.critic = nn.Linear(dimension, 1).to("cuda")
         nn.init.zeros_(self.critic.weight); nn.init.zeros_(self.critic.bias)
-        if config.get('advantage_estimator') == 'rloo':
+        if actor_only(config):
             self.critic.requires_grad_(False)
         self.capture = None
         self.head.register_forward_pre_hook(self._capture)
@@ -286,7 +327,7 @@ class HeadPolicy:
                 index = deployment_greedy_index(logits, eligible)
             if trace is not None and len(eligible) > 1:
                 reference = mixed_probabilities(self.reference(decide, options), eligible, epsilon)
-                value = 0.0 if self.config.get('advantage_estimator') == 'rloo' else float(state_value(self.critic, decide, self.config))
+                value = 0.0 if actor_only(self.config) else float(state_value(self.critic, decide, self.config))
                 trace.append({"decide": decide.cpu(), "options": options.cpu(), "eligible": eligible,
                               "action": index, "old_logp": float(probabilities[index].log()),
                               "reference": reference.cpu(), "old_value": value})
@@ -294,7 +335,7 @@ class HeadPolicy:
 
     def game(self, seed, seat, training=False, frozen=False, old_opponent=False, replica=0):
         sampling_seed = None
-        if training and self.config.get('advantage_estimator') == 'rloo':
+        if training and actor_only(self.config):
             material = f"{self.config['seed']}:{seed}:{seat}:{replica}".encode()
             sampling_seed = int.from_bytes(hashlib.sha256(material).digest()[:8], 'little')
             self.generator.manual_seed(sampling_seed)
@@ -338,26 +379,27 @@ class PPO:
     def __init__(self, policy):
         self.policy, self.config = policy, policy.config
         groups = [{"params": policy.head.parameters(), "lr": self.config["actor_lr"]}]
-        if self.config.get('advantage_estimator') != 'rloo':
+        if not actor_only(self.config):
             groups.append({"params": policy.critic.parameters(), "lr": self.config["critic_lr"]})
         self.optimizer = torch.optim.AdamW(groups, weight_decay=0.0)
 
     def update(self, batch):
         head, critic, config = self.policy.head, self.policy.critic, self.config
+        device = next(head.parameters()).device
         losses, policy_losses, values, kls, entropies, clipped = [], [], [], [], [], []
-        advantages = torch.tensor([r["advantage"] for r in batch], device="cuda")
+        advantages = torch.tensor([r["advantage"] for r in batch], device=device)
         for index, row in enumerate(batch):
-            decide, options = row["decide"].to("cuda"), row["options"].to("cuda")
+            decide, options = row["decide"].to(device), row["options"].to(device)
             probability = mixed_probabilities(head(decide, options), row["eligible"], config["exploration_uniform"])
             logp = probability[row["action"]].log()
             advantage = advantages[index]
             actor = ppo_surrogate(logp, row["old_logp"], advantage, config["clip_ratio"])
             clipped.append(((logp-row['old_logp']).exp()-1).abs().detach() > config['clip_ratio'])
-            reference = row["reference"].to("cuda")
+            reference = row["reference"].to(device)
             kl = (probability*(probability.log()-reference.log())).sum()
             entropy = -(probability*probability.log()).sum()
             value_loss = torch.zeros((), device=decide.device)
-            if config.get('advantage_estimator') != 'rloo':
+            if not actor_only(config):
                 value = state_value(critic, decide, config)
                 value_loss = .5*(value-row["return"]).square()
             losses.append(actor + config["reference_kl_beta"]*kl - config["entropy_beta"]*entropy + value_loss)
@@ -369,14 +411,14 @@ class PPO:
         self.optimizer.zero_grad()
         loss.backward()
         grad = torch.nn.utils.clip_grad_norm_(head.parameters(), .5)
-        critic_grad = torch.zeros((), device=grad.device) if config.get('advantage_estimator') == 'rloo' else torch.nn.utils.clip_grad_norm_(critic.parameters(), .5)
+        critic_grad = torch.zeros((), device=grad.device) if actor_only(config) else torch.nn.utils.clip_grad_norm_(critic.parameters(), .5)
         if not torch.isfinite(grad) or not torch.isfinite(critic_grad):
             raise FloatingPointError("Nonfinite head or critic gradient")
         self.optimizer.step()
         if any(p.grad is not None for p in self.policy.model.lm.parameters()):
             raise ValueError("Frozen backbone received a gradient")
-        if config.get('advantage_estimator') == 'rloo' and any(p.grad is not None for p in critic.parameters()):
-            raise ValueError('RLOO must not train a critic')
+        if actor_only(config) and any(p.grad is not None for p in critic.parameters()):
+            raise ValueError('Actor-only training must not train a critic')
         return {"loss": float(loss.detach()), "policy_loss": float(torch.stack(policy_losses).mean()),
                 "value_loss": float(torch.stack(values).mean()), "reference_kl_batch": float(torch.stack(kls).mean()),
                 "entropy": float(torch.stack(entropies).mean()), "head_grad_norm": float(grad),
@@ -386,10 +428,11 @@ class PPO:
     @torch.no_grad()
     def reference_kl(self, rows):
         values = []
+        device = next(self.policy.head.parameters()).device
         for row in rows:
-            p = mixed_probabilities(self.policy.head(row["decide"].to("cuda"), row["options"].to("cuda")),
+            p = mixed_probabilities(self.policy.head(row["decide"].to(device), row["options"].to(device)),
                                     row["eligible"], self.config["exploration_uniform"])
-            reference = row["reference"].to("cuda")
+            reference = row["reference"].to(device)
             values.append(float((p*(p.log()-reference.log())).sum()))
         return sum(values)/len(values)
 

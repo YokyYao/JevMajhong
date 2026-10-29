@@ -1,0 +1,42 @@
+{
+  "source": "runs/head-rl-score-rloo/rollout-stage-01.pt",
+  "uses_only_previous_training_states": true,
+  "no_development_or_confirmation_used": true,
+  "probe_updates_per_lr": 8,
+  "target_kl": 0.001,
+  "maximum_probe_kl": 0.005,
+  "candidates": [
+    {
+      "actor_lr": 2e-05,
+      "updates": 8,
+      "state_exposures": 3635,
+      "training_states": 2611,
+      "mean_reference_kl": 0.0002934802410939371,
+      "greedy_flips": 12,
+      "greedy_flip_fraction": 0.004595940252776714,
+      "last_clip_fraction": 0.001953125
+    },
+    {
+      "actor_lr": 0.0001,
+      "updates": 8,
+      "state_exposures": 3635,
+      "training_states": 2611,
+      "mean_reference_kl": 0.0015889431129343062,
+      "greedy_flips": 58,
+      "greedy_flip_fraction": 0.022213711221754116,
+      "last_clip_fraction": 0.103515625
+    },
+    {
+      "actor_lr": 0.0003,
+      "updates": 8,
+      "state_exposures": 3635,
+      "training_states": 2611,
+      "mean_reference_kl": 0.0020486096278334205,
+      "greedy_flips": 69,
+      "greedy_flip_fraction": 0.026426656453466105,
+      "last_clip_fraction": 0.306640625
+    }
+  ],
+  "selected_actor_lr": 0.0001,
+  "note": "Temporary CPU head-only probes; original checkpoints unchanged. Measures update response, not Mahjong strength. New baseline estimator can change the gradient distribution."
+}

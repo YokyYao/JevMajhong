@@ -11,7 +11,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import torch
-from head_rl import HeadPolicy, PPO, deployment_greedy_index, development_gate, fingerprint, mixed_probabilities, paired_primary_comparison, plateau_checks, primary_metric, rloo_advantages, save_checkpoint, summarize, terminal_reward, write
+from head_rl import HeadPolicy, PPO, deployment_greedy_index, development_gate, fingerprint, mixed_probabilities, paired_primary_comparison, plateau_checks, primary_metric, reference_advantages, rloo_advantages, save_checkpoint, summarize, terminal_reward, write
 
 
 class PilotDeadline(RuntimeError):
@@ -70,7 +70,7 @@ def main():
     if config.get("reward_mode", "first") not in ("first", "top2", "net_points") or config.get("game_mode", "4p-red-half") not in ("4p-red-east", "4p-red-half"):
         raise ValueError("Unsupported reward or match format")
     terminal_reward(1, config.get("reward_mode", "first"), score=25000, scale=config.get("reward_scale", 1000.0))
-    if config.get('advantage_estimator', 'critic_mc') not in ('critic_mc', 'rloo'):
+    if config.get('advantage_estimator', 'critic_mc') not in ('critic_mc', 'rloo', 'greedy_reference'):
         raise ValueError('Unsupported advantage estimator')
     if config.get('validation_every') and (config['validation_every'] % config['checkpoint_every']
             or config['updates_per_stage'] % config['validation_every']):
@@ -172,11 +172,19 @@ def main():
                 if record_stage(stage) != "continue":
                     break
                 continue
-            rows, games, group_diagnostics = [], [], None
+            rows, games, controls, group_diagnostics = [], [], [], None
             write(out/"status.json", {"status": "collecting_rollouts", "stage": stage, "updates": update})
             training_start = config["training_seed_start"]+(stage-1)*config["training_seeds_per_stage"]
             for seed in range(training_start, training_start+config["training_seeds_per_stage"]):
                 for seat in range(4):
+                    if config.get('advantage_estimator') == 'greedy_reference':
+                        if time.monotonic() >= deadline:
+                            raise PilotDeadline('Pilot wall-time limit reached')
+                        control, _ = policy.game(seed, seat, training=False, frozen=True, old_opponent=(seed % 2 == 1), replica=-1)
+                        control['frozen_control'] = True
+                        controls.append(control)
+                        print(json.dumps({'phase':'frozen_control','stage':stage,'games':len(controls),
+                                          'rank':control['rank'],'reward':control['reward']}),flush=True)
                     for replica in range(config.get('training_replicas', 1)):
                         if time.monotonic() >= deadline:
                             raise PilotDeadline("Pilot wall-time limit reached")
@@ -185,12 +193,15 @@ def main():
                         print(json.dumps({"phase": "rollout", "stage": stage, "games": len(games),
                                           "replica": replica, "rank": result["rank"], "reward": result["reward"], "states": len(trace)}), flush=True)
             write(out/f"training-games-stage-{stage:02d}.json", games)
+            if controls:
+                write(out/f'reference-controls-stage-{stage:02d}.json', controls)
             torch.save(rows, out/f"rollout-stage-{stage:02d}.pt")
             if not rows or len({g["reward"] for g in games}) < 2 or len({r["return"] for r in rows}) < 2:
                 reason = "stop_no_reward_variation"
                 break
-            if config.get('advantage_estimator') == 'rloo':
-                group_diagnostics = rloo_advantages(games, rows, config['training_replicas'], config['advantage_scale'])
+            if config.get('advantage_estimator') in ('rloo','greedy_reference'):
+                group_diagnostics = (reference_advantages(controls,games,rows,config['training_replicas'],config['advantage_scale'])
+                                     if controls else rloo_advantages(games,rows,config['training_replicas'],config['advantage_scale']))
                 write(out/f'rloo-groups-stage-{stage:02d}.json', group_diagnostics)
                 torch.save(rows, out/f'rollout-stage-{stage:02d}.pt')
                 print('rloo_groups '+json.dumps(group_diagnostics), flush=True)
@@ -218,7 +229,7 @@ def main():
                 losses = trainer.update([rows[i] for i in indices])
                 exposures += len(indices)
                 update += 1
-                print("ppo_update "+json.dumps({"update": update, "stage": stage, 'batch_states': len(indices),
+                print("ppo_update "+json.dumps({"update": update, "stage": stage, 'actor_lr':trainer.optimizer.param_groups[0]['lr'], 'batch_states': len(indices),
                                                'phase_state_exposures': exposures, 'phase_collected_states': len(rows), **losses}), flush=True)
                 if update % config["checkpoint_every"] == 0:
                     kl = trainer.reference_kl(rows)
@@ -230,16 +241,23 @@ def main():
                         write(out/"kl-stop.json", {"update": update, "reference_kl": kl,
                                                   "limit": config["max_reference_kl"], "rolled_back_stage": stage})
                         break
+                    before_lr = trainer.optimizer.param_groups[0]['lr']
+                    if config.get('kl_lr_decay_threshold') is not None and kl > config['kl_lr_decay_threshold']:
+                        trainer.optimizer.param_groups[0]['lr'] *= config['kl_lr_decay_factor']
+                    write(out/f'trust-region-update-{update:06d}.json', {'update':update,'mean_reference_kl':kl,
+                          'actor_lr_used':before_lr,'actor_lr_next':trainer.optimizer.param_groups[0]['lr']})
                     save_checkpoint(policy, trainer, out, update, stage, local_update, config_hash)
                     write(out/"status.json", {"status": "training", "updates": update,
                                               "stage": stage, "reference_kl": kl})
                 if config.get('validation_every') and update % config['validation_every'] == 0:
                     last_rollout = {'stage': stage, 'games': summarize(games), 'rloo': group_diagnostics,
+                                    'reference_control_games':len(controls),
                                     'state_exposures': exposures, 'diagnostics': rollout_diagnostics(policy, rows)}
                     write(out/f'rollout-diagnostics-update-{update:06d}.json', last_rollout)
                     if record_stage(stage) != 'continue':
                         break
             last_rollout = {"stage": stage, "games": summarize(games),
+                            'reference_control_games':len(controls),
                             'rloo': group_diagnostics, 'state_exposures': exposures,
                             "diagnostics": rollout_diagnostics(policy, rows)}
             write(out/f"rollout-diagnostics-stage-{stage:02d}.json", last_rollout)

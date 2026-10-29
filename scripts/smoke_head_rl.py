@@ -10,7 +10,7 @@ sys.path.insert(0, str(ROOT))
 import torch
 from riichienv import RiichiEnv, GameRule
 from arena import EfficiencyAgent
-from head_rl import HeadPolicy, PPO, fingerprint, write
+from head_rl import HeadPolicy, PPO, actor_only, fingerprint, write
 
 
 def main():
@@ -55,8 +55,8 @@ def main():
     result['synthetic_return_range'] = [min(r['return'] for r in trace), max(r['return'] for r in trace)]
     result['advantage_estimator'] = config.get('advantage_estimator', 'critic_mc')
     result['critic_received_gradients'] = any(p.grad is not None for p in policy.critic.parameters())
-    if config.get('advantage_estimator') == 'rloo' and result['critic_received_gradients']:
-        raise ValueError('RLOO actor-only smoke trained the disabled critic')
+    if actor_only(config) and result['critic_received_gradients']:
+        raise ValueError('Actor-only smoke trained the disabled critic')
     write(args.out, result)
     print('head_rl_smoke '+json.dumps(result), flush=True)
 
