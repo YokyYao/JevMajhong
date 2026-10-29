@@ -1,0 +1,304 @@
+{
+  "scope": "training_and_development_only_confirmation_pending",
+  "updates": 16,
+  "candidate_training_games": 64,
+  "separate_frozen_controls": 32,
+  "decision_states": 5049,
+  "all_reward_baseline_advantages_verified": true,
+  "all_exploration_seeds_unique": true,
+  "checkpoints": [
+    {
+      "update": 0,
+      "head_sha256": "645c55db3eafcd76878803277aa06167a0c55cc67bad18b70f9bf44d7f39404e",
+      "head_changed": false,
+      "critic_unchanged": true,
+      "optimizer_groups": 1
+    },
+    {
+      "update": 4,
+      "head_sha256": "2dbce25dac4274deda7a5cd3de4faa47c1394652b0005d5a19783402baf91163",
+      "head_changed": true,
+      "critic_unchanged": true,
+      "optimizer_groups": 1
+    },
+    {
+      "update": 8,
+      "head_sha256": "a3121a1f50f36ec37a8a738db10b4923be3ea152b2629031b74825d103a73e40",
+      "head_changed": true,
+      "critic_unchanged": true,
+      "optimizer_groups": 1
+    },
+    {
+      "update": 12,
+      "head_sha256": "ba7b331f6f02fe36f1932eb6715553fa6a75605c80fd709cf53bd376db68596c",
+      "head_changed": true,
+      "critic_unchanged": true,
+      "optimizer_groups": 1
+    },
+    {
+      "update": 16,
+      "head_sha256": "1004636a124542cab81197f1e189b3b52ef7cf4a0e428e6a5bdc78b08f6379c6",
+      "head_changed": true,
+      "critic_unchanged": true,
+      "optimizer_groups": 1
+    }
+  ],
+  "reference_weights_unchanged": true,
+  "selected_only_first_passing_checkpoint": true,
+  "counterfactual_development": [
+    {
+      "update": 8,
+      "identical_final_outcomes": 46,
+      "changes": [
+        {
+          "seed": 2502001,
+          "seat": 3,
+          "old_rank": 4,
+          "new_rank": 4,
+          "points_delta": -500
+        },
+        {
+          "seed": 2502002,
+          "seat": 2,
+          "old_rank": 1,
+          "new_rank": 1,
+          "points_delta": -5400
+        },
+        {
+          "seed": 2502003,
+          "seat": 3,
+          "old_rank": 1,
+          "new_rank": 1,
+          "points_delta": -2500
+        },
+        {
+          "seed": 2502004,
+          "seat": 0,
+          "old_rank": 1,
+          "new_rank": 1,
+          "points_delta": 4800
+        },
+        {
+          "seed": 2502004,
+          "seat": 3,
+          "old_rank": 2,
+          "new_rank": 2,
+          "points_delta": -9400
+        },
+        {
+          "seed": 2502005,
+          "seat": 1,
+          "old_rank": 3,
+          "new_rank": 3,
+          "points_delta": 1300
+        },
+        {
+          "seed": 2502007,
+          "seat": 2,
+          "old_rank": 1,
+          "new_rank": 3,
+          "points_delta": -7400
+        },
+        {
+          "seed": 2502008,
+          "seat": 1,
+          "old_rank": 2,
+          "new_rank": 2,
+          "points_delta": -3500
+        },
+        {
+          "seed": 2502008,
+          "seat": 2,
+          "old_rank": 1,
+          "new_rank": 1,
+          "points_delta": 5400
+        },
+        {
+          "seed": 2502009,
+          "seat": 2,
+          "old_rank": 4,
+          "new_rank": 4,
+          "points_delta": 1500
+        },
+        {
+          "seed": 2502009,
+          "seat": 3,
+          "old_rank": 2,
+          "new_rank": 2,
+          "points_delta": 3500
+        },
+        {
+          "seed": 2502010,
+          "seat": 0,
+          "old_rank": 1,
+          "new_rank": 3,
+          "points_delta": -10500
+        },
+        {
+          "seed": 2502012,
+          "seat": 0,
+          "old_rank": 3,
+          "new_rank": 3,
+          "points_delta": -500
+        },
+        {
+          "seed": 2502012,
+          "seat": 3,
+          "old_rank": 1,
+          "new_rank": 1,
+          "points_delta": -1000
+        },
+        {
+          "seed": 2502013,
+          "seat": 0,
+          "old_rank": 1,
+          "new_rank": 1,
+          "points_delta": 1400
+        },
+        {
+          "seed": 2502013,
+          "seat": 3,
+          "old_rank": 3,
+          "new_rank": 3,
+          "points_delta": 11200
+        },
+        {
+          "seed": 2502014,
+          "seat": 1,
+          "old_rank": 1,
+          "new_rank": 1,
+          "points_delta": 6500
+        },
+        {
+          "seed": 2502014,
+          "seat": 3,
+          "old_rank": 2,
+          "new_rank": 2,
+          "points_delta": 1500
+        }
+      ],
+      "total_points_delta": -3600
+    },
+    {
+      "update": 16,
+      "identical_final_outcomes": 48,
+      "changes": [
+        {
+          "seed": 2502005,
+          "seat": 1,
+          "old_rank": 3,
+          "new_rank": 3,
+          "points_delta": 1300
+        },
+        {
+          "seed": 2502006,
+          "seat": 3,
+          "old_rank": 2,
+          "new_rank": 2,
+          "points_delta": 6400
+        },
+        {
+          "seed": 2502008,
+          "seat": 1,
+          "old_rank": 2,
+          "new_rank": 2,
+          "points_delta": -2500
+        },
+        {
+          "seed": 2502008,
+          "seat": 2,
+          "old_rank": 1,
+          "new_rank": 1,
+          "points_delta": 5400
+        },
+        {
+          "seed": 2502009,
+          "seat": 2,
+          "old_rank": 4,
+          "new_rank": 4,
+          "points_delta": 1500
+        },
+        {
+          "seed": 2502009,
+          "seat": 3,
+          "old_rank": 2,
+          "new_rank": 1,
+          "points_delta": 8800
+        },
+        {
+          "seed": 2502010,
+          "seat": 0,
+          "old_rank": 1,
+          "new_rank": 3,
+          "points_delta": -10500
+        },
+        {
+          "seed": 2502010,
+          "seat": 3,
+          "old_rank": 1,
+          "new_rank": 1,
+          "points_delta": 2500
+        },
+        {
+          "seed": 2502012,
+          "seat": 0,
+          "old_rank": 3,
+          "new_rank": 2,
+          "points_delta": 2000
+        },
+        {
+          "seed": 2502012,
+          "seat": 3,
+          "old_rank": 1,
+          "new_rank": 1,
+          "points_delta": -1000
+        },
+        {
+          "seed": 2502013,
+          "seat": 0,
+          "old_rank": 1,
+          "new_rank": 1,
+          "points_delta": 1400
+        },
+        {
+          "seed": 2502013,
+          "seat": 3,
+          "old_rank": 3,
+          "new_rank": 3,
+          "points_delta": 10700
+        },
+        {
+          "seed": 2502014,
+          "seat": 1,
+          "old_rank": 1,
+          "new_rank": 1,
+          "points_delta": 6500
+        },
+        {
+          "seed": 2502014,
+          "seat": 3,
+          "old_rank": 2,
+          "new_rank": 2,
+          "points_delta": 1500
+        },
+        {
+          "seed": 2502015,
+          "seat": 0,
+          "old_rank": 4,
+          "new_rank": 3,
+          "points_delta": 2500
+        },
+        {
+          "seed": 2502015,
+          "seat": 3,
+          "old_rank": 1,
+          "new_rank": 1,
+          "points_delta": 2000
+        }
+      ],
+      "total_points_delta": 38500
+    }
+  ],
+  "goal_complete": false,
+  "missing_evidence": "128 new wall streams, 512 matches per policy, net-point gain >=500 and paired 95% CI lower bound >0"
+}
