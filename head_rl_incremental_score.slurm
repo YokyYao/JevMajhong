@@ -12,7 +12,7 @@ export TOKENIZERS_PARALLELISM=false
 export PYTHONUNBUFFERED=1
 .venv/bin/python scripts/check_gpu.py
 .venv/bin/python scripts/train_incremental_score.py --config head-rl-score-incremental.json
-if .venv/bin/python -c 'import json; assert json.load(open("runs/head-rl-score-incremental-20261030/incremental-selection.json"))["selected"] is not None'; then
+if .venv/bin/python -c 'import json,sys; sys.exit(0 if json.load(open("runs/head-rl-score-incremental-20261030/incremental-selection.json"))["selected"] is not None else 1)'; then
   .venv/bin/python scripts/prepare_positive_confirmation.py \
     --source runs/head-rl-score-incremental-20261030 --out runs/head-rl-score-incremental-20261030-final
   sbatch --parsable --partition=ws-ia --time=02:00:00 \
