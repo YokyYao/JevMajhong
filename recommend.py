@@ -11,6 +11,7 @@ def main():
     parser.add_argument("--device", choices=("cpu", "cuda"), default="cuda")
     args = parser.parse_args()
     from jevany import JevModel
+    from jevany.checkpoint import LoadOptions
     from jevany.api import validate_distribution
     from jevany.inference import InferenceOptions
 
@@ -21,6 +22,7 @@ def main():
                  for name, q in record["questions"].items()}
     model = JevModel.from_pretrained(args.checkpoint, device=args.device,
         dtype="bf16" if args.device == "cuda" else "fp32",
+        options=LoadOptions(merge=False),
         inference_options=InferenceOptions(max_state_tokens=4096,
                                           max_branch_tokens=8192, max_packed_tokens=8192))
     response = model.system_one(state=record["state"], questions=questions)

@@ -27,3 +27,18 @@
 随后用现有`head_rl_confirm.slurm`执行；成功后独立CPU审计复算512+512条结果、终局回报、模型指纹和聚类区间。只测这个固定候选，不在4202数据上再挑其他检查点。若区间仍含0，继续保留证据不足的结论，再决定增加独立验证量还是改变训练机制。
 
 本次公开代码与本页摘要。完整协议、逐场、审计JSON和模型权重留在本地。
+
+## 推荐入口与评估配置对齐
+
+检查发现旧推荐入口继承库默认`merge=True`，而当前评分头训练与独立确认明确`merge=False`。新增`native_policy.py`并将`recommend_state.py`接入同一CUDA bf16、未合并LoRA、temperature1和上下文限制；合法动作与牌效防守筛选沿用原实现。`arena.py`与正在运行确认的数值代码保持原样。
+
+加载配置回归测试通过。完成确认后在同一GPU执行一次真实玩家观测的端到端CLI检查：返回合法约束动作，且与本次受评估的`HeadPolicy`对同一观测所选动作相同。它只验证接口一致性，不作为得分提升证据。
+
+本地实验调用：
+
+```bash
+.venv/bin/python recommend_state.py runs/example-observation.txt \
+  --checkpoint runs/head-rl-score-relative-ranking/checkpoints/update-000006 --guarded
+```
+
+观测文件是`Observation.serialize_to_base64()`输出。当前仍待完整效果确认；新权重留在本地。

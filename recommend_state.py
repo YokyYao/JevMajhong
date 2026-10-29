@@ -4,7 +4,8 @@ import json
 from pathlib import Path
 
 from riichienv import Observation
-from arena import EfficiencyAgent, ModelAgent
+from arena import EfficiencyAgent
+from native_policy import NativeModelAgent as ModelAgent
 from semantic import describe
 
 

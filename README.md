@@ -153,3 +153,5 @@ sbatch --account=YOUR_ACCOUNT --partition=YOUR_GPU_PARTITION ddp.slurm
 [新牌山增量续训](reports/2026-10-30-score-incremental/README.md)的第一批2048个单步样本已完成并审计通过；更新4/8完整开发相对本轮冻结起点-82.42/-53.91点/场，区间均含0，按两次未创新高停止；保留原排序更新6并进行新的独立确认。保留最好检查点，小幅正向信号不受固定增幅否决。
 
 [保留排序更新6的独立确认方案](plans/ranking6-preserved-confirmation.md)固定一个候选，在全新4202牌山与原2000步模型比较。+500是期望目标，改善证据以配对区间下界大于0为准，历史结果不回写。
+
+推荐入口已对齐当前独立评估的未合并LoRA加载方式；`recommend_state.py --guarded`使用同一原生策略。配置回归测试已通过，独立确认结束后另做真实观测的端到端一致性检查，不以接口检查代替净得点验证。
