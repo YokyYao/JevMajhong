@@ -1,4 +1,4 @@
-"""Small on-policy pointer-head PPO using terminal hanchan first-place rewards."""
+"""Small on-policy pointer-head PPO with explicit match formats and terminal objectives."""
 import copy
 from dataclasses import replace
 import hashlib
@@ -40,10 +40,43 @@ def mixed_probabilities(logits, eligible, epsilon):
     return (1-epsilon)*probabilities + epsilon/len(eligible)
 
 
-def terminal_reward(rank):
+def terminal_reward(rank, mode="first"):
     if rank not in (1, 2, 3, 4):
         raise ValueError("Invalid final rank")
-    return float(rank == 1)
+    if mode not in ("first", "top2"):
+        raise ValueError("Unsupported terminal reward mode")
+    return float(rank <= (2 if mode == "top2" else 1))
+
+
+def primary_metric(config):
+    return "top2_rate" if config.get("reward_mode", "first") == "top2" else "first_rate"
+
+
+def plateau_checks(baseline, previous, current):
+    best, stale = baseline, 0
+    for value in [*previous, current]:
+        if value > best:
+            best, stale = value, 0
+        else:
+            stale += 1
+    return stale
+
+
+def paired_primary_comparison(candidate, reference, config, confidence=.95):
+    from arena import ci
+    from scripts.evaluate_round2 import paired_comparison
+    result = paired_comparison(candidate, reference)
+    metric = primary_metric(config)
+    a = {(r["seed"], r["seat"]): r for r in candidate}
+    b = {(r["seed"], r["seat"]): r for r in reference}
+    seeds = sorted({s for s, _ in a})
+    cutoff = 2 if metric == "top2_rate" else 1
+    delta = [sum(int(a[s, seat]["rank"] <= cutoff)-int(b[s, seat]["rank"] <= cutoff)
+                 for seat in range(4))/4 for s in seeds]
+    result["primary_metric"] = metric
+    result["primary_delta"] = sum(delta)/len(delta)
+    result["primary_delta_ci95"] = ci(delta, confidence=confidence)
+    return result
 
 
 def deployment_greedy_index(logits, eligible):
@@ -65,6 +98,8 @@ def summarize(rows):
     return {"games": n, "independent_seeds": len({r["seed"] for r in rows}),
             "firsts": sum(r["rank"] == 1 for r in rows),
             "first_rate": sum(r["rank"] == 1 for r in rows)/n,
+            "top2s": sum(r["rank"] <= 2 for r in rows),
+            "top2_rate": sum(r["rank"] <= 2 for r in rows)/n,
             "mean_rank": sum(r["rank"] for r in rows)/n,
             "fourth_rate": sum(r["rank"] == 4 for r in rows)/n,
             "mean_final_points": sum(r["score"] for r in rows)/n,
@@ -75,6 +110,22 @@ def development_gate(stage, candidate, baseline, config):
     first = candidate["first_rate"] - baseline["first_rate"]
     points = candidate["mean_net_points"] - baseline["mean_net_points"]
     fourth = candidate["fourth_rate"] - baseline["fourth_rate"]
+    if config.get("reward_mode", "first") == "top2":
+        gain = candidate["top2_rate"] - baseline["top2_rate"]
+        required = max(config["target_top2_rate"], baseline["top2_rate"]+config["target_top2_gain"])
+        details = {"top2_gain": gain, "required_top2_rate": required, "first_gain": first,
+                   "net_points_gain": points, "fourth_increase": fourth}
+        if (gain <= -config["top2_drop_stop"] or first <= -config["first_drop_stop"]
+                or points <= -config["net_points_drop_stop"] or fourth >= config["fourth_increase_stop"]):
+            return "stop_regression", details
+        if (candidate["top2_rate"] >= required and points >= 0
+                and fourth <= config["target_fourth_tolerance"]):
+            return "target_reached", details
+        if stage >= 2 and gain < config["stage_two_min_top2_gain"]:
+            return "stop_no_early_progress", details
+        if stage >= config["max_stages"]:
+            return "stop_target_not_reached", details
+        return "continue", details
     details = {"first_gain": first, "net_points_gain": points, "fourth_increase": fourth,
                "required_first_rate": max(config["target_first_rate"],
                                           baseline["first_rate"]+config["target_first_gain"])}
@@ -175,7 +226,10 @@ class HeadPolicy:
 
     def game(self, seed, seat, training=False, frozen=False, old_opponent=False):
         actual_seed = engine_seed(seed, self.config.get("seed_scheme", "raw"))
-        env = RiichiEnv(game_mode="4p-red-half", rule=GameRule.default_mjsoul(), seed=actual_seed)
+        game_mode = self.config.get("game_mode", "4p-red-half")
+        if game_mode not in ("4p-red-east", "4p-red-half"):
+            raise ValueError("Unsupported four-player match format")
+        env = RiichiEnv(game_mode=game_mode, rule=GameRule.default_mjsoul(), seed=actual_seed)
         observations = env.reset()
         baseline, trace, steps = EfficiencyAgent(), [], 0
         while not env.done():
@@ -195,7 +249,8 @@ class HeadPolicy:
         row = {"seed": seed, "engine_seed": actual_seed, "seed_scheme": self.config.get("seed_scheme", "raw"),
                "seat": seat, "rank": int(env.ranks()[seat]),
                "score": int(env.scores()[seat]), "environment_steps": steps,
-               "reward": terminal_reward(int(env.ranks()[seat])), "trainable_decisions": len(trace),
+               "game_mode": game_mode, "reward_mode": self.config.get("reward_mode", "first"),
+               "reward": terminal_reward(int(env.ranks()[seat]), self.config.get("reward_mode", "first")), "trainable_decisions": len(trace),
                "old_opponent": old_opponent}
         for item in trace:
             item["return"] = float(row["reward"])
@@ -274,7 +329,7 @@ def save_checkpoint(policy, optimizer, out, update, stage, stage_update, config_
                    head={k: v.detach().cpu().clone() for k, v in policy.head.state_dict().items()}, temperature=1.0,
                    extra={"args": {k: v for k, v in policy.reference_meta.extra.get("args", {}).items()
                                    if k in ("lora_targets", "lora_target_modules", "lora_dropout")},
-                          "training_method": "pointer-head PPO with terminal first-place reward",
+                          "training_method": "pointer-head PPO with terminal "+policy.config.get("reward_mode", "first")+" reward",
                           "rl_update": update, "parent": str(source), "protocol_sha256": config_hash,
                           "rl_config": policy.config})
     write_meta(path, meta)

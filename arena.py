@@ -68,8 +68,8 @@ class ModelAgent:
         return actions[max(eligible, key=lambda i: probabilities[i])]
 
 
-def play(agent, seat, seed, seed_scheme="spaced-v1"):
-    env = RiichiEnv(game_mode="4p-red-half", rule=GameRule.default_mjsoul(), seed=engine_seed(seed, seed_scheme))
+def play(agent, seat, seed, seed_scheme="spaced-v1", game_mode="4p-red-half"):
+    env = RiichiEnv(game_mode=game_mode, rule=GameRule.default_mjsoul(), seed=engine_seed(seed, seed_scheme))
     baseline = EfficiencyAgent()
     obs = env.reset()
     steps = 0
@@ -84,7 +84,7 @@ def play(agent, seat, seed, seed_scheme="spaced-v1"):
     wins = sum(e["type"] == "hora" and e.get("actor") == seat for e in log)
     dealins = sum(e["type"] == "hora" and e.get("target") == seat and e.get("actor") != seat for e in log)
     return {"seed": seed, "engine_seed": engine_seed(seed, seed_scheme), "seed_scheme": seed_scheme,
-            "seat": seat, "rank": env.ranks()[seat],
+            "game_mode": game_mode, "seat": seat, "rank": env.ranks()[seat],
             "score": env.scores()[seat], "hands": starts, "hand_wins": wins,
             "dealins": dealins, "steps": steps}
 
@@ -108,16 +108,19 @@ def main():
                         help="spaced-v1 isolates wall streams; raw only reproduces legacy results")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument("--game-mode", choices=("4p-red-east", "4p-red-half"), default="4p-red-half")
     args = parser.parse_args()
     if args.seeds < 1:
         parser.error("--seeds must be positive")
     args.out.mkdir(parents=True, exist_ok=args.resume)
     config = {"checkpoint": args.checkpoint, "guarded": args.guarded,
-              "seeds": args.seeds, "seed_start": args.seed_start, "seed_scheme": args.seed_scheme}
+              "seeds": args.seeds, "seed_start": args.seed_start, "seed_scheme": args.seed_scheme,
+              "game_mode": args.game_mode}
     config_path = args.out / "arena_config.json"
     if config_path.exists():
         saved = json.loads(config_path.read_text())
         saved.setdefault("seed_scheme", "raw")
+        saved.setdefault("game_mode", "4p-red-half")
         if saved != config:
             raise ValueError("Arena resume configuration differs from original run")
     else:
@@ -137,8 +140,8 @@ def main():
                 if (seed, seat) in completed:
                     continue
                 calls_before = getattr(candidate, "calls", 0)
-                base = play(EfficiencyAgent(), seat, seed, args.seed_scheme)
-                result = play(candidate, seat, seed, args.seed_scheme) if args.checkpoint else base.copy()
+                base = play(EfficiencyAgent(), seat, seed, args.seed_scheme, args.game_mode)
+                result = play(candidate, seat, seed, args.seed_scheme, args.game_mode) if args.checkpoint else base.copy()
                 row = {"baseline": base, "candidate": result,
                        "model_calls": getattr(candidate, "calls", 0) - calls_before}
                 rows.append(row)
@@ -153,7 +156,9 @@ def main():
               for seed in range(args.seed_start, args.seed_start + args.seeds)]
     report = {"games": len(rows), "independent_seeds": args.seeds if args.seed_scheme == "spaced-v1" else None,
         "nominal_seed_groups": args.seeds, "seed_scheme": args.seed_scheme,
+        "game_mode": args.game_mode,
         "mean_rank": statistics.mean(ranks), "first_rate": ranks.count(1)/len(ranks),
+        "top2_rate": sum(r <= 2 for r in ranks)/len(ranks),
         "fourth_rate": ranks.count(4)/len(ranks),
         "hand_win_rate": sum(x["hand_wins"] for x in candidate_rows)/sum(x["hands"] for x in candidate_rows),
         "dealin_rate": sum(x["dealins"] for x in candidate_rows)/sum(x["hands"] for x in candidate_rows),

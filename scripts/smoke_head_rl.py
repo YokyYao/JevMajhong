@@ -1,5 +1,6 @@
 """Hardware smoke check: native feature replay, finite PPO gradients, frozen backbone."""
 import copy
+import argparse
 import json
 from pathlib import Path
 import sys
@@ -13,12 +14,16 @@ from head_rl import HeadPolicy, PPO, fingerprint, write
 
 
 def main():
-    config = json.loads((ROOT/'head-rl-pilot.json').read_text())
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', type=Path, default=ROOT/'head-rl-pilot.json')
+    parser.add_argument('--out', type=Path, default=ROOT/'runs/head-rl-smoke.json')
+    args = parser.parse_args()
+    config = json.loads(args.config.read_text())
     source = ROOT/config['reference']
     original_hash = fingerprint(source/'head.pt')
     policy = HeadPolicy(config)
     initial_head = copy.deepcopy(policy.head.state_dict())
-    env = RiichiEnv(game_mode='4p-red-half', rule=GameRule.default_mjsoul(), seed=1199000)
+    env = RiichiEnv(game_mode=config.get('game_mode', '4p-red-half'), rule=GameRule.default_mjsoul(), seed=1199000)
     observations, baseline, trace = env.reset(), EfficiencyAgent(), []
     for _ in range(3000):
         selected = {p: policy.act(o, stochastic=True, trace=trace) if p == 0 else baseline.act(o)
@@ -45,7 +50,9 @@ def main():
     result = {'native_feature_checks': policy.checks, 'synthetic_gradient_test': True,
               'head_parameters_changed_then_restored': changed,
               'backbone_received_gradients': False, 'reference_file_unchanged': True, 'losses': losses}
-    write(ROOT/'runs/head-rl-smoke.json', result)
+    result['game_mode'] = config.get('game_mode', '4p-red-half')
+    result['reward_mode'] = config.get('reward_mode', 'first')
+    write(args.out, result)
     print('head_rl_smoke '+json.dumps(result), flush=True)
 
 

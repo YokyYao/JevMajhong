@@ -4,13 +4,14 @@ import copy
 import json
 from pathlib import Path
 import random
+import subprocess
 import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import torch
-from head_rl import HeadPolicy, PPO, deployment_greedy_index, development_gate, fingerprint, mixed_probabilities, save_checkpoint, summarize, write
+from head_rl import HeadPolicy, PPO, deployment_greedy_index, development_gate, fingerprint, mixed_probabilities, paired_primary_comparison, plateau_checks, primary_metric, save_checkpoint, summarize, write
 
 
 class PilotDeadline(RuntimeError):
@@ -27,6 +28,9 @@ def evaluate(policy, directory, config, deadline, frozen=False):
                                          config["development_seed_start"]+config["development_seeds"]) for seat in range(4)}
     if len(keys) != len(rows) or not keys <= expected:
         raise ValueError("Development game coverage differs from frozen protocol")
+    if any(r.get("game_mode", "4p-red-half") != config.get("game_mode", "4p-red-half")
+           or r.get("reward_mode", "first") != config.get("reward_mode", "first") for r in rows):
+        raise ValueError("Development match format or reward differs from frozen protocol")
     with path.open("a") as output:
         for seed, seat in sorted(expected-keys):
             if time.monotonic() >= deadline:
@@ -63,6 +67,8 @@ def main():
                         help="Explicitly migrate a saved stage boundary to independent wall streams")
     args = parser.parse_args()
     config = json.loads(args.config.read_text())
+    if config.get("reward_mode", "first") not in ("first", "top2") or config.get("game_mode", "4p-red-half") not in ("4p-red-east", "4p-red-half"):
+        raise ValueError("Unsupported reward or match format")
     if config.get("seed_scheme") != "spaced-v1":
         raise ValueError("Raw contiguous episode seeds are retired; use the reviewed spaced-v1 protocol")
     out = ROOT/config["out"]
@@ -77,6 +83,9 @@ def main():
     if (out/"protocol.json").exists() and json.loads((out/"protocol.json").read_text())["config"] != config:
         raise ValueError("Cannot change a resumed pilot protocol")
     write(out/"protocol.json", {"config": config, "sha256": config_hash,
+                              "code_tree_sha": subprocess.check_output(['git', 'rev-parse', 'HEAD^{tree}'], cwd=ROOT, text=True).strip(),
+                              "code_sha256": {str(p.relative_to(ROOT)): fingerprint(p) for p in
+                                              [ROOT/'head_rl.py', Path(__file__), ROOT/'arena.py', ROOT/'scripts/confirm_head_rl.py']},
                               "reference_adapter_sha256": fingerprint(ROOT/config["reference"]/"adapter_model.safetensors"),
                               "reference_head_sha256": fingerprint(ROOT/config["reference"]/"head.pt")})
     random.seed(config["seed"]); torch.manual_seed(config["seed"]); torch.cuda.manual_seed_all(config["seed"])
@@ -120,6 +129,7 @@ def main():
     checkpoints.mkdir(exist_ok=True)
     results = json.loads((out/"development-results.json").read_text()) if (out/"development-results.json").exists() else []
     baseline, baseline_rows = None, []
+    metric = primary_metric(config)
     reason, last_rollout = "stop_target_not_reached", None
 
     def record_stage(stage):
@@ -127,10 +137,15 @@ def main():
         write(out/"status.json", {"status": "development_validation", "stage": stage, "updates": update})
         report, rows = evaluate(policy, out/f"development-update-{update:06d}", config, deadline)
         decision, changes = development_gate(stage, report, baseline, config)
-        from scripts.evaluate_round2 import paired_comparison
         item = {"stage": stage, "update": update, "metrics": report, "decision": decision,
-                "changes": changes, "paired_exploratory": paired_comparison(rows, baseline_rows),
+                "changes": changes, "paired_exploratory": paired_primary_comparison(rows, baseline_rows, config),
                 "checkpoint": str((checkpoints/f"update-{update:06d}").relative_to(ROOT))}
+        if config.get("plateau_patience") and decision == "continue":
+            history = [r["metrics"][metric] for r in results if r["update"] < update]
+            stale = plateau_checks(baseline[metric], history, report[metric])
+            if stale >= config["plateau_patience"]:
+                item["decision"] = decision = "stop_plateau"
+                changes["consecutive_checks_without_new_best"] = stale
         results[:] = [r for r in results if r["update"] != update] + [item]
         write(out/"development-results.json", results)
         print("development_gate "+json.dumps(item), flush=True)
@@ -215,13 +230,14 @@ def main():
 
     # Never promote from repeatedly inspected development results.
     passed = [r for r in results if r["decision"] == "target_reached"]
-    selected = max(passed, key=lambda r: (r["metrics"]["first_rate"], r["metrics"]["mean_net_points"])) if passed else None
+    selected = max(passed, key=lambda r: (r["metrics"][metric], r["metrics"]["mean_net_points"])) if passed else None
     reference = ROOT/config["reference"]
     protocol = json.loads((out/"protocol.json").read_text())
     if fingerprint(reference/"adapter_model.safetensors") != protocol["reference_adapter_sha256"] or fingerprint(reference/"head.pt") != protocol["reference_head_sha256"]:
         raise ValueError("Original reference weights changed")
     analysis = {"status": "pilot_complete", "stop_reason": reason, "updates": update,
                 "baseline": baseline, "development": results, "last_rollout": last_rollout,
+                "primary_metric": metric, "game_mode": config.get("game_mode", "4p-red-half"),
                 "selected_for_confirmation": selected, "default_policy_changed": False,
                 "inference_feature_checks_passed": policy.checks,
                 "actor_trainable_parameters": actor_parameters,
@@ -230,13 +246,13 @@ def main():
                                   "not a claim of statistical improvement. Frozen reference remains available."}
     write(out/"pilot-analysis.json", analysis)
     lines = ["# 评分头强化学习阶段结果", "", f"停止原因：`{reason}`；完成 {update} 次小批更新。", "",
-             "奖励仅为半庄最终第一名得1，否则得0；底座和LoRA未更新。默认策略未改变。", "",
-             "| 检查点 | 一位率 | 平均净得点 | 末位率 | 阶段结论 |", "| --- | ---: | ---: | ---: | --- |"]
+             f"对局格式：{config.get('game_mode', '4p-red-half')}；奖励：{config['reward']}；底座和LoRA未更新。默认策略未改变。", "",
+             "| 检查点 | 前二率 | 一位率 | 平均净得点 | 末位率 | 阶段结论 |", "| --- | ---: | ---: | ---: | ---: | --- |"]
     if baseline:
-        lines.append(f"| 旧模型 | {baseline['first_rate']:.2%} | {baseline['mean_net_points']:.1f} | {baseline['fourth_rate']:.2%} | 参考 |")
+        lines.append(f"| 旧模型 | {baseline['top2_rate']:.2%} | {baseline['first_rate']:.2%} | {baseline['mean_net_points']:.1f} | {baseline['fourth_rate']:.2%} | 参考 |")
     for r in results:
         m = r["metrics"]
-        lines.append(f"| 更新{r['update']} | {m['first_rate']:.2%} | {m['mean_net_points']:.1f} | {m['fourth_rate']:.2%} | {r['decision']} |")
+        lines.append(f"| 更新{r['update']} | {m['top2_rate']:.2%} | {m['first_rate']:.2%} | {m['mean_net_points']:.1f} | {m['fourth_rate']:.2%} | {r['decision']} |")
     lines += ["", "若目标未达到，停止此配方，保留全部检查点和轨迹。结合策略KL、实际动作翻转比例、训练回报变化和独立开发对局分析，不能把训练损失下降当作胜率提升。"]
     if last_rollout:
         d = last_rollout["diagnostics"]
