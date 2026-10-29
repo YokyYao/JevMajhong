@@ -9,7 +9,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from arena import ci
-from head_rl import HeadPolicy, paired_primary_comparison, primary_metric, summarize, write
+from head_rl import HeadPolicy, format_metric, paired_primary_comparison, primary_metric, summarize, write
 from scripts.train_head_rl import evaluate
 
 
@@ -48,13 +48,17 @@ def main():
                    for s in seeds], confidence=.95)
     candidate, reference = summarize(data['candidate']), summarize(data['reference'])
     metric = primary_metric(config)
-    rate_key = 'target_top2_rate' if metric == 'top2_rate' else 'target_first_rate'
-    gain_key = 'target_top2_gain' if metric == 'top2_rate' else 'target_first_gain'
     primary_ci = paired['primary_delta_ci95']
-    qualified = (candidate[metric] >= config[rate_key]
-                 and candidate[metric]-reference[metric] >= config[gain_key]
-                 and primary_ci is not None and primary_ci[0] > 0 and candidate['mean_net_points'] >= reference['mean_net_points']
-                 and candidate['fourth_rate'] <= reference['fourth_rate']+config['target_fourth_tolerance'])
+    if metric == 'mean_net_points':
+        qualified = (candidate[metric] >= max(config['target_mean_net_points'], reference[metric]+config['target_net_points_gain'])
+                     and primary_ci is not None and primary_ci[0] > 0)
+    else:
+        rate_key = 'target_top2_rate' if metric == 'top2_rate' else 'target_first_rate'
+        gain_key = 'target_top2_gain' if metric == 'top2_rate' else 'target_first_gain'
+        qualified = (candidate[metric] >= config[rate_key]
+                     and candidate[metric]-reference[metric] >= config[gain_key]
+                     and primary_ci is not None and primary_ci[0] > 0 and candidate['mean_net_points'] >= reference['mean_net_points']
+                     and candidate['fourth_rate'] <= reference['fourth_rate']+config['target_fourth_tolerance'])
     result = {'status': 'complete', 'qualified': qualified, 'candidate': candidate, 'reference': reference,
               'primary_metric': metric, 'primary_delta_ci95': primary_ci,
               'game_mode': config.get('game_mode', '4p-red-half'),
@@ -65,7 +69,7 @@ def main():
                              'checkpoint': selection['checkpoint']})
     with (out/'analysis.md').open('a') as stream:
         stream.write('\n## 独立确认结果\n\n')
-        stream.write(f"主要指标 {metric}：候选 {candidate[metric]:.2%}，旧模型 {reference[metric]:.2%}；"
+        stream.write(f"主要指标 {metric}：候选 {format_metric(candidate[metric], metric)}，旧模型 {format_metric(reference[metric], metric)}；"
                      f"配对主要指标差95%区间 {primary_ci}。候选平均净得点 {candidate['mean_net_points']:.1f}，"
                      f"旧模型 {reference['mean_net_points']:.1f}。阶段目标{'通过' if qualified else '未通过，停止此配方'}。\n")
     print('confirmation_result '+json.dumps(result), flush=True)

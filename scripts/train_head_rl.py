@@ -11,7 +11,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import torch
-from head_rl import HeadPolicy, PPO, deployment_greedy_index, development_gate, fingerprint, mixed_probabilities, paired_primary_comparison, plateau_checks, primary_metric, save_checkpoint, summarize, write
+from head_rl import HeadPolicy, PPO, deployment_greedy_index, development_gate, fingerprint, mixed_probabilities, paired_primary_comparison, plateau_checks, primary_metric, save_checkpoint, summarize, terminal_reward, write
 
 
 class PilotDeadline(RuntimeError):
@@ -67,8 +67,9 @@ def main():
                         help="Explicitly migrate a saved stage boundary to independent wall streams")
     args = parser.parse_args()
     config = json.loads(args.config.read_text())
-    if config.get("reward_mode", "first") not in ("first", "top2") or config.get("game_mode", "4p-red-half") not in ("4p-red-east", "4p-red-half"):
+    if config.get("reward_mode", "first") not in ("first", "top2", "net_points") or config.get("game_mode", "4p-red-half") not in ("4p-red-east", "4p-red-half"):
         raise ValueError("Unsupported reward or match format")
+    terminal_reward(1, config.get("reward_mode", "first"), score=25000, scale=config.get("reward_scale", 1000.0))
     if config.get("seed_scheme") != "spaced-v1":
         raise ValueError("Raw contiguous episode seeds are retired; use the reviewed spaced-v1 protocol")
     out = ROOT/config["out"]

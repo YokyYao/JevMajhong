@@ -40,16 +40,30 @@ def mixed_probabilities(logits, eligible, epsilon):
     return (1-epsilon)*probabilities + epsilon/len(eligible)
 
 
-def terminal_reward(rank, mode="first"):
+def terminal_reward(rank, mode="first", score=None, scale=1000.0):
     if rank not in (1, 2, 3, 4):
         raise ValueError("Invalid final rank")
-    if mode not in ("first", "top2"):
+    if mode not in ("first", "top2", "net_points"):
         raise ValueError("Unsupported terminal reward mode")
+    if mode == "net_points":
+        if score is None or not math.isfinite(float(score)) or not math.isfinite(scale) or scale <= 0:
+            raise ValueError("Net-point reward needs finite final points and a positive scale")
+        return (float(score)-25000.0)/scale
     return float(rank <= (2 if mode == "top2" else 1))
 
 
 def primary_metric(config):
-    return "top2_rate" if config.get("reward_mode", "first") == "top2" else "first_rate"
+    return {"first": "first_rate", "top2": "top2_rate", "net_points": "mean_net_points"}[config.get("reward_mode", "first")]
+
+
+def state_value(critic, features, config):
+    value = critic(features).squeeze()
+    # Signed point returns must not be restricted to probabilities in [0, 1].
+    return value if config.get("reward_mode", "first") == "net_points" else torch.sigmoid(value)
+
+
+def format_metric(value, metric):
+    return f"{value:+.1f}点" if metric == "mean_net_points" else f"{value:.2%}"
 
 
 def plateau_checks(baseline, previous, current):
@@ -70,9 +84,12 @@ def paired_primary_comparison(candidate, reference, config, confidence=.95):
     a = {(r["seed"], r["seat"]): r for r in candidate}
     b = {(r["seed"], r["seat"]): r for r in reference}
     seeds = sorted({s for s, _ in a})
-    cutoff = 2 if metric == "top2_rate" else 1
-    delta = [sum(int(a[s, seat]["rank"] <= cutoff)-int(b[s, seat]["rank"] <= cutoff)
-                 for seat in range(4))/4 for s in seeds]
+    if metric == "mean_net_points":
+        delta = [sum(a[s, seat]["score"]-b[s, seat]["score"] for seat in range(4))/4 for s in seeds]
+    else:
+        cutoff = 2 if metric == "top2_rate" else 1
+        delta = [sum(int(a[s, seat]["rank"] <= cutoff)-int(b[s, seat]["rank"] <= cutoff)
+                     for seat in range(4))/4 for s in seeds]
     result["primary_metric"] = metric
     result["primary_delta"] = sum(delta)/len(delta)
     result["primary_delta_ci95"] = ci(delta, confidence=confidence)
@@ -110,6 +127,20 @@ def development_gate(stage, candidate, baseline, config):
     first = candidate["first_rate"] - baseline["first_rate"]
     points = candidate["mean_net_points"] - baseline["mean_net_points"]
     fourth = candidate["fourth_rate"] - baseline["fourth_rate"]
+    if config.get("reward_mode", "first") == "net_points":
+        required = max(config["target_mean_net_points"], baseline["mean_net_points"]+config["target_net_points_gain"])
+        details = {"net_points_gain": points, "required_mean_net_points": required,
+                   "first_gain": first, "top2_gain": candidate["top2_rate"]-baseline["top2_rate"],
+                   "fourth_increase": fourth}
+        if points <= -config["net_points_drop_stop"]:
+            return "stop_regression", details
+        if candidate["mean_net_points"] >= required:
+            return "target_reached", details
+        if stage >= 2 and points < config["stage_two_min_net_points_gain"]:
+            return "stop_no_early_progress", details
+        if stage >= config["max_stages"]:
+            return "stop_target_not_reached", details
+        return "continue", details
     if config.get("reward_mode", "first") == "top2":
         gain = candidate["top2_rate"] - baseline["top2_rate"]
         required = max(config["target_top2_rate"], baseline["top2_rate"]+config["target_top2_gain"])
@@ -218,7 +249,7 @@ class HeadPolicy:
                 index = deployment_greedy_index(logits, eligible)
             if trace is not None and len(eligible) > 1:
                 reference = mixed_probabilities(self.reference(decide, options), eligible, epsilon)
-                value = float(torch.sigmoid(self.critic(decide)).squeeze())
+                value = float(state_value(self.critic, decide, self.config))
                 trace.append({"decide": decide.cpu(), "options": options.cpu(), "eligible": eligible,
                               "action": index, "old_logp": float(probabilities[index].log()),
                               "reference": reference.cpu(), "old_value": value})
@@ -250,7 +281,10 @@ class HeadPolicy:
                "seat": seat, "rank": int(env.ranks()[seat]),
                "score": int(env.scores()[seat]), "environment_steps": steps,
                "game_mode": game_mode, "reward_mode": self.config.get("reward_mode", "first"),
-               "reward": terminal_reward(int(env.ranks()[seat]), self.config.get("reward_mode", "first")), "trainable_decisions": len(trace),
+               "reward_scale": self.config.get("reward_scale", 1000.0),
+               "reward": terminal_reward(int(env.ranks()[seat]), self.config.get("reward_mode", "first"),
+                                         score=int(env.scores()[seat]), scale=self.config.get("reward_scale", 1000.0)),
+               "trainable_decisions": len(trace),
                "old_opponent": old_opponent}
         for item in trace:
             item["return"] = float(row["reward"])
@@ -277,7 +311,7 @@ class PPO:
             reference = row["reference"].to("cuda")
             kl = (probability*(probability.log()-reference.log())).sum()
             entropy = -(probability*probability.log()).sum()
-            value = torch.sigmoid(critic(decide)).squeeze()
+            value = state_value(critic, decide, config)
             value_loss = .5*(value-row["return"]).square()
             losses.append(actor + config["reference_kl_beta"]*kl - config["entropy_beta"]*entropy + value_loss)
             policy_losses.append(actor.detach()); values.append(value_loss.detach())
@@ -288,15 +322,16 @@ class PPO:
         self.optimizer.zero_grad()
         loss.backward()
         grad = torch.nn.utils.clip_grad_norm_(head.parameters(), .5)
-        torch.nn.utils.clip_grad_norm_(critic.parameters(), .5)
-        if not torch.isfinite(grad):
-            raise FloatingPointError("Nonfinite head gradient")
+        critic_grad = torch.nn.utils.clip_grad_norm_(critic.parameters(), .5)
+        if not torch.isfinite(grad) or not torch.isfinite(critic_grad):
+            raise FloatingPointError("Nonfinite head or critic gradient")
         self.optimizer.step()
         if any(p.grad is not None for p in self.policy.model.lm.parameters()):
             raise ValueError("Frozen backbone received a gradient")
         return {"loss": float(loss.detach()), "policy_loss": float(torch.stack(policy_losses).mean()),
                 "value_loss": float(torch.stack(values).mean()), "reference_kl_batch": float(torch.stack(kls).mean()),
-                "entropy": float(torch.stack(entropies).mean()), "head_grad_norm": float(grad)}
+                "entropy": float(torch.stack(entropies).mean()), "head_grad_norm": float(grad),
+                "critic_grad_norm": float(critic_grad)}
 
     @torch.no_grad()
     def reference_kl(self, rows):

@@ -37,7 +37,7 @@ def main():
         raise ValueError('Insufficient native probability and feature-alignment checks')
     # Synthetic returns below are only a gradient unit test, never training rollouts or reported win rates.
     for i, row in enumerate(trace):
-        row['return'] = float(i % 2)
+        row['return'] = (-10.0 if i % 2 == 0 else 15.0) if config.get('reward_mode') == 'net_points' else float(i % 2)
         row['advantage'] = 1. if i % 2 else -1.
     optimizer = PPO(policy)
     losses = optimizer.update(trace)
@@ -52,6 +52,7 @@ def main():
               'backbone_received_gradients': False, 'reference_file_unchanged': True, 'losses': losses}
     result['game_mode'] = config.get('game_mode', '4p-red-half')
     result['reward_mode'] = config.get('reward_mode', 'first')
+    result['synthetic_return_range'] = [min(r['return'] for r in trace), max(r['return'] for r in trace)]
     write(args.out, result)
     print('head_rl_smoke '+json.dumps(result), flush=True)
 
