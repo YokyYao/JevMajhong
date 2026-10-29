@@ -54,6 +54,7 @@ def audit_records(games, controls, rows, config, head):
         traces[key] = row
     sampling_seeds, position_seeds, positive, negative, zero = set(), set(), 0, 0, 0
     branches, reused, signal_groups = 0, 0, set()
+    gradient_factors = {'positive_delta': [], 'negative_delta': [], 'zero_delta': []}
     with torch.no_grad():
         for key, game in episodes.items():
             control = refs[key[:2]]
@@ -83,6 +84,7 @@ def audit_records(games, controls, rows, config, head):
             require(len(row['eligible']) > 1 and len(set(row['eligible'])) == len(row['eligible']), 'Invalid eligible action set')
             require(all(isinstance(i, int) and 0 <= i < len(row['options']) for i in row['eligible']), 'Invalid cached action indices')
             logits = head(row['decide'], row['options'])
+            require(bool(torch.isfinite(logits).all()), 'Nonfinite cached pointer logits')
             p = mixed_probabilities(logits, row['eligible'], config['exploration_uniform'])
             require(torch.allclose(p, row['reference'], atol=2e-5, rtol=2e-4), 'Cached behavior probabilities differ')
             sampled = int(torch.multinomial(p, 1, generator=torch.Generator().manual_seed(sampling)))
@@ -105,6 +107,9 @@ def audit_records(games, controls, rows, config, head):
                         and game['simulated_continuation_steps'] == game['environment_steps'] - game['intervention_step']
                         and game['simulated_continuation_steps'] > 0, 'Invalid intervention branch step accounting')
             positive += delta > 0; negative += delta < 0; zero += delta == 0
+            raw_p = torch.softmax(logits[row['eligible']].float(), -1)
+            factor = float((1-config['exploration_uniform'])*raw_p[sampled]/p[sampled])
+            gradient_factors['positive_delta' if delta > 0 else 'negative_delta' if delta < 0 else 'zero_delta'].append(factor)
             if delta:
                 signal_groups.add(key[:2])
     require(len(sampling_seeds) == len(games) and len(position_seeds) == len(games)
@@ -114,6 +119,9 @@ def audit_records(games, controls, rows, config, head):
             'actual_branch_simulations': branches, 'unchanged_action_reuses': reused,
             'positive_point_deltas': positive, 'negative_point_deltas': negative, 'zero_point_deltas': zero,
             'informative_groups': len(signal_groups), 'verified_sampling_replays': len(rows),
+            'uniform_mixture_logprob_gradient_factor': {
+                name: {'states': len(values), 'mean': sum(values)/len(values) if values else None,
+                       'below_1e_3': sum(v < 1e-3 for v in values)} for name, values in gradient_factors.items()},
             'training_records_only': True, 'performance_claim': False}
 
 
