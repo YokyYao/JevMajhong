@@ -1,0 +1,22 @@
+{
+  "attempts": [
+    {
+      "job_id": 253695,
+      "node": "ws-l1-013",
+      "result": "failed_gpu_preflight",
+      "test_games_generated": 0,
+      "reason": "Other compute process already present on assigned GPU; preflight refused to start"
+    },
+    {
+      "job_id": 253703,
+      "node": "ws-l4-012",
+      "result": "running_clean_gpu",
+      "node_change_before_allocation": "ws-l4-014 resource wait avoided by updating same pending job to idle ws-l4-012",
+      "other_compute_processes": 0
+    }
+  ],
+  "candidate_changed": false,
+  "seeds_changed": false,
+  "audit_job_id": 253704,
+  "audit_dependency": "afterok:253703"
+}

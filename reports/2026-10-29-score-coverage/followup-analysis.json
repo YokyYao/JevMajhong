@@ -1,0 +1,17 @@
+{
+  "independent_streams": 128,
+  "positive_streams": 50,
+  "negative_streams": 46,
+  "unchanged_streams": 32,
+  "total_points_delta": 129000.0,
+  "mean_points_delta": 251.953125,
+  "changed_games": 158,
+  "positive_game_deltas": 77,
+  "negative_game_deltas": 79,
+  "selection_locked_before_test_commit": "2e1e5abcbc209842a7c84fdb53d3e7354fcc4895",
+  "followup_job_id": 253703,
+  "audit_job_id": 253704,
+  "both_exit_codes": 0,
+  "carry_training_started_before_confirmation_result": true,
+  "carry_initialization_weights_verified_equal_candidate": true
+}

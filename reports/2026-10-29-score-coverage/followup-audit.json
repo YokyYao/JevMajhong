@@ -1,0 +1,45 @@
+{
+  "audit_status": "passed",
+  "checkpoint": "runs/head-rl-score-coverage/checkpoints/update-000008",
+  "candidate_head_sha256": "7808b4a70fb44fff07ea18fe38b954fbf6a9b1a8f06296609ab29a80a2674d11",
+  "config_sha256": "dd2cc20325541f696c24c029b34f7091503a3d97f411272f6cec3b7162612c5f",
+  "raw_record_sha256": {
+    "reference": "e654305b013f245a01a011f4bbdca0adbbdfec0ad1ca8d09b91a4125ea964cc0",
+    "candidate": "f2d0a91bce8a2c89e8340658d052ffe61da49b55354f195ba9e3ce7c0750f9ca"
+  },
+  "training_and_evaluation_streams_disjoint": true,
+  "scope": "Fixed four-player East simulator with three rule opponents; not Mahjong Soul ranked performance",
+  "candidate": {
+    "games": 512,
+    "independent_seeds": 128,
+    "firsts": 148,
+    "first_rate": 0.2890625,
+    "top2s": 285,
+    "top2_rate": 0.556640625,
+    "mean_rank": 2.373046875,
+    "fourth_rate": 0.21875,
+    "mean_final_points": 25943.75,
+    "mean_net_points": 943.75
+  },
+  "reference": {
+    "games": 512,
+    "independent_seeds": 128,
+    "firsts": 150,
+    "first_rate": 0.29296875,
+    "top2s": 283,
+    "top2_rate": 0.552734375,
+    "mean_rank": 2.390625,
+    "fourth_rate": 0.236328125,
+    "mean_final_points": 25691.796875,
+    "mean_net_points": 691.796875
+  },
+  "primary_delta": 251.953125,
+  "primary_delta_ci95": [
+    -213.15930605193228,
+    717.0655560519323
+  ],
+  "qualified": false,
+  "changed_outcomes": 158,
+  "positive_point_deltas": 77,
+  "negative_point_deltas": 79
+}
