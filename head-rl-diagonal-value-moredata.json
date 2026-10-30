@@ -1,0 +1,47 @@
+{
+  "out": "runs/head-rl-diagonal-value-moredata-20261030",
+  "reference": "runs/semantic-2026-freegpu/checkpoints/step-002000",
+  "training_sources": [
+    "runs/head-rl-score-single-decision",
+    "runs/head-rl-score-incremental-20261030",
+    "runs/diagonal-value-fresh-data-20261030"
+  ],
+  "seed": 2026103005,
+  "game_mode": "4p-red-east",
+  "reward_mode": "net_points",
+  "reward_scale": 1000.0,
+  "reward": "unclipped signed paired full-East terminal point difference /1000; no rank bonus",
+  "advantage_estimator": "greedy_reference",
+  "guarded": true,
+  "exploration_uniform": 0.15,
+  "training_method": "ridge paired-point diagonal pointer calibration",
+  "ridge_alphas": [
+    0.001,
+    0.01,
+    0.1,
+    1.0,
+    10.0
+  ],
+  "cross_validation_folds": 5,
+  "calibration_strengths": [
+    0.25,
+    0.5,
+    1.0
+  ],
+  "max_relative_q_change": 0.25,
+  "max_reference_kl": 0.01,
+  "development_seed_start": 4802000,
+  "development_seeds": 64,
+  "confirmation_seed_start": 4902000,
+  "confirmation_seeds": 128,
+  "seed_scheme": "spaced-v1",
+  "target_mean_net_points": 0,
+  "target_net_points_gain": 0,
+  "desired_net_points_gain": 500,
+  "fixed_gain_gate_enabled": false,
+  "confirmation_qualification": "positive_paired_ci95",
+  "confirmation_min_ci95_lower": 0,
+  "confirmation_wall_minutes": 100,
+  "development_wall_minutes": 150,
+  "notes": "Same256-dimensional ridge point method, original SFT2000 prior, same grouped CV/strength grid/trust constraints. Add128 genuinely fresh4501wall streams/4096 frozen-teacher proposals to the two unique old caches: up to6656 states across224 training streams. Preserved calibration02 used only to collect new controls/continuations. No new representation/prompt change, no repeated same-data epochs. Fresh4802 development, one selected positive candidate on fresh4902 final. Fixed gain250/500 not a continuation veto. Raw data, fits and weights local; public code/config and Markdown summary only."
+}
