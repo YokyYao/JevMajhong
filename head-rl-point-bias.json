@@ -1,0 +1,47 @@
+{
+  "out": "runs/head-rl-point-bias-20261030",
+  "reference": "runs/semantic-2026-freegpu/checkpoints/step-002000",
+  "training_sources": [
+    "runs/head-rl-score-single-decision",
+    "runs/head-rl-score-incremental-20261030",
+    "runs/diagonal-value-fresh-data-20261030"
+  ],
+  "seed": 2026103006,
+  "game_mode": "4p-red-east",
+  "reward_mode": "net_points",
+  "reward_scale": 1000.0,
+  "reward": "unclipped signed paired full-East terminal point difference /1000; no rank bonus",
+  "advantage_estimator": "greedy_reference",
+  "guarded": true,
+  "exploration_uniform": 0.15,
+  "training_method": "paired-point contextual option value exported as query-bias correction",
+  "ridge_alphas": [
+    0.001,
+    0.01,
+    0.1,
+    1.0,
+    10.0
+  ],
+  "cross_validation_folds": 5,
+  "calibration_strengths": [
+    0.25,
+    0.5,
+    1.0
+  ],
+  "max_reference_kl": 0.01,
+  "development_seed_start": 5002000,
+  "development_seeds": 64,
+  "confirmation_seed_start": 5102000,
+  "confirmation_seeds": 128,
+  "seed_scheme": "spaced-v1",
+  "target_mean_net_points": 0,
+  "target_net_points_gain": 0,
+  "desired_net_points_gain": 500,
+  "fixed_gain_gate_enabled": false,
+  "confirmation_qualification": "positive_paired_ci95",
+  "confirmation_min_ci95_lower": 0,
+  "confirmation_wall_minutes": 100,
+  "development_wall_minutes": 150,
+  "notes": "After expanded-data diagonal model has no positive dev candidate, test a256-dimensional value projection of cached key/option features. Keep originalSFT2000 prior, q.weight/key/backbone/LoRA/tokenizer/representation frozen; add fitted point values through q.bias. Same verified708nonzero targets/224wall streams, no new simulations. Five complete-wall CV folds, same alpha/strength grid; functional mixed KL cap0.01 with halving and identical-head dedup. Multiplicative row scaling cap is inapplicable to additive query bias. Require previous fit audit and preserved-policy comparison first. Fresh5002dev64streams; select highest positive complete dev, earliest tie. One fresh5102final128streams against original3c if positive; mean>=0 and paired95CI lower>0,500desirednotveto. Publiccode/config+Markdownonly; rawdata/coefficients/audits/weightsLOCAL.",
+  "previous_run": "runs/head-rl-diagonal-value-moredata-20261030"
+}
