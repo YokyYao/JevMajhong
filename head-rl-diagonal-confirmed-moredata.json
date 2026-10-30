@@ -1,0 +1,51 @@
+{
+  "out": "runs/head-rl-diagonal-confirmed-moredata-20261030",
+  "reference": "runs/semantic-2026-freegpu/checkpoints/step-002000",
+  "training_sources": [
+    "runs/head-rl-score-single-decision",
+    "runs/head-rl-score-incremental-20261030",
+    "runs/diagonal-value-fresh-data-20261030",
+    "runs/diagonal-value-confirmed-data-20261030"
+  ],
+  "seed": 2026103008,
+  "game_mode": "4p-red-east",
+  "reward_mode": "net_points",
+  "reward_scale": 1000.0,
+  "reward": "unclipped signed paired full-East terminal point difference /1000; no rank bonus",
+  "advantage_estimator": "greedy_reference",
+  "guarded": true,
+  "exploration_uniform": 0.15,
+  "training_method": "ridge paired-point diagonal pointer calibration",
+  "ridge_alphas": [
+    0.001,
+    0.01,
+    0.1,
+    1.0,
+    10.0
+  ],
+  "cross_validation_folds": 5,
+  "calibration_strengths": [
+    0.25,
+    0.5,
+    1.0
+  ],
+  "max_relative_q_change": 0.25,
+  "max_reference_kl": 0.01,
+  "development_seed_start": 5302000,
+  "development_seeds": 64,
+  "confirmation_seed_start": 5402000,
+  "confirmation_seeds": 128,
+  "seed_scheme": "spaced-v1",
+  "target_mean_net_points": 0,
+  "target_net_points_gain": 0,
+  "desired_net_points_gain": 500,
+  "fixed_gain_gate_enabled": false,
+  "confirmation_qualification": "positive_paired_ci95",
+  "confirmation_min_ci95_lower": 0,
+  "confirmation_wall_minutes": 160,
+  "development_wall_minutes": 150,
+  "notes": "Same256-dimensional diagonal paired-point ridge; same originalSFT2000 prior and frozen representation/LoRA/key, same grouped5fold alpha/strength/trust grid. Add second independent4096-state batch from same b124 confirmed teacher, total10752 states352 training walls. No repeated same-data epochs. New5302dev64walls includes original and preserved b124 controls; choose only complete positive incremental candidate versus b124 (CI cross0 may continue). One5402final128walls separately compares fixed candidate versus b124 primary and original secondary; independent CI lower>0 for proof, no fixed250/500 veto. This configuration currently drives fitting only: collect/audit/refit/math audit first; a separate incremental evaluator must be implemented/verified before any new matches. Do not call generic original-only advance. All raw detailed artifacts/new weights local; public code/config/Markdown only.",
+  "incremental_reference": "runs/head-rl-diagonal-value-20261030/checkpoints/calibration-02",
+  "incremental_reference_head_sha256": "b1248fbc9c9bd1a768a9eaf5fdb5241c82c96ac50eaabf8e0ca8fed885bec1ea",
+  "source_confirmation_run": "runs/diagonal-value-fixed-replication-20261030"
+}
