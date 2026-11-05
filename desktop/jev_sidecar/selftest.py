@@ -1,5 +1,6 @@
 """Runtime verification executed by the frozen Windows EXE before publication."""
 import json
+import sys
 from pathlib import Path
 import time
 
@@ -24,7 +25,7 @@ def run(report, model_test=False):
     assert panel.tabs.currentWidget().horizontalScrollBar().maximum() == 0
     detector = TileDetector(ROOT / 'assets/tiles.onnx')
     assert detector.detect(Image.new('RGB', (320, 200), '#174a46')) == []
-    result = {'status': 'passed', 'frozen_exe': True, 'gui': True, 'onnx': True, 'model': False}
+    result = {'status': 'passed', 'frozen_exe': bool(getattr(sys, 'frozen', False)), 'gui': True, 'onnx': True, 'model': False}
     panel.timer.stop()
     panel.close()
     if model_test:

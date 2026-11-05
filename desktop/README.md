@@ -14,7 +14,7 @@ Windows构建流程会生成安装包`JevMahjong-Setup-0.2.0-win-x64.exe`和便�
 
 本地截图、本地麻将牌识别、本机 NVIDIA GPU 推荐。窗口可置顶并靠右停靠，支持导入PNG/JPG、实时截取牌桌、手牌与公开牌面校正、前三候选、向听数及有效进张。Jev使用已经独立确认的校正版2；牌理引擎单独标明。
 
-本版提供的是**Windows源代码启动包**，含安装/启动脚本和私有交付的已训练检查点，不是预编译EXE。界面、规则计算和实际模型推理已在Linux验证；Windows依赖的Python3.12 x64安装包已核对，Windows实机仍需首跑验证。可选的`Build-Exe.ps1`用于在自己的Windows上生成EXE，尚未验证其产物。
+下面的Python安装步骤仅适用于旧的0.1.1源码启动包。使用上方0.2安装版或便携版时，直接运行EXE即可。
 
 ## 安装与启动
 
@@ -23,7 +23,7 @@ Windows构建流程会生成安装包`JevMahjong-Setup-0.2.0-win-x64.exe`和便�
 3. 双击`Install.cmd`。它在工具目录创建独立环境，安装界面、识别和CUDA版PyTorch；依赖下载可能达到数GB。
 4. 双击`Launch.cmd`。在“设置”中点击“加载Jev到NVIDIA GPU”。首次会下载固定版本的Qwen底座，后续使用本地缓存。
 
-公开仓库只包含代码与文档，新检查点和识别/字体二进制不推送GitHub。私有启动包附带模型文件；仅下载仓库源码时，可先安装`desktop/requirements-ui.txt`体验牌理模式，使用Jev还需要本地校正版2检查点及`desktop/requirements-model.txt`。
+0.2发布包附带推理参数、识别模型和字体；源码仓库保留可校验的恢复脚本。源码开发时可先安装`desktop/requirements-ui.txt`体验牌理模式；使用Jev还需要`desktop/requirements-model.txt`，再运行`python scripts/prepare_desktop_release.py`与`python desktop/fetch_assets.py`准备资源。
 
 ```powershell
 python -m desktop.jev_sidecar.app --demo
