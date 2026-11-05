@@ -1,4 +1,6 @@
 .venv/
+.desktop-venv/
+dist/
 __pycache__/
 *.py[cod]
 .pytest_cache/

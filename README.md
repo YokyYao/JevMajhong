@@ -1,5 +1,7 @@
 # Mahjong recommender with JevAny
 
+[Windows本地截图侧边助手](desktop/README.md)已提供首版源代码、安装/启动脚本与本机NVIDIA GPU接口。识别可校正并保存本地牌面模板；使用范围与当前效果核对见[2026-11-05汇总](reports/2026-11-05-desktop-and-training/README.md)。新权重启动包私有交付，不上传GitHub。
+
 基于 JevAny 的四人立直麻将训练与离线推荐原型。用高段位雀魂牌谱训练合法动作评分器，并在四人模拟环境中检查一位率、平均顺位和末位风险。
 
 **统计更正：此前连续原始种子的半庄会共享移位后的牌山流，不能直接视为独立样本。历史一位率保留为对应牌山上的描述，相关独立置信区间解释撤回。新评估默认采用隔离种子，详见[牌山种子独立性更正](reports/seed-independence-erratum.md)。**
