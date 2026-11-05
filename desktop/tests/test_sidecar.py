@@ -113,17 +113,23 @@ class InterfaceTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         from PySide6.QtWidgets import QApplication
+        from desktop.jev_sidecar.app import STYLE
         cls.app = QApplication.instance() or QApplication([])
+        cls.app.setStyleSheet(STYLE)
 
     def test_demo_and_stale_inference_result(self):
         from desktop.jev_sidecar.app import Sidecar, Task
         with tempfile.TemporaryDirectory() as temporary, patch('desktop.jev_sidecar.app.CONFIG', Path(temporary) / 'settings.json'):
             panel = Sidecar(demo=True)
+            panel.show()
             deadline = time.monotonic() + 5
             while panel.jobs and time.monotonic() < deadline:
                 self.app.processEvents()
                 time.sleep(.01)
             self.assertIn('白', panel.hero.text())
+            self.app.processEvents()
+            self.assertEqual(panel.tabs.currentWidget().horizontalScrollBar().maximum(), 0,
+                             'A wide screenshot must not force horizontal scrolling in the narrow sidebar')
             before = panel.hero.text()
             panel.generation += 1
             task = Task('analysis', lambda: {}, panel.generation - 1)

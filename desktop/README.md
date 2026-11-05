@@ -7,7 +7,7 @@
 ## 安装与启动
 
 1. 安装Windows版 **Python 3.12 x64**，保留Python Launcher。NVIDIA驱动需支持所安装的CUDA PyTorch。
-2. 将私有交付的`JevMahjong-Windows-v0.1.0.zip`解压到一个可写文件夹。
+2. 将私有交付的`JevMahjong-Windows-v0.1.1.zip`解压到一个可写文件夹。
 3. 双击`Install.cmd`。它在工具目录创建独立环境，安装界面、识别和CUDA版PyTorch；依赖下载可能达到数GB。
 4. 双击`Launch.cmd`。在“设置”中点击“加载Jev到NVIDIA GPU”。首次会下载固定版本的Qwen底座，后续使用本地缓存。
 

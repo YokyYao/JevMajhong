@@ -15,7 +15,7 @@ from PySide6.QtGui import QFontDatabase, QImage, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog, QFileDialog, QFormLayout,
     QFrame, QGraphicsScene, QGraphicsView, QGridLayout, QHBoxLayout, QInputDialog, QLabel,
     QLineEdit, QMainWindow, QMessageBox, QPushButton, QScrollArea, QSpinBox, QTabWidget,
-    QTableWidget, QTableWidgetItem, QTextEdit, QVBoxLayout, QWidget, QHeaderView)
+    QTableWidget, QTableWidgetItem, QTextEdit, QVBoxLayout, QWidget, QHeaderView, QSizePolicy)
 
 from .engine import Adviser, Board, parse_melds
 from .tiles import name, parse
@@ -173,6 +173,7 @@ class Sidecar(QMainWindow):
         self.preview = QLabel('截图预览')
         self.preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.preview.setMinimumHeight(130)
+        self.preview.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Fixed)
         self.preview.setStyleSheet('background:#0b111a;border-radius:8px;')
         r.addWidget(self.preview)
         zone_row = QHBoxLayout()
@@ -187,11 +188,13 @@ class Sidecar(QMainWindow):
         self.hand = QLineEdit()
         self.hand.setPlaceholderText('例如 123456m345p67s115z；也可识别后点牌修正')
         self.hand.textEdited.connect(self.invalidate)
+        self.hand.textEdited.connect(lambda text: self.lock.setChecked(True))
         r.addWidget(self.hand)
         self.tile_grid = QGridLayout()
         r.addLayout(self.tile_grid)
         action_row = QHBoxLayout()
         self.lock = QCheckBox('锁定手牌，手动校正')
+        self.lock.toggled.connect(self.invalidate)
         action_row.addWidget(self.lock)
         analyze = QPushButton('分析这手牌')
         analyze.setObjectName('primary')
@@ -418,6 +421,11 @@ class Sidecar(QMainWindow):
         if self.image is not None:
             self.preview.setPixmap(pixmap(self.image).scaled(self.preview.width(), 165, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
 
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if hasattr(self, 'preview'):
+            QTimer.singleShot(0, self.update_preview)
+
     def capture_once(self):
         self.capture(manual=True)
 
@@ -473,6 +481,9 @@ class Sidecar(QMainWindow):
             self.status.setText('存在低置信度牌面；点击牌面修正，再按“分析这手牌”')
             return
         self.status.setText(f'手牌识别{len(detections)}张 · 连续稳定{self.stable}帧')
+        if self.lock.isChecked():
+            self.status.setText('手牌已锁定：可手动分析；取消锁定后恢复自动更新')
+            return
         if len(detections) in (1, 4, 7, 10, 13) and not self.lock.isChecked():
             self.hero.setText('等待自己出牌')
             self.results.setRowCount(0)
@@ -487,7 +498,7 @@ class Sidecar(QMainWindow):
                 widget.deleteLater()
         for i, tile in enumerate(tiles):
             button = QPushButton(name(tile))
-            button.setToolTip(tile + (f' · 识别{confidences[i]:.0%}' if confidences else ' · 手动输入'))
+            button.setToolTip(tile + (f' · 匹配分{confidences[i]:.0%}' if confidences else ' · 手动输入'))
             button.setStyleSheet('padding:7px 2px;color:#f4c56a;' if confidences and confidences[i] < .70 else 'padding:7px 2px;')
             button.clicked.connect(lambda checked=False, position=i: self.edit_tile(position))
             self.tile_grid.addWidget(button, i // 7, i % 7)
