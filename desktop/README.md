@@ -1,4 +1,16 @@
-# Jev 雀魂 Windows 侧边助手 · 0.1
+# Jev 雀魂 Windows 侧边助手 · 0.2
+
+## 免Python的Windows发布版
+
+Windows构建流程会生成安装包`JevMahjong-Setup-0.2.0-win-x64.exe`和便携包`JevMahjong-Portable-0.2.0-win-x64.zip`，上传到[GitHub Releases](https://github.com/YokyYao/JevMajhong/releases)。安装版双击安装即可；便携版解压后双击`JevMahjong.exe`，保留同目录的运行库和模型文件。用户无需安装Python、pip或CUDA Toolkit。
+
+发布包包含Python、CUDA版PyTorch、截图识别组件和已确认的校正版2参数。首次启动自动加载Jev，并联网下载固定版本的Qwen底座，后续使用本地缓存；需要可用的NVIDIA驱动。截图区域和自己的皮肤仍需在界面中首次校准。
+
+发布前会实际运行**打包后的EXE**，检查界面、识别器和CPU模型推理，再安装生成的安装包检查启动。Windows构建机没有NVIDIA GPU，因此这项检查不替代用户显卡实测。构建状态见[Windows EXE构建流程](https://github.com/YokyYao/JevMajhong/actions/workflows/windows-release.yml)。
+
+打包时从已经公开的2000步归档恢复五份冻结输入文件，再应用256个校正参数；评分头张量及16项运行配置与已确认模型完全一致，并逐文件校验。此次按用户要求公开发布程序及其推理参数，训练逐场、特征和诊断明细不加入发布包。
+
+以下保留旧源码启动方式，供开发与排错使用。
 
 本地截图、本地麻将牌识别、本机 NVIDIA GPU 推荐。窗口可置顶并靠右停靠，支持导入PNG/JPG、实时截取牌桌、手牌与公开牌面校正、前三候选、向听数及有效进张。Jev使用已经独立确认的校正版2；牌理引擎单独标明。
 

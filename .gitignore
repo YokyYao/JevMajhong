@@ -1,6 +1,11 @@
 .venv/
 .desktop-venv/
 dist/
+/build/
+/models/
+/assets/
+/base-model/
+/release/
 __pycache__/
 *.py[cod]
 .pytest_cache/

@@ -1,0 +1,88 @@
+name: Build Windows EXE release
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/windows-release.yml'
+      - 'desktop/**'
+      - 'scripts/prepare_desktop_release.py'
+      - 'scripts/package_desktop_runtime.py'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: windows-desktop-release
+  cancel-in-progress: true
+env:
+  RELEASE_TAG: desktop-v0.2.0
+  HF_HUB_DISABLE_XET: '1'
+  HF_HUB_DISABLE_TELEMETRY: '1'
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install frozen-app build dependencies
+        run: |
+          python -m pip install --no-cache-dir -r desktop/requirements-ui.txt
+          python -m pip install --no-cache-dir torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
+          python -m pip install --no-cache-dir -r desktop/requirements-model.txt "pyinstaller>=6.22,<7"
+      - name: Prepare verified model and local recognition assets
+        run: |
+          python scripts/prepare_desktop_release.py
+          python desktop/fetch_assets.py
+          python -c "import os; from pathlib import Path; from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen3.5-0.8B', revision='2fc06364715b967f1860aea9cf38778875588b17', local_dir=Path(os.environ['LOCALAPPDATA'])/'JevMahjong-build-base', allow_patterns=['*.json','*.safetensors','*.jinja','*.model','LICENSE*'])"
+      - name: Build Windows executable and bundled CUDA runtime
+        run: ./desktop/windows/Build-Exe.ps1 -PythonPath (Get-Command python).Source
+      - name: Verify the actual frozen executable including model inference
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          $env:JEV_BASE_MODEL_DIR = Join-Path $env:LOCALAPPDATA 'JevMahjong-build-base'
+          $env:PATH = "$env:SystemRoot\System32;$env:SystemRoot"
+          Remove-Item Env:PYTHONHOME -ErrorAction SilentlyContinue
+          Remove-Item Env:PYTHONPATH -ErrorAction SilentlyContinue
+          $p = Start-Process -FilePath './dist/JevMahjong/JevMahjong.exe' -ArgumentList '--self-test','--model-test','--report',"$pwd/frozen-selftest.json" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { Get-Content "$env:LOCALAPPDATA/JevMahjong/error.log" -ErrorAction SilentlyContinue; throw 'Frozen EXE failed' }
+          $result = Get-Content frozen-selftest.json | ConvertFrom-Json
+          if (!$result.model -or !$result.frozen_exe) { throw 'Actual model test did not run' }
+          Get-Content frozen-selftest.json
+      - name: Build installer and portable ZIP
+        run: |
+          New-Item release -ItemType Directory -Force | Out-Null
+          & 'C:/Program Files/7-Zip/7z.exe' a -tzip -mx=5 release/JevMahjong-Portable-0.2.0-win-x64.zip ./dist/JevMahjong
+          if ($LASTEXITCODE -ne 0) { throw 'ZIP build failed' }
+          $compiler = 'C:/Program Files (x86)/Inno Setup 6/ISCC.exe'
+          if (!(Test-Path $compiler)) { choco install innosetup -y --no-progress }
+          & $compiler desktop/windows/installer.iss
+          if ($LASTEXITCODE -ne 0) { throw 'Installer build failed' }
+          Get-ChildItem release | ForEach-Object { if ($_.Length -ge 2GB) { throw 'Release asset exceeds GitHub limit' } }
+          Get-ChildItem release | Get-FileHash -Algorithm SHA256 | ForEach-Object { "$($_.Hash.ToLower())  $(Split-Path $_.Path -Leaf)" } | Set-Content release/SHA256SUMS.txt
+      - name: Test installed application without Python on PATH
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          $target = Join-Path $env:LOCALAPPDATA 'JevMahjong-installed-test'
+          $p = Start-Process -FilePath release/JevMahjong-Setup-0.2.0-win-x64.exe -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/DIR=$target" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw 'Installer failed' }
+          $env:PATH = "$env:SystemRoot\System32;$env:SystemRoot"
+          $p = Start-Process -FilePath "$target/JevMahjong.exe" -ArgumentList '--self-test','--report',"$pwd/installed-selftest.json" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw 'Installed EXE failed' }
+          Get-Content installed-selftest.json
+      - name: Publish tested Windows release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $existing = gh release view $env:RELEASE_TAG --json isDraft --jq '.isDraft' 2>$null
+          if ($LASTEXITCODE -eq 0 -and $existing -ne 'true') { throw 'Never overwrite a published release' }
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $env:RELEASE_TAG --draft --target $env:GITHUB_SHA --title 'Jev Mahjong 0.2.0 - Windows EXE' --notes 'Windows x64 application with Python, CUDA runtime, confirmed model and screen recognition bundled. No Python installation required. First launch downloads the pinned Qwen base model automatically. Select the Setup EXE or unzip Portable and run JevMahjong.exe. Frozen model inference and installer launch verified on Windows CPU; NVIDIA GPU remains dependent on local driver/hardware.'
+          }
+          gh release upload $env:RELEASE_TAG release/JevMahjong-Setup-0.2.0-win-x64.exe release/JevMahjong-Portable-0.2.0-win-x64.zip release/SHA256SUMS.txt --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Asset upload failed; release stays draft' }
+          gh release edit $env:RELEASE_TAG --draft=false
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed' }

@@ -652,6 +652,8 @@ def main():
     app.setStyleSheet(STYLE)
     window = Sidecar(demo=args.demo or bool(args.preview))
     window.show()
+    if not args.demo and not args.preview:
+        QTimer.singleShot(500, window.load_model)
     if args.preview:
         def save():
             args.preview.parent.mkdir(parents=True, exist_ok=True)

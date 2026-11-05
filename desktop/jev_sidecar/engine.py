@@ -5,6 +5,7 @@ from functools import lru_cache
 import hashlib
 import json
 import re
+import os
 from pathlib import Path
 
 from mahjong.shanten import Shanten
@@ -152,8 +153,8 @@ class Adviser:
         from jevany.checkpoint import LoadOptions
         from jevany.inference import InferenceOptions
         checkpoint = Path(checkpoint)
-        if hashlib.sha256((checkpoint / 'head.pt').read_bytes()).hexdigest() != CHECKPOINT_SHA:
-            raise ValueError('请选择本工具附带的已确认校正版2；权重指纹不匹配')
+        from .model_identity import validate_checkpoint
+        validate_checkpoint(checkpoint)
         manifest = checkpoint / 'manifest.json'
         if manifest.is_file():
             for filename, expected in json.loads(manifest.read_text(encoding='utf-8')).items():
@@ -162,7 +163,7 @@ class Adviser:
         if device == 'cuda' and not torch.cuda.is_available():
             raise RuntimeError('未发现可用的CUDA显卡。请检查NVIDIA驱动和CUDA版PyTorch安装')
         dtype = 'bf16' if device == 'cuda' and torch.cuda.is_bf16_supported() else 'fp32'
-        mirror = checkpoint.parent.parent / 'base-model'
+        mirror = Path(os.environ.get('JEV_BASE_MODEL_DIR', checkpoint.parent.parent / 'base-model'))
         self.model = JevModel.from_pretrained(str(checkpoint), device=device, dtype=dtype,
             options=LoadOptions(merge=False, temperature=1., compile_mode=None, cuda_graphs=False,
                                 fused_kernels=False, base_load_path=str(mirror) if mirror.is_dir() else None),

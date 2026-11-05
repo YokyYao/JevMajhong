@@ -1,0 +1,29 @@
+{
+  "source_head_sha256": "b1248fbc9c9bd1a768a9eaf5fdb5241c82c96ac50eaabf8e0ca8fed885bec1ea",
+  "head_tensor_sha256": "ed19999b02abb0a72f3aed0d5f8cc42d9ab04b68f555fff1ba2135de5b462683",
+  "runtime": {
+    "base": "Qwen/Qwen3.5-0.8B",
+    "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
+    "lora": 16,
+    "special_embeddings": false,
+    "backbone_adapter": "text",
+    "multimodal": false,
+    "head_dim": 256,
+    "head_residual_dim": 0,
+    "head_type": "linear",
+    "option_isolation": false,
+    "branch_mode": "rows",
+    "decision_mode": "pointer",
+    "verbalizers": [],
+    "temperature": 1.0,
+    "weights_dtype": "bf16",
+    "tokenizer_saved": true
+  },
+  "base_files": {
+    "adapter_config.json": "979901110a044e926d5d535cbf6d571ad394e2e7171af0589205a9d24cc5ebbe",
+    "adapter_model.safetensors": "3f056c2d8b810ccaa6cc8763ce5cd8940f4cc4faa0673af2ac627c24a147d020",
+    "tokenizer.json": "a5cd9732badce41de57e6efce8302930ded1c1188c5f81feb2bd6c24c4a1941f",
+    "tokenizer_config.json": "20430164617e248d41bb5faed88c96d67d4935147f6f45385bbdc98483e4a2a6",
+    "chat_template.jinja": "273d8e0e683b885071fb17e08d71e5f2a5ddfb5309756181681de4f5a1822d80"
+  }
+}

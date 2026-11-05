@@ -1,5 +1,14 @@
 def main():
     try:
+        import os
+        import sys
+        os.environ.setdefault('HF_HUB_DISABLE_XET', '1')
+        os.environ.setdefault('HF_HUB_DISABLE_TELEMETRY', '1')
+        if '--self-test' in sys.argv:
+            from desktop.jev_sidecar.selftest import run
+            position = sys.argv.index('--report')
+            run(sys.argv[position + 1], model_test='--model-test' in sys.argv)
+            return
         from desktop.jev_sidecar.app import main as run
         run()
     except Exception as error:
