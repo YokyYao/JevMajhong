@@ -11,16 +11,22 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputDir=..\..\release
 OutputBaseFilename=JevMahjong-Setup-{#AppVersion}-win-x64
-Compression=lzma2/ultra64
+Compression=lzma2/normal
 SolidCompression=yes
+ArchiveExtraction=full
 WizardStyle=modern
 DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\JevMahjong.exe
 LicenseFile=..\LICENSE
 [Files]
-Source: "..\..\dist\JevMahjong\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+#include "..\..\release\runtime-files.iss"
 [Icons]
 Name: "{group}\Jev Mahjong"; Filename: "{app}\JevMahjong.exe"
 Name: "{autodesktop}\Jev Mahjong"; Filename: "{app}\JevMahjong.exe"
 [Run]
 Filename: "{app}\JevMahjong.exe"; Description: "Launch Jev Mahjong"; Flags: nowait postinstall skipifsilent
+[Code]
+function RuntimeBaseUrl(Param: String): String;
+begin
+  Result := ExpandConstant('{param:RUNTIMEURL|https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.2.0}');
+end;
