@@ -11,7 +11,8 @@ import tempfile
 from riichienv import MjaiReplay
 import zstandard
 from audit_shard import split_for_match
-from semantic import build_request, signature
+from semantic import signature
+from replay_call_repair import build_replay_request, canonical_signature, UnsafeReplayCall, REPAIR_VERSION
 
 
 def main():
@@ -35,6 +36,7 @@ def main():
     args.out.mkdir(parents=True, exist_ok=False)
     counts, failures, groups = Counter(), [], {k: set() for k in limits}
     types = Counter()
+    repair_counts, call_exclusions = Counter(), Counter()
     seen = set()
     for key in limits:
         (args.out / f"{key}.jsonl").touch()
@@ -49,6 +51,7 @@ def main():
             split = split_for_match(match)
             if counts[split] >= limits[split]:
                 continue
+            match_exclusions = Counter()
             try:
                 if member.size > 10_000_000:
                     raise ValueError("Oversized compressed match")
@@ -73,25 +76,34 @@ def main():
                 rng = random.Random(int(hashlib.sha256(match.encode()).hexdigest()[:16], 16))
                 rng.shuffle(samples)
                 converted = []
+                converted_hashes = set()
                 for obs, expert in samples[:args.per_match]:
-                    request, actions, _ = build_request(obs)
-                    key = signature(expert)
-                    signatures = [signature(a) for a in actions]
+                    try:
+                        request, signatures, repaired = build_replay_request(obs)
+                    except UnsafeReplayCall as exc:
+                        match_exclusions[str(exc)] += 1
+                        continue
+                    if len(signatures) < 2:
+                        match_exclusions['single_canonical_option'] += 1
+                        continue
+                    key = canonical_signature(expert)
                     if key not in signatures:
                         raise ValueError("Expert action absent from legal candidates")
                     digest = hashlib.sha256(json.dumps(request, sort_keys=True).encode()).hexdigest()
-                    if digest in seen:
+                    if digest in seen or digest in converted_hashes:
                         continue
                     request["questions"]["action"]["label"] = f"a{signatures.index(key)}"
                     request["_meta"] = {"id": f"{match}/{len(converted)}", "group_id": match,
                         "source": args.archive.stem.replace("-", "_"), "split": split, "license": "CC-BY-4.0",
-                        "text_sha256": digest}
-                    converted.append((request, digest, json.loads(expert.to_mjai())["type"]))
+                        "text_sha256": digest, "schema": "semantic-v2-call-repaired", "call_repair_version": REPAIR_VERSION}
+                    converted.append((request, digest, json.loads(expert.to_mjai())["type"], repaired))
+                    converted_hashes.add(digest)
             except Exception as exc:
                 failures.append({"match": match, "error": str(exc)[:300]})
                 continue
+            call_exclusions.update(match_exclusions)
             with (args.out / f"{split}.jsonl").open("a") as stream:
-                for request, digest, typ in converted:
+                for request, digest, typ, repaired in converted:
                     if counts[split] >= limits[split]:
                         break
                     stream.write(json.dumps(request, separators=(",", ":")) + "\n")
@@ -99,6 +111,7 @@ def main():
                     seen.add(digest)
                     groups[split].add(match)
                     types[typ] += 1
+                    repair_counts.update(repaired)
             if sum(counts.values()) % 1024 < args.per_match:
                 print(json.dumps({"counts": dict(counts), "failed_matches": len(failures)}), flush=True)
             if all(counts[k] >= limits[k] for k in limits):
@@ -108,7 +121,11 @@ def main():
         "archive_sha256": hashlib.sha256(args.archive.read_bytes()).hexdigest(),
         "source": "https://huggingface.co/datasets/nikketryhard/tenhou-houou-mjai",
         "attribution": ["NikkeTryHard/tenhou-to-mjai", "Mahjong Soul"],
-        "schema": "semantic-v1", "rule": "mjsoul", "requested_counts": limits,
+        "schema": "semantic-v2-call-repaired", "call_repair_version": REPAIR_VERSION,
+        "call_repair_code_sha256": hashlib.sha256(Path(__file__).with_name('replay_call_repair.py').read_bytes()).hexdigest(),
+        "call_repair_audit": dict(repair_counts), "call_exclusions": dict(call_exclusions),
+        "call_exclusion_scope": "sampled decisions inspected before per-split output limits",
+        "rule": "mjsoul", "requested_counts": limits,
         "excluded_prior_matches": len(excluded),
         "exclude_provenance": [str(p) for p in args.exclude_provenance]}
     (args.out / "provenance.json").write_text(json.dumps(provenance, indent=2))
