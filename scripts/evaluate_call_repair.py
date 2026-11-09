@@ -88,6 +88,9 @@ def main():
     selection = json.loads((run / 'selected.json').read_text())
     if not selection['checkpoint']:
         write(run / 'development-skipped.json', {'reason': 'No improved validation checkpoint'}); return
+    if selection['validation']['macro_f1'] <= selection['baseline']['macro_f1']:
+        write(run / 'development-skipped.json', {'reason': 'NLL-only calibration without validation decision improvement',
+            'candidate_preserved': True, 'deployed': False}); return
     reference, candidate = ROOT / cfg['reference'], ROOT / selection['checkpoint']
     if digest(reference / 'head.pt') != cfg['reference_head_sha256']: raise ValueError('Reference changed')
     from scripts.train_call_repair import make_head
