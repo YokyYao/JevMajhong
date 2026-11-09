@@ -125,7 +125,18 @@ def red_five(image, detection):
         a = a[:int(a.shape[0] * .5)]
     r, g, b = [a[:, :, i].astype(float) for i in range(3)]
     red = (r > 90) & (r > g * 1.4) & (r > b * 1.4) & (r - g > 45)
-    return '0' + tile[1] if float(red.mean()) > .045 else tile
+    if float(red.mean()) <= .045:
+        return tile
+    if tile == '5s':
+        green = (g > 65) & (g > r * 1.15) & (g > b * 1.1) & (g - r > 18)
+        # Ordinary five bamboo has one red stem and four green stems.
+        if red.sum() <= green.sum() * 1.2:
+            return tile
+    elif tile == '5p':
+        dark = (r < 90) & (g < 90) & (b < 90)
+        if red.sum() <= dark.sum() * .7:
+            return tile
+    return '0' + tile[1]
 
 
 class TileDetector:
@@ -144,7 +155,7 @@ class TileDetector:
         self.names = ast.literal_eval(self.session.get_modelmeta().custom_metadata_map['names'])
         self.loaded_path = self.path.resolve()
 
-    def detect(self, image, confidence=.50):
+    def detect(self, image, confidence=.50, allowed_tiles=None):
         if self.session is None or self.loaded_path != self.path.resolve():
             self.load()
         image = image.convert('RGB')
@@ -158,6 +169,13 @@ class TileDetector:
         tensor = np.asarray(padded).transpose(2, 0, 1)[None].astype(np.float16) / np.float16(255)
         prediction = self.session.run(None, {self.session.get_inputs()[0].name: tensor})[0][0].T
         scores = prediction[:, 4:]
+        if allowed_tiles is not None:
+            allowed = set(allowed_tiles)
+            scores = scores.copy()
+            for label in range(scores.shape[1]):
+                tile = HONORS.get(self.names[label], self.names[label])
+                if tile not in allowed:
+                    scores[:, label] = -1
         classes = scores.argmax(1)
         best = scores[np.arange(len(scores)), classes]
         detections = []
@@ -185,7 +203,12 @@ class TileDetector:
                 crop = crop.rotate(rotation, expand=True)
             values = self.detect(crop)
             if name == 'hand':
-                boxes = hand_boxes(crop)
+                if values:
+                    tallest = max(d.box[3] - d.box[1] for d in values)
+                    values = [d for d in values if d.box[3] - d.box[1] >= tallest * .75]
+                # Complete detector output already preserves raised/drawn tiles;
+                # slot segmentation assumes all faces share one paper band.
+                boxes = hand_boxes(crop) if len(values) not in (1, 2, 4, 5, 7, 8, 10, 11, 13, 14) else []
                 if boxes:
                     segmented = []
                     for box in boxes:

@@ -3,3 +3,5 @@ pillow==12.3.0
 onnxruntime==1.31.1
 mahjong==2.1.0
 numpy>=2.2,<3
+rapidocr-onnxruntime==1.4.4
+windows-capture==2.0.1; sys_platform == 'win32'

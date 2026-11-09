@@ -6,6 +6,7 @@ import hashlib
 import json
 import re
 import os
+from itertools import combinations
 from pathlib import Path
 
 from mahjong.shanten import Shanten
@@ -65,6 +66,10 @@ class Board:
     drawn: str | None = None
     metadata_confirmed: bool = False
     hand_number: int | None = None
+    reaction: dict | None = None
+    forbidden_discards: list[str] = field(default_factory=list)
+    riichi_available: bool = False
+    riichi_selecting: bool = False
 
     def visible(self):
         if len(self.rivers) != 4 or len(self.melds) != 4 or len(self.scores) != 4:
@@ -91,6 +96,73 @@ class Board:
         return result
 
 
+def hand_strategy(board, choice, direction_only=False):
+    """Explain a plausible direction from the selected action, not model reasoning."""
+    action = choice.get('action', {}).get('type', 'dahai')
+    if action == 'hora':
+        return '当前可和牌，优先完成本局。'
+    hand = list(board.hand)
+    if action in ('dahai', 'reach') and choice.get('tile') in hand:
+        hand.remove(choice['tile'])
+    groups = board.melds[board.seat]
+    all_tiles = hand + [t for g in groups for t in parse(g['tiles'])]
+    counts = Counter(index(t) for t in all_tiles)
+    closed = not groups
+    pairs = sum(n >= 2 for n in counts.values())
+    triples = sum(n >= 3 for n in counts.values())
+    suits = Counter(t[1] for t in all_tiles if t[1] != 'z')
+    honors = sum(t.endswith('z') for t in all_tiles)
+    dragons = [name(str(i - 26) + 'z') for i in (31, 32, 33) if counts[i] >= 2]
+    if set(board.riichi) - {board.seat} and choice.get('sh', 0) and choice['sh'] >= 1:
+        plan = '防守优先，先减少放铳风险，再寻找进张'
+    elif board.seat in board.riichi:
+        plan = '已立直，保持听牌，等待和牌'
+    elif closed and pairs >= 5:
+        plan = '对子较多，可朝七对子推进，同时保留普通面子手'
+    elif suits and max(suits.values()) >= 10 and sum(suits.values()) - max(suits.values()) <= 2:
+        suit_name = {'m': '万', 'p': '筒', 's': '条'}[suits.most_common(1)[0][0]]
+        plan = f'牌集中在{suit_name}，可朝' + ('混一色' if honors else '清一色') + '推进'
+    elif dragons:
+        plan = '保留' + '、'.join(dragons) + '对子或刻子，朝役牌手推进'
+    elif triples >= 2 and pairs >= 4 and not any(g['type'] == 0 for g in groups):
+        plan = '对子、刻子较多，可朝对对和推进'
+    elif all(i < 27 and i % 9 not in (0, 8) for i in counts):
+        plan = '以中张组成面子，朝断幺九推进' + ('，保留门清立直机会' if closed else '')
+    else:
+        plan = '保留门清，优先完成顺子与对子，朝立直推进' if closed else '优先补齐面子与雀头，保留有役和牌路线'
+    if direction_only:
+        return plan
+    if action == 'none':
+        return '跳过这次鸣牌；' + plan + '。'
+    if action in ('chi', 'pon', 'daiminkan'):
+        return '鸣牌后重新整理弃牌；需保留役牌等有役路线。'
+    distance = choice.get('sh')
+    if distance == 0:
+        waits = [name(str(i % 9 + 1) + 'mpsz'[i // 9]) for i in choice.get('improving', [])]
+        return plan + '；听牌等 ' + '、'.join(waits) + '。'
+    return plan + (f'；弃牌后{distance}向听。' if distance is not None else '。')
+
+
+def decision_description(board, choice):
+    """Observable consequences of this choice, separate from the hand's plan."""
+    action = choice.get('action', {}).get('type', 'dahai')
+    if action == 'none':
+        return '跳过这次吃碰，保留现有手牌。'
+    if action == 'hora':
+        return '和牌，完成本局。'
+    if action in ('chi', 'pon', 'daiminkan'):
+        return choice['name'] + '；鸣牌后继续选择弃牌，需保留有役路线。'
+    detail = ('立直后打 ' if action == 'reach' else '打 ') + name(choice['tile'])
+    if choice.get('sh') == 0:
+        waits = [name(str(i % 9 + 1) + 'mpsz'[i // 9]) for i in choice.get('improving', [])]
+        detail += '；听牌等 ' + '、'.join(waits)
+    elif choice.get('sh') is not None:
+        detail += f'；弃牌后{choice["sh"]}向听，进张{choice["ukeire"]}枚'
+    if set(choice.get('safe', [])) & (set(board.riichi) - {board.seat}):
+        detail += '；是立直家的现物'
+    return detail + '。'
+
+
 def candidates(board):
     n = len(board.hand)
     if n not in (2, 5, 8, 11, 14):
@@ -105,6 +177,8 @@ def candidates(board):
     values = []
     tiles = sorted(set(board.hand), key=lambda t: json.dumps({'pai': mjai(t), 'type': 'dahai'}, sort_keys=True))
     for tile in tiles:
+        if normal(tile) in {normal(t) for t in board.forbidden_discards}:
+            continue
         if board.seat in board.riichi and tile != board.drawn:
             continue
         remaining = list(board.hand)
@@ -117,6 +191,8 @@ def candidates(board):
         values.append({'tile': tile, 'name': name(tile), 'sh': distance,
                        'ukeire': sum(4 - visible[t] for t in improving), 'improving': improving,
                        'safe': safe, 'red': tile[0] == '0', 'dora': sum(index(tile) == dora(t) for t in board.indicators)})
+    if not values:
+        raise ValueError('正在读取当前合法弃牌')
     threats = set(board.riichi) - {board.seat}
     fold = bool(threats) and min(v['sh'] for v in values) >= 1
     ref = min(values, key=lambda v: (len(threats - set(v['safe'])) if fold else 0, v['sh'], -v['ukeire'], v['red'], tiles.index(v['tile'])))
@@ -124,6 +200,14 @@ def candidates(board):
                 (not fold or len(threats - set(v['safe'])) <= len(threats - set(ref['safe'])))]
     for value in values:
         value['eligible'] = value in eligible
+    if board.riichi_selecting:
+        values = [v for v in values if v['sh'] == 0]
+        if not values:
+            raise ValueError('立直选牌中，正在重新读取听牌弃牌')
+    elif board.riichi_available and board.seat not in board.riichi and not board.melds[board.seat]:
+        values += [{**v, 'name': '立直 → 打 ' + v['name'],
+                    'action': {'type': 'reach', 'discard': mjai(v['tile'])}}
+                   for v in list(values) if v['sh'] == 0]
     return values
 
 
@@ -137,15 +221,60 @@ def request(board, values):
              'hand_number': board.hand_number if board.hand_number is not None else board.dealer + 1,
              'tsumogiri_flags': None, 'riichi_sutehais': None, 'last_tedashis': None, 'last_discard': None,
              'screen_observation': {'temporal_information': 'unknown', 'metadata_confirmed': board.metadata_confirmed}}
-    criteria = {f'a{i}': {'type': 'dahai', 'pai': mjai(v['tile']),
+    criteria = {f'a{i}': {**v.get('action', {'type': 'dahai', 'pai': mjai(v['tile'])}),
                          **{key: v[key] for key in ['sh', 'ukeire', 'safe', 'red']}} for i, v in enumerate(values)}
     return {'state': state, 'questions': {'action': {'type': 'choice', 'instructions': INSTRUCTION, 'criteria': criteria}}}
+
+
+def reaction_candidates(board):
+    """Only enumerate calls offered by the visible game buttons."""
+    event = board.reaction
+    if not event:
+        return []
+    parse(' '.join(board.hand))
+    board.visible()
+    tile, offered = event['tile'], set(event['offered'])
+    values = [{'action': {'type': 'none'}, 'name': '跳过', 'tile': None, 'sh': None, 'ukeire': None, 'safe': [], 'eligible': True}]
+    for kind, count in [('chi', 2), ('pon', 2), ('daiminkan', 3)]:
+        if kind not in offered:
+            continue
+        seen = set()
+        for consumed in combinations(board.hand, count):
+            signature = tuple(sorted(consumed))
+            if signature in seen:
+                continue
+            seen.add(signature)
+            types = sorted(index(t) for t in (*consumed, tile))
+            legal = (kind != 'chi' and len(set(types)) == 1) or (kind == 'chi' and event.get('seat') == 3
+                and types[0] < 27 and types[0] // 9 == types[-1] // 9 and types == list(range(types[0], types[0] + 3)))
+            if not legal:
+                continue
+            label = {'chi': '吃', 'pon': '碰', 'daiminkan': '杠'}[kind]
+            values.append({'action': {'type': kind, 'pai': mjai(tile), 'consumed': sorted(mjai(t) for t in consumed)},
+                           'name': label + ' ' + ' '.join(name(t) for t in (*consumed, tile)),
+                           'tile': tile, 'sh': None, 'ukeire': None, 'safe': [], 'eligible': True})
+    if 'hora' in offered and shanten(tuple(sorted(index(t) for t in [*board.hand, tile]))) == -1:
+        values.append({'action': {'type': 'hora'}, 'name': '和牌', 'tile': tile, 'sh': None, 'ukeire': None, 'safe': [], 'eligible': True})
+    return sorted(values, key=lambda v: json.dumps(v['action'], sort_keys=True))
 
 
 class Adviser:
     def __init__(self):
         self.model = None
         self.device = None
+        self.ready = False
+
+    def prepare(self, checkpoint, progress=None):
+        """Load and execute a real inference before reporting match readiness."""
+        self.ready = False
+        if progress:
+            progress('Jev 加载中 · 请等待就绪后再匹配')
+        description = self.load(checkpoint)
+        if progress:
+            progress('Jev 预热中 · 正在验证实际推理')
+        self.recommend(Board(parse('123456m345p67s115z')), use_model=True)
+        self.ready = True
+        return description + ' · 已就绪'
 
     def load(self, checkpoint, device='cuda'):
         import torch
@@ -172,6 +301,8 @@ class Adviser:
         return f'Jev 校正版2 · {device.upper()} · {dtype}'
 
     def recommend(self, board, use_model=False):
+        if board.reaction:
+            return self.recommend_reaction(board, use_model)
         values = candidates(board)
         threats = set(board.riichi) - {board.seat}
         if use_model:
@@ -189,4 +320,31 @@ class Adviser:
                 (len(threats - set(v['safe'])) if threats and v['sh'] >= 1 else 0,
                  v['sh'], -v['ukeire'], v['dora'], v['red'], v['tile']))
         return {'top3': ranked[:3], 'all_candidates': values, 'engine': 'Jev 校正版2' if use_model else '牌理引擎',
-                'notes': board.notes(), 'winning_shape': shanten(tuple(sorted(index(t) for t in board.hand))) == -1}
+                'notes': board.notes(), 'winning_shape': shanten(tuple(sorted(index(t) for t in board.hand))) == -1,
+                'riichi_selecting': board.riichi_selecting, 'strategy': hand_strategy(board, ranked[0]),
+                'direction': hand_strategy(board, ranked[0], direction_only=True),
+                'decision': decision_description(board, ranked[0])}
+
+    def recommend_reaction(self, board, use_model=False):
+        values = reaction_candidates(board)
+        if len(values) < 2:
+            raise ValueError('正在读取吃碰对应牌面')
+        payload = request(board, [])
+        payload['state']['screen_observation']['reaction'] = board.reaction
+        payload['questions']['action']['criteria'] = {f'a{i}': v['action'] for i, v in enumerate(values)}
+        if use_model:
+            if self.model is None:
+                raise RuntimeError('Jev尚未加载')
+            from jevany.api import validate_distribution
+            output = self.model.system_one(**payload)
+            probabilities, _ = validate_distribution(output['answers']['action']['probabilities'], list(payload['questions']['action']['criteria']))
+            for value, probability in zip(values, probabilities):
+                value['preference'] = float(probability)
+            ranked = sorted(values, key=lambda v: -v['preference'])
+        else:
+            ranked = sorted(values, key=lambda v: 0 if v['action']['type'] == 'hora' else 1 if v['action']['type'] == 'none' else 2)
+        return {'top3': ranked[:3], 'all_candidates': values, 'engine': 'Jev 校正版2' if use_model else '牌理引擎',
+                'notes': board.notes(), 'winning_shape': False, 'reaction': True,
+                'strategy': hand_strategy(board, ranked[0]),
+                'direction': hand_strategy(board, ranked[0], direction_only=True),
+                'decision': decision_description(board, ranked[0])}

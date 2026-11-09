@@ -43,7 +43,7 @@ def parse(text):
 def name(tile):
     if tile[1] == 'z':
         return ['东', '南', '西', '北', '白', '发', '中'][int(tile[0]) - 1]
-    return ('赤五' if tile[0] == '0' else '一二三四五六七八九'[int(tile[0]) - 1]) + {'m': '万', 'p': '筒', 's': '索'}[tile[1]]
+    return ('赤五' if tile[0] == '0' else '一二三四五六七八九'[int(tile[0]) - 1]) + {'m': '万', 'p': '筒', 's': '条'}[tile[1]]
 
 
 def mjai(tile):

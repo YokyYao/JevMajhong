@@ -3,7 +3,7 @@ from PyInstaller.utils.hooks import collect_all, collect_data_files, collect_sub
 
 root = Path(SPECPATH).parents[1]
 datas, binaries, hidden = [], [], []
-for package in ['onnxruntime', 'safetensors', 'tokenizers']:
+for package in ['onnxruntime', 'safetensors', 'tokenizers', 'rapidocr_onnxruntime', 'windows_capture']:
     data, binary, modules = collect_all(package)
     datas += data
     binaries += binary

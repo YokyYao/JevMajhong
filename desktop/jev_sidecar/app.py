@@ -1,6 +1,8 @@
 """Always-on-top Windows side panel with calibrated local screen capture."""
 import argparse
 import copy
+from concurrent.futures import ThreadPoolExecutor
+import hashlib
 from datetime import datetime
 import json
 import os
@@ -20,12 +22,31 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog, QFil
 from .engine import Adviser, Board, parse_melds
 from .tiles import name, parse
 from .vision import Templates, TileDetector, hand_boxes
+from .screen_state import ScreenStateReader
+from .window_capture import CaptureUnavailable, GameWindowCapture
+from .dataset import DecisionRecorder
+from .autoplay import AutoPlayer, RiichiFlow, plan_click, escape_pressed
 
 ROOT = Path(sys.executable).parent if getattr(sys, 'frozen', False) else Path(__file__).resolve().parents[2]
 CONFIG = Path(os.environ.get('LOCALAPPDATA', Path.home() / '.config')) / 'JevMahjong' / 'settings.json'
 DEMO_HAND = '123456m345p67s115z'
 ZONE_NAMES = {'hand': '自己的手牌', 'river0': '自己的牌河', 'river1': '下家牌河', 'river2': '对家牌河',
-              'river3': '上家牌河', 'dora': '宝牌指示牌'}
+              'river3': '上家牌河', 'dora': '宝牌指示牌', 'meld0': '自己的副露'}
+DEFAULT_RIVERS = {
+    'river0': {'rect': [.39, .505, .23, .20], 'rotation': 0},
+    'river1': {'rect': [.595, .22, .14, .295], 'rotation': 90},
+    'river2': {'rect': [.39, .13, .20, .165], 'rotation': 180},
+    'river3': {'rect': [.265, .275, .14, .285], 'rotation': 270},
+}
+
+
+def include_drawn_tile(region):
+    if region.get('include_drawn'):
+        return region
+    x, y, w, h = region['rect']
+    top = max(0, y - h * .65)
+    right = min(1, x + w + w * 2 / 13)
+    return {**region, 'rect': [x, top, right - x, min(1, y + h) - top], 'include_drawn': True}
 STYLE = """
 QWidget { background:#101923; color:#e9f1fa; font-family:'Microsoft YaHei UI','Noto Sans SC','Noto Sans CJK SC','Arial'; font-size:13px; }
 QMainWindow { background:#101923; } QFrame#card { background:#182535; border:1px solid #2b3b50; border-radius:12px; }
@@ -108,26 +129,33 @@ class Task(QRunnable):
     def __init__(self, kind, fn, generation):
         super().__init__()
         self.kind, self.fn, self.generation = kind, fn, generation
+        self.cancelled = False
         self.signals = Signals()
 
     def run(self):
+        if self.cancelled:
+            return
         try:
             result = {'result': self.fn()}
         except Exception as error:
             result = {'error': str(error)}
-        self.signals.done.emit({'task': self, 'kind': self.kind, 'generation': self.generation, **result})
+        if not self.cancelled:
+            self.signals.done.emit({'task': self, 'kind': self.kind, 'generation': self.generation, **result})
 
 
 class Sidecar(QMainWindow):
+    model_phase = Signal(str)
+
     def __init__(self, demo=False):
         super().__init__()
         self.setWindowTitle('Jev 雀魂助手')
-        self.resize(440, 940)
-        self.setMinimumWidth(400)
+        self.resize(360, 350)
+        self.setMinimumWidth(320)
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
         self.adviser = Adviser()
         self.pool = QThreadPool(self)
         self.pool.setMaxThreadCount(2)
+        self.model_pool = ThreadPoolExecutor(max_workers=1, thread_name_prefix='jev-model')
         self.jobs, self.busy = set(), set()
         self.generation = 0
         self.image = None
@@ -136,14 +164,41 @@ class Sidecar(QMainWindow):
         self.regions, self.capture_rect = {}, None
         self.last_signature, self.stable = None, 0
         self.last_analyzed = None
+        self.last_capture = None
+        self.last_update = None
+        self.frame_started = None
+        self.last_latency = None
+        self.screen_reader = ScreenStateReader(CONFIG.parent / 'screen-state.json')
+        self.reaction = None
+        self.auto_melds = None
+        self.forbidden_discards = []
+        self.screen_riichi = {}
+        self.autoplayer = AutoPlayer()
+        self.riichi_flow = RiichiFlow()
+        self.auto_result = None
+        self.auto_hand = None
+        self.auto_screen = None
+        self.latest_detections = []
+        self.latest_screen = {}
+        self.auto_ready_after = 0.
+        self.strategy_hand_id = None
+        self.current_decision = None
+        self.pending_vision = None
+        self.window_capture = GameWindowCapture()
+        self.window_table_rect = None
+        self.recorder = DecisionRecorder(os.environ['JEV_DATASET_DIR']) if os.environ.get('JEV_DATASET_DIR') else None
+        self.current_sample = None
         self.build()
+        self.model_phase.connect(self.readiness.setText, Qt.ConnectionType.QueuedConnection)
         self.load_settings()
+        self.regions.setdefault('hand', {'rect': [.10, .76, .76, .23], 'rotation': 0, 'include_drawn': True})
         self.templates = Templates(CONFIG.parent / 'templates')
         self.detector = TileDetector(self.detector_path.text(), self.templates)
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.tick)
         self.timer.start()
+        self.live.setChecked(True)
         if demo:
             self.demo()
         self.exclude_capture()
@@ -151,25 +206,54 @@ class Sidecar(QMainWindow):
     def build(self):
         root = QWidget()
         layout = QVBoxLayout(root)
+        layout.setContentsMargins(10, 8, 10, 8)
+        layout.setSpacing(6)
+        header = QHBoxLayout()
         title = QLabel('Jev  雀魂助手')
-        title.setStyleSheet('font-size:22px;font-weight:700;')
-        layout.addWidget(title)
-        self.status = QLabel('先框选牌桌，再校准自己的手牌区域')
+        title.setStyleSheet('font-size:17px;font-weight:700;')
+        header.addWidget(title)
+        header.addStretch()
+        settings_button = QPushButton('设置')
+        settings_button.clicked.connect(self.open_settings)
+        header.addWidget(settings_button)
+        layout.addLayout(header)
+        self.auto_execute = QCheckBox('自动执行推荐 · Esc 停止')
+        self.auto_execute.setToolTip('仅在雀魂前台执行；切到其他应用暂停点击，后台截图识别继续。')
+        self.auto_execute.toggled.connect(lambda enabled: (self.autoplayer.reset(), self.riichi_flow.reset()))
+        layout.addWidget(self.auto_execute)
+        self.readiness = QLabel('Jev 未就绪 · 启动后自动加载')
+        self.readiness.setWordWrap(True)
+        self.readiness.setObjectName('muted')
+        layout.addWidget(self.readiness)
+        self.stop_timer = QTimer(self)
+        self.stop_timer.setInterval(100)
+        self.stop_timer.timeout.connect(self.check_auto_stop)
+        self.stop_timer.start()
+        self.status = QLabel('自动连接雀魂窗口…')
         self.status.setWordWrap(True)
         self.status.setObjectName('muted')
-        layout.addWidget(self.status)
+        self.settings_dialog = QDialog(self)
+        self.settings_dialog.setWindowTitle('Jev · 设置与校准')
+        self.settings_dialog.resize(660, 740)
+        settings_layout = QVBoxLayout(self.settings_dialog)
+        self.tabs = QTabWidget()
+        settings_layout.addWidget(self.tabs)
+        recommend, r = self.tab('截图与校准')
+        automatic_hint = QLabel('自动识别雀魂窗口并后台截图，无需框选桌面。窗口布局变化时可在这里调整区域。')
+        automatic_hint.setWordWrap(True)
+        r.addWidget(automatic_hint)
         toolbar = QHBoxLayout()
         for label, callback in [('框选牌桌', self.select_table), ('打开截图', self.open_image), ('截取一次', self.capture_once)]:
             b = QPushButton(label)
             b.clicked.connect(callback)
             toolbar.addWidget(b)
-        layout.addLayout(toolbar)
-        self.live = QCheckBox('实时识别 · 每秒检查一次')
-        self.live.toggled.connect(self.invalidate)
-        layout.addWidget(self.live)
-        self.tabs = QTabWidget()
-        layout.addWidget(self.tabs)
-        recommend, r = self.tab('出牌建议')
+        r.addLayout(toolbar)
+        self.live = QCheckBox('自动运行 · 每秒截图 → 识别手牌 → Jev 推荐')
+        self.live.toggled.connect(self.live_changed)
+        r.addWidget(self.live)
+        self.activity = QLabel('尚未截图 · 尚无推荐')
+        self.activity.setWordWrap(True)
+        self.activity.setObjectName('muted')
         self.preview = QLabel('截图预览')
         self.preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.preview.setMinimumHeight(130)
@@ -193,8 +277,8 @@ class Sidecar(QMainWindow):
         self.tile_grid = QGridLayout()
         r.addLayout(self.tile_grid)
         action_row = QHBoxLayout()
-        self.lock = QCheckBox('锁定手牌，手动校正')
-        self.lock.toggled.connect(self.invalidate)
+        self.lock = QCheckBox('手动输入模式（暂停自动更新）')
+        self.lock.toggled.connect(self.manual_changed)
         action_row.addWidget(self.lock)
         analyze = QPushButton('分析这手牌')
         analyze.setObjectName('primary')
@@ -207,22 +291,30 @@ class Sidecar(QMainWindow):
         card = QFrame()
         card.setObjectName('card')
         c = QVBoxLayout(card)
-        self.engine_label = QLabel('牌理引擎 · Jev可在设置中加载')
+        self.engine_label = QLabel('Jev：准备加载到显卡')
         c.addWidget(self.engine_label)
         self.hero = QLabel('等待手牌')
+        self.hero.setWordWrap(True)
         self.hero.setObjectName('hero')
         c.addWidget(self.hero)
-        self.explanation = QLabel('识别稳定后显示建议；点击上方牌面可以修正。')
+        self.overall_strategy = QLabel('整体策略：等待手牌')
+        self.overall_strategy.setWordWrap(True)
+        c.addWidget(self.overall_strategy)
+        self.explanation = QLabel('框选完成后自动运行，无需点击“分析这手牌”。')
         self.explanation.setWordWrap(True)
         c.addWidget(self.explanation)
-        r.addWidget(card)
+        layout.addWidget(card)
+        self.hero.setStyleSheet('font-size:32px;font-weight:700;')
         self.results = QTableWidget(0, 4)
         self.results.setHorizontalHeaderLabels(['候选', '向听', '进张', '偏好分'])
         self.results.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.results.verticalHeader().hide()
         self.results.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.results.setMaximumHeight(145)
-        r.addWidget(self.results)
+        layout.addWidget(self.results)
+        layout.addWidget(self.status)
+        layout.addWidget(self.activity)
+        layout.addStretch()
         self.notes = QLabel('模型偏好分不代表和牌率或胜率。')
         self.notes.setWordWrap(True)
         self.notes.setObjectName('muted')
@@ -282,10 +374,11 @@ class Sidecar(QMainWindow):
         _, settings = self.tab('设置')
         self.monitor = QComboBox()
         self.monitor.addItems([screen.name() for screen in QApplication.screens()])
-        settings.addWidget(QLabel('截图屏幕'))
-        settings.addWidget(self.monitor)
+        self.monitor.hide()
+        settings.addWidget(QLabel('截图来源：自动连接雀魂窗口，切换到其他应用仍继续捕获'))
         self.mode = QComboBox()
         self.mode.addItems(['牌理引擎', 'Jev GPU 校正版2'])
+        self.mode.setCurrentIndex(1)
         self.mode.currentIndexChanged.connect(self.invalidate)
         settings.addWidget(QLabel('推荐引擎'))
         settings.addWidget(self.mode)
@@ -312,6 +405,22 @@ class Sidecar(QMainWindow):
         settings.addStretch()
         self.setCentralWidget(root)
 
+    def open_settings(self):
+        self.settings_dialog.show()
+        self.settings_dialog.raise_()
+        self.settings_dialog.activateWindow()
+
+    def closeEvent(self, event):
+        self.stop_timer.stop()
+        if hasattr(self, 'timer'):
+            self.timer.stop()
+        self.pending_vision = None
+        for task in self.jobs:
+            task.cancelled = True
+        self.window_capture.stop()
+        self.model_pool.shutdown(wait=False, cancel_futures=True)
+        super().closeEvent(event)
+
     def tab(self, title):
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
@@ -324,48 +433,135 @@ class Sidecar(QMainWindow):
     def invalidate(self, *args):
         self.generation += 1
         self.last_analyzed = None
-        self.hero.setText('等待更新')
+        self.auto_result = None
+        if 'load' in self.busy:
+            text = 'Jev 加载中'
+        elif self.lock.isChecked():
+            text = '手动输入模式'
+        elif not self.live.isChecked():
+            text = '自动更新已暂停'
+        elif self.capture_rect is None or 'hand' not in self.regions:
+            text = '请框选手牌区域'
+        else:
+            text = '自动识别中'
+        self.hero.setText(text)
         self.results.setRowCount(0)
+
+    def live_changed(self, enabled):
+        if enabled:
+            self.lock.setChecked(False)
+        self.invalidate()
+        if enabled and hasattr(self, 'timer'):
+            QTimer.singleShot(0, self.tick)
+        elif not enabled:
+            self.pending_vision = None
+            self.status.setText('自动更新已暂停；勾选“自动运行”即可恢复')
+
+    def manual_changed(self, enabled):
+        if enabled:
+            self.live.setChecked(False)
+        self.invalidate()
+
+    def update_activity(self):
+        timing = f' · 截图到建议 {self.last_latency:.2f}s' if self.last_latency is not None else ''
+        self.activity.setText(f'最近截图：{self.last_capture or "尚未截图"} · 最近推荐：{self.last_update or "尚未生成"}{timing}')
+
+    def wait_for_frame(self, title, detail):
+        if self.hero.text() != title:
+            self.invalidate()
+        self.hero.setText(title)
+        if not self.current_decision:
+            self.explanation.setText(detail)
+        self.status.setText(detail)
+
+    def debug_event(self, event_kind, **values):
+        directory = os.environ.get('JEV_DEBUG_DIR')
+        if directory:
+            path = Path(directory)
+            path.mkdir(parents=True, exist_ok=True)
+            with (path / 'events.jsonl').open('a', encoding='utf-8') as stream:
+                stream.write(json.dumps({'time': datetime.now().isoformat(), 'event': event_kind, **values}, ensure_ascii=False) + '\n')
 
     def start(self, kind, fn):
         if kind in self.busy or (kind in ['analysis', 'load'] and self.busy & {'analysis', 'load'}):
             return
         task = Task(kind, fn, self.generation)
+        task.frame_started = self.frame_started
+        task.sample_id = self.current_sample
         self.jobs.add(task)
         self.busy.add(kind)
         task.signals.done.connect(self.finished, Qt.ConnectionType.QueuedConnection)
-        self.pool.start(task)
+        if kind in ('load', 'analysis'):
+            self.model_pool.submit(task.run)
+        else:
+            self.pool.start(task)
 
     @Slot(object)
     def finished(self, message):
         kind = message['kind']
         self.jobs.discard(message['task'])
         self.busy.discard(kind)
+        if kind == 'vision':
+            QTimer.singleShot(0, self.start_pending_vision)
         if 'error' in message:
+            self.debug_event('error', kind=kind, error=message['error'])
             if kind in ['vision', 'analysis'] and message['generation'] != self.generation:
                 return
             self.status.setText(message['error'])
             if kind == 'analysis':
                 self.last_analyzed = None
-                self.hero.setText('请核对牌面')
+                self.analysis_error(message['error'])
+            if kind == 'vision':
+                self.wait_for_frame('识别重试中', '本帧未完成识别，下一秒自动重试：' + message['error'])
             if kind == 'load':
+                self.readiness.setText('Jev 未就绪 · 加载或预热失败，请重试')
                 self.load_button.setEnabled(True)
+                self.engine_label.setText('Jev：加载失败，可在设置中重试')
+                self.hero.setText('Jev 加载失败')
+                self.explanation.setText('请到设置重试加载 Jev；截图识别仍会每秒继续。')
             return
         if kind == 'vision' and message['generation'] == self.generation:
+            self.frame_started = message['task'].frame_started
             self.recognized(message['result'])
         elif kind == 'load':
             self.load_button.setEnabled(True)
             self.mode.setCurrentIndex(1)
             self.engine_label.setText(message['result'])
-            self.status.setText('Jev加载完成，可开始本机推理')
+            self.readiness.setText('Jev 已就绪 · 可以开始匹配')
+            self.status.setText('模型已加载并完成实际推理预热')
+            self.debug_event('model_ready', description=message['result'])
             self.last_analyzed = None
+            if self.live.isChecked():
+                QTimer.singleShot(0, self.tick)
         elif kind == 'analysis' and message['generation'] == self.generation:
+            started = getattr(message['task'], 'frame_started', None)
+            self.last_latency = time.monotonic() - started if started is not None else None
             self.show_result(message['result'])
+            if self.recorder and message['task'].sample_id:
+                self.recorder.prediction(message['task'].sample_id, message['result'], self.last_latency)
 
     def screen_image(self):
-        screens = QApplication.screens()
-        screen = screens[min(self.monitor.currentIndex(), len(screens) - 1)]
-        return pillow(screen.grabWindow(0).toImage())
+        return self.window_capture.snapshot()
+
+    def analysis_error(self, error):
+        if '赤五' in error or '同一种牌' in error or '牌代码' in error:
+            title = '手牌解析中'
+            detail = '手牌牌面解析未完成：' + error
+        elif '公开牌面' in error:
+            title = '公开牌面读取中'
+            detail = '手牌已读取，牌河或宝牌需要重新读取'
+        elif '副露' in error:
+            title = '副露读取中'
+            detail = '手牌已读取，正在补全副露信息'
+        elif '加载' in error or 'CUDA' in error:
+            title = 'Jev 未就绪'
+            detail = error
+        else:
+            title = '分析未完成'
+            detail = error
+        self.hero.setText(title)
+        self.status.setText(detail + (' · 自动读取下一帧' if self.live.isChecked() else ''))
+        self.explanation.setText('')
 
     def select_table(self):
         try:
@@ -373,8 +569,12 @@ class Sidecar(QMainWindow):
             dialog = RegionDialog(image, '框选整个雀魂牌桌', self)
             if dialog.exec():
                 self.capture_rect = dialog.normalized()
+                self.window_table_rect = self.capture_rect
                 self.image_source = 'screen'
                 self.regions = {}
+                self.last_signature, self.stable = None, 0
+                self.river_known.clear()
+                self.screen_reader = ScreenStateReader()
                 self.image = self.crop_screen(image)
                 self.update_preview()
                 self.invalidate()
@@ -383,9 +583,9 @@ class Sidecar(QMainWindow):
             self.status.setText(str(error))
 
     def crop_screen(self, image):
-        if self.capture_rect is None:
-            raise ValueError('请先框选牌桌')
-        x, y, w, h = self.capture_rect
+        if self.window_table_rect is None:
+            return image
+        x, y, w, h = self.window_table_rect
         return image.crop((int(x * image.width), int(y * image.height), int((x + w) * image.width), int((y + h) * image.height)))
 
     def open_image(self):
@@ -411,9 +611,18 @@ class Sidecar(QMainWindow):
                     if ok:
                         rotation = int(choice)
                 self.regions[key] = {'rect': dialog.normalized(), 'rotation': rotation}
+                if key == 'hand':
+                    self.regions[key] = include_drawn_tile(self.regions[key])
+                self.last_signature, self.stable = None, 0
                 self.save_settings()
                 self.invalidate()
-                self.status.setText(ZONE_NAMES[key] + '区域已保存')
+                if self.image_source == 'screen' and self.capture_rect is not None and 'hand' in self.regions:
+                    self.lock.setChecked(False)
+                    self.live.setChecked(True)
+                    self.status.setText('区域已保存，已自动开始每秒截图、识别和 Jev 推荐')
+                    QTimer.singleShot(0, self.tick)
+                elif self.image_source == 'file':
+                    self.capture_once()
         except Exception as error:
             self.status.setText(str(error))
 
@@ -430,28 +639,98 @@ class Sidecar(QMainWindow):
         self.capture(manual=True)
 
     def capture(self, manual=False):
-        if 'vision' in self.busy:
-            return
         try:
+            self.frame_started = time.monotonic()
             if self.live.isChecked() or self.image is None or self.image_source != 'file':
                 self.image = self.crop_screen(self.screen_image())
             if 'hand' not in self.regions:
                 raise ValueError('请先框选自己的手牌区域')
             self.update_preview()
+            self.last_capture = datetime.now().strftime('%H:%M:%S')
+            self.update_activity()
+            if os.environ.get('JEV_DEBUG_DIR'):
+                debug_path = Path(os.environ['JEV_DEBUG_DIR'])
+                debug_path.mkdir(parents=True, exist_ok=True)
+                if self.recorder:
+                    preview = self.image.copy()
+                    preview.thumbnail((1280, 1280))
+                    preview.save(debug_path / 'latest-table-next.jpg', quality=68, optimize=True)
+                    (debug_path / 'latest-table-next.jpg').replace(debug_path / 'latest-table.jpg')
+                else:
+                    self.image.save(debug_path / 'latest-table-next.png')
+                    (debug_path / 'latest-table-next.png').replace(debug_path / 'latest-table.png')
+            if manual or (self.results.rowCount() == 0 and not self.busy & {'analysis', 'load'}):
+                self.status.setText('每秒监测牌局中…')
             image, regions = self.image.copy(), copy.deepcopy(self.regions)
+            for key, region in DEFAULT_RIVERS.items():
+                regions.setdefault(key, region)
             self.detector.path = Path(self.detector_path.text())
-            self.start('vision', lambda: (self.detector.regions(image, regions), manual))
+            self.pending_vision = (image, regions, manual, self.frame_started)
+            self.start_pending_vision()
         except Exception as error:
-            self.status.setText(str(error))
+            title = '等待雀魂窗口' if isinstance(error, CaptureUnavailable) else '截图未完成'
+            self.wait_for_frame(title, str(error))
+
+    def start_pending_vision(self):
+        if 'vision' in self.busy or self.pending_vision is None:
+            return
+        image, regions, manual, started = self.pending_vision
+        self.pending_vision = None
+        self.frame_started = started
+        self.start('vision', lambda: self.recognize_frame(image, regions, manual))
 
     def tick(self):
         if self.live.isChecked():
             self.capture()
 
+    def recognize_frame(self, image, regions, manual):
+        found = self.detector.regions(image, {k: v for k, v in regions.items() if k != 'meld0'})
+        found['_screen'] = self.screen_reader.read(image, regions, self.detector, found)
+        found['_image_size'] = image.size
+        if self.recorder and (len(found.get('hand', [])) in (2, 5, 8, 11, 14) or found['_screen']['offered']):
+            labels = {'hand': [d.tile for d in found.get('hand', [])], 'screen': found['_screen'],
+                      'rivers': {k: [d.tile for d in v] for k, v in found.items() if k.startswith('river')}}
+            found['_sample'] = self.recorder.record(image, labels)
+        if not self.recorder and os.environ.get('JEV_DEBUG_DIR') and (len(found.get('hand', [])) in (2, 5, 8, 11, 14) or found['_screen']['offered']):
+            signature = repr(([d.tile for d in found.get('hand', [])], found['_screen']))
+            key = hashlib.sha256(signature.encode()).hexdigest()[:16]
+            path = Path(os.environ['JEV_DEBUG_DIR']) / ('decision-' + key + '.png')
+            if not path.exists():
+                image.save(path)
+        return found, manual
+
     def recognized(self, result):
         regions, manual = result
+        self.current_sample = regions.get('_sample')
+        screen = regions.get('_screen', {})
+        hand_id = screen.get('hand_id')
+        if hand_id is not None and hand_id != self.strategy_hand_id:
+            if self.strategy_hand_id is not None:
+                self.overall_strategy.setText('整体策略：新一局，正在计算')
+                self.current_decision = None
+                self.explanation.setText('当前决策：等待新一局推荐')
+            self.strategy_hand_id = hand_id
+        self.latest_screen = screen
+        self.latest_image_size = regions.get('_image_size', self.image.size if self.image is not None else (1, 1))
+        reaction = screen.get('reaction')
+        if reaction != self.reaction:
+            self.reaction = reaction
+            self.invalidate()
+        self.auto_melds = screen.get('melds')
+        riichi_state = {key: bool(screen.get(key)) for key in ('riichi_available', 'riichi_selecting', 'own_riichi')}
+        if riichi_state != self.screen_riichi:
+            self.screen_riichi = riichi_state
+            self.invalidate()
+        self.forbidden_discards = screen.get('forbidden', [])
         detections = regions.get('hand', [])
+        self.latest_detections = detections
         signature = tuple(d.tile for d in detections)
+        click_progress = self.autoplayer.observe(signature, repr(screen))
+        if click_progress:
+            self.status.setText(click_progress)
+            if self.autoplayer.pending is None:
+                self.debug_event('auto_click_state_changed', hand=list(signature))
+        self.debug_event('recognized', hand=list(signature), screen=screen)
         self.stable = self.stable + 1 if signature == self.last_signature else 1
         self.last_signature = signature
         if not self.lock.isChecked():
@@ -459,7 +738,7 @@ class Sidecar(QMainWindow):
             if self.hand.text() != text:
                 self.hand.setText(text)
                 self.invalidate()
-            self.paint_tiles(list(signature), [d.confidence for d in detections])
+                self.paint_tiles(list(signature))
         for key, items in regions.items():
             if key.startswith('river'):
                 self.river_known.add(int(key[-1]))
@@ -468,38 +747,50 @@ class Sidecar(QMainWindow):
                 target = self.dora
             else:
                 continue
-            if items and min(d.confidence for d in items) < .70:
-                continue
             text = ' '.join(d.tile for d in items)
-            if not items and target.text():
+            if not self.live.isChecked() and not items and target.text():
                 continue  # A transient missed detection is not proof that a river was cleared.
             if target.text() != text:
                 target.setText(text)
-                self.invalidate()
-        if not detections or min(d.confidence for d in detections) < .70:
-            self.hero.setText('请校正识别')
-            self.status.setText('存在低置信度牌面；点击牌面修正，再按“分析这手牌”')
-            return
-        self.status.setText(f'手牌识别{len(detections)}张 · 连续稳定{self.stable}帧')
+                if not self.live.isChecked():
+                    self.invalidate()
         if self.lock.isChecked():
-            self.status.setText('手牌已锁定：可手动分析；取消锁定后恢复自动更新')
+            self.status.setText('手动输入模式；勾选“自动运行”恢复每秒自动更新')
             return
-        if len(detections) in (1, 4, 7, 10, 13) and not self.lock.isChecked():
-            self.hero.setText('等待自己出牌')
-            self.results.setRowCount(0)
+        if self.try_riichi_selection():
             return
-        if manual or self.stable >= 2:
-            self.analyze()
+        if not detections:
+            self.wait_for_frame('正在寻找手牌', '尚未读到手牌，下一秒自动截图重试，无需操作')
+            return
+        if len(detections) in (1, 4, 7, 10, 13):
+            if screen.get('offered'):
+                if self.reaction:
+                    self.analyze(automatic=not manual)
+                    self.try_auto_execute()
+                else:
+                    self.wait_for_frame('正在读取吃碰牌面', '已检测到动作按钮，正在自动读取对应牌面')
+                return
+            self.wait_for_frame('等待摸牌', f'当前{len(detections)}张手牌；摸牌后自动用 Jev 推荐，无需点击')
+            return
+        if len(detections) not in (2, 5, 8, 11, 14):
+            self.wait_for_frame('等待完整手牌', f'本帧读到{len(detections)}张，下一秒自动重新识别')
+            return
+        if 'load' in self.busy:
+            self.hero.setText('Jev 加载中')
+            self.status.setText('手牌已识别；Jev 加载完成后自动推荐，无需点击')
+            return
+        self.analyze(automatic=not manual)
+        self.try_auto_execute()
 
-    def paint_tiles(self, tiles, confidences=None):
+    def paint_tiles(self, tiles):
         while self.tile_grid.count():
             widget = self.tile_grid.takeAt(0).widget()
             if widget:
                 widget.deleteLater()
         for i, tile in enumerate(tiles):
             button = QPushButton(name(tile))
-            button.setToolTip(tile + (f' · 匹配分{confidences[i]:.0%}' if confidences else ' · 手动输入'))
-            button.setStyleSheet('padding:7px 2px;color:#f4c56a;' if confidences and confidences[i] < .70 else 'padding:7px 2px;')
+            button.setToolTip(tile)
+            button.setStyleSheet('padding:7px 2px;')
             button.clicked.connect(lambda checked=False, position=i: self.edit_tile(position))
             self.tile_grid.addWidget(button, i // 7, i % 7)
 
@@ -536,39 +827,87 @@ class Sidecar(QMainWindow):
     def board(self):
         hand = parse(self.hand.text())
         melds = [parse_melds(edit.text()) for edit in self.meld_edits]
+        if self.live.isChecked() and self.auto_melds is not None:
+            melds[0] = self.auto_melds
         return Board(hand=hand, rivers=[parse(e.text()) if e.text().strip() or i in self.river_known or self.confirmed.isChecked() else None
                                       for i, e in enumerate(self.rivers)],
                      indicators=parse(self.dora.text()), melds=melds,
-                     riichi=[i for i, c in enumerate(self.reach) if c.isChecked()],
+                     riichi=sorted(set([i for i, c in enumerate(self.reach) if c.isChecked()] +
+                                       ([0] if self.live.isChecked() and self.screen_riichi.get('own_riichi') else []))),
                      scores=[int(x) for x in self.scores.text().split()], dealer=self.dealer.currentIndex(),
                      round_wind=self.wind.currentIndex(), honba=self.honba.value(), sticks=self.sticks.value(),
-                     drawn=hand[-1] if hand else None, metadata_confirmed=self.confirmed.isChecked(), hand_number=self.hand_number.value())
+                     drawn=hand[-1] if hand else None, metadata_confirmed=self.confirmed.isChecked(), hand_number=self.hand_number.value(),
+                     reaction=self.reaction if self.live.isChecked() else None,
+                     forbidden_discards=self.forbidden_discards if self.live.isChecked() else [],
+                     riichi_available=self.live.isChecked() and self.screen_riichi.get('riichi_available', False),
+                     riichi_selecting=self.live.isChecked() and self.screen_riichi.get('riichi_selecting', False))
 
-    def analyze(self):
+    def analyze(self, checked=False, automatic=False):
         if self.busy & {'analysis', 'load'}:
             return
         try:
             board = self.board()
-            signature = repr(board) + str(self.mode.currentIndex())
+            try:
+                board.visible()
+            except ValueError:
+                # An inconsistent public crop must not discard a valid hand.
+                board.rivers = [None] * 4
+                board.indicators = []
+                board.melds[1:] = [[], [], []]
+                board.metadata_confirmed = False
+                board.visible()
+            # Public river OCR can jitter while nothing about our legal decision
+            # changes. Calculate once per decision, not once per screenshot.
+            signature = (repr((board.hand, board.reaction, board.melds[0], board.riichi,
+                               board.riichi_available, board.riichi_selecting, board.forbidden_discards))
+                         if automatic else repr(board)) + str(self.mode.currentIndex())
             if signature == self.last_analyzed:
                 return
+            same_advice = signature == self.last_analyzed and self.results.rowCount() > 0
             self.last_analyzed = signature
-            self.paint_tiles(board.hand)
-            self.status.setText('正在分析当前手牌…')
             use_model = self.mode.currentIndex() == 1
+            if not same_advice:
+                self.hero.setText('Jev 运算中' if use_model else '牌理分析中')
+            self.status.setText('后台更新中 · 当前建议仍适用' if same_advice else
+                                '手牌已识别，正在用 Jev 计算推荐…' if use_model else '手牌已识别，正在分析…')
             self.start('analysis', lambda: self.adviser.recommend(board, use_model))
         except Exception as error:
-            self.status.setText(str(error))
+            if automatic:
+                self.analysis_error(str(error))
+            else:
+                self.status.setText(str(error))
 
     def show_result(self, result):
+        self.auto_result = result
+        self.auto_hand = tuple(d.tile for d in self.latest_detections)
+        self.auto_screen = repr(self.latest_screen)
+        self.auto_ready_after = time.monotonic()
         top = result['top3'][0]
-        self.hero.setText('建议打 ' + top['name'])
-        self.engine_label.setText(result['engine'] + ' · ' + datetime.now().strftime('%H:%M:%S'))
+        self.hero.setText(('建议：' if result.get('reaction') else '建议打 ') + top['name'])
+        if top.get('action', {}).get('type') == 'reach':
+            self.hero.setText(top['name'])
+        elif result.get('riichi_selecting'):
+            self.hero.setText('立直选牌 → 打 ' + top['name'])
+        device = ' · ' + self.adviser.device.upper() if self.adviser.device and result['engine'].startswith('Jev') else ''
+        self.engine_label.setText(result['engine'] + device + ' · ' + datetime.now().strftime('%H:%M:%S'))
         safe = '，对立直家现物' if set(top['safe']) & {i for i, c in enumerate(self.reach) if c.isChecked()} else ''
-        self.explanation.setText(f'弃牌后{top["sh"]}向听，{top["ukeire"]}枚可见剩余进张{safe}。')
+        self.explanation.setText('Jev 已比较当前吃碰与跳过选项；操作后自动识别副露并继续推荐弃牌。' if result.get('reaction')
+                                 else f'弃牌后{top["sh"]}向听，{top["ukeire"]}枚可见剩余进张{safe}。')
+        if top.get('action', {}).get('type') == 'reach':
+            self.explanation.setText('先点击游戏的“立直”，再单击推荐牌；选牌画面自动继续识别。')
+        elif result.get('riichi_selecting'):
+            self.explanation.setText('已进入立直选牌，只推荐能听牌的弃牌；单击推荐牌完成立直。')
+        if result.get('direction'):
+            text = '整体策略：' + result['direction']
+            if self.overall_strategy.text() != text:
+                self.overall_strategy.setText(text)
+        if result.get('decision'):
+            self.current_decision = result['decision']
+            self.explanation.setText('当前决策：' + self.current_decision)
         self.results.setRowCount(len(result['top3']))
         for row, candidate in enumerate(result['top3']):
-            items = [candidate['name'], str(candidate['sh']), str(candidate['ukeire']),
+            items = [candidate['name'], str(candidate['sh']) if candidate['sh'] is not None else '—',
+                     str(candidate['ukeire']) if candidate['ukeire'] is not None else '—',
                      f'{candidate["preference"]:.1%}' if 'preference' in candidate else '—']
             for col, value in enumerate(items):
                 self.results.setItem(row, col, QTableWidgetItem(value))
@@ -578,13 +917,77 @@ class Sidecar(QMainWindow):
             self.explanation.setText('若游戏提供自摸/和牌按钮，请先确认。未满足役等条件时，可参考下方弃牌候选。')
             notes.insert(0, '当前是和牌形：先检查游戏是否提供自摸/和牌按钮。')
         self.notes.setText('\n'.join(notes))
-        self.status.setText('建议已更新')
+        self.last_update = datetime.now().strftime('%H:%M:%S')
+        self.debug_event('recommendation', hand=self.hand.text(), engine=result['engine'], latency=self.last_latency,
+                         top3=result['top3'], strategy=result.get('strategy'),
+                         direction=result.get('direction'), decision=result.get('decision'))
+        self.update_activity()
+        self.status.setText('建议已更新 · 监测出牌完成，下一次决策自动刷新' if self.live.isChecked() else '建议已更新 · 手动模式')
+
+    def check_auto_stop(self):
+        if self.auto_execute.isChecked() and sys.platform == 'win32' and escape_pressed():
+            self.auto_execute.setChecked(False)
+            self.status.setText('Esc 已停止自动点击；截图识别继续')
+
+    def try_auto_execute(self):
+        if not self.auto_execute.isChecked() or not self.live.isChecked() or not self.auto_result:
+            return
+        if self.frame_started is None or self.frame_started <= self.auto_ready_after:
+            return  # Verify a frame captured after inference completed before input.
+        hand = tuple(d.tile for d in self.latest_detections)
+        if hand != self.auto_hand or repr(self.latest_screen) != self.auto_screen:
+            return
+        # A completed discard/call ends this decision. A later identical draw
+        # receives a fresh key after invalidate clears the previous result.
+        key = (self.generation, hand, self.auto_screen, repr(self.auto_result['top3'][0]))
+        try:
+            plan = plan_click(self.auto_result, self.latest_detections, self.latest_screen,
+                              self.regions['hand']['rect'], self.latest_image_size)
+            if self.autoplayer.execute(key, plan, self.window_capture, self.window_table_rect):
+                top = self.auto_result['top3'][0]
+                if top.get('action', {}).get('type') == 'reach':
+                    self.riichi_flow.begin(hand, top['tile'])
+                    self.screen_reader.expected_riichi_hand = list(hand)
+                    self.screen_reader.expected_riichi_tile = top['tile']
+                self.status.setText('已自动点击：' + plan.label + ' · 等待操作完成')
+                self.debug_event('auto_click', hand=list(hand), action=plan.label, x=plan.x, y=plan.y)
+            elif plan is None:
+                self.status.setText('该动作需要选择吃碰组合，自动点击等待')
+        except RuntimeError as error:
+            self.status.setText(str(error))
+
+    def try_riichi_selection(self):
+        flow = self.riichi_flow
+        if not self.auto_execute.isChecked() or flow.hand is None:
+            return False
+        plan = flow.plan(self.latest_detections, self.latest_screen,
+                         self.regions['hand']['rect'], self.latest_image_size)
+        if flow.hand is None:
+            return False
+        self.hero.setText('立直第2步 → 打 ' + name(flow.tile))
+        self.status.setText('等待弃牌完成' if flow.clicked else '等待立直选牌界面，保留 Jev 已选弃牌')
+        if plan is not None and self.frame_started is not None and self.frame_started > flow.started:
+            key = ('riichi-discard', tuple(d.tile for d in self.latest_detections), repr(self.latest_screen), flow.started)
+            try:
+                if self.autoplayer.execute(key, plan, self.window_capture, self.window_table_rect):
+                    flow.clicked = True
+                    self.status.setText('已确认立直弃牌：' + name(flow.tile) + ' · 等待牌离手')
+                    self.debug_event('riichi_discard_click', tile=flow.tile, x=plan.x, y=plan.y)
+            except RuntimeError as error:
+                self.status.setText(str(error))
+        return True
 
     def load_model(self):
+        if self.busy & {'load', 'analysis'}:
+            return
+        self.readiness.setText('Jev 加载中 · 请等待就绪后再匹配')
         self.load_button.setEnabled(False)
+        self.engine_label.setText('Jev：正在加载到显卡，加载完成后自动推荐')
         self.status.setText('加载Jev中；首次下载底座可能需要几分钟…')
+        self.hero.setText('Jev 加载中')
+        self.explanation.setText('加载完成后自动分析识别到的手牌，无需点击。')
         checkpoint = self.checkpoint.text().strip()
-        self.start('load', lambda: self.adviser.load(checkpoint))
+        self.start('load', lambda: self.adviser.prepare(checkpoint, self.model_phase.emit))
 
     def demo(self):
         self.live.setChecked(False)
@@ -615,6 +1018,7 @@ class Sidecar(QMainWindow):
     def save_settings(self):
         CONFIG.parent.mkdir(parents=True, exist_ok=True)
         CONFIG.write_text(json.dumps({'regions': self.regions, 'capture_rect': self.capture_rect,
+            'window_table_rect': self.window_table_rect,
             'monitor': self.monitor.currentIndex(), 'checkpoint': self.checkpoint.text(),
             'detector': self.detector_path.text()}, ensure_ascii=False, indent=2), encoding='utf-8')
 
@@ -622,6 +1026,9 @@ class Sidecar(QMainWindow):
         try:
             data = json.loads(CONFIG.read_text(encoding='utf-8'))
             self.regions, self.capture_rect = data.get('regions', {}), data.get('capture_rect')
+            self.window_table_rect = data.get('window_table_rect')
+            if 'hand' in self.regions:
+                self.regions['hand'] = include_drawn_tile(self.regions['hand'])
             self.monitor.setCurrentIndex(min(data.get('monitor', 0), self.monitor.count() - 1))
             if Path(data.get('checkpoint', '')).is_dir():
                 self.checkpoint.setText(data['checkpoint'])
@@ -643,6 +1050,7 @@ class Sidecar(QMainWindow):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--demo', action='store_true')
+    parser.add_argument('--minimized', action='store_true', help='Keep automatic capture running in the background')
     parser.add_argument('--preview', type=Path, help='Render a demo panel to PNG, including headless environments')
     args = parser.parse_args()
     app = QApplication(sys.argv[:1])
@@ -651,7 +1059,8 @@ def main():
         QFontDatabase.addApplicationFont(str(font_path))
     app.setStyleSheet(STYLE)
     window = Sidecar(demo=args.demo or bool(args.preview))
-    window.show()
+    window.dock()
+    window.showMinimized() if args.minimized else window.show()
     if not args.demo and not args.preview:
         QTimer.singleShot(500, window.load_model)
     if args.preview:
