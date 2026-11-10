@@ -18,7 +18,7 @@ def main():
             path = out / 'status.json'; status = json.loads(path.read_text()) if path.exists() else {}
             serialized = json.dumps(status, sort_keys=True)
             if serialized != previous: changed = time.monotonic(); previous = serialized
-            terminal = (out / 'fit-result.json').exists()
+            terminal = any((out / name).exists() for name in ('fit-result.json','development-audit.json','development-skipped.json'))
             heartbeat = {'job':args.job,'observed_unix':time.time(),'worker_status':status,
                 'terminal_fit_record_exists':terminal,'seconds_without_progress':time.monotonic()-changed,
                 'needs_attention':not terminal and time.monotonic()-changed > 1200,

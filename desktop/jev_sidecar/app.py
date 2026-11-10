@@ -31,7 +31,8 @@ ROOT = Path(sys.executable).parent if getattr(sys, 'frozen', False) else Path(__
 CONFIG = Path(os.environ.get('LOCALAPPDATA', Path.home() / '.config')) / 'JevMahjong' / 'settings.json'
 DEMO_HAND = '123456m345p67s115z'
 ZONE_NAMES = {'hand': '自己的手牌', 'river0': '自己的牌河', 'river1': '下家牌河', 'river2': '对家牌河',
-              'river3': '上家牌河', 'dora': '宝牌指示牌', 'meld0': '自己的副露'}
+              'river3': '上家牌河', 'dora': '宝牌指示牌', 'meld0': '自己的副露',
+              'counters': '立直棒与本场（整行）'}
 DEFAULT_RIVERS = {
     'river0': {'rect': [.39, .505, .23, .20], 'rotation': 0},
     'river1': {'rect': [.595, .22, .14, .295], 'rotation': 90},
@@ -359,6 +360,7 @@ class Sidecar(QMainWindow):
         for label, widget in [('庄家', self.dealer), ('场风', self.wind), ('第几局', self.hand_number), ('本场', self.honba), ('立直棒', self.sticks)]:
             form.addRow(label, widget)
         context.addLayout(form)
+        context.addWidget(QLabel('本场和立直棒随截图自动更新。'))
         context.addWidget(QLabel('副露：每组用逗号分隔，例如123m,555p。暗杠前加a:。'))
         self.meld_edits = []
         for who in ['自己', '下家', '对家', '上家']:
@@ -684,7 +686,7 @@ class Sidecar(QMainWindow):
             self.capture()
 
     def recognize_frame(self, image, regions, manual):
-        found = self.detector.regions(image, {k: v for k, v in regions.items() if k != 'meld0'})
+        found = self.detector.regions(image, {k: v for k, v in regions.items() if k not in ('meld0','counters')})
         found['_screen'] = self.screen_reader.read(image, regions, self.detector, found)
         found['_image_size'] = image.size
         if self.recorder and (len(found.get('hand', [])) in (2, 5, 8, 11, 14) or found['_screen']['offered']):
@@ -703,6 +705,7 @@ class Sidecar(QMainWindow):
         regions, manual = result
         self.current_sample = regions.get('_sample')
         screen = regions.get('_screen', {})
+        self.update_counters(screen.get('counters', {}))
         hand_id = screen.get('hand_id')
         if hand_id is not None and hand_id != self.strategy_hand_id:
             if self.strategy_hand_id is not None:
@@ -782,6 +785,18 @@ class Sidecar(QMainWindow):
         self.analyze(automatic=not manual)
         self.try_auto_execute()
 
+    def update_counters(self, values):
+        changed = False
+        for key, widget in (('honba', self.honba), ('sticks', self.sticks)):
+            value = values.get(key)
+            if value is not None and widget.value() != value:
+                blocked = widget.blockSignals(True)
+                widget.setValue(value)
+                widget.blockSignals(blocked)
+                changed = True
+        if changed:
+            self.invalidate()
+
     def paint_tiles(self, tiles):
         while self.tile_grid.count():
             widget = self.tile_grid.takeAt(0).widget()
@@ -859,7 +874,8 @@ class Sidecar(QMainWindow):
             # Public river OCR can jitter while nothing about our legal decision
             # changes. Calculate once per decision, not once per screenshot.
             signature = (repr((board.hand, board.reaction, board.melds[0], board.riichi,
-                               board.riichi_available, board.riichi_selecting, board.forbidden_discards))
+                               board.riichi_available, board.riichi_selecting, board.forbidden_discards,
+                               board.honba, board.sticks))
                          if automatic else repr(board)) + str(self.mode.currentIndex())
             if signature == self.last_analyzed:
                 return

@@ -19,9 +19,9 @@ jobs:
     steps:
       - name: Download the published Setup EXE and verify its GitHub digest
         run: |
-          $release = gh api repos/YokyYao/JevMajhong/releases/tags/desktop-v0.2.0 | ConvertFrom-Json
+          $release = gh api repos/YokyYao/JevMajhong/releases/tags/desktop-v0.2.1 | ConvertFrom-Json
           if ($release.draft -or $release.target_commitish -ne $env:EXPECTED_SOURCE) { throw 'Release source mismatch' }
-          $asset = $release.assets | Where-Object name -eq 'JevMahjong-Setup-0.2.0-win-x64.exe'
+          $asset = $release.assets | Where-Object name -eq 'JevMahjong-Setup-0.2.1-win-x64.exe'
           if (!$asset) { throw 'Published installer missing' }
           $setup = Join-Path $env:RUNNER_TEMP 'JevMahjong-Setup.exe'
           Invoke-WebRequest $asset.browser_download_url -OutFile $setup
@@ -44,5 +44,5 @@ jobs:
           $p = Start-Process "$target/JevMahjong.exe" -ArgumentList '--self-test','--model-test','--report',$report -Wait -PassThru
           if ($p.ExitCode -ne 0) { Get-Content "$env:LOCALAPPDATA/JevMahjong/error.log" -ErrorAction SilentlyContinue; throw 'Published app first model download or inference failed' }
           $result = Get-Content $report | ConvertFrom-Json
-          if (!$result.model -or !$result.frozen_exe -or !$result.onnx -or !$result.gui) { throw 'Public application verification incomplete' }
+          if (!$result.model -or !$result.frozen_exe -or !$result.onnx -or !$result.gui -or !$result.counters) { throw 'Public application verification incomplete' }
           Get-Content $report

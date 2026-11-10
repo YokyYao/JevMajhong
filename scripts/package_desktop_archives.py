@@ -31,7 +31,7 @@ def package(source, output, group_limit=1_500_000_000):
         group['bytes'] += size
     entries, records = [], []
     for index, group in enumerate(groups, 1):
-        name = f'JevMahjong-Runtime-0.2.0-{index:02}.zip'
+        name = f'JevMahjong-Runtime-0.2.1-{index:02}.zip'
         archive = output / name
         with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED, compresslevel=3) as bundle:
             for path in group['files']:

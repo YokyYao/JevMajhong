@@ -9,6 +9,7 @@ import numpy as np
 
 from .engine import Board, parse_melds, reaction_candidates
 from .tiles import mjai, normal
+from .table_counters import TableCounterReader
 
 
 def crop(image, rect):
@@ -51,6 +52,7 @@ def riichi_selection_overlay(image):
 class ScreenStateReader:
     def __init__(self, state_path=None):
         self.ocr = None
+        self.counter_reader = TableCounterReader()
         self.rivers = {}
         self.last_discard = None
         self.previous_hand = []
@@ -74,13 +76,17 @@ class ScreenStateReader:
             except (ValueError, KeyError, OSError):
                 pass
 
-    def buttons(self, image):
-        if image.width > 1280:
-            image = image.resize((1280, round(image.height * 1280 / image.width)))
+    def ocr_engine(self):
         if self.ocr is None:
             from rapidocr_onnxruntime import RapidOCR
             self.ocr = RapidOCR(intra_op_num_threads=2, inter_op_num_threads=1,
                                 det_limit_type='max', det_limit_side_len=640)
+        return self.ocr
+
+    def buttons(self, image):
+        if image.width > 1280:
+            image = image.resize((1280, round(image.height * 1280 / image.width)))
+        self.ocr_engine()
         area = crop(image, (.35, .57, .64, .27))
         if area.width > 640:
             area = area.resize((640, round(area.height * 640 / area.width)))
@@ -228,7 +234,8 @@ class ScreenStateReader:
             temporary.replace(self.state_path)
         return {'melds': melds, 'offered': offered, 'reaction': reaction, 'forbidden': self.forbidden, 'hand_id': self.hand_id,
                 'riichi_available': available, 'riichi_selecting': self.riichi_selecting,
-                'own_riichi': self.own_riichi}
+                'own_riichi': self.own_riichi,
+                'counters': self.counter_reader.read(image, regions.get('counters'), self.ocr_engine)}
 
     def highlighted_reaction(self, image, regions, detector, found, offered):
         """The green last-discard marker identifies the tile the buttons refer to."""

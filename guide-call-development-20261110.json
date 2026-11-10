@@ -1,0 +1,24 @@
+{
+  "out": "runs/guide-call-development-20261110",
+  "source_config": "guide-call-points-20261110.json",
+  "development_seed_start": 9110000,
+  "development_seeds": 32,
+  "confirmation_seed_start": 9210000,
+  "confirmation_seeds": 128,
+  "native_parity_requests": 16,
+  "evaluation_stage": "development",
+  "suites": [
+    "closed",
+    "mixed",
+    "strong"
+  ],
+  "policies": [
+    "reference",
+    "previous",
+    "candidate"
+  ],
+  "primary": "equal-weighted three-suite terminal points paired within each whole wall; Student-t95 across32 walls",
+  "stability_condition": "primary CI lower>0 and overall candidate net>=0 and strong-suite paired mean>=0; independent confirmation still required",
+  "policy": "No fixed +250/+500 cutoff; retain positive signal for independent confirmation; do not deploy on CV or development alone",
+  "privacy": "source/config/Markdown summaries public; raw games, observations and new weights private"
+}

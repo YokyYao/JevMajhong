@@ -1,4 +1,4 @@
-#define AppVersion "0.2.0"
+#define AppVersion "0.2.1"
 [Setup]
 AppId={{718C23FC-78B1-471E-8F29-A47A9BA97FD1}
 AppName=Jev Mahjong
@@ -28,5 +28,5 @@ Filename: "{app}\JevMahjong.exe"; Description: "Launch Jev Mahjong"; Flags: nowa
 [Code]
 function RuntimeBaseUrl(Param: String): String;
 begin
-  Result := ExpandConstant('{param:RUNTIMEURL|https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.2.0}');
+  Result := ExpandConstant('{param:RUNTIMEURL|https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.2.1}');
 end;

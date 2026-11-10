@@ -7,7 +7,7 @@ import time
 
 def run(report, model_test=False):
     from PySide6.QtWidgets import QApplication
-    from PIL import Image
+    from PIL import Image, ImageDraw, ImageFont
     from .app import ROOT, Sidecar, STYLE
     from .engine import Adviser, Board
     from .tiles import parse
@@ -25,7 +25,22 @@ def run(report, model_test=False):
     assert panel.tabs.currentWidget().horizontalScrollBar().maximum() == 0
     detector = TileDetector(ROOT / 'assets/tiles.onnx')
     assert detector.detect(Image.new('RGB', (320, 200), '#174a46')) == []
-    result = {'status': 'passed', 'frozen_exe': bool(getattr(sys, 'frozen', False)), 'gui': True, 'onnx': True, 'model': False}
+    from .screen_state import ScreenStateReader
+    from .engine import candidates, request
+    reader = ScreenStateReader()
+    sample = Image.new('RGB', (400, 80), '#18364b')
+    draw = ImageDraw.Draw(sample)
+    font = ImageFont.truetype(str(ROOT / 'assets/NotoSansSC.ttf'), 44)
+    draw.text((45, 2), '×2', font=font, fill='white')
+    draw.text((245, 2), '×3', font=font, fill='white')
+    counts = reader.counter_reader.read(sample, {'rect': [0, 0, 1, 1]}, reader.ocr_engine)
+    assert counts == {'honba': 3, 'sticks': 2}, counts
+    panel.update_counters(counts)
+    board = panel.board()
+    payload = request(board, candidates(board))
+    assert (payload['state']['honba'], payload['state']['sticks']) == (3, 2)
+    result = {'status': 'passed', 'frozen_exe': bool(getattr(sys, 'frozen', False)), 'gui': True,
+              'onnx': True, 'counters': True, 'model': False}
     panel.timer.stop()
     panel.close()
     if model_test:
