@@ -1,0 +1,51 @@
+{
+  "data": "data/call-repair-20261109-v2",
+  "out": "runs/call-repair-trust-20261110",
+  "cache_source": "runs/call-repair-20261109",
+  "prior_data": "data/call-prior-20261109",
+  "archive": "data/raw/majsoul-throne-2026.tar",
+  "reference": "runs/head-rl-diagonal-value-20261030/checkpoints/calibration-02",
+  "reference_head_sha256": "b1248fbc9c9bd1a768a9eaf5fdb5241c82c96ac50eaabf8e0ca8fed885bec1ea",
+  "warm_start": "runs/call-repair-20261109/checkpoints/step-000150/call-head.pt",
+  "previous_call_checkpoint": "runs/call-repair-20261109/checkpoints/step-000150/call-head.pt",
+  "prior_exclude_provenance": [
+    "data/semantic-2026-v1/provenance.json",
+    "data/semantic-2026-round2-pool/provenance.json",
+    "data/call-repair-20261109-v2/provenance.json"
+  ],
+  "prior_records": 1024,
+  "prior_max_per_match": 32,
+  "train_quotas": {
+    "chi": 1024,
+    "pon": 1024,
+    "none": 2048
+  },
+  "views": [
+    "native",
+    "screen_confirmed",
+    "screen_unknown"
+  ],
+  "seed": 2026110902,
+  "batch_size": 256,
+  "lr": 1e-05,
+  "weight_decay": 0.001,
+  "max_steps": 100,
+  "eval_every": 5,
+  "patience": 6,
+  "require_refit_improvement": true,
+  "selection": "minimum natural validation NLL; retain >=half warm-start native chi and pon recall; no test selection",
+  "development_seed_start": 8510000,
+  "development_seeds": 32,
+  "confirmation_seed_start": 8610000,
+  "confirmation_seeds": 128,
+  "seed_scheme": "spaced-v1",
+  "game_mode": "4p-red-east",
+  "evaluation_stage": "development",
+  "primary_gameplay_metric": "paired full-East net points against confirmed base and previous call150 on identical walls",
+  "privacy": "raw expert records, caches, per-game data and new weights stay private",
+  "deployment": "never automatic; require fresh confirmation and domain regressions",
+  "reuse_prior_data": true,
+  "prior_correction_strength": 0.5,
+  "teacher_kl_weight": 2.0,
+  "min_native_recall_fraction": 0.5
+}

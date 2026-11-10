@@ -57,7 +57,7 @@ def main():
             progress = [p.stat().st_mtime for p in [run / 'status.json', run / 'strength-status.json'] if p.exists()]
             state['progress_stalled_over_20min'] = bool(progress and '|RUNNING|' in queue and time.time() - max(progress) > 1200)
             write(monitor / 'heartbeat.json', {'observed_at_utc': now, 'status': reason or 'watching', **state,
-                'can_wake_codex_thread': False, 'goal_resume_still_required_for_agent_continuations': True})
+                'can_wake_codex_thread': False, 'agent_continuations_depend_on_active_goal': True})
             encoded = json.dumps(state, sort_keys=True)
             if encoded != previous or reason:
                 events.write(json.dumps({'observed_at_utc': now, 'event': reason or 'state_changed', **state}) + '\n'); events.flush()

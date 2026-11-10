@@ -24,11 +24,22 @@ def main():
     args = parser.parse_args(); cfg = json.loads(args.config.read_text())
     from riichienv import MjaiReplay
     import zstandard
-    out = ROOT / cfg['prior_data']; out.mkdir(parents=True, exist_ok=False)
+    out = ROOT / cfg['prior_data']
     excluded = set()
     for name in cfg['prior_exclude_provenance']:
         p = json.loads((ROOT / name).read_text())
         excluded.update(m for group in p['matches'].values() for m in group)
+    if cfg.get('reuse_prior_data'):
+        p = json.loads((out / 'provenance.json').read_text())
+        matches = p['matches']['train']
+        if (not p['complete'] or p['n'] != cfg['prior_records'] or p['validation_or_test_matches_opened'] != 0
+            or set(matches) & excluded or any(split_for_match(m) != 'train' for m in matches)
+            or digest(out / 'reactions-private.jsonl') != p['records_sha256']
+            or digest(ROOT / cfg['archive']) != p['source_archive_sha256']):
+            raise ValueError('Prior reuse audit failed')
+        print(json.dumps({'status': 'reusing_audited_training_prior', 'n': p['n'], 'priors': p['priors']}), flush=True)
+        return
+    out.mkdir(parents=True, exist_ok=False)
     counts, groups, seen, failures, exclusions = Counter(), set(), set(), [], Counter()
     rows = []
     with tarfile.open(ROOT / cfg['archive'], 'r|*') as archive, tempfile.TemporaryDirectory() as temporary:

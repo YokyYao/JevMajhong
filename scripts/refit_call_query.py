@@ -15,12 +15,22 @@ from head_rl import write
 from scripts.train_call_repair import evaluate, logits_batch, make_head
 
 
-def class_weights(priors, quotas):
+def class_weights(priors, quotas, correction_strength=1.):
     if set(priors) != {'chi', 'pon', 'none'} or abs(sum(priors.values()) - 1) > 1e-8:
         raise ValueError('Invalid natural class priors')
     if any(v <= 0 for v in [*priors.values(), *quotas.values()]): raise ValueError('Missing prior class')
+    if not 0 <= correction_strength <= 1: raise ValueError('Invalid prior correction strength')
     total = sum(quotas.values())
-    return {k: priors[k] / (quotas[k] / total) for k in priors}
+    return {k: 1 - correction_strength + correction_strength * priors[k] / (quotas[k] / total) for k in priors}
+
+
+def teacher_kl(logits, teacher_logits):
+    """Per-row KL(teacher || student), excluding padded -inf options."""
+    valid = torch.isfinite(teacher_logits)
+    teacher_logp = teacher_logits.detach().log_softmax(-1)
+    student_logp = logits.log_softmax(-1)
+    return (teacher_logp.exp() * (teacher_logp.masked_fill(~valid, 0)
+                                - student_logp.masked_fill(~valid, 0))).sum(-1)
 
 
 def load_cache(source, data, split, views):
@@ -60,9 +70,10 @@ def main():
         if digest(reference / filename) != h: raise ValueError('Frozen backbone inputs changed')
     prior = json.loads((ROOT / cfg['prior_data'] / 'provenance.json').read_text())
     if not prior['complete'] or prior['validation_or_test_matches_opened'] != 0: raise ValueError('Prior audit incomplete')
+    if digest(ROOT / cfg['prior_data'] / 'reactions-private.jsonl') != prior['records_sha256']: raise ValueError('Prior records changed')
     old_groups = set(m for split in audit['matches'].values() for m in split)
     if old_groups & set(prior['matches']['train']): raise ValueError('Prior estimation reuses prior experiment matches')
-    weights = class_weights(prior['priors'], cfg['train_quotas'])
+    weights = class_weights(prior['priors'], cfg['train_quotas'], cfg.get('prior_correction_strength', 1.))
     train = load_cache(source, data, 'train', cfg['views']); validation = load_cache(source, data, 'validation', cfg['views'])
     meta = torch.load(reference / 'head.pt', map_location='cpu', weights_only=True)
     warm = ROOT / cfg['warm_start']; warm_meta = torch.load(warm, map_location='cpu', weights_only=True)
@@ -77,6 +88,7 @@ def main():
     write(out / 'protocol.json', p)
     torch.manual_seed(cfg['seed']); rng = random.Random(cfg['seed'])
     head = make_head(meta, 'cpu'); head.load_state_dict(warm_meta['head']); head.requires_grad_(False); head.q.requires_grad_(True)
+    teacher = copy.deepcopy(head).eval().requires_grad_(False)
     warm_report = evaluate(head, validation, 'cpu'); write(out / 'warm-start-validation.json', warm_report)
     baseline = json.loads((source / 'validation-baseline.json').read_text())
     optimizer = torch.optim.AdamW(head.q.parameters(), lr=cfg['lr'], weight_decay=cfg['weight_decay'])
@@ -86,7 +98,11 @@ def main():
         batch = rng.sample(train, min(cfg['batch_size'], len(train)))
         labels = torch.tensor([r['label'] for r in batch])
         importance = torch.tensor([weights[r['types'][r['label']]] for r in batch])
-        losses = torch.nn.functional.cross_entropy(logits_batch(head, batch, 'cpu'), labels, reduction='none')
+        logits = logits_batch(head, batch, 'cpu')
+        losses = torch.nn.functional.cross_entropy(logits, labels, reduction='none')
+        if cfg.get('teacher_kl_weight', 0):
+            with torch.no_grad(): teacher_logits = logits_batch(teacher, batch, 'cpu')
+            losses = losses + cfg['teacher_kl_weight'] * teacher_kl(logits, teacher_logits)
         loss = (losses * importance).mean()
         if not torch.isfinite(loss): raise ValueError('Nonfinite loss')
         optimizer.zero_grad(set_to_none=True); loss.backward(); torch.nn.utils.clip_grad_norm_(head.q.parameters(), 1.); optimizer.step()
@@ -99,12 +115,14 @@ def main():
         torch.save({'head': state, 'reference_head_sha256': cfg['reference_head_sha256'],
             'scope': ['chi', 'pon', 'none'], 'step': step, 'method': 'natural-prior weighted query continuation'}, checkpoint / 'call-head.pt')
         native = report['views']['native']['by_target']
-        eligible = native['chi']['recall'] > 0 and native['pon']['recall'] > 0
+        fraction = cfg.get('min_native_recall_fraction', 0.)
+        eligible = all(native[kind]['recall'] > 0 and native[kind]['recall'] >= fraction * warm_report['views']['native']['by_target'][kind]['recall']
+                       for kind in ('chi', 'pon'))
         better = eligible and (report['nll'], -report['macro_f1'], step) < (best_report['nll'], -best_report['macro_f1'], best_step)
         if better: best_report, best_step, best_state, stale = report, step, state, 0
         else: stale += 1
         write(out / 'validation-curve.json', curve)
-        status = {'status': 'refitting_natural_prior_query', 'step': step, 'best_step': best_step,
+        status = {'status': 'refitting_natural_prior_query', 'step': step, 'best_step': best_step, 'eligible': eligible,
             'validation_nll': report['nll'], 'validation_macro_f1': report['macro_f1'], 'stale_checks': stale}
         write(out / 'status.json', status); print(json.dumps(status), flush=True)
         if stale >= cfg['patience']: break
@@ -114,7 +132,7 @@ def main():
     selected = {'step': best_step, 'checkpoint': str(selected_path.relative_to(ROOT)),
         'checkpoint_sha256': digest(selected_path), 'validation': best_report, 'baseline': baseline,
         'warm_start_validation': warm_report, 'test_opened_at_selection': False,
-        'selection': 'minimum natural validation NLL with nonzero native chi/pon recall, macroF1 tie break'}
+        'selection': cfg['selection']}
     write(out / 'selected.json', selected)
     write(out / 'training-result.json', {'status': 'refit_complete' if best_step else 'no_refit_improvement',
         'selected': selected, 'deployed': False, 'test_opened': False, 'importance_weights': weights})
