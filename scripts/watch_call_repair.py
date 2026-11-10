@@ -26,6 +26,8 @@ def read(path):
 
 
 def observation_complete(cfg, state):
+    if cfg.get('evaluation_stage') == 'feature_cache':
+        return (state.get('training') or {}).get('status') == 'feature_cache_complete'
     if state.get('skipped'): return True
     if (state.get('strength') or {}).get('status') != 'development_complete': return False
     if cfg.get('evaluation_stage') != 'independent_confirmation': return True
@@ -81,6 +83,10 @@ def main():
             if reason:
                 summaries = {s: read(run / 'native-development' / f'{s}-summary.json') for s in ('closed', 'mixed')}
                 action = 'Review complete development and choose next training/independent confirmation; never auto-deploy' if final else 'Inspect worker logs and repair; no blind rerun'
+                if final and cfg.get('evaluation_stage') == 'feature_cache':
+                    action = 'Review frozen feature runtime audit; only train/validation are available for subsequent work; test stays sealed'
+                elif final and cfg.get('evaluation_stage') == 'independent_confirmation':
+                    action = 'Review complete independent qualification; if weak diagnose and use fresh training data; desktop/human regressions still required'
                 write(monitor / 'action-required.json', {'reason': reason, 'next_action': action,
                     'summaries': summaries, 'agent_notification_sent': False, 'observed_at_utc': now})
                 return
