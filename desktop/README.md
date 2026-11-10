@@ -1,4 +1,4 @@
-**0.2.1 源码更新：** 自动读取本场数和立直棒数已接入截图及模型输入。新版 Windows EXE 由发布工作流构建、实测后发布；下方现有0.2.0安装包尚不包含此功能。
+**Windows 0.2.1 已发布：** 截图后自动读取本场数和立直棒数，更新Jev输入并在计数变化时重新推荐，不增加计数识别错误提示。下方安装程序已包含该功能。
 
 # Jev 雀魂 Windows 侧边助手 · 0.2
 
@@ -22,7 +22,7 @@
 
 当前吃碰策略问题、状态格式差异与服务器训练交接见[问题说明和验证计划](../plans/desktop-call-policy-server-handoff.md)。当前没有新的训练权重；旧检查点的偏好分不能当作策略正确性的证明。
 
-下载并双击[安装程序 JevMahjong-Setup-0.2.0-win-x64.exe](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.2.0/JevMahjong-Setup-0.2.0-win-x64.exe)即可。安装程序自动下载、SHA256校验并安装运行组件，创建桌面快捷方式；无需手动下载Runtime ZIP，也无需安装Python、pip或CUDA Toolkit。全部组件在[GitHub Releases](https://github.com/YokyYao/JevMajhong/releases)发布。
+下载并双击[安装程序 JevMahjong-Setup-0.2.1-win-x64.exe](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.2.1/JevMahjong-Setup-0.2.1-win-x64.exe)即可。安装程序自动下载、SHA256校验并安装运行组件，创建桌面快捷方式；无需手动下载Runtime ZIP，也无需安装Python、pip或CUDA Toolkit。全部组件在[GitHub Releases](https://github.com/YokyYao/JevMajhong/releases)发布。
 
 运行组件包含Python、CUDA版PyTorch、截图识别组件和已确认的校正版2参数。完整组件约4.8GB，压缩下载约3GB；安装时需要联网，并预留约12GB临时与安装空间。GitHub单文件上限为2GiB，因此按文件拆成多个独立ZIP，由安装程序自动处理。首次启动自动加载Jev，并联网下载固定版本的Qwen底座，后续使用本地缓存；需要可用的NVIDIA驱动。截图区域和自己的皮肤仍需在界面中首次校准。
 

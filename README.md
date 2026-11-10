@@ -6,7 +6,7 @@
 
 **2026-11-09 桌面源码调试版与服务器交接：** 后台窗口截图、自动推荐/点击、立直两步确认、启动预热和两条独立策略说明已加入当前源码。吃碰偏向跳过的问题尚未修复或训练，复现输入、已确认的接口差异、模型标识及训练验证建议见[服务器交接说明](plans/desktop-call-policy-server-handoff.md)。本次没有新训练权重；主分支推送会触发已有自动打包流程，安装包以工作流实际结果为准，已安装的旧 EXE 不会自动获得源码改动。
 
-[下载 Windows 安装程序（EXE）](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.2.0/JevMahjong-Setup-0.2.0-win-x64.exe)：双击后自动下载、校验并安装运行组件，无需自行安装Python或配置环境。首次启动自动下载固定版本底座，之后本地截图与本机NVIDIA GPU推荐；首次需在界面中校准牌桌区域。已通过Windows公开下载、安装、首次模型下载和实际推理检查，见[EXE发布验证](reports/2026-11-05-windows-exe/README.md)及[使用说明](desktop/README.md)。
+[下载 Windows 安装程序（EXE）](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.2.1/JevMahjong-Setup-0.2.1-win-x64.exe)：双击后自动下载、校验并安装运行组件，无需自行安装Python或配置环境。首次启动自动下载固定版本底座，之后本地截图与本机NVIDIA GPU推荐；首次需在界面中校准牌桌区域。0.2.1会自动读取本场与立直棒并更新推荐，不增加计数识别错误提示；已通过Windows冻结EXE和安装后计数OCR/模型推理检查，见[本次更新与验证](reports/2026-11-10-desktop-counters/README.md)及[使用说明](desktop/README.md)。
 
 基于 JevAny 的四人立直麻将训练与离线推荐原型。用高段位雀魂牌谱训练合法动作评分器，并在四人模拟环境中检查一位率、平均顺位和末位风险。
 
