@@ -1,0 +1,21 @@
+{
+  "archive": "data/raw/majsoul-throne-2026.tar",
+  "data": "data/call-expert-expansion-20261110",
+  "training_sampling": "natural",
+  "train_records": 32768,
+  "validation_records": 1024,
+  "test_records": 1024,
+  "max_per_match": 32,
+  "exclude_provenance": [
+    "data/semantic-2026-v1/provenance.json",
+    "data/semantic-2026-round2-pool/provenance.json",
+    "data/call-repair-20261109-v2/provenance.json",
+    "data/call-prior-20261109/provenance.json",
+    "data/call-natural-expansion-20261110/provenance.json",
+    "data/clean-policy-20261110/provenance.json",
+    "data/clean-policy-20261110-v2/provenance.json"
+  ],
+  "purpose": "Increase independent expert reaction contexts; preserve natural chi/pon/pass labels and reliable pass controls; no synthetic always-call labels",
+  "holdouts": "new whole-match-disjoint validation and sealed test; no augmentation or fitting on holdouts",
+  "privacy": "source/config/Markdown summaries only; all human records private"
+}

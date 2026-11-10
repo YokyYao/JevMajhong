@@ -29,9 +29,14 @@ def main():
     training=json.loads((run/'protocol.json').read_text())
     for name,h in training['code_sha256'].items():
         if digest(ROOT/name)!=h:raise ValueError('Training source changed')
-    dev=set(range(training_cfg['development_seed_start'],training_cfg['development_seed_start']+training_cfg['development_seeds']))
-    confirm=set(range(training_cfg['confirmation_seed_start'],training_cfg['confirmation_seed_start']+training_cfg['confirmation_seeds']))
+    wall_cfg=cfg.get('wall_registration',training_cfg)
+    dev=set(range(wall_cfg['development_seed_start'],wall_cfg['development_seed_start']+wall_cfg['development_seeds']))
+    confirm=set(range(wall_cfg['confirmation_seed_start'],wall_cfg['confirmation_seed_start']+wall_cfg['confirmation_seeds']))
     if dev&confirm:raise ValueError('Development and confirmation walls overlap')
+    if protocol.get('policy_scope'):
+        ordinary_parity=json.loads((out/'ordinary-parity.json').read_text())
+        if not ordinary_parity['unchanged'] or ordinary_parity['checks']!=6:
+            raise ValueError('Preserved-call ordinary route changed')
     parity=json.loads((out/'native-parity.json').read_text())
     if parity['checked']!=3*len(training_cfg['views'])*cfg['parity_per_phase_view'] or not parity['decisions_equal'] or parity['max_absolute_probability_error']>cfg['parity_atol']:
         raise ValueError('Serving parity incomplete')
