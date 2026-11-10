@@ -1,0 +1,9 @@
+{
+  "out": "runs/call-scoring-audit-20261110-v2",
+  "source_config": "call-natural-query-trust-20261110.json",
+  "seed_start": 8810000,
+  "seeds": 2,
+  "purpose": "Audit scoring on opened development cases, without claiming new strength evidence",
+  "previous_auditor_failure": "289176 omitted the documented terminal unclaimed riichi-pool award; no game-engine or policy change",
+  "privacy": "Only source/config and an aggregate Markdown report are public; all logs and observations stay private"
+}

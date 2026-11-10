@@ -1,0 +1,3 @@
+-r requirements.txt
+# Independent scoring implementation; not part of the policy or simulator.
+mahjong==2.1.0
