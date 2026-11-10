@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 import torch
 from call_policy import digest
+from checkpoint_identity import completed_checkpoint_files
 from clean_policy_runtime import CleanPolicyRouter
 from clean_policy_evaluation import aggregate, POLICIES, SUITES
 from head_rl import write
@@ -21,10 +22,11 @@ CODE = ['scripts/evaluate_clean_policy.py','scripts/audit_clean_policy.py','clea
         'clean_policy_runtime.py','clean_policy_data.py','scripts/evaluate_guide_calls.py',
         'scripts/evaluate_call_repair.py','semantic.py','arena.py','scoring_audit.py','seed_control.py',
         'guide_development_audit.py','scripts/audit_guide_calls.py',
+        'checkpoint_identity.py',
         'vendor/JevAny/jevany/inference.py','vendor/JevAny/jevany/data.py','vendor/JevAny/jevany/client.py']
 
 
-def native_parity(router, run, preparation, selected_step, count_per_phase, atol):
+def native_parity(router, run, preparation, selected_step, count_per_phase, atol, views=('native','screen_confirmed','screen_unknown')):
     """Use already-opened validation only; preserve options and strip all labels."""
     from jevany.data import api_request
     path = ROOT/preparation['config']['data']/'validation.jsonl'
@@ -34,6 +36,7 @@ def native_parity(router, run, preparation, selected_step, count_per_phase, atol
     counts=Counter(); max_error=0.; checked=0
     for record in sorted(records,key=lambda r:r['_meta']['id']):
         phase = record['_meta']['phase']; view=record['_meta']['view']; key=(phase,view)
+        if view not in views:continue
         if counts[key]>=count_per_phase:
             continue
         expected = index[record['_meta']['id']]
@@ -51,7 +54,7 @@ def native_parity(router, run, preparation, selected_step, count_per_phase, atol
         if error>atol or actual.argmax()!=target.argmax():
             raise ValueError(f'Training/serving parity failed: {phase}/{view}, error={error}')
         counts[key]+=1;checked+=1
-    if len(counts)!=9 or min(counts.values())!=count_per_phase:
+    if len(counts)!=3*len(views) or min(counts.values())!=count_per_phase:
         raise ValueError('Missing phase/view serving parity coverage')
     return {'checked':checked,'counts':{p+'/'+v:n for (p,v),n in counts.items()},'max_absolute_probability_error':max_error,
         'atol':atol,'decisions_equal':True,'source':'already-opened training validation; no test or fresh development games'}
@@ -75,9 +78,7 @@ def main():
     for name,h in source['reference_files'].items():
         if digest(reference/name)!=h:raise ValueError('FrozenB changed')
     checkpoint=ROOT/result['checkpoint']
-    candidate_files={p.name:digest(p) for p in checkpoint.iterdir() if p.is_file() and p.name not in ('trainer_state.pt',)}
-    if not all(name in candidate_files for name in ('adapter_config.json','adapter_model.safetensors','head.pt','complete.json')):
-        raise ValueError('Selected candidate checkpoint incomplete')
+    candidate_files=completed_checkpoint_files(checkpoint,result['selected_step'])
     expected_start=source_cfg['development_seed_start'] if cfg['stage']=='development' else source_cfg['confirmation_seed_start']
     expected_n=source_cfg['development_seeds'] if cfg['stage']=='development' else source_cfg['confirmation_seeds']
     if cfg['stage'] not in ('development','independent_confirmation') or cfg['seed_start']!=expected_start or cfg['seeds']!=expected_n:
@@ -118,7 +119,7 @@ def main():
             inference_options=InferenceOptions(max_state_tokens=4096,max_branch_tokens=8192,max_packed_tokens=8192,prefix_cache_size=0))
     write(out/'status.json',{'status':'loading_frozen_clean_and_reference','games':0})
     ordinary=load(reference);candidate=load(checkpoint);router=CleanPolicyRouter(ordinary,candidate)
-    parity=native_parity(router,run,preparation,result['selected_step'],cfg['parity_per_phase_view'],cfg['parity_atol'])
+    parity=native_parity(router,run,preparation,result['selected_step'],cfg['parity_per_phase_view'],cfg['parity_atol'],source_cfg['views'])
     write(out/'native-parity.json',parity)
     agents={'reference':Agent(ordinary),'candidate':Agent(router)};strong=Agent(ordinary)
     path=out/'games-private.jsonl'

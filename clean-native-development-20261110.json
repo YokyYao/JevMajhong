@@ -1,0 +1,9 @@
+{
+  "source_config": "clean-native-curriculum-20261110.json",
+  "out": "runs/clean-native-development-20261110",
+  "stage": "development",
+  "seed_start": 9610000,
+  "seeds": 32,
+  "parity_per_phase_view": 2,
+  "parity_atol": 0.0005
+}

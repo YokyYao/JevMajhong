@@ -33,7 +33,7 @@ def main():
     confirm=set(range(training_cfg['confirmation_seed_start'],training_cfg['confirmation_seed_start']+training_cfg['confirmation_seeds']))
     if dev&confirm:raise ValueError('Development and confirmation walls overlap')
     parity=json.loads((out/'native-parity.json').read_text())
-    if parity['checked']!=9*cfg['parity_per_phase_view'] or not parity['decisions_equal'] or parity['max_absolute_probability_error']>cfg['parity_atol']:
+    if parity['checked']!=3*len(training_cfg['views'])*cfg['parity_per_phase_view'] or not parity['decisions_equal'] or parity['max_absolute_probability_error']>cfg['parity_atol']:
         raise ValueError('Serving parity incomplete')
     rows_path=out/'games-private.jsonl';rows=[json.loads(l) for l in rows_path.read_text().splitlines()]
     actual=aggregate(rows,cfg);compare(json.loads((out/'summary.json').read_text()),actual)

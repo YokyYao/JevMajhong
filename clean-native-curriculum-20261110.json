@@ -1,0 +1,33 @@
+{
+  "data": "data/clean-native-curriculum-20261110",
+  "out": "runs/clean-native-curriculum-20261110",
+  "candidate_audit": "runs/clean-policy-replay-dora-audit-20261110",
+  "trainer_config": "clean-native-curriculum-20261110.toml",
+  "reference": "runs/head-rl-diagonal-value-20261030/checkpoints/calibration-02",
+  "reference_protocol": "runs/call-repair-20261109/protocol.json",
+  "views": [
+    "native"
+  ],
+  "train_view_sampling": "native only; retain natural labels within each phase",
+  "seed": 2026111019,
+  "max_steps": 200,
+  "validation_every": 50,
+  "patience": 4,
+  "minimum_exact_chi_pon_tp_each_view": 1,
+  "development_seed_start": 9610000,
+  "development_seeds": 32,
+  "confirmation_seed_start": 9710000,
+  "confirmation_seeds": 128,
+  "primary_goal": "new-wall full-East net points vs frozenB; phase-stratified expert validation is not strength evidence",
+  "initialization": "Continue verified clean-parent Qwen Mahjong LoRA/head from completed200 checkpoint; no oldB or invalidated-v1 weights",
+  "privacy": "only code, configuration and Markdown summaries public; human records, new weights and raw games private",
+  "desktop_testing": "deferred_by_user",
+  "clean_parent_config": "clean-policy-20261110-v2.json",
+  "warm_start": "runs/clean-policy-20261110-v2/training-run/checkpoints/step-000200",
+  "native_phase_records": {
+    "closed_discard": 4096,
+    "open_discard": 4096,
+    "reaction": 8192
+  },
+  "training_interpretation": "Continue clean chronology-repaired representation; native curriculum, natural labels within reaction phase; same source matches, not new matches"
+}
