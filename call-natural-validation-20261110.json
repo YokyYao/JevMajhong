@@ -1,0 +1,22 @@
+{
+  "data": "data/call-natural-expansion-20261110",
+  "cache_source": "runs/call-natural-features-20261110",
+  "out": "runs/call-natural-validation-20261110",
+  "reference": "runs/head-rl-diagonal-value-20261030/checkpoints/calibration-02",
+  "reference_head_sha256": "b1248fbc9c9bd1a768a9eaf5fdb5241c82c96ac50eaabf8e0ca8fed885bec1ea",
+  "previous_call_checkpoint": "runs/call-repair-20261109/checkpoints/step-000150/call-head.pt",
+  "views": [
+    "native",
+    "screen_confirmed",
+    "screen_unknown"
+  ],
+  "selection_origin": "runs/call-repair-trust-20261110",
+  "include_reference": true,
+  "expected_checkpoint_sha256": {
+    "reference": "b1248fbc9c9bd1a768a9eaf5fdb5241c82c96ac50eaabf8e0ca8fed885bec1ea",
+    "previous": "ea649d9da64a93f4da68a2755e80d539ad2e263c93176ab40969988fa38c6f54",
+    "candidate": "bf2221e7b10dbf43870dee886d805131d9ed954386b578b18c3e73459a3fe3b2"
+  },
+  "validation_role": "Fresh development validation only; no checkpoint selection in this diagnostic; not final human test",
+  "privacy": "raw rows, features, new weights and diagnostic details private; source/config/Markdown summaries only public"
+}

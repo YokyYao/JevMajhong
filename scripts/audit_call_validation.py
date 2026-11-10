@@ -44,15 +44,20 @@ def main():
     rows = load_cache(source, data, 'validation', cfg['views'])
     meta = torch.load(reference / 'head.pt', map_location='cpu', weights_only=True)
     checkpoints = {'previous': ROOT / cfg['previous_call_checkpoint'], 'candidate': candidate}
+    if cfg.get('include_reference'): checkpoints = {'reference': reference / 'head.pt', **checkpoints}
+    for name, expected in cfg.get('expected_checkpoint_sha256', {}).items():
+        if name not in checkpoints or digest(checkpoints[name]) != expected: raise ValueError('Fixed diagnostic checkpoint changed')
     result = {'split': 'validation_only', 'decisions_per_view': audit['counts']['validation'],
               'source_matches': len(audit['matches']['validation']), 'test_opened': False,
               'used_for_selection': False, 'checkpoint_sha256': {k: digest(p) for k, p in checkpoints.items()},
               'validation_sha256': audit['files']['validation'],
+              'validation_role': cfg.get('validation_role', 'development validation'),
+              'selection_origin': cfg.get('selection_origin', cfg['out']),
               'note': 'Three views reuse the same cases. Expert imitation is not a gameplay value estimate.'}
     for name, checkpoint in checkpoints.items():
         head = make_head(meta, 'cpu').eval().requires_grad_(False)
         saved = torch.load(checkpoint, map_location='cpu', weights_only=True)
-        if saved['reference_head_sha256'] != cfg['reference_head_sha256']: raise ValueError('Checkpoint source mismatch')
+        if name != 'reference' and saved['reference_head_sha256'] != cfg['reference_head_sha256']: raise ValueError('Checkpoint source mismatch')
         head.load_state_dict(saved['head']); views = {}
         for view in cfg['views']:
             selected = [r for r in rows if r['view'] == view]; scored = []
