@@ -1,0 +1,11 @@
+{
+  "source_config": "feature-unseen-continuation-20261110.json",
+  "out": "runs/feature-unseen-confirmation-20261110",
+  "stage": "independent_confirmation",
+  "seed_start": 10040000,
+  "seeds": 128,
+  "parity_per_phase_view": 2,
+  "parity_atol": 0.0005,
+  "development_out": "runs/feature-unseen-development-20261110",
+  "paired_parent_out": "runs/feature-unseen-confirmation-parent-20261111"
+}
