@@ -12,7 +12,9 @@ export PYTHONUNBUFFERED=1
 export HF_HUB_OFFLINE=1
 export TOKENIZERS_PARALLELISM=false
 .venv/bin/python scripts/check_gpu.py
-.venv/bin/python scripts/watch_call_repair.py --config call-natural-query-20261110.json --eval-job "$SLURM_JOB_ID" --max-seconds 14400 &
+call_query_config="${1:-call-natural-query-20261110.json}"
+call_query_run=$(.venv/bin/python -c 'import json,sys; print(json.load(open(sys.argv[1]))["out"])' "$call_query_config")
+.venv/bin/python scripts/watch_call_repair.py --config "$call_query_config" --eval-job "$SLURM_JOB_ID" --max-seconds 14400 &
 call_natural_observer_pid=$!
 stop_call_natural_observer() {
     local call_natural_exit=$?
@@ -22,8 +24,8 @@ stop_call_natural_observer() {
     exit "$call_natural_exit"
 }
 trap stop_call_natural_observer EXIT
-.venv/bin/python scripts/evaluate_call_repair.py --config call-natural-query-20261110.json
-if [[ ! -f runs/call-natural-query-20261110/development-skipped.json ]]; then
-    .venv/bin/python scripts/audit_call_development.py --config call-natural-query-20261110.json
+.venv/bin/python scripts/evaluate_call_repair.py --config "$call_query_config"
+if [[ ! -f "$call_query_run/development-skipped.json" ]]; then
+    .venv/bin/python scripts/audit_call_development.py --config "$call_query_config"
 fi
 wait "$call_natural_observer_pid"
