@@ -62,6 +62,9 @@ def main():
     p.add_argument('--resume',action='store_true');a=p.parse_args();cfg=json.loads(a.config.read_text())
     out=ROOT/cfg['out'];out.mkdir(parents=True,exist_ok=a.resume)
     source_cfg=json.loads((ROOT/cfg['source_config']).read_text());run=ROOT/source_cfg['out']
+    if (run/'invalidation.json').exists():
+        write(out/'evaluation-skipped.json',{'reason':'training explicitly invalidated; see source run invalidation','deployed':False})
+        return
     result=json.loads((run/'result.json').read_text())
     if result['status']!='clean_policy_candidate' or result['selected_step']<=0:
         write(out/'evaluation-skipped.json',{'reason':result['status'],'deployed':False});return

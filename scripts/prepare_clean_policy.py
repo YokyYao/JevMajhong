@@ -18,6 +18,7 @@ from call_policy import digest, request_hash
 from clean_policy_data import pass_is_identified, pass_outcomes, phase, policy_request
 from head_rl import write
 from replay_call_repair import build_replay_request, canonical_signature, UnsafeReplayCall, REPAIR_VERSION
+from replay_dora_repair import DoraChronology, UnsafeDoraPrefix
 
 
 def main():
@@ -33,6 +34,8 @@ def main():
         raise ValueError('Fresh full-policy candidate audit must pass')
     if audit['repair_sha256'] != digest(ROOT/'replay_call_repair.py'):
         raise ValueError('Repair changed after audit')
+    if audit.get('dora_repair_sha256')!=digest(ROOT/'replay_dora_repair.py') or not audit.get('kan_chronology_coverage_met') or audit['totals'].get('live_kan_actions',0)<4:
+        raise ValueError('Chronological dora repair needs live kan-game audit')
     excluded = set()
     for name in cfg['exclude_provenance']:
         source = json.loads((ROOT/name).read_text())
@@ -43,6 +46,7 @@ def main():
     matches = {s:set() for s in targets}
     actions = {s:Counter() for s in targets}
     exclusions, repairs, failures = Counter(), Counter(), []
+    dora_audit=Counter()
     seen = set()
     streams = {s:(out/(s+'.jsonl')).open('w') for s in targets}
     raw_streams = {s:(out/(s+'-raw.jsonl')).open('w') for s in ('train','validation')}
@@ -72,11 +76,17 @@ def main():
                     if len(start['tehais'])!=4:
                         continue
                     outcomes = pass_outcomes(events)
+                    chronology = DoraChronology(events)
                     path.write_bytes(raw)
                     replay = MjaiReplay.from_jsonl(str(path),rule='mjsoul')
                     pools = defaultdict(list)
                     for hand in replay.take_kyokus():
                         for pid, obs, expert in hand.steps(seat=None,skip_single_action=True):
+                            try:obs,repair_dora=chronology.repair(obs)
+                            except UnsafeDoraPrefix as exc:
+                                exclusions[str(exc)]+=1
+                                continue
+                            dora_audit.update(repair_dora)
                             kinds = {json.loads(x.to_mjai())['type'] for x in obs.legal_actions()}
                             if kinds & {'hora','ankan','kakan','daiminkan','ryukyoku'}:
                                 exclusions['win_kan_abort_outside_learned_scope'] += 1
@@ -95,7 +105,8 @@ def main():
                     rng = random.Random(int(hashlib.sha256((str(cfg['seed'])+identity).encode()).hexdigest()[:16],16))
                     for category, pool in pools.items():
                         rng.shuffle(pool)
-                        allowance = min(cfg['per_match_phase_cap'][category],targets[split][category]-counts[split][category])
+                        cap=cfg.get('per_split_phase_cap',{}).get(split,cfg['per_match_phase_cap'])
+                        allowance = min(cap[category],targets[split][category]-counts[split][category])
                         # Select states before looking at the expert label; failures are explicit.
                         for obs, expert in pool[:max(0,allowance)]:
                             try:
@@ -164,6 +175,7 @@ def main():
         'views':{s:dict(c) for s,c in views_count.items()},'matches':{s:sorted(v) for s,v in matches.items()},
         'action_types':{s:dict(c) for s,c in actions.items()},'exclusions':dict(exclusions),'repairs':dict(repairs),
         'failures':failures,'excluded_prior_matches':len(excluded),'archive_sha256':digest(ROOT/cfg['archive']),
+        'dora_chronology_audit_all_inspected_states':dict(dora_audit),'dora_repair_sha256':digest(ROOT/'replay_dora_repair.py'),
         'files':{s:digest(out/(s+'.jsonl')) for s in targets},'repair_sha256':digest(ROOT/'replay_call_repair.py'),
         'semantic_sha256':digest(ROOT/'semantic.py'),'policy_data_sha256':digest(ROOT/'clean_policy_data.py'),
         'source':'https://huggingface.co/datasets/nikketryhard/tenhou-houou-mjai',

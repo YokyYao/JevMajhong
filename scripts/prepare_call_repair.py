@@ -16,6 +16,8 @@ from call_policy import digest, request_hash
 from head_rl import write
 from replay_call_repair import public_reaction_actions, canonical_action, canonical_signature, UnsafeReplayCall
 from semantic import describe, INSTRUCTION
+from replay_dora_repair import DoraChronology, UnsafeDoraPrefix
+from clean_policy_data import pass_is_identified, pass_outcomes
 
 
 def convert(obs, expert):
@@ -86,12 +88,21 @@ def main():
                     if len(raw) > 10_000_000:
                         raise ValueError('Oversized decompressed match')
                     replay_file.write_bytes(raw)
+                    events=[json.loads(l) for l in raw.splitlines() if l.strip()]
+                    chronology,outcomes=DoraChronology(events),pass_outcomes(events)
                     replay = MjaiReplay.from_jsonl(str(replay_file), rule='mjsoul')
                     pool = []
                     for hand in replay.take_kyokus():
                         for player, obs, expert in hand.steps(seat=None, skip_single_action=False):
+                            try:obs,_=chronology.repair(obs)
+                            except UnsafeDoraPrefix as exc:
+                                exclusions[str(exc)]+=1
+                                continue
                             kind = json.loads(expert.to_mjai())['type']
                             if kind not in ('chi', 'pon', 'none') or len(obs.hand) % 3 != 1 or obs.last_discard is None:
+                                continue
+                            if kind=='none' and not pass_is_identified(obs,outcomes):
+                                exclusions['censored_or_unresolved_pass']+=1
                                 continue
                             try:
                                 result = convert(obs, expert)
@@ -139,7 +150,8 @@ def main():
         'excluded_prior_matches': len(excluded), 'exclusions': dict(exclusions), 'failed_matches': failed,
         'max_decisions_per_match': max(selected_groups.values(), default=0),
         'archive_sha256': digest(ROOT / cfg['archive']),
-        'code_sha256': {p: digest(ROOT / p) for p in ['scripts/prepare_call_repair.py', 'replay_call_repair.py', 'semantic.py']},
+        'code_sha256': {p: digest(ROOT / p) for p in ['scripts/prepare_call_repair.py', 'replay_call_repair.py', 'semantic.py','replay_dora_repair.py','clean_policy_data.py']},
+        'chronological_dora_and_identified_passes':True,
         'files': {s: digest(out / f'{s}.jsonl') for s in limits},
         'holdout_sampling': 'natural reaction distribution; match-hash splits; label-independent per-match shuffle',
         'training_sampling': ('natural reactions; label-independent per-match shuffle; no class quotas'

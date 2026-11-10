@@ -22,6 +22,7 @@ from replay_call_repair import (UnsafeReplayCall, canonical_signature,
 from semantic import describe, features, legal_candidates
 from seed_control import engine_seed
 from clean_policy_data import pass_is_identified, pass_outcomes
+from replay_dora_repair import DoraChronology, UnsafeDoraPrefix
 
 
 def kind(action):
@@ -46,6 +47,7 @@ def main():
     p.add_argument('--out', required=True, type=Path)
     p.add_argument('--games', type=int, default=4)
     p.add_argument('--seed-start', type=int, default=9813100)
+    p.add_argument('--exercise-kans',action='store_true')
     a = p.parse_args()
     a.out.mkdir(parents=True, exist_ok=False)
     totals, excluded, mismatch_types = Counter(), Counter(), Counter()
@@ -66,8 +68,11 @@ def main():
                 wins = [x for x in actions if x.action_type in (ActionType.TSUMO, ActionType.RON)]
                 calls = [x for x in actions if kind(x) in ('chi', 'pon')]
                 reaches = [x for x in actions if x.action_type == ActionType.RIICHI]
+                kans = [x for x in actions if kind(x) in ('ankan','kakan','daiminkan')]
                 if wins:
                     action = wins[0]
+                elif kans and a.exercise_kans:
+                    action=kans[0];totals['live_kan_actions']+=1
                 elif calls and (pid + offset) % 2 == 0:
                     action = calls[0]
                 elif reaches and (step + pid) % 2 == 0:
@@ -94,18 +99,24 @@ def main():
         path.write_text(''.join(json.dumps(e) + '\n' for e in env.mjai_log))
         replay = MjaiReplay.from_jsonl(str(path), rule='mjsoul')
         outcomes = pass_outcomes(env.mjai_log)
+        chronology = DoraChronology(env.mjai_log)
         for hand in replay.take_kyokus():
             for pid, obs, expert in hand.steps(seat=None, skip_single_action=True):
-                r = row(obs, expert)
-                if len(r['candidates']) < 2:
-                    totals['replay_canonical_single_option_skipped'] += 1
+                try:obs,repair=chronology.repair(obs)
+                except UnsafeDoraPrefix as exc:
+                    excluded[str(exc)]+=1
                     continue
+                totals.update(repair)
                 kinds = {kind(x) for x in legal_candidates(obs)}
                 if kinds & {'hora', 'ankan', 'kakan', 'daiminkan', 'ryukyoku'}:
                     excluded['win_kan_abort_handled_outside_learned_scope'] += 1
                     continue
                 if kind(expert) == 'none' and not pass_is_identified(obs, outcomes):
                     excluded['censored_or_unresolved_pass'] += 1
+                    continue
+                r = row(obs, expert)
+                if len(r['candidates']) < 2:
+                    totals['replay_canonical_single_option_skipped'] += 1
                     continue
                 try:
                     payload, signatures, audit = build_replay_request(obs)
@@ -148,10 +159,12 @@ def main():
               'mismatch_types': dict(mismatch_types), 'explicit_exclusions': dict(excluded),
               'scope': 'scripted diagnostic; paired multi-option states only; not expert data or strength evidence',
               'repair_sha256': hashlib.sha256((ROOT/'replay_call_repair.py').read_bytes()).hexdigest()}
+    report['dora_repair_sha256']=hashlib.sha256((ROOT/'replay_dora_repair.py').read_bytes()).hexdigest()
+    report['kan_chronology_coverage_met']=not a.exercise_kans or totals['live_kan_actions']>=4
     write(a.out/'private-details.json', details)
     write(a.out/'summary.json', report)
     print(json.dumps(report), flush=True)
-    if not report['passed_matched_candidate_sets'] or not adequate:
+    if not report['passed_matched_candidate_sets'] or not adequate or not report['kan_chronology_coverage_met'] or totals['unmatched']:
         raise RuntimeError('Candidate audit failed or phase coverage insufficient')
 
 

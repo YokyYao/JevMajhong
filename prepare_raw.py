@@ -13,6 +13,8 @@ import zstandard
 from audit_shard import split_for_match
 from semantic import signature
 from replay_call_repair import build_replay_request, canonical_signature, UnsafeReplayCall, REPAIR_VERSION
+from replay_dora_repair import DoraChronology, UnsafeDoraPrefix
+from clean_policy_data import pass_is_identified, pass_outcomes
 
 
 def main():
@@ -61,6 +63,7 @@ def main():
                 if len(raw) > 10_000_000:
                     raise ValueError("Oversized decompressed match")
                 events = [json.loads(line) for line in raw.splitlines() if line.strip()]
+                chronology, outcomes = DoraChronology(events), pass_outcomes(events)
                 start = next(e for e in events if e["type"] == "start_kyoku")
                 if len(start["tehais"]) != 4:
                     continue
@@ -69,6 +72,13 @@ def main():
                 samples = []
                 for hand in replay.take_kyokus():
                     for pid, obs, expert in hand.steps(seat=None, skip_single_action=True):
+                        try:obs, _ = chronology.repair(obs)
+                        except UnsafeDoraPrefix as exc:
+                            match_exclusions[str(exc)]+=1
+                            continue
+                        if json.loads(expert.to_mjai())['type']=='none' and not pass_is_identified(obs,outcomes):
+                            match_exclusions['censored_or_unresolved_pass']+=1
+                            continue
                         actions = obs.legal_actions()
                         if len({signature(a) for a in actions}) < 2:
                             continue
@@ -123,6 +133,8 @@ def main():
         "attribution": ["NikkeTryHard/tenhou-to-mjai", "Mahjong Soul"],
         "schema": "semantic-v2-call-repaired", "call_repair_version": REPAIR_VERSION,
         "call_repair_code_sha256": hashlib.sha256(Path(__file__).with_name('replay_call_repair.py').read_bytes()).hexdigest(),
+        "dora_repair_code_sha256": hashlib.sha256(Path(__file__).with_name('replay_dora_repair.py').read_bytes()).hexdigest(),
+        "chronological_dora_and_identified_passes": True,
         "call_repair_audit": dict(repair_counts), "call_exclusions": dict(call_exclusions),
         "call_exclusion_scope": "sampled decisions inspected before per-split output limits",
         "rule": "mjsoul", "requested_counts": limits,

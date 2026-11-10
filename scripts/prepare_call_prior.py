@@ -16,6 +16,8 @@ from call_policy import digest, request_hash
 from head_rl import write
 from scripts.prepare_call_repair import convert
 from replay_call_repair import UnsafeReplayCall
+from replay_dora_repair import DoraChronology, UnsafeDoraPrefix
+from clean_policy_data import pass_is_identified, pass_outcomes
 
 
 def main():
@@ -35,6 +37,8 @@ def main():
         if (not p['complete'] or p['n'] != cfg['prior_records'] or p['validation_or_test_matches_opened'] != 0
             or set(matches) & excluded or any(split_for_match(m) != 'train' for m in matches)
             or digest(out / 'reactions-private.jsonl') != p['records_sha256']
+            or p.get('dora_repair_sha256')!=digest(ROOT/'replay_dora_repair.py')
+            or not p.get('chronological_dora_and_identified_passes')
             or digest(ROOT / cfg['archive']) != p['source_archive_sha256']):
             raise ValueError('Prior reuse audit failed')
         print(json.dumps({'status': 'reusing_audited_training_prior', 'n': p['n'], 'priors': p['priors']}), flush=True)
@@ -54,10 +58,19 @@ def main():
                     raw = stream.read(10_000_001)
                 if len(raw) > 10_000_000: raise ValueError('Oversized decompressed game')
                 replay_path.write_bytes(raw); replay = MjaiReplay.from_jsonl(str(replay_path), rule='mjsoul')
+                events=[json.loads(l) for l in raw.splitlines() if l.strip()]
+                chronology,outcomes=DoraChronology(events),pass_outcomes(events)
                 pool = []
                 for hand in replay.take_kyokus():
                     for player, obs, expert in hand.steps(seat=None, skip_single_action=False):
+                        try:obs,_=chronology.repair(obs)
+                        except UnsafeDoraPrefix as exc:
+                            exclusions[str(exc)]+=1
+                            continue
                         if json.loads(expert.to_mjai())['type'] not in ('none', 'chi', 'pon') or len(obs.hand) % 3 != 1 or obs.last_discard is None: continue
+                        if json.loads(expert.to_mjai())['type']=='none' and not pass_is_identified(obs,outcomes):
+                            exclusions['censored_or_unresolved_pass']+=1
+                            continue
                         try: result = convert(obs, expert)
                         except UnsafeReplayCall as exc:
                             exclusions[str(exc)] += 1; continue
@@ -84,6 +97,7 @@ def main():
         'failed_matches': failures, 'exclusions': dict(exclusions), 'validation_or_test_matches_opened': 0,
         'sampling': 'natural offered reactions, fixed match-hash TRAIN partition; no class quotas',
         'source_archive_sha256': digest(ROOT / cfg['archive']),
+        'dora_repair_sha256':digest(ROOT/'replay_dora_repair.py'),'chronological_dora_and_identified_passes':True,
         'records_sha256': digest(out / 'reactions-private.jsonl')}
     write(out / 'provenance.json', result)
     if not result['complete'] or any(counts[k] < 10 for k in ('chi', 'pon', 'none')):

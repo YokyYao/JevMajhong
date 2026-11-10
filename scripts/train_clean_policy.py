@@ -19,6 +19,8 @@ def main():
     p.add_argument('--config',type=Path,required=True)
     a=p.parse_args();cfg=json.loads(a.config.read_text())
     data=ROOT/cfg['data'];out=ROOT/cfg['out']
+    if (out/'protocol.json').exists() or (out/'invalidation.json').exists():
+        raise ValueError('Refuse overwriting a started or invalidated experiment; use a new run')
     try:
         prepared=json.loads((data/'provenance.json').read_text())
         if not prepared['complete'] or prepared['config']!=cfg or prepared['model_test_opened']:
@@ -26,7 +28,7 @@ def main():
         for split in ('train','validation'):
             if digest(data/(split+'.jsonl'))!=prepared['files'][split]:
                 raise ValueError('Training/validation changed')
-        for name,key in [('replay_call_repair.py','repair_sha256'),('semantic.py','semantic_sha256'),('clean_policy_data.py','policy_data_sha256')]:
+        for name,key in [('replay_call_repair.py','repair_sha256'),('semantic.py','semantic_sha256'),('clean_policy_data.py','policy_data_sha256'),('replay_dora_repair.py','dora_repair_sha256')]:
             if digest(ROOT/name)!=prepared[key]:raise ValueError('Data-producing code changed')
         trainer_config=tomllib.loads((ROOT/cfg['trainer_config']).read_text())
         if trainer_config.get('init_from') or trainer_config.get('resume'):
@@ -37,7 +39,7 @@ def main():
         for name,h in reference_files.items():
             if digest(ROOT/cfg['reference']/name)!=h:raise ValueError('FrozenB changed')
         code=['scripts/train_clean_policy.py','scripts/prepare_clean_policy.py','clean_policy_data.py',
-              'semantic.py','replay_call_repair.py','encoder_training_guard.py',
+              'semantic.py','replay_call_repair.py','replay_dora_repair.py','encoder_training_guard.py',
               'vendor/JevAny/jevany/train.py','vendor/JevAny/jevany/model.py','vendor/JevAny/jevany/checkpoint.py']
         protocol={'config':cfg,'code_sha256':{n:digest(ROOT/n) for n in code},
             'trainer_config_sha256':digest(ROOT/cfg['trainer_config']),
