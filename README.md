@@ -1,6 +1,6 @@
 # Mahjong recommender with JevAny
 
-**2026-11-10 吃碰训练恢复：** 首轮已训练并完成512场开发评估：会选择部分吃碰，但净得点均值未改善，未部署。见[首轮结果](reports/2026-11-09-call-repair-pilot/README.md)和[自然先验校正后续方案](plans/call-prior-followup-20261109.md)。[根因诊断](reports/2026-11-09-call-policy-diagnosis/README.md)确认回放候选曾泄漏答案；不要把 consumed 改成错误的三张来强迫模型鸣牌。
+**2026-11-10 吃碰训练恢复：** 先验与教师约束调整后，768场完整开发评估已通过独立审计；相对旧模型两组平均净得点分别 +264.06、+117.19，但区间均跨零，尚未证明稳定提升。见[本轮完整总结](reports/2026-11-10-call-prior-development/README.md)和[后续方案](plans/call-prior-followup-20261109.md)。冻结候选进入预留新牌山复验，未部署。[根因诊断](reports/2026-11-09-call-policy-diagnosis/README.md)确认回放候选曾泄漏答案；不要把 consumed 改成错误的三张来强迫模型鸣牌。
 
 **2026-11-09 桌面源码调试版与服务器交接：** 后台窗口截图、自动推荐/点击、立直两步确认、启动预热和两条独立策略说明已加入当前源码。吃碰偏向跳过的问题尚未修复或训练，复现输入、已确认的接口差异、模型标识及训练验证建议见[服务器交接说明](plans/desktop-call-policy-server-handoff.md)。本次没有新训练权重；主分支推送会触发已有自动打包流程，安装包以工作流实际结果为准，已安装的旧 EXE 不会自动获得源码改动。
 

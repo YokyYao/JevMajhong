@@ -4,6 +4,7 @@ import fcntl
 import getpass
 import json
 from pathlib import Path
+import signal
 import subprocess
 import sys
 import time
@@ -24,10 +25,18 @@ def read(path):
     return json.loads(path.read_text()) if path.is_file() else None
 
 
+def observation_complete(cfg, state):
+    if state.get('skipped'): return True
+    if (state.get('strength') or {}).get('status') != 'development_complete': return False
+    if cfg.get('evaluation_stage') != 'independent_confirmation': return True
+    audit, qualification = state.get('audit') or {}, state.get('qualification') or {}
+    return audit.get('status') == 'passed_complete' and audit.get('complete') is True and 'qualified' in qualification
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--config', type=Path, required=True)
-    parser.add_argument('--train-job', type=int, required=True)
+    parser.add_argument('--train-job', type=int)
     parser.add_argument('--eval-job', type=int, required=True)
     parser.add_argument('--interval', type=int, default=60)
     parser.add_argument('--max-seconds', type=int, default=21600)
@@ -37,21 +46,27 @@ def main():
     monitor = run.with_name(run.name + '-monitor'); monitor.mkdir(exist_ok=True)
     lock = (monitor / 'observer.lock').open('w')
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    def terminated(signum, frame):
+        write(monitor / 'action-required.json', {'reason': 'observer_terminated', 'signal': signum,
+            'next_action': 'Inspect worker status and logs; do not restart blindly', 'agent_notification_sent': False})
+        raise SystemExit(128 + signum)
+    signal.signal(signal.SIGTERM, terminated)
     previous, empty_polls, started = None, 0, time.monotonic()
     with (monitor / 'events-private.jsonl').open('a') as events:
         while time.monotonic() - started < args.max_seconds:
             now = datetime.now(timezone.utc).isoformat()
             jobs = subprocess.run(['squeue', '-h', '-u', getpass.getuser(), '-o', '%i|%T|%R'],
                                   capture_output=True, text=True, timeout=20)
-            wanted = {str(args.train_job), str(args.eval_job)}
+            wanted = {str(job) for job in (args.train_job, args.eval_job) if job is not None}
             queue = '\n'.join(line for line in jobs.stdout.splitlines() if line.split('|')[0] in wanted)
             state = {'training': read(run / 'status.json'), 'strength': read(run / 'strength-status.json'),
                 'skipped': read(run / 'development-skipped.json'), 'queue': queue,
+                'audit': read(run / 'development-audit.json'), 'qualification': read(run / 'qualification.json'),
                 'queue_query_error': jobs.stderr.strip() if jobs.returncode else None,
                 'train_job': args.train_job, 'eval_job': args.eval_job}
             if jobs.returncode == 0 and not state['queue']: empty_polls += 1
             else: empty_polls = 0
-            final = bool(state['skipped']) or (state['strength'] or {}).get('status') == 'development_complete'
+            final = observation_complete(cfg, state)
             reason = 'completed' if final else None
             if 'DependencyNeverSatisfied' in state['queue'] or (empty_polls >= 2 and not final): reason = 'worker_failed_or_missing_result'
             progress = [p.stat().st_mtime for p in [run / 'status.json', run / 'strength-status.json'] if p.exists()]

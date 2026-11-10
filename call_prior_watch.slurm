@@ -8,4 +8,4 @@ set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:?Submit from project root}"
 export OMP_NUM_THREADS=1
 export PYTHONUNBUFFERED=1
-.venv/bin/python scripts/watch_call_repair.py --config "${3:-call-prior-followup-20261109.json}" --train-job "${1:?Train job}" --eval-job "${2:?Eval job}"
+.venv/bin/python scripts/watch_call_repair.py --config "${3:-call-prior-followup-20261109.json}" --train-job "${1:?Train job}" --eval-job "${2:?Eval job}" --max-seconds "${4:-21600}"
