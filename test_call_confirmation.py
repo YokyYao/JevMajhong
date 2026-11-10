@@ -36,6 +36,9 @@ class ConfirmationTests(unittest.TestCase):
         state['qualification'] = {'qualified': False}
         self.assertTrue(observation_complete(cfg, state))
         self.assertTrue(observation_complete({'evaluation_stage': 'development'}, state))
+        dev = {'evaluation_stage': 'development', 'require_complete_audit': True}
+        self.assertFalse(observation_complete(dev, {'strength': {'status': 'development_complete'}}))
+        self.assertTrue(observation_complete(dev, state))
 
 
 if __name__ == '__main__': unittest.main()

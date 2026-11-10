@@ -30,7 +30,9 @@ def observation_complete(cfg, state):
         return (state.get('training') or {}).get('status') == 'feature_cache_complete'
     if state.get('skipped'): return True
     if (state.get('strength') or {}).get('status') != 'development_complete': return False
-    if cfg.get('evaluation_stage') != 'independent_confirmation': return True
+    if cfg.get('evaluation_stage') != 'independent_confirmation':
+        return not cfg.get('require_complete_audit') or ((state.get('audit') or {}).get('status') == 'passed_complete'
+                                                       and (state.get('audit') or {}).get('complete') is True)
     audit, qualification = state.get('audit') or {}, state.get('qualification') or {}
     return audit.get('status') == 'passed_complete' and audit.get('complete') is True and 'qualified' in qualification
 

@@ -12,3 +12,5 @@
 配置为 `call-natural-features-20261110.json`；提交入口 `call_natural_features.slurm`；可恢复提取器 `scripts/cache_call_features.py`。五项缓存恢复/监控回归测试已通过，包括输入标签改变、协议改变、张量篡改、形状不符、缺少完成凭据及完成标记检查；实际GPU原生校验以运行完成的审计结果为准。
 
 完整缓存结束后，以成功依赖接续 CPU 验证诊断：`call-natural-validation-20261110.json` / `call_natural_validation.slurm`。准备器先核对全部30720次原生概率检查、缓存摘要和参考身份，再对已固定的旧模型、call150、trust15在新validation的2048条决策/65场比赛上计算三视图类别与完整动作指标。候选校验和提前固定，诊断不训练、不重新选检查点，不把validation称为最终测试；当前3072场复验保持原候选。test仍不编码、不推理。该诊断的完整性以实际缓存和CPU任务结束后的结果为准。
+
+**已完成：** 特征作业288894全部30720次检查通过；接续诊断288919已结束。见[诊断摘要](../reports/2026-11-10-natural-validation/README.md)与据此制定的[新数据query试验](call-natural-query-20261110.md)。原独立复验继续保持trust15冻结，新试验使用不同开发牌山。
