@@ -5,17 +5,50 @@ can omit unchosen alternatives. Never serialize that answer-dependent list.
 Native simulation/inference continues using semantic.build_request unchanged.
 """
 from collections import Counter
+import base64
 from itertools import combinations
 import json
 
 from riichienv import Action, ActionType
 from semantic import build_request, shanten
 
-REPAIR_VERSION = 'public-chi-pon-v1'
+REPAIR_VERSION = 'public-chi-pon-postcall-v2'
 
 
 class UnsafeReplayCall(ValueError):
     pass
+
+
+def post_call_forbidden(obs):
+    """Return public kuikae restrictions immediately after chi/pon, else empty.
+
+    Replay 0.4.11 loses forbidden_discards when ingesting MJAI. No drawn tile
+    distinguishes the immediate post-call discard from later normal turns.
+    The called tile and meld composition are public and independent of labels.
+    """
+    public = json.loads(base64.b64decode(obs.serialize_to_base64()))
+    if len(obs.hand) % 3 != 2 or public['drawn_tile'] is not None:
+        return set()
+    melds = public['melds'][obs.player_id]
+    if not melds:
+        return set()
+    meld = melds[-1]
+    if meld['meld_type'] not in ('Chi', 'Pon') or meld.get('called_tile') is None:
+        raise UnsafeReplayCall('post_call_context_requires_chi_pon')
+    called = meld['called_tile'] // 4
+    if public['last_discard'] is None or public['last_discard'] // 4 != called:
+        raise UnsafeReplayCall('post_call_last_discard_unresolved')
+    consumed = [t // 4 for t in meld['tiles']]
+    consumed.remove(called)
+    forbidden = {called}
+    if meld['meld_type'] == 'Chi':
+        if len(consumed) != 2 or sorted(consumed + [called]) != list(range(min(consumed + [called]), min(consumed + [called]) + 3)):
+            raise UnsafeReplayCall('invalid_post_call_chi')
+        if min(consumed) == called + 1 and called % 9 <= 5:
+            forbidden.add(called + 3)
+        elif max(consumed) == called - 1 and called % 9 >= 3:
+            forbidden.add(called - 3)
+    return forbidden
 
 
 def canonical_action(action):
@@ -101,6 +134,16 @@ def build_replay_request(obs):
             for a in original)
     else:
         actions = original
+        forbidden = post_call_forbidden(obs) if kinds == {'dahai'} else set()
+        if forbidden:
+            keep = [i for i, a in enumerate(original) if a.tile // 4 not in forbidden]
+            if not keep:
+                raise UnsafeReplayCall('post_call_no_legal_discard')
+            actions = [original[i] for i in keep]
+            before = payload['questions']['action']['criteria']
+            payload['questions']['action']['criteria'] = {f'a{j}': before[f'a{i}'] for j, i in enumerate(keep)}
+            audit['post_call_discard_records_checked'] = 1
+            audit['kuikae_candidates_removed'] = len(original) - len(actions)
     if kinds & {'chi', 'pon', 'daiminkan'}:
         payload['questions']['action']['criteria'] = {f'a{i}': canonical_action(a) for i, a in enumerate(actions)}
     return payload, [canonical_signature(a) for a in actions], audit

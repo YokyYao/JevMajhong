@@ -68,7 +68,7 @@ def describe(obs):
         "dora_indicators": " ".join(tile_name(t) for t in d["dora_indicators"]),
         "riichi": [p for p in range(4) if d["riichi_declared"][p]],
         "rivers": [" ".join(tile_name(t) for t in river) for river in d["discards"]],
-        "melds": [[{"type": int(m.meld_type), "tiles": " ".join(tile_name(t) for t in m.tiles)}
+        "melds": [[{"type": int(m.meld_type), "tiles": " ".join(tile_name(t) for t in sorted(m.tiles))}
                    for m in melds] for melds in d["melds"]],
         "discards_count": sum(len(r) for r in d["discards"]),
         "hand_number": d["oya"] + 1,
