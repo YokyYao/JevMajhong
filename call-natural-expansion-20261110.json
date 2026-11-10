@@ -1,0 +1,19 @@
+{
+  "data": "data/call-natural-expansion-20261110",
+  "archive": "data/raw/majsoul-throne-2026.tar",
+  "exclude_provenance": [
+    "data/semantic-2026-v1/provenance.json",
+    "data/semantic-2026-round2-pool/provenance.json",
+    "data/call-repair-20261109-v2/provenance.json",
+    "data/call-prior-20261109/provenance.json"
+  ],
+  "training_sampling": "natural",
+  "train_records": 8192,
+  "validation_records": 2048,
+  "test_records": 2048,
+  "max_per_match": 32,
+  "purpose": "Data preparation only. Fresh natural training for the next repair if needed; fresh validation for development; sealed test for one frozen candidate, never checkpoint selection.",
+  "current_frozen_candidate": "runs/call-repair-trust-20261110/selected-call-head.pt",
+  "test_use": "Do not run test inference until the candidate and evaluation protocol are frozen; do not compare checkpoints on this test.",
+  "privacy": "Raw games and derived rows stay private; only source/config/Markdown summary may be public."
+}

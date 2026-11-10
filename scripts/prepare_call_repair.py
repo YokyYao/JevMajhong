@@ -53,8 +53,12 @@ def main():
     for name in cfg['exclude_provenance']:
         provenance = json.loads((ROOT / name).read_text())
         excluded.update(m for group in provenance['matches'].values() for m in group)
-    quotas = cfg['train_quotas']
-    limits = {'train': sum(quotas.values()), 'validation': cfg['validation_records'], 'test': cfg['test_records']}
+    sampling = cfg.get('training_sampling', 'quota')
+    if sampling not in ('quota', 'natural'): raise ValueError('Unknown training sampling policy')
+    quotas = cfg.get('train_quotas')
+    train_records = cfg['train_records'] if sampling == 'natural' else sum(quotas.values())
+    limits = {'train': train_records, 'validation': cfg['validation_records'], 'test': cfg['test_records']}
+    if any(n <= 0 for n in limits.values()): raise ValueError('All data splits must be nonempty')
     counts = Counter()
     types = {s: Counter() for s in limits}
     groups = {s: set() for s in limits}
@@ -103,7 +107,7 @@ def main():
                     for request, label, relative, kind in pool:
                         if len(chosen) >= cfg['max_per_match']:
                             break
-                        if split == 'train' and types[split][kind] + local_types[kind] >= quotas[kind]:
+                        if split == 'train' and sampling == 'quota' and types[split][kind] + local_types[kind] >= quotas[kind]:
                             continue
                         h = request_hash(request)
                         if h in hashes or h in local_hashes:
@@ -138,7 +142,8 @@ def main():
         'code_sha256': {p: digest(ROOT / p) for p in ['scripts/prepare_call_repair.py', 'replay_call_repair.py', 'semantic.py']},
         'files': {s: digest(out / f'{s}.jsonl') for s in limits},
         'holdout_sampling': 'natural reaction distribution; match-hash splits; label-independent per-match shuffle',
-        'training_sampling': 'predeclared class quotas; max decisions per match; no duplication',
+        'training_sampling': ('natural reactions; label-independent per-match shuffle; no class quotas'
+                              if sampling == 'natural' else 'predeclared class quotas; max decisions per match; no duplication'),
         'schema': 'semantic-v3-reaction-only', 'all_kan_or_possible_ron_states_explicitly_excluded': True}
     audit['reaction_scope'] = 'source offers chi/pon; independent reconstruction never reads expert choice; singleton-pass phase legality not inferred'
     for a, b in [('train', 'validation'), ('train', 'test'), ('validation', 'test')]:
