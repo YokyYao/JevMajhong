@@ -86,6 +86,8 @@ def main():
     parser.add_argument('--config', type=Path, required=True)
     args = parser.parse_args(); cfg = json.loads(args.config.read_text()); run = ROOT / cfg['out']
     selection = json.loads((run / 'selected.json').read_text())
+    if cfg.get('require_refit_improvement') and json.loads((run / 'training-result.json').read_text())['status'] != 'refit_complete':
+        write(run / 'development-skipped.json', {'reason': 'No improvement over warm-start query', 'candidate_preserved': True}); return
     if not selection['checkpoint']:
         write(run / 'development-skipped.json', {'reason': 'No improved validation checkpoint'}); return
     if selection['validation']['macro_f1'] <= selection['baseline']['macro_f1']:
@@ -109,6 +111,11 @@ def main():
     if repair['reference_head_sha256'] != cfg['reference_head_sha256']: raise ValueError('Call-head source changed')
     head = make_head(meta, 'cuda'); head.load_state_dict(repair['head']); head.eval().requires_grad_(False)
     agents = {'reference': Agent(client), 'candidate': Agent(CallRouter(client, head))}
+    if cfg.get('previous_call_checkpoint'):
+        previous = torch.load(ROOT / cfg['previous_call_checkpoint'], map_location='cpu', weights_only=True)
+        if previous['reference_head_sha256'] != cfg['reference_head_sha256']: raise ValueError('Previous call-head source mismatch')
+        old_head = make_head(meta, 'cuda'); old_head.load_state_dict(previous['head']); old_head.eval().requires_grad_(False)
+        agents['previous'] = Agent(CallRouter(client, old_head))
     out = run / 'native-development'; out.mkdir(exist_ok=False)
     write(out / 'protocol.json', {'config': cfg, 'selected': selection, 'candidate_sha256': digest(candidate),
         'code_sha256': {p: digest(ROOT / p) for p in ['scripts/evaluate_call_repair.py', 'call_policy.py', 'semantic.py', 'seed_control.py']},
@@ -127,7 +134,7 @@ def main():
                         rows.append(row); all_rows.append(row)
                         stream.write(json.dumps(row) + '\n'); stream.flush()
                         status = {'status': 'native_call_development', 'suite': suite, 'games': len(all_rows),
-                            'total_games': cfg['development_seeds'] * 4 * 2 * 2, 'seconds': time.monotonic() - started}
+                            'total_games': cfg['development_seeds'] * 4 * len(agents) * 2, 'seconds': time.monotonic() - started}
                         write(run / 'strength-status.json', status); print(json.dumps(status), flush=True)
             summaries = {name: summarize([r for r in rows if r['policy'] == name]) for name in agents}
             for name, summary in summaries.items():
@@ -135,15 +142,28 @@ def main():
                 hands = max(1, sum(r['hands'] for r in subset))
                 summary.update(hand_win_rate=sum(r['hand_wins'] for r in subset) / hands,
                                dealin_rate=sum(r['dealins'] for r in subset) / hands)
-            delta = []
-            for seed in range(cfg['development_seed_start'], cfg['development_seed_start'] + cfg['development_seeds']):
-                delta.append(sum((1 if r['policy'] == 'candidate' else -1) * r['score']
-                                 for r in rows if r['seed'] == seed) / 4)
+            comparisons = {}
+            pairs = [('candidate', 'reference')]
+            if 'previous' in agents: pairs += [('candidate', 'previous'), ('previous', 'reference')]
+            for left, right in pairs:
+                delta = paired_point_deltas(rows, left, right)
+                comparisons[f'{left}_minus_{right}'] = {'gain': sum(delta) / len(delta), 'ci95': ci(delta)}
+            primary = comparisons['candidate_minus_reference']
             write(out / f'{suite}-summary.json', {'policies': summaries,
-                'paired_net_points_gain': sum(delta) / len(delta), 'paired_seed_cluster_ci95': ci(delta),
-                'independent_wall_streams': len(delta), 'is_final_confirmation': False})
+                'paired_net_points_gain': primary['gain'], 'paired_seed_cluster_ci95': primary['ci95'],
+                'comparisons': comparisons, 'independent_wall_streams': cfg['development_seeds'],
+                'is_final_confirmation': cfg.get('evaluation_stage') == 'independent_confirmation'})
     write(run / 'strength-status.json', {'status': 'development_complete', 'games': len(all_rows),
         'deployed': False, 'independent_confirmation_pending': True})
+
+
+def paired_point_deltas(rows, left, right):
+    selected = [r for r in rows if r['policy'] in (left, right)]
+    mapping = {(r['seed'], r['seat'], r['policy']): r['score'] for r in selected}
+    if len(mapping) != len(selected): raise ValueError('Duplicate paired game')
+    seeds = sorted({r['seed'] for r in selected})
+    if len(mapping) != len(seeds) * 4 * 2: raise ValueError('Incomplete paired seats/policies')
+    return [sum(mapping[s, seat, left] - mapping[s, seat, right] for seat in range(4)) / 4 for s in seeds]
 
 
 if __name__ == '__main__': main()
