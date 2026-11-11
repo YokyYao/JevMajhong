@@ -22,6 +22,20 @@ def request(types):
 
 
 class FastWinTest(unittest.TestCase):
+    def test_point_primary_utility_preserves_payment_severity_without_saturation(self):
+        config = {'mode': 'net_points_with_fast_support_v1', 'net_weight': 1., 'fast_weight': .1,
+            'dealin_penalty': .1, 'point_scale': 8000.}
+        def settled(amount):
+            return [{'type': 'start_kyoku'}, {'type': 'hora', 'actor': 1, 'target': 0,
+                'deltas': [-amount, amount, 0, 0]}, {'type': 'end_kyoku'}]
+        small = hand_utility(settled(8000), 0, 0, 0, .995, config)
+        large = hand_utility(settled(16000), 0, 0, 0, .995, config)
+        self.assertAlmostEqual(small['utility'], -1.1)
+        self.assertAlmostEqual(large['utility'], -2.1)
+        self.assertAlmostEqual(small['utility'] - large['utility'], 1.)
+        config['fast_weight'] = -1
+        with self.assertRaises(ValueError): hand_utility(settled(8000), 0, 0, 0, .995, config)
+
     def test_risk_utility_penalizes_dealin_and_keeps_own_win_primary(self):
         config = {'mode': 'risk_adjusted_fast_win_v1', 'dealin_penalty': .3, 'net_weight': .1, 'point_scale': 8000.}
         def settled(actor, target, delta, draws=10):

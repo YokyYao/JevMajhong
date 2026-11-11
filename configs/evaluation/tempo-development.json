@@ -1,7 +1,7 @@
 {
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
-  "candidate_run": "runs/jev-tempo-safe-v1",
+  "candidate_run": "runs/jev-value-v1",
   "out": "runs/tempo-development",
   "stage": "development",
   "seed_start": 10720000,

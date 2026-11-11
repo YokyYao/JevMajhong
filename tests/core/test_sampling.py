@@ -8,7 +8,7 @@ from tools.run_experiment import freeze_source
 from jevmahjong.training.sampling import stratum, weights
 from jevmahjong.data.native_pairs import ENCODER_FILES, load_sources
 from jevmahjong.core.io import digest, request_hash
-from jevmahjong.training.fit import initialize_heads, save_head_checkpoint
+from jevmahjong.training.fit import initialize_heads, save_head_checkpoint, selection_metric
 from jevmahjong.training.provenance import verify
 
 
@@ -44,6 +44,16 @@ def native_collection(root, start, gamma=.995):
 
 
 class SamplingTests(unittest.TestCase):
+    def test_new_source_regression_is_not_hidden_by_old_validation_improvement(self):
+        parent = [{'source': 'old', 'rows': 259, 'loss': .1731035024},
+            {'source': 'new', 'rows': 328, 'loss': .1653106644}]
+        child = [{'source': 'old', 'rows': 259, 'loss': .1681632703},
+            {'source': 'new', 'rows': 328, 'loss': .1670793201}]
+        self.assertLess(selection_metric(child, 'all_sources'), selection_metric(parent, 'all_sources'))
+        self.assertGreater(selection_metric(child, 'latest_source'), selection_metric(parent, 'latest_source'))
+        self.assertEqual(selection_metric(parent[-1:], 'all_sources'), selection_metric(parent, 'latest_source'))
+        with self.assertRaises(ValueError): selection_metric(parent, 'unknown')
+
     def test_continuation_restores_parent_heads_and_preserves_epoch_zero(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); source = root / 'parent.pt'

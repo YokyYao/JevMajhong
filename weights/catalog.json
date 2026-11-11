@@ -91,7 +91,7 @@
     },
     "jev-tempo-safe-v1": {
       "role": "fast-win-with-dealin-penalty-and-local-point-utility",
-      "status": "positive-development-independent-confirmation-running",
+      "status": "not-adopted-no-confirmed-improvement",
       "selected_epoch": 6,
       "artifact_public": false,
       "frozen_encoders": [
@@ -102,6 +102,40 @@
       "development_ci95": [
         -2837.8440021591664,
         5073.260668825833
+      ],
+      "independent_improvement_proven": false,
+      "confirmation_net_gain_vs_play_v1": -736.4583333333333,
+      "confirmation_ci95": [
+        -2534.2441143667693,
+        1061.3274477001025
+      ]
+    },
+    "jev-tempo-safe-data-v1": {
+      "role": "safe-head-continuation-with-expanded-data",
+      "status": "not-adopted-negative-development",
+      "initialized_from": "jev-tempo-safe-v1",
+      "selected_epoch": 3,
+      "train_rows": 1741,
+      "held_rows": 587,
+      "development_net_gain_vs_play_v1": -508.3333333333335,
+      "development_net_gain_vs_safe_v1": -1626.0416666666667,
+      "artifact_public": false
+    },
+    "jev-value-v1": {
+      "role": "actual-hand-net-points-with-small-fast-win-support",
+      "status": "positive-development-independent-confirmation-running",
+      "initialized_from": "jev-play-v1",
+      "selected_epoch": 3,
+      "selection_validation": "latest_source",
+      "artifact_public": false,
+      "frozen_encoders": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ],
+      "development_net_gain_vs_play_v1": 1626.0416666666667,
+      "development_ci95": [
+        -1689.5294231947425,
+        4941.612756528076
       ],
       "independent_improvement_proven": false
     }

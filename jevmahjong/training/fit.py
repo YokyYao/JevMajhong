@@ -41,6 +41,23 @@ def save_head_checkpoint(out, model_id, heads, protocol, epoch, metric):
     return {'epoch': epoch, 'held_loss': metric, 'checkpoint': str(checkpoint.resolve()), 'sha256': digest(checkpoint)}
 
 
+def selection_metric(profile, mode):
+    if not profile: raise ValueError('Validation sources required')
+    if mode == 'latest_source': return profile[-1]['loss']
+    if mode == 'all_sources':
+        return sum(p['loss'] * p['rows'] for p in profile) / sum(p['rows'] for p in profile)
+    raise ValueError('Unknown validation selection mode')
+
+
+def validation_profile(heads, rows, sources, config):
+    result = []
+    for source in sources:
+        selected = [r for r in rows if source['seed_start'] <= r['episode_key'][0] < source['seed_start'] + source['seeds']]
+        if not selected: raise ValueError('Every source needs held-wall validation')
+        result.append({'source': source['path'], 'rows': len(selected), 'loss': loss_on(heads, selected, config)})
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--config', type=Path, required=True)
     config = json.loads(parser.parse_args().config.read_text())
@@ -68,8 +85,11 @@ def main():
     initialization = initialize_heads(heads, protocol)
     params = [p for h in heads.values() for p in h.parameters()]
     optimizer = torch.optim.AdamW(params, lr=config['lr'], weight_decay=config['weight_decay'])
-    baseline = loss_on(heads, held, config)
+    mode = config.get('selection_validation', 'all_sources')
+    initial_profile = validation_profile(heads, held, sources, config)
+    baseline = selection_metric(initial_profile, mode)
     best = save_head_checkpoint(out, config['model_id'], heads, protocol, 0, baseline)
+    best['validation_sources'] = initial_profile
     curve = [best]; updates = 0
     stale_epochs = 0; stop_reason = 'epoch_limit'
     for epoch in range(1, config['epochs'] + 1):
@@ -83,8 +103,10 @@ def main():
             optimizer.zero_grad(); loss.backward(); gradient = torch.nn.utils.clip_grad_norm_(params, .5)
             if not torch.isfinite(gradient): raise ValueError('Nonfinite gradient')
             optimizer.step(); updates += 1
-        metric = loss_on(heads, held, config)
+        profile = validation_profile(heads, held, sources, config)
+        metric = selection_metric(profile, mode)
         item = save_head_checkpoint(out, config['model_id'], heads, protocol, epoch, metric)
+        item['validation_sources'] = profile
         curve.append(item)
         if metric < best['held_loss']:
             best = item; stale_epochs = 0
@@ -109,6 +131,7 @@ def main():
         'baseline_held_loss': baseline, 'optimizer_updates': updates, 'train_rows': len(train), 'held_rows': len(held),
         'stop_reason': stop_reason, 'held_loss_improved': best['held_loss'] < baseline,
         'initialization': initialization, 'selected_is_starting_model': best['epoch'] == 0,
+        'selection_validation': mode, 'initial_validation_sources': initial_profile,
         'data': [s['path'] for s in sources] if len(sources) > 1 else sources[0]['path'],
         'data_sources': sources, 'data_sha256': hashes, 'config': config,
         'human_test_opened': False, 'deployed': False, 'strength_improvement_proven': False}

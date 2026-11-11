@@ -4,13 +4,16 @@ from .rewards import fast_reward, hand_outcomes
 
 
 def validate_config(config):
-    if config['mode'] != 'risk_adjusted_fast_win_v1':
+    if config['mode'] not in ('risk_adjusted_fast_win_v1', 'net_points_with_fast_support_v1'):
         raise ValueError('Unsupported training utility')
     for name in ('dealin_penalty', 'net_weight', 'point_scale'):
         if not math.isfinite(config[name]) or config[name] < 0:
             raise ValueError('Finite nonnegative utility weights required')
     if config['point_scale'] == 0:
         raise ValueError('Positive point scale required')
+    if config['mode'] == 'net_points_with_fast_support_v1':
+        if not math.isfinite(config['fast_weight']) or config['fast_weight'] < 0:
+            raise ValueError('Finite nonnegative fast-win weight required')
 
 
 def hand_utility(log, hand_index, seat, draws_before, gamma, config):
@@ -35,7 +38,10 @@ def hand_utility(log, hand_index, seat, draws_before, gamma, config):
         elif kind == 'end_kyoku': break
     if not settled:
         raise ValueError('Completed hand settlement required')
-    utility = fast - config['dealin_penalty'] * dealin + config['net_weight'] * math.tanh(points / config['point_scale'])
+    if config['mode'] == 'risk_adjusted_fast_win_v1':
+        utility = fast - config['dealin_penalty'] * dealin + config['net_weight'] * math.tanh(points / config['point_scale'])
+    else:
+        utility = config['fast_weight'] * fast - config['dealin_penalty'] * dealin + config['net_weight'] * points / config['point_scale']
     return {'utility': utility, 'fast_reward': fast, 'dealin': dealin, 'net_points': points}
 
 

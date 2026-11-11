@@ -1,9 +1,9 @@
 {
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
-  "model_id": "jev-tempo-safe-v1",
+  "model_id": "jev-value-v1",
   "data": "runs/tempo-native",
-  "out": "runs/jev-tempo-safe-v1",
+  "out": "runs/jev-value-v1",
   "seed": 2026111119,
   "epochs": 12,
   "batch": 16,
@@ -24,9 +24,11 @@
   "patience_epochs": 2,
   "reference_margin_weight": 0.0,
   "reward": {
-    "mode": "risk_adjusted_fast_win_v1",
-    "dealin_penalty": 0.3,
-    "net_weight": 0.1,
+    "mode": "net_points_with_fast_support_v1",
+    "net_weight": 1.0,
+    "fast_weight": 0.1,
+    "dealin_penalty": 0.1,
     "point_scale": 8000.0
-  }
+  },
+  "selection_validation": "latest_source"
 }
