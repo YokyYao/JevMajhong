@@ -17,4 +17,4 @@
 python scripts/restore_checkpoint.py checkpoints/feature-stage2-step200/manifest.json --out models/feature-stage2
 ```
 
-桌面构建入口会自动恢复本检查点和旧B，安装用户无需执行此命令。0.3.0源码已接入该组合，Windows EXE须以构建、实际冻结程序与安装验证结果为准；旧0.2.1 EXE不会自动读取这个新模型。底座、JevAny及数据来源说明沿用仓库第三方说明。
+桌面构建入口会自动恢复本检查点和旧B，安装用户无需执行此命令。[0.3.0 Windows EXE](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.3.0/JevMahjong-Setup-0.3.0-win-x64.exe)已发布，实际冻结程序、安装后CPU推理与自动组件下载安装检查均通过。两套策略采用相同底座版本，目前分别加载；Windows NVIDIA显卡与截图实战效果仍需本机测试。旧0.2.1 EXE不会自动读取这个新模型。底座、JevAny及数据来源说明沿用仓库第三方说明。

@@ -1,6 +1,6 @@
 # Mahjong recommender with JevAny
 
-**第二阶段推理权重与桌面接入：** [模型文件及校验清单](checkpoints/feature-stage2-step200/README.md)现提供6个推理文件的分片归档，不含优化器或牌谱。0.3.0桌面源码采用旧B普通决策＋第二阶段吃碰/跳过；Windows EXE构建与安装验证尚待完成，旧EXE不会自动升级。正在进行[第二阶段单模型与组合对照](plans/stage2-full-vs-hybrid-20261111.md)，复用768条历史控制记录，仅补384场单模型，避免重复计算；不要把此前+1045.83点/场理解成单模型全部决策的成绩。[原配方新比赛续训](plans/stage2-fresh-continuation-20261111.md)另使用260场新TRAIN比赛、9600条数据池，最多追加200步，保留原版不覆盖。
+**第二阶段推理权重与桌面接入：** [模型文件及校验清单](checkpoints/feature-stage2-step200/README.md)现提供6个推理文件的分片归档，不含优化器或牌谱。0.3.0桌面源码采用旧B普通决策＋第二阶段吃碰/跳过；[0.3.0 Windows安装程序](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.3.0/JevMahjong-Setup-0.3.0-win-x64.exe)已发布，实际冻结EXE、无Python环境安装及CPU推理验证通过；旧EXE不会自动升级。正在进行[第二阶段单模型与组合对照](plans/stage2-full-vs-hybrid-20261111.md)，复用768条历史控制记录，仅补384场单模型，避免重复计算；不要把此前+1045.83点/场理解成单模型全部决策的成绩。[原配方新比赛续训](plans/stage2-fresh-continuation-20261111.md)另使用260场新TRAIN比赛、9600条数据池，最多追加200步，保留原版不覆盖。
 
 **独立模拟确认有提升：** [新专家数据与鸣牌特征候选的3072场确认](reports/2026-11-10-feature-expert-confirmation/README.md)已完成并审计，相对冻结旧B平均+509.90点/场，95%整牌山配对区间[92.54,927.25]；一位率28.58%→30.40%、前二率52.28%→54.36%，放铳率9.10%→9.46%也上升。该结果支持本套完整东风模拟中的净得点提升，尚无真人胜率结论。此前部分鸣牌候选的[独立确认](reports/2026-11-10-preserved-call-confirmation/README.md)平均+274.74、区间跨零，仍保留；不同牌山不作两候选直接比较。截图适配和安装包测试继续暂缓。
 
@@ -12,7 +12,7 @@
 
 **2026-11-09 桌面源码调试版与服务器交接：** 后台窗口截图、自动推荐/点击、立直两步确认、启动预热和两条独立策略说明已加入当前源码。吃碰偏向跳过的问题尚未修复或训练，复现输入、已确认的接口差异、模型标识及训练验证建议见[服务器交接说明](plans/desktop-call-policy-server-handoff.md)。本次没有新训练权重；主分支推送会触发已有自动打包流程，安装包以工作流实际结果为准，已安装的旧 EXE 不会自动获得源码改动。
 
-[下载 Windows 安装程序（EXE）](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.2.1/JevMahjong-Setup-0.2.1-win-x64.exe)：双击后自动下载、校验并安装运行组件，无需自行安装Python或配置环境。首次启动自动下载固定版本底座，之后本地截图与本机NVIDIA GPU推荐；首次需在界面中校准牌桌区域。0.2.1会自动读取本场与立直棒并更新推荐，不增加计数识别错误提示；已通过Windows冻结EXE和安装后计数OCR/模型推理检查，见[本次更新与验证](reports/2026-11-10-desktop-counters/README.md)及[使用说明](desktop/README.md)。
+[下载 Windows 安装程序（EXE）](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.3.0/JevMahjong-Setup-0.3.0-win-x64.exe)：双击后自动下载、校验并安装运行组件，无需自行安装Python或配置环境。首次启动自动下载固定版本底座，之后本地截图与本机NVIDIA GPU推荐；首次需在界面中校准牌桌区域。0.3.0采用第二阶段鸣牌组合，并自动读取本场与立直棒更新推荐，不增加计数识别错误提示；已通过Windows冻结EXE和安装后计数OCR/模型推理检查，见[本次更新与验证](reports/2026-11-10-desktop-counters/README.md)及[使用说明](desktop/README.md)。
 
 基于 JevAny 的四人立直麻将训练与离线推荐原型。用高段位雀魂牌谱训练合法动作评分器，并在四人模拟环境中检查一位率、平均顺位和末位风险。
 
