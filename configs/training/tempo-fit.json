@@ -1,11 +1,11 @@
 {
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
-  "model_id": "jev-tempo-balanced-v1",
+  "model_id": "jev-tempo-rank-v1",
   "data": "runs/tempo-native",
-  "out": "runs/jev-tempo-balanced-v1",
+  "out": "runs/jev-tempo-rank-v1",
   "seed": 2026111119,
-  "epochs": 3,
+  "epochs": 12,
   "batch": 16,
   "lr": 1e-05,
   "weight_decay": 0.001,
@@ -20,5 +20,7 @@
     "daiminkan": 0.12,
     "kakan": 0.12
   },
-  "action_cases_per_direction": 8
+  "action_cases_per_direction": 8,
+  "patience_epochs": 2,
+  "reference_margin_weight": 0.0
 }

@@ -17,6 +17,8 @@ def evaluate(heads, rows, per_direction=8):
         for direction in ('positive', 'negative'):
             selected = sorted(buckets[category, direction], key=lambda r: tuple(r['episode_key']))[:per_direction]
             correct = 0; operation_choices = 0
+            reference_correct = 0; reference_choices = 0
+            reference_mass = []; candidate_mass = []; margin_gains = []
             for row in selected:
                 head = heads[row['scope']]
                 z = head(row['decide'], row['options'])
@@ -25,9 +27,68 @@ def evaluate(heads, rows, per_direction=8):
                 selected_index = max(row['eligible'], key=lambda i: float(z[i]))
                 kinds = [v['type'] for v in row['public_request']['questions']['action']['criteria'].values()]
                 operation_choices += int(kinds[selected_index] == category)
+                reference = row['reference'].to(z.device).clamp_min(1e-30)
+                prior_margin = float(reference[row['action']].log() - reference[row['teacher_action']].log())
+                reference_correct += int(prior_margin * row['fast_advantage'] > 0)
+                reference_choices += int(kinds[row['teacher_action']] == category)
+                indices = [i for i, kind in enumerate(kinds) if kind == category]
+                reference_mass.append(float(reference[indices].sum()))
+                candidate_mass.append(float(z.softmax(-1)[indices].sum()))
+                margin_gains.append((margin - prior_margin) * (1 if row['fast_advantage'] > 0 else -1))
             result[category][direction] = {'cases': len(selected), 'pair_order_correct': correct,
                 'pair_order_accuracy': correct / len(selected) if selected else None,
                 'operation_selected_from_full_legal_set': operation_choices,
+                'reference_pair_order_correct': reference_correct,
+                'reference_operation_selected': reference_choices,
+                'reference_operation_probability_mean': sum(reference_mass) / len(selected) if selected else None,
+                'candidate_operation_probability_mean': sum(candidate_mass) / len(selected) if selected else None,
+                'reward_signed_pair_margin_gain_mean': sum(margin_gains) / len(selected) if selected else None,
                 'requested_cases': per_direction, 'coverage_complete': len(selected) >= per_direction}
     return {'actions': result, 'role': 'held-wall validation diagnostic; not independent full-game strength',
         'missing_coverage_is_not_a_pass': True}
+
+
+def main():
+    import argparse
+    import json
+    from pathlib import Path
+    from jevmahjong.core.io import digest, write
+    from jevmahjong.policy.routing import make_head
+    from jevmahjong.training.provenance import verify
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--fit-run', type=Path, required=True)
+    parser.add_argument('--out', type=Path, required=True)
+    args = parser.parse_args()
+    torch.set_num_threads(4)
+    fit = json.loads((args.fit_run / 'result.json').read_text())
+    verify(json.loads((args.fit_run / 'protocol.json').read_text()))
+    checkpoint = Path(fit['selected']['checkpoint'])
+    if digest(checkpoint) != fit['selected']['sha256']:
+        raise ValueError('Selected candidate changed')
+    saved = torch.load(checkpoint, map_location='cpu', weights_only=True)
+    heads = {}
+    for scope, role in [('ordinary', 'discard'), ('calling', 'call')]:
+        meta = torch.load(Path(fit['config'][role + '_checkpoint']) / 'head.pt',
+            map_location='cpu', weights_only=True)
+        heads[scope] = make_head(meta, 'cpu').eval().requires_grad_(False)
+        heads[scope].load_state_dict(saved['heads'][scope])
+    source = json.loads((Path(fit['data']) / 'protocol.json').read_text())['config']
+    partitions = {'train': [], 'held': []}
+    for path, expected in fit['data_sha256'].items():
+        if digest(Path(path)) != expected:
+            raise ValueError('Source shard changed')
+        for row in torch.load(path, map_location='cpu', weights_only=False)['rows']:
+            key = 'held' if (row['episode_key'][0] - source['training_seed_start']) % 4 == 3 else 'train'
+            partitions[key].append(row)
+    if len(partitions['train']) != fit['train_rows'] or len(partitions['held']) != fit['held_rows']:
+        raise ValueError('Whole-wall split coverage differs')
+    result = {'model_id': fit['model_id'], 'checkpoint_sha256': digest(checkpoint),
+        'strength_improvement_proven': False, 'human_test_opened': False}
+    for key, rows in partitions.items():
+        result[key] = evaluate(heads, rows)
+        result[key]['role'] = key + '-wall action diagnostic; not independent full-game strength'
+    write(args.out, result)
+
+
+if __name__ == '__main__':
+    main()

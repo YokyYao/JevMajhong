@@ -78,6 +78,16 @@
       "role": "public-opportunity-curriculum",
       "status": "historical-not-adopted",
       "artifact_public": false
+    },
+    "jev-tempo-rank-v1": {
+      "role": "direct-fast-reward-ranking-with-KL",
+      "status": "experimental-not-deployed",
+      "frozen_encoders": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ],
+      "selected_epoch": 3,
+      "artifact_public": false
     }
   },
   "legacy_aliases": {

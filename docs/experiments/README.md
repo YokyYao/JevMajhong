@@ -6,6 +6,8 @@
 
 ## 结果
 
+- [快和奖励：动作配比与直接排序短程对照](results/2026-11-11-tempo-action-learning/README.md)
+
 - [Jev Call v1单模型对照完成：本次未胜过组合](results/2026-11-11-stage2-full-vs-hybrid/README.md)
 - [Jev Call v1原配方新比赛续训完成200步，得分曲线已启动](results/2026-11-11-stage2-fresh-training/README.md)
 - [训练时抽样似然修正：112步早停，选中64步](results/2026-11-11-sampling-likelihood-training/README.md)

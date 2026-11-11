@@ -4,7 +4,7 @@ from types import SimpleNamespace
 import unittest
 
 import torch
-from jevmahjong.training.rewards import alternate_indices, credit_pair, fast_game_stats, fast_reward, hand_outcomes, pair_loss, scope_for, HeadPolicyClient
+from jevmahjong.training.rewards import alternate_indices, credit_pair, fast_game_stats, fast_reward, hand_outcomes, pair_loss, pairwise_preference_loss, scope_for, HeadPolicyClient
 
 
 def log(winner, draws, second_winner=None):
@@ -21,6 +21,19 @@ def request(types):
 
 
 class FastWinTest(unittest.TestCase):
+    def test_direct_ranking_prioritizes_wrong_order_over_already_correct_order(self):
+        logits = torch.tensor([0., -4.], requires_grad=True)
+        reference = logits.detach().clone()
+        relative = pairwise_preference_loss(logits, reference, 1, 0, -1.)
+        correct = pairwise_preference_loss(logits, reference, 1, 0, -1., reference_margin_weight=0.)
+        wrong = pairwise_preference_loss(logits, reference, 1, 0, 1., reference_margin_weight=0.)
+        self.assertLess(float(correct.detach()), float(relative.detach()) / 10)
+        self.assertGreater(float(wrong.detach()), float(relative.detach()) * 5)
+        wrong.backward()
+        self.assertLess(float(logits.grad[1]), float(logits.grad[0]))
+        with self.assertRaises(ValueError):
+            pairwise_preference_loss(logits, reference, 1, 0, 1., reference_margin_weight=-1.)
+
     def test_opponent_wins_and_draws_zero_faster_own_win_better(self):
         self.assertEqual(fast_reward(hand_outcomes(log(1, 4))[0], 0, 0, .995), 0.)
         self.assertEqual(fast_reward(hand_outcomes(log(None, 60))[0], 0, 0, .995), 0.)

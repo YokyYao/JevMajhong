@@ -16,7 +16,8 @@ from .sampling import weights
 
 @torch.no_grad()
 def loss_on(heads, rows, config):
-    return sum(float(pair_loss(heads[r['scope']], r, config['kl_beta'], config['pair_beta'])[0])
+    return sum(float(pair_loss(heads[r['scope']], r, config['kl_beta'], config['pair_beta'],
+        config.get('reference_margin_weight', 1.))[0])
         for r in rows) / len(rows)
 
 
@@ -61,11 +62,13 @@ def main():
     params = [p for h in heads.values() for p in h.parameters()]
     optimizer = torch.optim.AdamW(params, lr=config['lr'], weight_decay=config['weight_decay'])
     baseline = loss_on(heads, held, config); best = None; curve = []; updates = 0
+    stale_epochs = 0; stop_reason = 'epoch_limit'
     for epoch in range(1, config['epochs'] + 1):
         order = list(range(len(train))); random.Random(config['seed'] + epoch).shuffle(order)
         for start in range(0, len(order), config['batch']):
             indices = order[start:start + config['batch']]
-            terms = [pair_loss(heads[train[i]['scope']], train[i], config['kl_beta'], config['pair_beta'])[0] * w[i] for i in indices]
+            terms = [pair_loss(heads[train[i]['scope']], train[i], config['kl_beta'], config['pair_beta'],
+                config.get('reference_margin_weight', 1.))[0] * w[i] for i in indices]
             loss = torch.stack(terms).mean()
             if not torch.isfinite(loss): raise ValueError('Nonfinite training objective')
             optimizer.zero_grad(); loss.backward(); gradient = torch.nn.utils.clip_grad_norm_(params, .5)
@@ -77,14 +80,23 @@ def main():
             'model_files': protocol['model_files'], 'base_and_LoRA_frozen': True, 'epoch': epoch}, checkpoint)
         item = {'epoch': epoch, 'held_loss': metric, 'checkpoint': str(checkpoint.resolve()), 'sha256': digest(checkpoint)}
         curve.append(item)
-        if best is None or metric < best['held_loss']: best = item
+        if best is None or metric < best['held_loss']:
+            best = item; stale_epochs = 0
+        else:
+            stale_epochs += 1
         write(out / 'status.json', {'status': 'training', 'updates': updates, 'curve': curve})
+        if config.get('patience_epochs', 0) and stale_epochs >= config['patience_epochs']:
+            stop_reason = 'held_loss_stalled'; break
     verify(protocol)
     chosen = torch.load(best['checkpoint'], map_location='cpu', weights_only=True)
     for scope, head in heads.items(): head.load_state_dict(chosen['heads'][scope])
     write(out / 'action-validation.json', action_panel(heads, held, config['action_cases_per_direction']))
+    train_panel = action_panel(heads, train, config['action_cases_per_direction'])
+    train_panel['role'] = 'train-wall fit diagnostic; not validation or independent strength'
+    write(out / 'action-train-diagnostic.json', train_panel)
     result = {'status': 'trained', 'model_id': config['model_id'], 'selected': best, 'curve': curve,
         'baseline_held_loss': baseline, 'optimizer_updates': updates, 'train_rows': len(train), 'held_rows': len(held),
+        'stop_reason': stop_reason, 'held_loss_improved': best['held_loss'] < baseline,
         'data': str(data.resolve()), 'data_sha256': hashes, 'config': config,
         'human_test_opened': False, 'deployed': False, 'strength_improvement_proven': False}
     write(out / 'result.json', result); write(out / 'status.json', result)

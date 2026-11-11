@@ -1,6 +1,8 @@
 """Known paired outcomes must drive score/speed decisions on the complete grid."""
 import copy
 import unittest
+import torch
+from jevmahjong.evaluation.action_suite import evaluate as action_panel
 from jevmahjong.evaluation.metrics import summarize
 
 
@@ -34,6 +36,24 @@ def example():
 
 
 class FastEvaluationTest(unittest.TestCase):
+    def test_probability_improvement_does_not_count_as_action_success(self):
+        class FixedHead:
+            def __call__(self, decide, options):
+                return torch.tensor([.8, .2]).log()
+        row = {'category': 'chi', 'scope': 'calling', 'action': 1, 'teacher_action': 0,
+            'fast_advantage': 1., 'episode_key': (1, 0, 0), 'eligible': [0, 1],
+            'decide': None, 'options': None, 'reference': torch.tensor([.95, .05]),
+            'public_request': {'questions': {'action': {'criteria': {
+                'a0': {'type': 'none'}, 'a1': {'type': 'chi'}}}}}}
+        panel = action_panel({'calling': FixedHead()}, [row], 1)['actions']['chi']
+        positive = panel['positive']
+        self.assertEqual(positive['pair_order_correct'], 0)
+        self.assertEqual(positive['operation_selected_from_full_legal_set'], 0)
+        self.assertAlmostEqual(positive['candidate_operation_probability_mean'], .2)
+        self.assertGreater(positive['reward_signed_pair_margin_gain_mean'], 0)
+        self.assertFalse(panel['negative']['coverage_complete'])
+        self.assertIsNone(panel['negative']['reward_signed_pair_margin_gain_mean'])
+
     def test_known_paired_speed_and_points_use_complete_whole_walls(self):
         rows, cfg = example(); result = summarize(rows, cfg)
         self.assertAlmostEqual(result['fast_reward_paired']['gain'], .995 ** 30)

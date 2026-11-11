@@ -78,13 +78,13 @@ def fast_game_stats(log, seat, gamma):
 
 
 
-def pair_loss(head, row, kl_beta, beta):
+def pair_loss(head, row, kl_beta, beta, reference_margin_weight=1.):
     device = next(head.parameters()).device
     logits = head(row['decide'].to(device), row['options'].to(device))
     reference = row['reference'].to(device).clamp_min(1e-30)
     reference_logits = reference.log()
     ranking = pairwise_preference_loss(logits, reference_logits, row['action'],
-        row['teacher_action'], row['fast_advantage'], beta)
+        row['teacher_action'], row['fast_advantage'], beta, reference_margin_weight)
     eligible = row['eligible']
     logp = logits[eligible].float().log_softmax(-1)
     target = reference[eligible]; target = target / target.sum()
@@ -120,14 +120,16 @@ def alternate_indices(row, category):
         raise ValueError('Missing registered non-teacher alternative')
     return eligible
 
-def pairwise_preference_loss(logits, reference_logits, sampled, teacher, advantage, beta=1.):
+def pairwise_preference_loss(logits, reference_logits, sampled, teacher, advantage, beta=1., reference_margin_weight=1.):
     if not math.isfinite(advantage) or not math.isfinite(beta) or beta <= 0:
         raise ValueError('Pairwise score weight and margin scale must be finite')
+    if not math.isfinite(reference_margin_weight) or not 0 <= reference_margin_weight <= 1:
+        raise ValueError('Reference margin weight must be between zero and one')
     if advantage != 0 and sampled == teacher:
         raise ValueError('An unchanged action cannot have a nonzero paired-point label')
     if advantage == 0:
         return logits.sum()*0
     margin = logits[sampled] - logits[teacher]
     reference_margin = (reference_logits[sampled] - reference_logits[teacher]).detach()
-    signed_change = (1 if advantage > 0 else -1)*beta*(margin-reference_margin)
+    signed_change = (1 if advantage > 0 else -1)*beta*(margin-reference_margin_weight*reference_margin)
     return abs(advantage)*F.softplus(-signed_change)
