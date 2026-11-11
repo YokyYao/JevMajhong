@@ -1,0 +1,12 @@
+{
+  "source_config": "feature-point-training-20261111.json",
+  "out": "runs/feature-point-value-development-20261111",
+  "stage": "development",
+  "seed_start": 10220000,
+  "seeds": 32,
+  "native_parity_requests": 20,
+  "point_value_parity_atol": 0.0002,
+  "reference_policy": "preserved stage2 chi/pon/pass with oldB ordinary",
+  "primary": "point-value candidate minus preserved stage2 hybrid; complete-East net points; whole-wall paired CI",
+  "privacy": "Code/config/aggregate Markdown public; new predictor weights and all per-game rows private"
+}
