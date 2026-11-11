@@ -6,12 +6,12 @@ from pathlib import Path
 import random
 import torch
 from jevmahjong.core.io import digest, write
-from jevmahjong.policy.routing import make_head
+from jevmahjong.policy.routing import make_head, load_updated_heads
 from jevmahjong.evaluation.action_suite import evaluate as action_panel
 from jevmahjong.data.native_pairs import load_sources
 from .provenance import snapshot, verify
 from .rewards import pair_loss
-from .sampling import weights
+from .sampling import weights, risk_context
 
 
 @torch.no_grad()
@@ -54,8 +54,23 @@ def validation_profile(heads, rows, sources, config):
     for source in sources:
         selected = [r for r in rows if source['seed_start'] <= r['episode_key'][0] < source['seed_start'] + source['seeds']]
         if not selected: raise ValueError('Every source needs held-wall validation')
-        result.append({'source': source['path'], 'rows': len(selected), 'loss': loss_on(heads, selected, config)})
+        contexts = {}
+        if config.get('context_mix') or config.get('validation_guard_contexts'):
+            for context in ('open_threat', 'other_threat', 'no_threat'):
+                subset = [r for r in selected if risk_context(r) == context]
+                contexts[context] = {'rows': len(subset),
+                    'contrasts': sum(abs(r.get('training_advantage', r['fast_advantage'])) > 1e-12 for r in subset),
+                    'loss': loss_on(heads, subset, config) if subset else None}
+        result.append({'source': source['path'], 'rows': len(selected), 'loss': loss_on(heads, selected, config),
+            **({'risk_contexts': contexts} if contexts else {})})
     return result
+
+
+def validation_guard(profile, baseline, contexts):
+    return all(profile[-1]['risk_contexts'][c]['loss'] is not None
+        and baseline[-1]['risk_contexts'][c]['loss'] is not None
+        and profile[-1]['risk_contexts'][c]['loss'] <= baseline[-1]['risk_contexts'][c]['loss']
+        for c in contexts)
 
 
 def main():
@@ -75,18 +90,32 @@ def main():
     torch.set_num_threads(4); torch.manual_seed(config['seed'])
     heads = {s: make_head(torch.load(Path(config[k]) / 'head.pt', map_location='cpu', weights_only=True), 'cpu')
         for s, k in [('ordinary', 'discard_checkpoint'), ('calling', 'call_checkpoint')]}
-    for scope, head in heads.items():
-        for row in [r for r in train + held if r['scope'] == scope]:
+    for source in sources:
+        reference_heads = (load_updated_heads(source['behavior_heads']['checkpoint'], protocol['model_files'], 'cpu')
+            if source.get('behavior_heads') else heads)
+        for row in [r for r in train + held if source['seed_start'] <= r['episode_key'][0]
+                < source['seed_start'] + source['seeds']]:
+            head = reference_heads[row['scope']]
             with torch.no_grad(): p = head(row['decide'], row['options']).softmax(-1)
             if not torch.allclose(p, row['reference'], atol=2e-5, rtol=2e-4):
                 raise ValueError('Cached input uses a different source head')
-    w, coverage = weights(train, config['action_mix'], config['max_example_weight'])
+    w, coverage = weights(train, config['action_mix'], config['max_example_weight'], config.get('context_mix'))
     write(out / 'data-coverage.json', coverage)
     initialization = initialize_heads(heads, protocol)
     params = [p for h in heads.values() for p in h.parameters()]
     optimizer = torch.optim.AdamW(params, lr=config['lr'], weight_decay=config['weight_decay'])
     mode = config.get('selection_validation', 'all_sources')
     initial_profile = validation_profile(heads, held, sources, config)
+    guard = config.get('validation_guard_contexts', [])
+    latest = sources[-1]
+    fresh_train = [r for r in train if latest['seed_start'] <= r['episode_key'][0] < latest['seed_start'] + latest['seeds']]
+    train_contrasts = {c:sum(risk_context(r) == c and abs(r.get('training_advantage', r['fast_advantage'])) > 1e-12
+        for r in fresh_train) for c in guard}
+    if (any(initial_profile[-1]['risk_contexts'][c]['contrasts'] < config.get('minimum_guard_contrasts', 1) for c in guard)
+            or any(train_contrasts[c] < config.get('minimum_train_guard_contrasts', 1) for c in guard)):
+        write(out / 'result.json', {'status': 'insufficient_risk_validation_coverage',
+            'optimizer_updates': 0, 'initial_validation_sources': initial_profile,
+            'latest_source_train_guard_contrasts': train_contrasts, 'deployed': False}); return
     baseline = selection_metric(initial_profile, mode)
     best = save_head_checkpoint(out, config['model_id'], heads, protocol, 0, baseline)
     best['validation_sources'] = initial_profile
@@ -107,8 +136,9 @@ def main():
         metric = selection_metric(profile, mode)
         item = save_head_checkpoint(out, config['model_id'], heads, protocol, epoch, metric)
         item['validation_sources'] = profile
+        if guard: item['validation_guard_passed'] = validation_guard(profile, initial_profile, guard)
         curve.append(item)
-        if metric < best['held_loss']:
+        if metric < best['held_loss'] and validation_guard(profile, initial_profile, guard):
             best = item; stale_epochs = 0
         else:
             stale_epochs += 1
@@ -118,6 +148,11 @@ def main():
     verify(protocol)
     for path, expected in hashes.items():
         if digest(Path(path)) != expected: raise ValueError('Source data changed during training')
+    for source in sources:
+        if source.get('behavior_heads'):
+            behavior = source['behavior_heads']
+            if digest(Path(behavior['checkpoint'])) != behavior['sha256']:
+                raise ValueError('Source behavior heads changed during training')
     chosen = torch.load(best['checkpoint'], map_location='cpu', weights_only=True)
     for scope, head in heads.items(): head.load_state_dict(chosen['heads'][scope])
     held_panel = action_panel(heads, held, config['action_cases_per_direction'])

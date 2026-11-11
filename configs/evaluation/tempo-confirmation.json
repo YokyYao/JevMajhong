@@ -1,12 +1,12 @@
 {
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
-  "candidate_run": "runs/jev-value-v1",
-  "out": "runs/tempo-confirmation",
+  "candidate_run": "runs/jev-value-defense-v1",
+  "out": "runs/value-defense-v1-confirmation",
   "stage": "independent_confirmation",
-  "seed_start": 10830000,
+  "seed_start": 10930000,
   "seeds": 32,
   "fast_gamma": 0.995,
-  "development_out": "runs/tempo-development",
+  "development_out": "runs/value-defense-v1-development",
   "confirmation_objective": "net_points"
 }

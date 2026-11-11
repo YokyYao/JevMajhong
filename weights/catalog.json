@@ -123,7 +123,7 @@
     },
     "jev-value-v1": {
       "role": "actual-hand-net-points-with-small-fast-win-support",
-      "status": "positive-development-independent-confirmation-running",
+      "status": "not-adopted-no-confirmed-improvement",
       "initialized_from": "jev-play-v1",
       "selected_epoch": 3,
       "selection_validation": "latest_source",
@@ -137,6 +137,19 @@
         -1689.5294231947425,
         4941.612756528076
       ],
+      "independent_improvement_proven": false,
+      "confirmation_net_gain_vs_play_v1": -1115.3645833333333,
+      "confirmation_ci95": [
+        -2870.2517166449243,
+        639.5225499782578
+      ]
+    },
+    "jev-value-defense-v1": {
+      "role": "candidate-policy-risk-state-data-and-context-balanced-head-continuation",
+      "status": "data-collection-before-training",
+      "initialized_from": "jev-value-v1",
+      "artifact_exists": false,
+      "artifact_public": false,
       "independent_improvement_proven": false
     }
   },

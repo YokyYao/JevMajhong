@@ -8,7 +8,7 @@ from tools.run_experiment import freeze_source
 from jevmahjong.training.sampling import stratum, weights
 from jevmahjong.data.native_pairs import ENCODER_FILES, load_sources
 from jevmahjong.core.io import digest, request_hash
-from jevmahjong.training.fit import initialize_heads, save_head_checkpoint, selection_metric
+from jevmahjong.training.fit import initialize_heads, save_head_checkpoint, selection_metric, validation_guard
 from jevmahjong.training.provenance import verify
 
 
@@ -44,6 +44,33 @@ def native_collection(root, start, gamma=.995):
 
 
 class SamplingTests(unittest.TestCase):
+    def test_risk_replay_increases_rare_context_without_copies_and_does_not_hide_regression(self):
+        rows = [row('chi', delta) for delta in (1., -1.) for _ in range(5)]
+        for r in rows: r['public_request']['state'] = {'seat': 0, 'riichi': [], 'melds': [[], [], [], []]}
+        from riichienv import MeldType
+        for i in (0, 5): rows[i]['public_request']['state'].update(riichi=[1], melds=[[{'type':int(MeldType.Pon)}],[],[],[]])
+        values, report = weights(rows, {'chi': 1.}, 4., {'open_threat': .5, 'other_threat': .1, 'no_threat': .4})
+        self.assertGreater(values[0], values[1]); self.assertLessEqual(max(values), 4.)
+        self.assertGreater(report['effective_context_mass']['open_threat'], .2)
+        parent = [{'risk_contexts': {'open_threat': {'loss': .2}}}]
+        child = [{'risk_contexts': {'open_threat': {'loss': .3}}}]
+        self.assertFalse(validation_guard(child, parent, ['open_threat']))
+        child[0]['risk_contexts']['open_threat']['loss'] = .19
+        self.assertTrue(validation_guard(child, parent, ['open_threat']))
+
+    def test_changed_collection_behavior_checkpoint_is_rejected_before_training(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); source = root / 'native'; native_collection(source, 100)
+            checkpoint = root / 'behavior.pt'; checkpoint.write_bytes(b'original')
+            path = source / 'protocol.json'; protocol = json.loads(path.read_text())
+            protocol['behavior_heads'] = {'checkpoint': str(checkpoint), 'sha256': digest(checkpoint)}
+            path.write_text(json.dumps(protocol))
+            _, _, sources = load_sources(source)
+            self.assertEqual(sources[0]['behavior_heads'], protocol['behavior_heads'])
+            checkpoint.write_bytes(b'changed')
+            with self.assertRaisesRegex(ValueError, 'behavior head checkpoint changed'):
+                load_sources(source)
+
     def test_new_source_regression_is_not_hidden_by_old_validation_improvement(self):
         parent = [{'source': 'old', 'rows': 259, 'loss': .1731035024},
             {'source': 'new', 'rows': 328, 'loss': .1653106644}]
@@ -146,6 +173,9 @@ class SamplingTests(unittest.TestCase):
         w, report = weights(rows, {'chi': .5, 'daiminkan': .5}, 4.)
         self.assertEqual(max(w), 4.)
         self.assertLess(report['effective_action_mass']['daiminkan'], .5)
+        r = row('pon', 1.); r['category'] = 'chi_threat'
+        r['public_request']['questions']['action']['criteria']['a0']['type'] = 'chi'
+        self.assertEqual(stratum(r), ('chi', 'negative'))
 
 
 if __name__ == '__main__': unittest.main()

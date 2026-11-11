@@ -33,6 +33,9 @@ def load_sources(roots, model_files=None, reward=None):
         marker = root / 'collection-result.json'; protocol_file = root / 'protocol.json'
         collection = json.loads(marker.read_text()); protocol = json.loads(protocol_file.read_text())
         config = protocol['config']
+        behavior = protocol.get('behavior_heads')
+        if behavior and digest(Path(behavior['checkpoint'])) != behavior['sha256']:
+            raise ValueError('Source behavior head checkpoint changed')
         if collection['status'] != 'collection_complete':
             raise ValueError('Complete native collection required')
         signature = tuple(config[k] for k in ('game_mode', 'seed_scheme', 'fast_gamma'))
@@ -65,5 +68,6 @@ def load_sources(roots, model_files=None, reward=None):
         sources.append({'path': str(root), 'protocol_sha256': digest(protocol_file),
             'collection_sha256': digest(marker), 'walls': len(actual), 'rows': rows,
             'train_walls': counts['train'], 'held_walls': counts['held'],
-            'seed_start': config['training_seed_start'], 'seeds': len(expected)})
+            'seed_start': config['training_seed_start'], 'seeds': len(expected),
+            **({'behavior_heads': behavior} if behavior else {})})
     return partitions, hashes, sources

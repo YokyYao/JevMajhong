@@ -4,7 +4,7 @@ from types import SimpleNamespace
 import unittest
 
 import torch
-from jevmahjong.training.rewards import alternate_indices, credit_pair, fast_game_stats, fast_reward, hand_outcomes, pair_loss, pairwise_preference_loss, scope_for, HeadPolicyClient
+from jevmahjong.training.rewards import alternate_indices, credit_pair, fast_game_stats, fast_reward, hand_outcomes, pair_loss, pairwise_preference_loss, scope_for, HeadPolicyClient, opportunity
 from jevmahjong.training.utility import hand_utility
 
 
@@ -22,6 +22,47 @@ def request(types):
 
 
 class FastWinTest(unittest.TestCase):
+    def test_targeted_collection_uses_public_threat_and_open_status_without_forcing_calls(self):
+        from riichienv import MeldType
+        req = request(['chi', 'pon', 'none'])
+        req['state'] = {'seat': 0, 'riichi': [0], 'melds': [[], [], [], []]}
+        row = {'public_request': req, 'scope': 'calling', 'eligible': [0, 1, 2], 'teacher_action': 2}
+        self.assertFalse(opportunity(row, 'chi_threat'))
+        req['state']['riichi'] = [1]
+        self.assertTrue(opportunity(row, 'chi_threat'))
+        self.assertEqual(alternate_indices(row, 'chi_threat'), [0])
+        # If the behavior calls, the counterfactual must include declining it.
+        row['teacher_action'] = 0
+        self.assertIn(2, alternate_indices(row, 'chi_threat'))
+        row['scope'] = 'ordinary'; req['questions']['action']['criteria'] = {'a0': {'type': 'dahai'}, 'a1': {'type': 'dahai'}}
+        req['state']['melds'][0] = [{'type': int(MeldType.Ankan)}]
+        self.assertFalse(opportunity(row, 'ordinary_open_threat'))
+        req['state']['melds'][0] = [{'type': int(MeldType.Pon)}]
+        self.assertTrue(opportunity(row, 'ordinary_open_threat'))
+        req['state']['riichi'] = []
+        self.assertFalse(opportunity(row, 'ordinary_open_threat'))
+
+    def test_candidate_collector_hooks_updated_heads_and_keeps_opponent_heads_frozen(self):
+        from unittest.mock import patch
+        from jevmahjong.training.collector import NativeCollector
+        old = {scope: torch.nn.Linear(2, 2) for scope in ('ordinary', 'calling')}
+        new = {scope: torch.nn.Linear(2, 2) for scope in old}
+        clients = [SimpleNamespace(runtime=SimpleNamespace(model=torch.nn.Module())) for _ in range(2)]
+        for client, head in zip(clients, old.values()): client.runtime.model.head = head
+        cfg = {'discard_checkpoint': 'discard', 'call_checkpoint': 'call', 'behavior_heads': {'checkpoint': 'candidate'}}
+        with patch('jevmahjong.training.collector.load_model', side_effect=clients), \
+             patch('jevmahjong.training.collector.snapshot', return_value={'model_files': {}, 'behavior_heads': {'checkpoint': 'candidate'}}), \
+             patch('jevmahjong.training.collector.load_updated_heads', return_value=new):
+            collector = NativeCollector(cfg, 'cpu')
+        try:
+            self.assertIs(collector.policy_heads, new)
+            for scope, client in zip(old, clients):
+                self.assertIs(client.runtime.model.head, old[scope])
+                self.assertFalse(old[scope]._forward_pre_hooks)
+                self.assertEqual(len(new[scope]._forward_pre_hooks), 1)
+        finally: collector.close()
+        self.assertTrue(all(not h._forward_pre_hooks for h in new.values()))
+
     def test_point_primary_utility_preserves_payment_severity_without_saturation(self):
         config = {'mode': 'net_points_with_fast_support_v1', 'net_weight': 1., 'fast_weight': .1,
             'dealin_penalty': .1, 'point_scale': 8000.}

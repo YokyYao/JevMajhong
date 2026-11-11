@@ -98,3 +98,21 @@ def make_head(meta, device):
     head = PointerHead(d, dp).to(device)
     head.load_state_dict(meta['head'])
     return head
+
+
+def load_updated_heads(checkpoint, model_files, device):
+    """Load two frozen-encoder heads, without replacing the opponent's heads."""
+    import torch
+    saved = torch.load(checkpoint, map_location='cpu', weights_only=True)
+    if saved.get('base_and_LoRA_frozen') is not True or saved['model_files'] != model_files:
+        raise ValueError('Updated heads use different frozen encoders')
+    if set(saved['heads']) != {'ordinary', 'calling'}:
+        raise ValueError('Both updated policy heads required')
+    result = {}
+    for scope, role in (('ordinary', 'discard'), ('calling', 'call')):
+        paths = [p for p in model_files[role] if Path(p).name == 'head.pt']
+        if len(paths) != 1: raise ValueError('One source head per encoder required')
+        head = make_head(torch.load(paths[0], map_location='cpu', weights_only=True), device)
+        head.load_state_dict(saved['heads'][scope])
+        result[scope] = head.eval().requires_grad_(False)
+    return result

@@ -10,9 +10,10 @@ from jevmahjong.core.io import request_hash
 from jevmahjong.core.seeds import engine_seed
 from jevmahjong.core.state import build_request, legal_candidates
 from jevmahjong.core.scoring import settlement_ledger
-from jevmahjong.policy.routing import HybridPolicy, load_model
+from jevmahjong.policy.routing import HybridPolicy, HeadPolicyClient, load_model, load_updated_heads
 from jevmahjong.evaluation.agents import EfficiencyAgent, CallingOpponent, PolicyAgent, guarded_indices
 from .rewards import alternate_indices, credit_pair, hand_outcomes, opportunity, scope_for
+from .provenance import snapshot
 
 SUITES = ('closed', 'mixed', 'strong')
 
@@ -74,13 +75,19 @@ class NativeCollector:
         self.model.requires_grad_(False)
         self.ordinary.runtime.model.requires_grad_(False)
         self.router = HybridPolicy(self.ordinary, self.client)
+        self.policy_heads = {'ordinary': self.ordinary.runtime.model.head, 'calling': self.model.head}
+        if config.get('behavior_heads'):
+            protocol = snapshot(config)
+            self.policy_heads = load_updated_heads(protocol['behavior_heads']['checkpoint'],
+                protocol['model_files'], device)
+            self.router = HeadPolicyClient(self.ordinary, self.client, self.policy_heads)
         self.logged = CaptureClient(self.router)
         self.agent = PolicyAgent(self.logged)
         self.strong = PolicyAgent(self.ordinary)
         self.efficiency, self.caller = EfficiencyAgent(), CallingOpponent()
         self.controls = {}; self.checks = 0
         self.fast_inputs = []; self.capture_active = False; self.hooks = []
-        for scope, head in [('ordinary', self.ordinary.runtime.model.head), ('calling', self.model.head)]:
+        for scope, head in self.policy_heads.items():
             self.hooks.append(head.register_forward_pre_hook(
                 lambda module, inputs, scope=scope: self.fast_inputs.append(
                     (scope, tuple(t.detach().clone().float() for t in inputs))) if self.capture_active else None))
@@ -113,7 +120,7 @@ class NativeCollector:
             if len(self.fast_inputs) != 1 or self.fast_inputs[0][0] != scope:
                 raise ValueError('Wrong hybrid representation capture')
             decide, options = self.fast_inputs[0][1]
-            head = self.ordinary.runtime.model.head if scope == 'ordinary' else self.model.head
+            head = self.policy_heads[scope]
             p = head(decide, options).softmax(-1).detach().cpu()
             keys = list(request['questions']['action']['criteria'])
             native, _ = validate_distribution(self.logged.response['answers']['action']['probabilities'], keys)
