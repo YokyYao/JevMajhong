@@ -91,13 +91,19 @@
     },
     "jev-tempo-safe-v1": {
       "role": "fast-win-with-dealin-penalty-and-local-point-utility",
-      "status": "experimental-development-running",
+      "status": "positive-development-independent-confirmation-running",
       "selected_epoch": 6,
       "artifact_public": false,
       "frozen_encoders": [
         "jev-discard-v1",
         "jev-call-v1"
-      ]
+      ],
+      "development_net_gain_vs_play_v1": 1117.7083333333335,
+      "development_ci95": [
+        -2837.8440021591664,
+        5073.260668825833
+      ],
+      "independent_improvement_proven": false
     }
   },
   "legacy_aliases": {

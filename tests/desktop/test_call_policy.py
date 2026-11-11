@@ -1,6 +1,7 @@
 """Portable call-policy dispatch/feature mechanisms; no model download or UI required."""
 import copy
 import unittest
+from unittest.mock import patch
 
 from desktop.jev_sidecar.engine import Board, request, reaction_candidates
 from desktop.jev_sidecar.tiles import parse
@@ -26,10 +27,17 @@ def reaction():
 class CallPolicyTests(unittest.TestCase):
     def test_call_routes_to_new_adapter_and_features_do_not_mutate_input(self):
         old, new = Stub(), Stub(); router = CallPolicyClient(old, new)
-        payload = reaction(); before = copy.deepcopy(payload)
-        router.system_one(**payload)
+        payload = reaction(); payload['_meta'] = {'private': 'replay-only'}
+        payload['questions']['action']['label'] = 'a0'
+        payload['media'] = {'view': 'screen'}
+        before = copy.deepcopy(payload)
+        with patch.dict('sys.modules', {'jevany': None, 'jevany.data': None}):
+            router.system_one(**payload)
         self.assertEqual(payload, before)
         self.assertFalse(old.requests); self.assertEqual(len(new.requests), 1)
+        self.assertNotIn('_meta', new.requests[0])
+        self.assertNotIn('label', new.requests[0]['questions']['action'])
+        self.assertEqual(new.requests[0]['media'], payload['media'])
         self.assertTrue(all('call_features' in c for c in new.requests[0]['questions']['action']['criteria'].values()))
 
     def test_ordinary_and_rare_requests_keep_original_payload(self):

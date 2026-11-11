@@ -39,7 +39,6 @@ class CallPolicyClient:
     def system_one(self, **request):
         if not is_call_request(request):
             return self.ordinary.system_one(**request)
-        from jevany.data import api_request
         from .call_features import enrich_request
         identity = json.loads(IDENTITY_PATH.read_text(encoding='utf-8'))
         request = copy.deepcopy(request)
@@ -50,4 +49,10 @@ class CallPolicyClient:
                 if field not in confirmed:
                     request['state'][field] = None
         request['questions']['action']['instructions'] = identity['policy_instruction']
-        return self.calling.system_one(**api_request(enrich_request(request)))
+        enriched = enrich_request(request)
+        payload = {'state': enriched['state'], 'questions': {
+            key: {name: value for name, value in question.items()
+                if name in ('type', 'instructions', 'criteria')}
+            for key, question in enriched['questions'].items()}}
+        if enriched.get('media'): payload['media'] = enriched['media']
+        return self.calling.system_one(**payload)
