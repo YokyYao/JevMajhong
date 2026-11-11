@@ -6,7 +6,7 @@ from pathlib import Path
 import tempfile
 from tools.run_experiment import freeze_source
 from jevmahjong.training.sampling import stratum, weights
-from jevmahjong.data.native_pairs import ENCODER_FILES, load_sources
+from jevmahjong.data.native_pairs import ENCODER_FILES, load_sources, select_decisions
 from jevmahjong.core.io import digest, request_hash
 from jevmahjong.training.fit import initialize_heads, save_head_checkpoint, selection_metric, validation_guard
 from jevmahjong.training.provenance import verify
@@ -44,6 +44,20 @@ def native_collection(root, start, gamma=.995):
 
 
 class SamplingTests(unittest.TestCase):
+    def test_kan_training_filter_keeps_pon_alternatives_and_whole_wall_assignment(self):
+        regular=dict(row('dahai',1.),scope='ordinary',episode_key=(100,0,0))
+        call=dict(row('pon',1.),scope='calling',episode_key=(101,0,0))
+        kan=copy.deepcopy(call);kan['scope']='ordinary';kan['episode_key']=(103,0,0)
+        kan['public_request']['questions']['action']['criteria']['a2']={'type':'daiminkan'}
+        parts={'train':[regular,call],'held':[kan]}
+        self.assertIs(select_decisions(parts),parts)
+        selected=select_decisions(parts,'kan_windows',['ordinary'])
+        self.assertEqual(selected['train'],[]);self.assertIs(selected['held'][0],kan)
+        kan['fast_advantage']=-100.
+        self.assertIs(select_decisions(parts,'kan_windows',['ordinary'])['held'][0],kan)
+        self.assertEqual(select_decisions(parts,'all',['ordinary'])['train'],[regular])
+        with self.assertRaises(ValueError):select_decisions(parts,'unknown')
+
     def test_risk_replay_increases_rare_context_without_copies_and_does_not_hide_regression(self):
         rows = [row('chi', delta) for delta in (1., -1.) for _ in range(5)]
         for r in rows: r['public_request']['state'] = {'seat': 0, 'riichi': [], 'melds': [[], [], [], []]}

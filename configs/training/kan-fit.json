@@ -1,0 +1,47 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "model_id": "jev-kan-v1",
+  "data": [
+    "runs/tempo-native",
+    "runs/tempo-native-separated-actions-v1",
+    "runs/value-defense-native-v1"
+  ],
+  "out": "runs/jev-kan-v1",
+  "seed": 2026111119,
+  "epochs": 8,
+  "batch": 16,
+  "lr": 1e-05,
+  "weight_decay": 0.001,
+  "kl_beta": 0.05,
+  "pair_beta": 1.0,
+  "max_example_weight": 4.0,
+  "action_mix": {
+    "ordinary": 0.0,
+    "chi": 0.02,
+    "pon": 0.08,
+    "ankan": 0.3,
+    "daiminkan": 0.3,
+    "kakan": 0.3
+  },
+  "action_cases_per_direction": 8,
+  "patience_epochs": 2,
+  "reference_margin_weight": 0.0,
+  "reward": {
+    "mode": "net_points_with_fast_support_v1",
+    "net_weight": 1.0,
+    "fast_weight": 0.1,
+    "dealin_penalty": 0.1,
+    "point_scale": 8000.0
+  },
+  "selection_validation": "latest_source",
+  "context_mix": {
+    "open_threat": 0.4,
+    "other_threat": 0.2,
+    "no_threat": 0.4
+  },
+  "train_scopes": [
+    "ordinary"
+  ],
+  "decision_filter": "kan_windows"
+}

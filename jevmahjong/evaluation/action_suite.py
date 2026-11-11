@@ -56,7 +56,7 @@ def main():
     from jevmahjong.core.io import digest, write
     from jevmahjong.policy.routing import make_head
     from jevmahjong.training.provenance import verify
-    from jevmahjong.data.native_pairs import load_sources
+    from jevmahjong.data.native_pairs import load_sources, select_decisions
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--fit-run', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
@@ -75,6 +75,7 @@ def main():
         heads[scope] = make_head(meta, 'cpu').eval().requires_grad_(False)
         heads[scope].load_state_dict(saved['heads'][scope])
     partitions, hashes, _ = load_sources(fit['data'], saved['model_files'], fit['config'].get('reward'))
+    partitions = select_decisions(partitions, fit['config'].get('decision_filter', 'all'), fit['config'].get('train_scopes'))
     if hashes != fit['data_sha256']:
         raise ValueError('Source shard manifest differs')
     if len(partitions['train']) != fit['train_rows'] or len(partitions['held']) != fit['held_rows']:

@@ -8,7 +8,7 @@ import torch
 from jevmahjong.core.io import digest, write
 from jevmahjong.policy.routing import make_head, load_updated_heads
 from jevmahjong.evaluation.action_suite import evaluate as action_panel
-from jevmahjong.data.native_pairs import load_sources
+from jevmahjong.data.native_pairs import load_sources, select_decisions
 from .provenance import snapshot, verify
 from .rewards import pair_loss
 from .sampling import weights, risk_context
@@ -37,7 +37,9 @@ def save_head_checkpoint(out, model_id, heads, protocol, epoch, metric):
     checkpoint = out / f'{model_id}-e{epoch:02d}.pt'
     torch.save({'model_id': model_id, 'heads': {s: copy.deepcopy(h.state_dict()) for s, h in heads.items()},
         'model_files': protocol['model_files'], 'base_and_LoRA_frozen': True, 'epoch': epoch,
-        'initial_heads': protocol.get('initial_heads')}, checkpoint)
+        'initial_heads': protocol.get('initial_heads'),
+        'trained_scopes': protocol.get('config', {}).get('train_scopes', ['ordinary', 'calling']),
+        'decision_filter': protocol.get('config', {}).get('decision_filter', 'all')}, checkpoint)
     return {'epoch': epoch, 'held_loss': metric, 'checkpoint': str(checkpoint.resolve()), 'sha256': digest(checkpoint)}
 
 
@@ -80,11 +82,15 @@ def main():
     out.mkdir(parents=True, exist_ok=False)
     protocol = snapshot(config); write(out / 'protocol.json', protocol)
     partitions, hashes, sources = load_sources(config['data'], protocol['model_files'], config.get('reward'))
+    partitions = select_decisions(partitions, config.get('decision_filter', 'all'), config.get('train_scopes'))
     train, held = partitions['train'], partitions['held']
+    scopes = config.get('train_scopes', ['ordinary', 'calling'])
+    if not scopes or len(set(scopes)) != len(scopes) or not set(scopes) <= {'ordinary', 'calling'}:
+        raise ValueError('Unique nonempty training scopes required')
     if not held or not train:
         raise ValueError('Whole-wall train and validation partitions required')
     if any(not any(r['scope'] == s and abs(r.get('training_advantage', r['fast_advantage'])) > 1e-12 for r in train)
-            for s in ('ordinary', 'calling')):
+            for s in scopes):
         write(out / 'result.json', {'status': 'insufficient_reward_contrasts',
             'optimizer_updates': 0, 'deployed': False}); return
     torch.set_num_threads(4); torch.manual_seed(config['seed'])
@@ -102,7 +108,8 @@ def main():
     w, coverage = weights(train, config['action_mix'], config['max_example_weight'], config.get('context_mix'))
     write(out / 'data-coverage.json', coverage)
     initialization = initialize_heads(heads, protocol)
-    params = [p for h in heads.values() for p in h.parameters()]
+    for scope, head in heads.items(): head.requires_grad_(scope in scopes)
+    params = [p for s in scopes for p in heads[s].parameters()]
     optimizer = torch.optim.AdamW(params, lr=config['lr'], weight_decay=config['weight_decay'])
     mode = config.get('selection_validation', 'all_sources')
     initial_profile = validation_profile(heads, held, sources, config)

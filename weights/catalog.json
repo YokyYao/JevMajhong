@@ -146,7 +146,7 @@
     },
     "jev-value-defense-v1": {
       "role": "candidate-policy-risk-state-data-and-context-balanced-head-continuation",
-      "status": "not-adopted-negative-development-head-ablation-running",
+      "status": "not-adopted-negative-development-and-head-ablations",
       "initialized_from": "jev-value-v1",
       "artifact_exists": true,
       "artifact_public": false,
@@ -162,7 +162,27 @@
       "development_ci95": [
         -4822.702882055014,
         2976.869548721681
-      ]
+      ],
+      "ordinary_only_development_gain": -238.5416666666667,
+      "calling_only_development_gain": -1765.6250000000002
+    },
+    "jev-kan-v1": {
+      "role": "kan-window-pointer-head-component",
+      "status": "trained-development-running",
+      "initialized_from": "jev-discard-v1",
+      "unchanged_nonkan_policy": "jev-play-v1",
+      "activation": "kan_windows",
+      "trained_scopes": [
+        "ordinary"
+      ],
+      "selected_epoch": 8,
+      "optimizer_updates": 208,
+      "train_rows": 402,
+      "held_rows": 137,
+      "checkpoint_sha256": "f05a2e58b2c916cd4ec2bb276473be43813777ce89bab540cda585c8d185f175",
+      "artifact_exists": true,
+      "artifact_public": false,
+      "independent_improvement_proven": false
     }
   },
   "legacy_aliases": {

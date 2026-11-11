@@ -10,6 +10,14 @@ ENCODER_FILES = ('adapter_model.safetensors', 'adapter_config.json', 'tokenizer.
     'tokenizer_config.json', 'chat_template.jinja')
 
 
+def select_decisions(partitions, mode='all', scopes=None):
+    if mode not in ('all', 'kan_windows'): raise ValueError('Unknown decision filter')
+    if mode == 'all' and scopes is None: return partitions
+    from jevmahjong.policy.kan import is_kan_request
+    return {split:[r for r in rows if (mode == 'all' or is_kan_request(r['public_request']))
+        and (scopes is None or r['scope'] in scopes)] for split,rows in partitions.items()}
+
+
 def encoder_identity(protocol):
     files = protocol.get('model_files')
     if files is None:

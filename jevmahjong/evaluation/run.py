@@ -6,6 +6,7 @@ from pathlib import Path
 import torch
 from jevmahjong.core.io import digest, write
 from jevmahjong.policy.routing import HybridPolicy, HeadPolicyClient, load_model, make_head
+from jevmahjong.policy.kan import KanPolicyClient, is_kan_request
 from jevmahjong.training.provenance import snapshot, verify
 from .agents import PolicyAgent
 from .game import play
@@ -26,12 +27,25 @@ def select_heads(heads, saved, config):
         heads[scope].load_state_dict(saved[scope])
 
 
+def candidate_activation(config, trained_filter='all'):
+    mode = config.get('candidate_activation', 'all')
+    if mode not in ('all', 'kan_windows'):
+        raise ValueError('Unknown candidate activation')
+    if mode == 'kan_windows' and candidate_scopes(config) != ('ordinary',):
+        raise ValueError('Kan activation requires only the ordinary updated head')
+    if trained_filter == 'kan_windows' and mode != 'kan_windows':
+        raise ValueError('Kan-only training requires kan-window activation')
+    return mode
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--config', type=Path, required=True)
     parser.add_argument('--resume', action='store_true')
     args = parser.parse_args(); cfg = json.loads(args.config.read_text()); out = Path(cfg['out'])
     scopes = candidate_scopes(cfg)
+    activation = candidate_activation(cfg)
     fit_run = Path(cfg['candidate_run']); fit = json.loads((fit_run / 'result.json').read_text())
+    candidate_activation(cfg, fit.get('config', {}).get('decision_filter', 'all'))
     if fit['status'] != 'trained': raise ValueError('A completed trained candidate is required')
     verify(json.loads((fit_run / 'protocol.json').read_text()))
     checkpoint = Path(fit['selected']['checkpoint'])
@@ -46,6 +60,8 @@ def main():
         verify(development_protocol)
         if candidate_scopes(development_protocol['config']) != scopes:
             raise ValueError('Confirmation must preserve development head scopes')
+        if candidate_activation(development_protocol['config']) != activation:
+            raise ValueError('Confirmation must preserve development activation')
         if (audit['checkpoint_sha256'] != digest(checkpoint)
                 or digest(development / 'games-private.jsonl') != audit['games_sha256']):
             raise ValueError('Frozen, audited development required')
@@ -71,19 +87,24 @@ def main():
         meta = torch.load(Path(cfg[role + '_checkpoint']) / 'head.pt', map_location='cpu', weights_only=True)
         heads[scope] = make_head(meta, 'cuda').eval().requires_grad_(False)
     select_heads(heads, model['heads'], cfg)
-    router = HeadPolicyClient(ordinary, calling, heads)
+    router = (KanPolicyClient(ordinary, calling, heads) if activation == 'kan_windows'
+        else HeadPolicyClient(ordinary, calling, heads))
     checked = {'ordinary': 0, 'calling': 0}
+    if activation == 'kan_windows': checked['ordinary_nonkan'] = 0
     for path, h in fit['data_sha256'].items():
         if digest(Path(path)) != h: raise ValueError('TRAIN parity source changed')
         for row in torch.load(path, map_location='cpu', weights_only=False)['rows']:
             scope = row['scope']
-            if checked[scope] >= 2: continue
+            key = ('ordinary_nonkan' if activation == 'kan_windows' and scope == 'ordinary'
+                and not is_kan_request(row['public_request']) else scope)
+            if checked[key] >= 2: continue
+            head = ordinary.runtime.model.head if key == 'ordinary_nonkan' else heads[scope]
             with torch.no_grad():
-                expected = heads[scope](row['decide'].cuda(), row['options'].cuda()).softmax(-1).cpu()
+                expected = head(row['decide'].cuda(), row['options'].cuda()).softmax(-1).cpu()
             p = router.system_one(**row['public_request'])['answers']['action']['probabilities']
             if not torch.allclose(expected, torch.tensor(list(p.values())), atol=2e-5, rtol=2e-4):
                 raise ValueError('Updated head and native probabilities disagree')
-            checked[scope] += 1
+            checked[key] += 1
         if all(n == 2 for n in checked.values()): break
     if not all(n == 2 for n in checked.values()): raise ValueError('Two-policy native parity missing')
     write(out / 'native-parity.json', checked)
@@ -119,6 +140,7 @@ def main():
     result['reference_games_reused'] = len(cached)
     result['new_games_simulated'] = len(rows) - len(cached)
     if 'updated_scopes' in cfg: result['updated_scopes'] = list(scopes)
+    if 'candidate_activation' in cfg: result['candidate_activation'] = activation
     write(out / 'result.json', result)
     write(out / 'audit.json', {'status': 'passed_complete', 'games': len(rows),
         'games_sha256': digest(raw), 'checkpoint_sha256': digest(checkpoint)})

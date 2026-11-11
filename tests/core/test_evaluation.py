@@ -8,7 +8,8 @@ import torch
 from jevmahjong.evaluation.action_suite import evaluate as action_panel
 from jevmahjong.evaluation.metrics import summarize
 from jevmahjong.evaluation.reference_cache import GAMEPLAY_FILES, load_reference
-from jevmahjong.evaluation.run import candidate_scopes, select_heads
+from jevmahjong.evaluation.run import candidate_scopes, select_heads, candidate_activation
+from jevmahjong.policy.kan import KanPolicyClient
 from jevmahjong.core.io import digest
 
 
@@ -42,6 +43,20 @@ def example():
 
 
 class FastEvaluationTest(unittest.TestCase):
+    def test_kan_activation_preserves_discard_and_pure_call_routes(self):
+        class Client:
+            def __init__(self, name): self.name=name
+            def system_one(self, **request): return self.name
+        router=object.__new__(KanPolicyClient);router.frozen=Client('play');router.updated=Client('kan')
+        for kinds, expected in [(['dahai','reach'],'play'),(['chi','pon','none'],'play'),
+                (['dahai','ankan'],'kan'),(['pon','daiminkan','none'],'kan'),(['dahai','kakan'],'kan')]:
+            req={'questions':{'action':{'criteria':{str(i):{'type':kind} for i,kind in enumerate(kinds)}}}}
+            self.assertEqual(router.system_one(**req),expected)
+        self.assertEqual(candidate_activation({'updated_scopes':['ordinary'],'candidate_activation':'kan_windows'}),'kan_windows')
+        with self.assertRaises(ValueError):candidate_activation({'candidate_activation':'kan_windows'})
+        with self.assertRaises(ValueError):candidate_activation({'candidate_activation':'unknown'})
+        with self.assertRaises(ValueError):candidate_activation({'updated_scopes':['ordinary']},'kan_windows')
+
     def test_head_ablation_keeps_unselected_reference_parameters_and_contract_explicit(self):
         for scope in ('ordinary', 'calling'):
             heads = {s:torch.nn.Linear(1, 1, bias=False) for s in ('ordinary', 'calling')}
