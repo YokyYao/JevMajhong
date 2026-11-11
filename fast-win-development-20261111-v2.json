@@ -1,0 +1,9 @@
+{
+  "source_config": "fast-win-training-20261111-v2.json",
+  "out": "runs/fast-win-development-20261111-v2",
+  "stage": "development",
+  "seed_start": 10620000,
+  "seeds": 16,
+  "preflight_revision": "v2 compares action distributions only; first attempt compared variable timing and failed before sampling/updates",
+  "fast_gamma": 0.995
+}
