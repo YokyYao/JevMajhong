@@ -146,7 +146,7 @@
     },
     "jev-value-defense-v1": {
       "role": "candidate-policy-risk-state-data-and-context-balanced-head-continuation",
-      "status": "trained-development-running",
+      "status": "not-adopted-negative-development-head-ablation-running",
       "initialized_from": "jev-value-v1",
       "artifact_exists": true,
       "artifact_public": false,
@@ -157,7 +157,12 @@
       "optimizer_updates": 486,
       "new_data_walls": 48,
       "new_data_rows": 1141,
-      "checkpoint_sha256": "ed886bbc58577411380f9d9f7577bc326de2cb41f3a5811ead6f54b5d933d699"
+      "checkpoint_sha256": "ed886bbc58577411380f9d9f7577bc326de2cb41f3a5811ead6f54b5d933d699",
+      "development_net_gain_vs_play_v1": -922.9166666666667,
+      "development_ci95": [
+        -4822.702882055014,
+        2976.869548721681
+      ]
     }
   },
   "legacy_aliases": {

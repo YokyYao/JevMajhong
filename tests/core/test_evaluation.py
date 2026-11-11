@@ -8,6 +8,7 @@ import torch
 from jevmahjong.evaluation.action_suite import evaluate as action_panel
 from jevmahjong.evaluation.metrics import summarize
 from jevmahjong.evaluation.reference_cache import GAMEPLAY_FILES, load_reference
+from jevmahjong.evaluation.run import candidate_scopes, select_heads
 from jevmahjong.core.io import digest
 
 
@@ -41,6 +42,21 @@ def example():
 
 
 class FastEvaluationTest(unittest.TestCase):
+    def test_head_ablation_keeps_unselected_reference_parameters_and_contract_explicit(self):
+        for scope in ('ordinary', 'calling'):
+            heads = {s:torch.nn.Linear(1, 1, bias=False) for s in ('ordinary', 'calling')}
+            with torch.no_grad():
+                for h in heads.values():h.weight.fill_(1.)
+            saved = {s:{'weight':torch.tensor([[3.]])} for s in heads}
+            select_heads(heads, saved, {'updated_scopes':[scope]})
+            self.assertEqual(float(heads[scope].weight.detach()), 3.)
+            other = 'calling' if scope == 'ordinary' else 'ordinary'
+            self.assertEqual(float(heads[other].weight.detach()), 1.)
+        self.assertEqual(candidate_scopes({}), ('ordinary','calling'))
+        self.assertNotEqual(candidate_scopes({'updated_scopes':['ordinary']}), candidate_scopes({}))
+        for invalid in ([], ['ordinary','ordinary'], ['unknown'], 'ordinary'):
+            with self.assertRaises(ValueError):candidate_scopes({'updated_scopes':invalid})
+
     def test_multiple_ron_is_one_dealin_hand_and_two_payment_events(self):
         rows, cfg = example(); r = rows[0]; seat = r['seat']
         first, second = [0] * 4, [0] * 4

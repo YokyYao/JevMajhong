@@ -13,10 +13,24 @@ from .metrics import summarize, SUITES, POLICIES
 from .reference_cache import load_reference
 
 
+def candidate_scopes(config):
+    scopes = config.get('updated_scopes', ['ordinary', 'calling'])
+    if (not isinstance(scopes, list) or not scopes or len(set(scopes)) != len(scopes)
+            or not set(scopes) <= {'ordinary', 'calling'}):
+        raise ValueError('Unique nonempty ordinary/calling updated scopes required')
+    return tuple(s for s in ('ordinary', 'calling') if s in scopes)
+
+
+def select_heads(heads, saved, config):
+    for scope in candidate_scopes(config):
+        heads[scope].load_state_dict(saved[scope])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--config', type=Path, required=True)
     parser.add_argument('--resume', action='store_true')
     args = parser.parse_args(); cfg = json.loads(args.config.read_text()); out = Path(cfg['out'])
+    scopes = candidate_scopes(cfg)
     fit_run = Path(cfg['candidate_run']); fit = json.loads((fit_run / 'result.json').read_text())
     if fit['status'] != 'trained': raise ValueError('A completed trained candidate is required')
     verify(json.loads((fit_run / 'protocol.json').read_text()))
@@ -28,6 +42,10 @@ def main():
         development = Path(cfg['development_out'])
         previous = json.loads((development / 'result.json').read_text())
         audit = json.loads((development / 'audit.json').read_text())
+        development_protocol = json.loads((development / 'protocol.json').read_text())
+        verify(development_protocol)
+        if candidate_scopes(development_protocol['config']) != scopes:
+            raise ValueError('Confirmation must preserve development head scopes')
         if (audit['checkpoint_sha256'] != digest(checkpoint)
                 or digest(development / 'games-private.jsonl') != audit['games_sha256']):
             raise ValueError('Frozen, audited development required')
@@ -43,6 +61,8 @@ def main():
     write(out / 'protocol.json', protocol)
     ordinary = load_model(cfg['discard_checkpoint']); calling = load_model(cfg['call_checkpoint'])
     model = torch.load(checkpoint, map_location='cpu', weights_only=True)
+    if model.get('base_and_LoRA_frozen') is not True or model['model_files'] != protocol['model_files']:
+        raise ValueError('Candidate and reference frozen encoders differ')
     heads = {}
     for scope, role in [('ordinary', 'discard'), ('calling', 'call')]:
         expected = model['model_files'][role]
@@ -50,7 +70,7 @@ def main():
             if digest(Path(path)) != h: raise ValueError('Candidate feature encoder changed')
         meta = torch.load(Path(cfg[role + '_checkpoint']) / 'head.pt', map_location='cpu', weights_only=True)
         heads[scope] = make_head(meta, 'cuda').eval().requires_grad_(False)
-        heads[scope].load_state_dict(model['heads'][scope])
+    select_heads(heads, model['heads'], cfg)
     router = HeadPolicyClient(ordinary, calling, heads)
     checked = {'ordinary': 0, 'calling': 0}
     for path, h in fit['data_sha256'].items():
@@ -98,6 +118,7 @@ def main():
         and result['overall']['candidate_minus_reference']['ci95'][0] > 0)
     result['reference_games_reused'] = len(cached)
     result['new_games_simulated'] = len(rows) - len(cached)
+    if 'updated_scopes' in cfg: result['updated_scopes'] = list(scopes)
     write(out / 'result.json', result)
     write(out / 'audit.json', {'status': 'passed_complete', 'games': len(rows),
         'games_sha256': digest(raw), 'checkpoint_sha256': digest(checkpoint)})
