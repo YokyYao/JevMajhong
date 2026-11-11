@@ -33,3 +33,5 @@
 作业291206已提交，两组在同一张调度分配的GPU上按自然、均衡顺序运行，每组新进程，前一组报错则停止。上限2小时，实际状态以Slurm及运行目录为准，提交不等于已完成训练。11项CPU测试、两组真实SDK行构建/套件读取和冻结来源准备通过；GPU初始化、优化与验证仍须核对。
 
 [配置](../call-fit-control-20261111.json)、[自然组配方](../call-fit-control-natural-20261111.toml)、[均衡组配方](../call-fit-control-balanced-20261111.toml)、[抽样](../call_fit_control.py)、[准备入口](../scripts/prepare_call_fit_control.py)、[训练入口](../scripts/train_call_fit_control.py)。只公开代码、配置和聚合Markdown；所有新权重、真人牌谱和逐条记录私有，Windows及截图测试继续暂缓。
+
+两组训练完成后，已预登记[固定抽样比例的CPU诊断与完整审计](call-sampling-prior-20261111.md)，作业291255依赖291206。使用TRAIN已知采样数量推导固定概率权重，不拟合验证阈值，不改动当前训练或选模规则；只有完整对照完成后才分析均衡组选中模型。该项仍不是得分或部署结果。
