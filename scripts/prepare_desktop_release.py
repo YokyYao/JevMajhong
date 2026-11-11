@@ -39,8 +39,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--original', type=Path, default=ROOT / 'runs/release-original')
     parser.add_argument('--out', type=Path, default=ROOT / 'models/calibration-02')
+    parser.add_argument('--stage2-out', type=Path, default=ROOT / 'models/feature-stage2')
     args = parser.parse_args()
     if not args.original.exists():
         subprocess.run([sys.executable, str(ROOT / 'scripts/restore_checkpoint.py'),
                         str(ROOT / 'checkpoints/step-002000/manifest.json'), '--out', str(args.original)], check=True)
     print(json.dumps(prepare(args.original, args.out)))
+    subprocess.run([sys.executable, str(ROOT / 'scripts/restore_checkpoint.py'),
+                    str(ROOT / 'checkpoints/feature-stage2-step200/manifest.json'),
+                    '--out', str(args.stage2_out)], check=True)
+    from desktop.jev_sidecar.stage2_runtime import validate_stage2_checkpoint
+    print(json.dumps(validate_stage2_checkpoint(args.stage2_out)))

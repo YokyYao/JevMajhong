@@ -15,7 +15,10 @@ def package(target):
     if not (target / 'JevMahjong.exe').is_file():
         raise ValueError('Build the Windows EXE first')
     validate_checkpoint(ROOT / 'models/calibration-02')
+    from desktop.jev_sidecar.stage2_runtime import validate_stage2_checkpoint
+    validate_stage2_checkpoint(ROOT / 'models/feature-stage2')
     shutil.copytree(ROOT / 'models/calibration-02', target / 'models/calibration-02')
+    shutil.copytree(ROOT / 'models/feature-stage2', target / 'models/feature-stage2')
     (target / 'assets').mkdir()
     for name in ['tiles.onnx', 'NotoSansSC.ttf']:
         shutil.copy2(ROOT / 'assets' / name, target / 'assets' / name)

@@ -1,3 +1,5 @@
+**0.3.0 鸣牌增强版已接入源码，Windows 构建与安装验证待完成：** 新增[第二阶段第200步推理权重](../checkpoints/feature-stage2-step200/README.md)，吃碰/跳过使用第二阶段，普通决策保留校正版2（旧B）。这是两套LoRA/动作头配同一固定Qwen底座的组合；+1045.83点/场是该组合在固定东风模拟中相对旧B的结果，不代表真人或截图胜率。单模型与组合的[补充对照](../plans/stage2-full-vs-hybrid-20261111.md)正在进行。旧0.2.1安装包仍使用旧模型，不会因GitHub权重更新而自动升级；新版下载以构建流程实际发布为准。
+
 **Windows 0.2.1 已发布：** 截图后自动读取本场数和立直棒数，更新Jev输入并在计数变化时重新推荐，不增加计数识别错误提示。下方安装程序已包含该功能。
 
 # Jev 雀魂 Windows 侧边助手 · 0.2
@@ -20,7 +22,7 @@
 
 ## 免Python的Windows发布版
 
-当前吃碰策略问题、状态格式差异与服务器训练交接见[问题说明和验证计划](../plans/desktop-call-policy-server-handoff.md)。当前没有新的训练权重；旧检查点的偏好分不能当作策略正确性的证明。
+当前吃碰策略问题、状态格式差异与服务器训练交接见[问题说明和验证计划](../plans/desktop-call-policy-server-handoff.md)。第二阶段原版推理参数现单独发布，0.3.0构建目标使用上方组合；模型偏好分仍不能当作策略正确性或胜率的证明。
 
 下载并双击[安装程序 JevMahjong-Setup-0.2.1-win-x64.exe](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.2.1/JevMahjong-Setup-0.2.1-win-x64.exe)即可。安装程序自动下载、SHA256校验并安装运行组件，创建桌面快捷方式；无需手动下载Runtime ZIP，也无需安装Python、pip或CUDA Toolkit。全部组件在[GitHub Releases](https://github.com/YokyYao/JevMajhong/releases)发布。
 

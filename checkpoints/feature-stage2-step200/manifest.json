@@ -1,0 +1,117 @@
+{
+  "format": "jevmahjong-checkpoint-parts-v1",
+  "optimizer_step": 200,
+  "world_size": 1,
+  "model_id": "feature-stage2-step200",
+  "inference_only": true,
+  "base": "Qwen/Qwen3.5-0.8B",
+  "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
+  "archive_sha256": "01db429e1bc9ba992dcd0d871631896ad9152da25a7abb5777fba94ebec44035",
+  "archive_bytes": 46485419,
+  "files": [
+    {
+      "name": "adapter_config.json",
+      "bytes": 1268,
+      "sha256": "bac2554032fca5757f0865f965a01ae00796fff84dd33a241cb4f3428f72862c"
+    },
+    {
+      "name": "adapter_model.safetensors",
+      "bytes": 43338624,
+      "sha256": "7788cff96a921f1358f0e68fa6ee16f69782174c106e98c6a11008acdff0becb"
+    },
+    {
+      "name": "chat_template.jinja",
+      "bytes": 7755,
+      "sha256": "273d8e0e683b885071fb17e08d71e5f2a5ddfb5309756181681de4f5a1822d80"
+    },
+    {
+      "name": "head.pt",
+      "bytes": 2103871,
+      "sha256": "8f3421dca9a700c63d2a7b1694a81c80a0ef9f29c263a13a75fb13e426452a04"
+    },
+    {
+      "name": "tokenizer.json",
+      "bytes": 19989339,
+      "sha256": "a5cd9732badce41de57e6efce8302930ded1c1188c5f81feb2bd6c24c4a1941f"
+    },
+    {
+      "name": "tokenizer_config.json",
+      "bytes": 1633,
+      "sha256": "e50492ec49b138a18ea6a3b85a6a8765c856fa2e10297ebfbbeb96e27405bf68"
+    }
+  ],
+  "parts": [
+    {
+      "name": "checkpoint.tar.gz.part-000",
+      "bytes": 4194304,
+      "sha256": "61cc3b34fbdeadf085211eef66d79b6dbefa460db94ddf311429efd7a3dbc387",
+      "git_blob_sha1": "faa8ba54e5b77c381258712f4894aaeb445025e6"
+    },
+    {
+      "name": "checkpoint.tar.gz.part-001",
+      "bytes": 4194304,
+      "sha256": "9a7ff7a50d6b4e0ebfba77de1afefc86122cc853aa806d291fcd048b4aeccd57",
+      "git_blob_sha1": "0dec45ca31aba605209e7fd5c077f32ca2aaf42a"
+    },
+    {
+      "name": "checkpoint.tar.gz.part-002",
+      "bytes": 4194304,
+      "sha256": "0f0eb96ad62d16d5918768e69dba3cf7daf550b02eca90878d06b6d7582c9010",
+      "git_blob_sha1": "cecf343d64f655a8cab618c145310e78ee8a261e"
+    },
+    {
+      "name": "checkpoint.tar.gz.part-003",
+      "bytes": 4194304,
+      "sha256": "9b8abe7a14dc738589a53c4121f58d69333ed12a6daba6bbe373113bb1b7587b",
+      "git_blob_sha1": "63eefdc6296a6246929f6ea83615a8224710f808"
+    },
+    {
+      "name": "checkpoint.tar.gz.part-004",
+      "bytes": 4194304,
+      "sha256": "b313e3cd89c5db1e58430e10276184fca05974f27fa5e02a9cefd5ef0fb6d05c",
+      "git_blob_sha1": "2bf7189d624132b7a7e0d7be394791dd57aba2ec"
+    },
+    {
+      "name": "checkpoint.tar.gz.part-005",
+      "bytes": 4194304,
+      "sha256": "45c94d4bc9ee3f3aa0a7c09cb31d99a7e623f1e9aba833e95dbcd99f0d35dcc4",
+      "git_blob_sha1": "96e2459b588d6c68df34dab9649ec188c6c4f3d1"
+    },
+    {
+      "name": "checkpoint.tar.gz.part-006",
+      "bytes": 4194304,
+      "sha256": "c2e883c8f9b03d63d1c9847921b15d9d3685b2b9267f57e700a781da468568b6",
+      "git_blob_sha1": "539efb0bca49bb2454d1b8d32501fd4269fec68a"
+    },
+    {
+      "name": "checkpoint.tar.gz.part-007",
+      "bytes": 4194304,
+      "sha256": "39a7ce17662eae3aad25d87f16230ffdbf8fb10a9394751c2efc22b5ca314fbf",
+      "git_blob_sha1": "dda2676d5bd3da285c5414be6aad64420014356a"
+    },
+    {
+      "name": "checkpoint.tar.gz.part-008",
+      "bytes": 4194304,
+      "sha256": "c18193c929b1f2b4340f45d2155e325b7a47ea03fe51aad19c9ee96f9be292ff",
+      "git_blob_sha1": "76036d23b99b0071b8aca206b6b0fcbd0fea3c57"
+    },
+    {
+      "name": "checkpoint.tar.gz.part-009",
+      "bytes": 4194304,
+      "sha256": "af9edd274ff7d605dccd381db0fee04dcd2979dc3a84aae581cd2f2cb74a6f39",
+      "git_blob_sha1": "34210a30d49f818aaa1e7892086fbf93d070cf65"
+    },
+    {
+      "name": "checkpoint.tar.gz.part-010",
+      "bytes": 4194304,
+      "sha256": "713026bba41cdf1afc8436f13dbcb2f93a515e1278da45be1527832bb9dcbf47",
+      "git_blob_sha1": "86c3db641b0137c34ef14d339039c2b2523db011"
+    },
+    {
+      "name": "checkpoint.tar.gz.part-011",
+      "bytes": 348075,
+      "sha256": "2bca94d2312a491d06d85d13756e2fb813a566b91d25a286b3c3c3317f4beb47",
+      "git_blob_sha1": "ed1372db83010d29828bb518c97c2e0f80aaaea4"
+    }
+  ]
+}

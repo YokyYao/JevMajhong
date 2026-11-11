@@ -1,0 +1,18 @@
+{
+  "out": "runs/stage2-full-vs-hybrid-20261111",
+  "reference": "runs/head-rl-diagonal-value-20261030/checkpoints/calibration-02",
+  "reference_protocol": "runs/call-repair-20261109/protocol.json",
+  "checkpoint": "runs/feature-unseen-continuation-20261110/training-run/checkpoints/step-000200",
+  "step": 200,
+  "source_config": "feature-unseen-continuation-20261110.json",
+  "training_seed_start": 10300000,
+  "training_seeds_per_stage": 0,
+  "development_seed_start": 10310000,
+  "development_seeds": 32,
+  "confirmation_seed_start": 10320000,
+  "confirmation_seeds": 128,
+  "purpose": "Three-arm same-wall ablation requested by user: oldB vs preserved call hybrid vs full stage2; no training or reselection",
+  "primary": "full stage2 minus preserved hybrid complete-East net points; whole-wall paired CI",
+  "privacy": "Aggregate Markdown/code/config public; per-game rows private",
+  "human_test_opened": false
+}

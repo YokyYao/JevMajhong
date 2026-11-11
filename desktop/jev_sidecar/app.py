@@ -379,7 +379,7 @@ class Sidecar(QMainWindow):
         self.monitor.hide()
         settings.addWidget(QLabel('截图来源：自动连接雀魂窗口，切换到其他应用仍继续捕获'))
         self.mode = QComboBox()
-        self.mode.addItems(['牌理引擎', 'Jev GPU 校正版2'])
+        self.mode.addItems(['牌理引擎', 'Jev GPU 鸣牌增强版'])
         self.mode.setCurrentIndex(1)
         self.mode.currentIndexChanged.connect(self.invalidate)
         settings.addWidget(QLabel('推荐引擎'))

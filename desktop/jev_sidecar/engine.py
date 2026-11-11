@@ -263,6 +263,7 @@ class Adviser:
         self.model = None
         self.device = None
         self.ready = False
+        self.policy_name = 'Jev 校正版2'
 
     def prepare(self, checkpoint, progress=None):
         """Load and execute a real inference before reporting match readiness."""
@@ -293,12 +294,29 @@ class Adviser:
             raise RuntimeError('未发现可用的CUDA显卡。请检查NVIDIA驱动和CUDA版PyTorch安装')
         dtype = 'bf16' if device == 'cuda' and torch.cuda.is_bf16_supported() else 'fp32'
         mirror = Path(os.environ.get('JEV_BASE_MODEL_DIR', checkpoint.parent.parent / 'base-model'))
-        self.model = JevModel.from_pretrained(str(checkpoint), device=device, dtype=dtype,
-            options=LoadOptions(merge=False, temperature=1., compile_mode=None, cuda_graphs=False,
-                                fused_kernels=False, base_load_path=str(mirror) if mirror.is_dir() else None),
-            inference_options=InferenceOptions(max_state_tokens=4096, max_branch_tokens=8192, max_packed_tokens=8192))
+        torch.backends.cuda.matmul.allow_tf32 = False
+        torch.backends.cudnn.allow_tf32 = False
+        torch.backends.cuda.enable_flash_sdp(False)
+        torch.backends.cuda.enable_mem_efficient_sdp(False)
+        def load(path):
+            return JevModel.from_pretrained(str(path), device=device, dtype=dtype,
+                options=LoadOptions(merge=False, temperature=1., compile_mode=None, cuda_graphs=False,
+                                    fused_kernels=False, base_load_path=str(mirror) if mirror.is_dir() else None),
+                inference_options=InferenceOptions(max_state_tokens=4096, max_branch_tokens=8192,
+                                                  max_packed_tokens=8192, prefix_cache_size=0))
+        ordinary = load(checkpoint)
+        stage2 = checkpoint.parent / 'feature-stage2'
+        if stage2.is_dir():
+            from .stage2_runtime import Stage2Client, validate_stage2_checkpoint
+            validate_stage2_checkpoint(stage2)
+            calling = load(stage2)
+            self.model = Stage2Client(ordinary, calling)
+            self.policy_name = 'Jev 鸣牌增强版（第二阶段）'
+        else:
+            self.model = ordinary
+            self.policy_name = 'Jev 校正版2'
         self.device = device
-        return f'Jev 校正版2 · {device.upper()} · {dtype}'
+        return f'{self.policy_name} · {device.upper()} · {dtype}'
 
     def recommend(self, board, use_model=False):
         if board.reaction:
@@ -319,7 +337,7 @@ class Adviser:
             ranked = sorted([v for v in values if v['eligible']], key=lambda v:
                 (len(threats - set(v['safe'])) if threats and v['sh'] >= 1 else 0,
                  v['sh'], -v['ukeire'], v['dora'], v['red'], v['tile']))
-        return {'top3': ranked[:3], 'all_candidates': values, 'engine': 'Jev 校正版2' if use_model else '牌理引擎',
+        return {'top3': ranked[:3], 'all_candidates': values, 'engine': self.policy_name if use_model else '牌理引擎',
                 'notes': board.notes(), 'winning_shape': shanten(tuple(sorted(index(t) for t in board.hand))) == -1,
                 'riichi_selecting': board.riichi_selecting, 'strategy': hand_strategy(board, ranked[0]),
                 'direction': hand_strategy(board, ranked[0], direction_only=True),
@@ -331,8 +349,14 @@ class Adviser:
             raise ValueError('正在读取吃碰对应牌面')
         payload = request(board, [])
         payload['state']['screen_observation']['reaction'] = board.reaction
+        payload['state']['screen_observation']['confirmed_metadata'] = ['honba', 'sticks']
         payload['questions']['action']['criteria'] = {f'a{i}': v['action'] for i, v in enumerate(values)}
-        if use_model:
+        wins = [v for v in values if v['action']['type'] == 'hora']
+        if wins:
+            for value in values:
+                value['preference'] = float(value is wins[0])
+            ranked = sorted(values, key=lambda v: -v['preference'])
+        elif use_model:
             if self.model is None:
                 raise RuntimeError('Jev尚未加载')
             from jevany.api import validate_distribution
@@ -343,7 +367,7 @@ class Adviser:
             ranked = sorted(values, key=lambda v: -v['preference'])
         else:
             ranked = sorted(values, key=lambda v: 0 if v['action']['type'] == 'hora' else 1 if v['action']['type'] == 'none' else 2)
-        return {'top3': ranked[:3], 'all_candidates': values, 'engine': 'Jev 校正版2' if use_model else '牌理引擎',
+        return {'top3': ranked[:3], 'all_candidates': values, 'engine': self.policy_name if use_model else '牌理引擎',
                 'notes': board.notes(), 'winning_shape': False, 'reaction': True,
                 'strategy': hand_strategy(board, ranked[0]),
                 'direction': hand_strategy(board, ranked[0], direction_only=True),
