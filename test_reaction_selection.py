@@ -1,5 +1,8 @@
 import unittest
-from reaction_selection import reaction_subset, validate_recipe
+import json
+import tempfile
+from pathlib import Path
+from reaction_selection import reaction_subset, validate_recipe, verify_benchmark_contract
 
 
 def record(identity, kind, phase='reaction', split='validation'):
@@ -43,6 +46,21 @@ class ReactionSelectionTests(unittest.TestCase):
                            ('eval_data', 'reaction-only.jsonl'), ('eval_records', 128)]:
             with self.subTest(key=key), self.assertRaises(ValueError):
                 validate_recipe(self.config, dict(self.recipe, **{key: value}))
+
+    def test_sdk_normalization_supports_real_benchmark_rows(self):
+        from jevany.data import load_records, api_request
+        original = self.rows[:3]
+        for row in original:
+            row['state'] = 'Public mahjong state'
+            row['questions']['action'].update(type='choice', instructions='Choose an action')
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'validation.jsonl'
+            path.write_text(''.join(json.dumps(row) + '\n' for row in original))
+            normalized = load_records(path)
+        self.assertEqual([api_request(r) for r in original], [api_request(r) for r in normalized])
+        self.assertEqual(verify_benchmark_contract(normalized), 3)
+        with self.assertRaises(KeyError):
+            verify_benchmark_contract(original)
 
 
 if __name__ == '__main__':

@@ -31,12 +31,14 @@
 
 ## 调度记录
 
-训练290857已在ws-l1-007的RTX5000 Ada实际启动，GPU预检其他计算进程为0，372个适配器张量及动作头的父权重逐张量核验通过。开发及同牌山父模型对照290859依赖`afterok:290857`，尚未开始对局。训练第0步验证正在进行，尚未产出本阶段训练效果；预留独立确认配置并不表示已提交确认作业。
+首次作业290857在第0步验证因专用suite缺少题目`src`元数据而失败，尚未更新权重；旧运行已作废，其依赖290859已取消。普通`eval_data`读取器会补齐这些元数据，而suite读取器只校验清单。修复准备入口，让专用suite先经过同一SDK规范化，保持模型输入、选项和标签不变，并用真实benchmark逐条构造1024条统计行核对。
+
+修复采用独立v2数据/运行目录；训练290865已在ws-l1-007的RTX5000 Ada实际启动，GPU预检其他计算进程为0。开发及同牌山父模型对照290866依赖`afterok:290865`，尚未开始对局。新作业正在初始化与第0步验证阶段；预留独立确认配置并不表示已提交确认作业。
 
 ## 文件与已完成检查
 
-配置：[训练JSON](../feature-reaction-continuation-20261111.json)、[训练TOML](../feature-reaction-continuation-20261111.toml)、[开发及父模型配对](../feature-reaction-development-20261111.json)、[预留确认](../feature-reaction-confirmation-20261111.json)。
+配置：[训练JSON](../feature-reaction-continuation-20261111-v2.json)、[训练TOML](../feature-reaction-continuation-20261111-v2.toml)、[开发及父模型配对](../feature-reaction-development-20261111-v2.json)、[预留确认](../feature-reaction-confirmation-20261111-v2.json)。
 
-[新准备入口](../scripts/prepare_reaction_continuation.py)复用已有完整覆盖排除检查，并在训练提交前冻结reaction suite及两个父模型独立审计来源；准备未完成则明确作废新运行。5项CPU测试覆盖标签和选项保留、训练/封存test拒绝、重复ID、缺少吃碰类别、外来反应动作、错误实际指标/数据路径/截断验证。实际SDK的suite校验、配置解析、整场隔离预检查和冻结来源验证已通过。GPU上的初始化、准入、训练及得点尚待运行，不能由CPU检查代替。
+[新准备入口](../scripts/prepare_reaction_continuation.py)复用已有完整覆盖排除检查，并在训练提交前冻结reaction suite及两个父模型独立审计来源；准备未完成则明确作废新运行。6项CPU测试覆盖标签和选项保留、训练/封存test拒绝、重复ID、缺少吃碰类别、外来反应动作、错误实际指标/数据路径/截断验证。新增真实SDK读取及benchmark行构造回归测试，覆盖缺失元数据的故障。全部1024条实际记录的benchmark契约检查通过。实际SDK的suite校验、配置解析、整场隔离预检查和冻结来源验证已通过。GPU上的初始化、准入、训练及得点尚待运行，不能由CPU检查代替。
 
 训练继续使用`feature_continuation.slurm`和原训练入口，开发及父模型对照使用`feature_continuation_evaluate.slurm`。只公开代码、配置与汇总；新权重、逐场数据、真人牌谱和准备明细保持私有。截图与Windows安装包测试继续暂缓。

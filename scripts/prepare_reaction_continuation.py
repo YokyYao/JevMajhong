@@ -51,7 +51,11 @@ def main():
     try:
         prepared = json.loads((out / 'preparation.json').read_text())
         verify_preparation(ROOT, cfg, prepared)
-        records = [json.loads(line) for line in (data / 'validation.jsonl').open()]
+        # Suite loading does not add defaults, unlike eval_data loading. Normalize
+        # through the same SDK reader first (src, variant, row); serving inputs
+        # and expert labels remain identical.
+        from jevany.data import load_records
+        records = load_records(data / 'validation.jsonl')
         reactions, actions = reaction_subset(records)
         suite = data / 'reaction-validation'
         suite.mkdir()
@@ -81,6 +85,8 @@ def main():
         from jevany.suite import load_split
         if load_split(suite, 'development') != reactions:
             raise ValueError('SDK reaction selection data differs')
+        from reaction_selection import verify_benchmark_contract
+        verify_benchmark_contract(reactions)
         print(json.dumps({'complete': True, 'records': prepared['records'],
                           'selection': selection}), flush=True)
     except Exception as exc:

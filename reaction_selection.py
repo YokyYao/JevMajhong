@@ -36,3 +36,19 @@ def reaction_subset(records):
     if set(actions) != {'chi', 'pon', 'none'}:
         raise ValueError('Reaction validation must cover chi, pon and pass')
     return selected, dict(actions)
+
+
+def verify_benchmark_contract(records):
+    """Exercise real benchmark row construction without a model or a GPU."""
+    from jevany.benchmark import prediction_rows, summarize
+    rows = []
+    for record in records:
+        probabilities = {}
+        for qid, q in record['questions'].items():
+            keys = list(q['criteria'])
+            probabilities[qid] = {key: 1. / len(keys) for key in keys}
+        rows.extend(prediction_rows(record, {'probabilities': probabilities}))
+    report = summarize(rows)
+    if report['clean']['n'] != len(records):
+        raise ValueError('Selection suite benchmark coverage differs')
+    return report['clean']['n']
