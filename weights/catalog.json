@@ -243,7 +243,7 @@
     },
     "jev-kan-context-v2": {
       "role": "public-context-nonlinear-paired-utility-value-component",
-      "status": "trained-development-running",
+      "status": "not-adopted-negative-development",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -263,6 +263,38 @@
       "checkpoint_sha256": "611bc37ab4d02fa7ef72730a75106e0571d8beb5d5e6ab826dc9fbbce34dd89f",
       "original_pointer_heads_unchanged": true,
       "artifact_exists": true,
+      "artifact_public": false,
+      "independent_improvement_proven": false,
+      "development_net_gain_vs_play_v1": -565.625,
+      "development_ci95": [
+        -1662.3434691801174,
+        531.0934691801174
+      ],
+      "independent_confirmation_run": false
+    },
+    "jev-kan-context-v3": {
+      "role": "all-eligible-option-supported-nonlinear-kan-context-component",
+      "status": "option-label-expansion-running-fit-dependent",
+      "frozen_components": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ],
+      "unchanged_nonkan_policy": "jev-play-v1",
+      "activation": "kan_windows",
+      "feature_version": "public-kan-context-v1",
+      "feature_count": 152,
+      "model_kind": "mlp",
+      "hidden_width": 16,
+      "planned_trainable_parameters": 2464,
+      "original_unique_states": 511,
+      "planned_pairs": 1377,
+      "planned_train_pairs": 1011,
+      "planned_held_pairs": 366,
+      "training_states": 379,
+      "held_states": 132,
+      "state_balanced_training": true,
+      "state_balanced_validation": true,
+      "artifact_exists": false,
       "artifact_public": false,
       "independent_improvement_proven": false
     }

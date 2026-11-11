@@ -34,7 +34,11 @@ def stratum(row):
     return category, direction
 
 
-def weights(rows, mix, max_weight=4., context_mix=None):
+def state_key(row):
+    return row['episode_key'][0],row['episode_key'][1],row['request_sha256']
+
+
+def weights(rows, mix, max_weight=4., context_mix=None, state_balanced=False):
     if max_weight <= 0 or not math.isfinite(max_weight) or abs(sum(mix.values()) - 1.) > 1e-8:
         raise ValueError('Positive cap and normalized action mix required')
     support = Counter(stratum(r) for r in rows)
@@ -60,11 +64,19 @@ def weights(rows, mix, max_weight=4., context_mix=None):
         raise ValueError('No supported requested action stratum')
     # Capping reduces a rare example's influence rather than copying it to fill quotas.
     values = [min(max_weight, x * len(rows) / total) for x in raw]
+    if state_balanced:
+        per_state=Counter(state_key(r) for r in rows)
+        adjusted=[w/per_state[state_key(r)] for r,w in zip(rows,values)]
+        mean=sum(adjusted)/len(rows)
+        values=[min(max_weight,w/mean) for w in adjusted]
     report = {'support': {c + '/' + d: n for (c, d), n in sorted(support.items())},
         'missing_action_directions': [c + '/' + d for c in OPERATIONS for d in ('positive', 'negative') if not support[c, d]],
         'target_action_mix': mix, 'max_example_weight': max_weight,
         'effective_action_mass': {c: sum(w for r, w in zip(rows, values) if stratum(r)[0] == c) / sum(values) for c in mix},
         'copies_added': 0}
+    if state_balanced:
+        report.update(state_balanced=True,unique_states=len(per_state),
+            state_pair_count_histogram=dict(Counter(per_state.values())))
     if context_mix is not None:
         report.update(target_context_mix=context_mix,
             context_support={c+'/'+d+'/'+context:n for ((c,d),context),n in sorted(contexts.items())},

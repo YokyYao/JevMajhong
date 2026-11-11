@@ -44,6 +44,25 @@ def native_collection(root, start, gamma=.995):
 
 
 class SamplingTests(unittest.TestCase):
+    def test_same_state_alternatives_share_training_mass(self):
+        from jevmahjong.training.sampling import weights
+        first=dict(row('ankan',.1),episode_key=(100,0,0,1),request_sha256='same')
+        first['public_request']['questions']['action']['criteria']['a2']={'type':'ankan'}
+        second=copy.deepcopy(first);second.update(episode_key=(100,0,0,2),action=2)
+        other=copy.deepcopy(first);other.update(episode_key=(101,0,0,1),request_sha256='other')
+        w,report=weights([first,second,other],{'ankan':1.},4.,state_balanced=True)
+        self.assertAlmostEqual(w[0]+w[1],w[2]);self.assertEqual(report['unique_states'],2)
+
+    def test_option_expansion_keeps_all_eligible_actions_without_future_reward_selection(self):
+        from jevmahjong.training.option_expand import representatives
+        first={'episode_key':(100,0,1),'request_sha256':'same','teacher_action':0,'action':1,
+            'eligible':[0,1,2],'training_advantage':-999.}
+        second=dict(first,episode_key=(100,0,5),action=2,training_advantage=999.)
+        selected=representatives([second,first])
+        self.assertEqual([tuple(r['episode_key']) for r in selected],[(100,0,1)])
+        self.assertEqual([(*selected[0]['episode_key'],a) for a in selected[0]['eligible'] if a!=0],
+            [(100,0,1,1),(100,0,1,2)])
+
     def test_future_averages_remain_one_state_and_reject_changed_labels_seeds_and_points(self):
         from jevmahjong.data.future_pairs import mean_credit,validate_rows,METHOD
         from jevmahjong.training.collector import derived_seed
@@ -76,6 +95,16 @@ class SamplingTests(unittest.TestCase):
             validated=validate_rows(payload,100,config,protocol)
             self.assertEqual(len(validated),1);self.assertNotIn('counterfactual_worlds',validated[0])
             self.assertAlmostEqual(validated[0]['training_advantage'],.125+.1*.995)
+            parent_root=root/'parent';(parent_root/'walls-private').mkdir(parents=True)
+            parent=parent_root/'walls-private/100.pt';torch.save({'rows':[new]},parent)
+            expanded=copy.deepcopy(new);expanded.update(episode_key=(100,0,0,1),origin_episode_key=(100,0,0),
+                pair_selection='all_eligible_alternatives_against_play_v1')
+            expanded_cfg=dict(config,expand_from=str(parent_root),parent_source_root=str(parent_root))
+            expanded_protocol={'source_files':{str(source):checksum,str(parent):digest(parent)},'selected_case_keys':[[100,0,0,1]]}
+            expanded_payload=dict(payload,rows=[expanded],parent_source_path=str(parent),parent_source_sha256=digest(parent))
+            self.assertEqual(len(validate_rows(expanded_payload,100,expanded_cfg,expanded_protocol)),1)
+            wrong=copy.deepcopy(expanded_payload);wrong['rows'][0]['counterfactual_worlds'][0]['future_wall_sha256']='b'*64
+            with self.assertRaisesRegex(ValueError,'parent future'):validate_rows(wrong,100,expanded_cfg,expanded_protocol)
             changed=copy.deepcopy(payload);changed['rows'][0]['training_advantage']+=1
             with self.assertRaisesRegex(ValueError,'advantage changed'):validate_rows(changed,100,config,protocol)
             changed=copy.deepcopy(payload);changed['rows'][0]['counterfactual_worlds'][1]['future_seed']=0

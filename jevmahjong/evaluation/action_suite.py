@@ -15,7 +15,12 @@ def evaluate(heads, rows, per_direction=8, context=None):
     for category in OPERATIONS:
         result[category] = {}
         for direction in ('positive', 'negative'):
-            selected = sorted(buckets[category, direction], key=lambda r: tuple(r['episode_key']))[:per_direction]
+            selected = []; seen_states = set()
+            for row in sorted(buckets[category,direction],key=lambda r:tuple(r['episode_key'])):
+                identity=(row['episode_key'][0],row['episode_key'][1],row.get('request_sha256',tuple(row['episode_key'])))
+                if identity in seen_states:continue
+                seen_states.add(identity);selected.append(row)
+                if len(selected)>=per_direction:break
             correct = 0; operation_choices = 0
             reference_correct = 0; reference_choices = 0
             reference_mass = []; candidate_mass = []; margin_gains = []
@@ -49,7 +54,8 @@ def evaluate(heads, rows, per_direction=8, context=None):
                 'reference_operation_probability_mean': sum(reference_mass) / len(selected) if selected else None,
                 'candidate_operation_probability_mean': sum(candidate_mass) / len(selected) if selected else None,
                 'reward_signed_pair_margin_gain_mean': sum(margin_gains) / len(selected) if selected else None,
-                'requested_cases': per_direction, 'coverage_complete': len(selected) >= per_direction}
+                'requested_cases': per_direction, 'coverage_complete': len(selected) >= per_direction,
+                'case_unit':'distinct state instance within action and reward direction'}
     return {'actions': result, 'role': 'held-wall validation diagnostic; not independent full-game strength',
         'missing_coverage_is_not_a_pass': True}
 

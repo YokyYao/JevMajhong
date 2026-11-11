@@ -122,6 +122,7 @@ def main():
     if activation == 'kan_windows': checked['ordinary_nonkan'] = 0
     for path, h in parity_sources(fit).items():
         if digest(Path(path)) != h: raise ValueError('TRAIN parity source changed')
+        if Path(path).suffix != '.pt': continue
         for row in torch.load(path, map_location='cpu', weights_only=False)['rows']:
             scope = row['scope']
             key = ('ordinary_nonkan' if activation == 'kan_windows' and scope == 'ordinary'

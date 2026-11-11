@@ -2,9 +2,9 @@
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
   "data": [
-    "runs/kan-future-unseen-labels-v1/source_0",
-    "runs/kan-future-unseen-labels-v1/source_1",
-    "runs/kan-future-unseen-labels-v1/source_2"
+    "runs/kan-all-options-v1/source_0",
+    "runs/kan-all-options-v1/source_1",
+    "runs/kan-all-options-v1/source_2"
   ],
   "reward": {
     "mode": "net_points_with_fast_support_v1",
@@ -14,12 +14,12 @@
     "point_scale": 8000.0
   },
   "action_mix": {
-    "ordinary": 0.0,
-    "chi": 0.02,
-    "pon": 0.08,
-    "ankan": 0.3,
-    "daiminkan": 0.3,
-    "kakan": 0.3
+    "ordinary": 0.2,
+    "chi": 0.1,
+    "pon": 0.1,
+    "ankan": 0.2,
+    "daiminkan": 0.2,
+    "kakan": 0.2
   },
   "max_example_weight": 4.0,
   "context_mix": {
@@ -32,8 +32,8 @@
   ],
   "decision_filter": "kan_windows",
   "selection_validation": "latest_source",
-  "model_id": "jev-kan-context-v2",
-  "out": "runs/jev-kan-context-v2",
+  "model_id": "jev-kan-context-v3",
+  "out": "runs/jev-kan-context-v3",
   "fit_model": "mlp",
   "hidden": 16,
   "epochs": 32,
@@ -41,5 +41,7 @@
   "batch": 32,
   "lr": 0.001,
   "weight_decay": 0.001,
-  "seed": 2026111203
+  "seed": 2026111203,
+  "state_balanced_training": true,
+  "state_balanced_validation": true
 }

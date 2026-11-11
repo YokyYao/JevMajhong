@@ -98,6 +98,9 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--config',type=Path,required=True)
     parser.add_argument('--resume',action='store_true');args=parser.parse_args();cfg=json.loads(args.config.read_text())
     if not isinstance(cfg['worlds'],int) or cfg['worlds'] < 2:raise ValueError('At least two paired futures required')
+    if cfg.get('expand_from'):
+        from .option_expand import collect
+        collect(cfg,args.resume);return
     out=Path(cfg['out']);out.mkdir(parents=True,exist_ok=args.resume)
     lock=(out/'collector.lock').open('w');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     protocol=snapshot(cfg);protocol['collection_method']=METHOD

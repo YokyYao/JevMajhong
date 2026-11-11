@@ -9,7 +9,7 @@ from jevmahjong.data.native_pairs import load_sources, select_decisions
 from jevmahjong.policy.routing import make_head
 from jevmahjong.policy.kan_context import VERSION, NAMES, feature_vectors
 from .provenance import snapshot, verify
-from .sampling import weights
+from .sampling import weights,state_key
 
 
 def encode(rows):
@@ -19,18 +19,25 @@ def encode(rows):
     return matrices, x, y
 
 
-def profile(coefficients, rows, x, y, sources):
-    return prediction_profile(x @ coefficients,rows,y,sources)
+def profile(coefficients, rows, x, y, sources, state_balanced=False):
+    return prediction_profile(x @ coefficients,rows,y,sources,state_balanced)
 
 
-def prediction_profile(prediction,rows,y,sources):
+def prediction_profile(prediction,rows,y,sources,state_balanced=False):
     result = []
     for source in sources:
         mask = torch.tensor([source['seed_start'] <= r['episode_key'][0] < source['seed_start'] + source['seeds'] for r in rows])
         if not mask.any(): raise ValueError('Every source needs internal validation')
         yy, pp = y[mask], prediction[mask]
+        errors=(pp-yy).square();absolute=(pp-yy).abs();extra={}
+        if state_balanced:
+            groups={}
+            for i,r in enumerate([r for r,m in zip(rows,mask.tolist()) if m]):groups.setdefault(state_key(r),[]).append(i)
+            errors=torch.stack([errors[indexes].mean() for indexes in groups.values()])
+            absolute=torch.stack([absolute[indexes].mean() for indexes in groups.values()])
+            extra={'states':len(groups),'aggregation':'equal public-state means within source'}
         result.append({'source':source['path'], 'rows':int(mask.sum()),
-            'loss':float((pp - yy).square().mean()), 'mae':float((pp - yy).abs().mean()),
+            'loss':float(errors.mean()), 'mae':float(absolute.mean()),**extra,
             'positive_pair_order_correct':int(((yy > 0) & (pp > 0)).sum()),
             'positive_pairs':int((yy > 0).sum()),
             'negative_pair_order_correct':int(((yy < 0) & (pp < 0)).sum()),
@@ -67,11 +74,11 @@ def main():
         raise ValueError('Finite positive unique ridge strengths required')
     out,protocol,parts,hashes,sources,heads=prepare(cfg);train,held=parts['train'],parts['held']
     _,x,y=encode(train);_,hx,hy=encode(held)
-    w,coverage=weights(train,cfg['action_mix'],cfg['max_example_weight'],cfg.get('context_mix'))
+    w,coverage=weights(train,cfg['action_mix'],cfg['max_example_weight'],cfg.get('context_mix'),cfg.get('state_balanced_training',False))
     w=torch.tensor(w,dtype=torch.float64);total=w.sum();write(out/'data-coverage.json',coverage)
     curve=[]
     def save(coef,regularization):
-        prof=profile(coef,held,hx,hy,sources);label='start' if regularization is None else f'ridge-{regularization:g}'
+        prof=profile(coef,held,hx,hy,sources,cfg.get('state_balanced_validation',False));label='start' if regularization is None else f'ridge-{regularization:g}'
         path=out/f'{cfg["model_id"]}-{label}.pt'
         model={'model_id':cfg['model_id'],'model_files':protocol['model_files'],'base_and_LoRA_frozen':True,
             'heads':{s:copy.deepcopy(h.state_dict()) for s,h in heads.items()},

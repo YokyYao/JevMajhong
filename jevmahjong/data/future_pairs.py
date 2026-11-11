@@ -33,19 +33,39 @@ def validate_rows(payload, seed, config, protocol, reward=None):
     originals = {tuple(r['episode_key']):r for r in original['rows']}
     controls = {c['seat']:c for c in original['controls']}
     games = {(g['seed'],g['seat'],g['replica']):g for g in original['games']}
+    expanded = bool(config.get('expand_from')); parents = {}
+    if expanded:
+        parent = Path(config['parent_source_root']).resolve()/'walls-private'/f'{seed}.pt'
+        if (Path(payload['parent_source_path']).resolve()!=parent
+                or payload['parent_source_sha256']!=protocol['source_files'][str(parent)]
+                or digest(parent)!=payload['parent_source_sha256']):raise ValueError('Parent future shard changed')
+        parents={tuple(r['episode_key']):r for r in torch.load(parent,map_location='cpu',weights_only=False)['rows']}
     expected = {tuple(k) for k in protocol['selected_case_keys'] if k[0] == seed}
+    if expanded:
+        complete=set();seen=set()
+        selected_origins=({tuple(k) for k in protocol['selected_origin_keys']} if 'selected_origin_keys' in protocol else None)
+        for parent_row in sorted(parents.values(),key=lambda r:tuple(r['episode_key'])):
+            identity=(parent_row['episode_key'][0],parent_row['episode_key'][1],parent_row['request_sha256'])
+            if identity in seen:continue
+            seen.add(identity)
+            if selected_origins is not None and tuple(parent_row['episode_key']) not in selected_origins:continue
+            complete.update((*parent_row['episode_key'],a) for a in parent_row['eligible'] if a!=parent_row['teacher_action'])
+        if expected!=complete:raise ValueError('Expanded plan omits an eligible alternative')
     keys = [tuple(r['episode_key']) for r in payload['rows']]
     if len(set(keys)) != len(keys) or set(keys) != expected:
         raise ValueError('Missing or duplicate revalued state')
     result = []
     for row in payload['rows']:
-        key = tuple(row['episode_key']); old = originals[key]; game = games[key]
+        key = tuple(row['episode_key']); origin = tuple(row.get('origin_episode_key',key))
+        if (len(origin)!=3 or (expanded and (len(key)!=4 or key[:3]!=origin or key[3]!=row['action']))
+                or (not expanded and key!=origin)):raise ValueError('Invalid expanded origin identity')
+        old = originals[origin]; game = games[origin]
         if not is_kan_request(row['public_request']) or row['scope'] != 'ordinary':
             raise ValueError('Future data must represent a legal kan window')
         if (row['public_request'] != old['public_request'] or request_hash(row['public_request']) != row['request_sha256']
                 or row['request_sha256'] != old['request_sha256']
                 or row['action_keys'] != old['action_keys'] or row['eligible'] != old['eligible']
-                or row['category'] != old['category'] or row['hand_index'] != old['hand_index']
+                or (not expanded and row['category'] != old['category']) or row['hand_index'] != old['hand_index']
                 or row['draws_before'] != old['draws_before']
                 or not torch.equal(row['decide'],old['decide']) or not torch.equal(row['options'],old['options'])):
             raise ValueError('Revaluation changed the original model input')
@@ -56,6 +76,17 @@ def validate_rows(payload, seed, config, protocol, reward=None):
             raise ValueError('Invalid deployed reference probabilities')
         teacher = max(row['eligible'],key=lambda i:float(reference[i]))
         alternate = old['action'] if old['action'] != teacher else old['teacher_action']
+        if expanded:
+            from jevmahjong.training.sampling import OPERATIONS
+            parent_row=parents[origin];alternate=row['action']
+            if alternate not in row['eligible']:raise ValueError('Ineligible expanded alternative')
+            kinds=[c['type'] for c in row['public_request']['questions']['action']['criteria'].values()]
+            category=kinds[alternate] if kinds[alternate] in OPERATIONS else kinds[teacher] if kinds[teacher] in OPERATIONS else 'ordinary'
+            if (row['pair_selection']!='all_eligible_alternatives_against_play_v1'
+                    or row['category']!=category or row['teacher_action']!=parent_row['teacher_action']
+                    or row['prefix_events']!=parent_row['prefix_events']
+                    or not torch.equal(row['reference'],parent_row['reference'])):
+                raise ValueError('Expanded alternative differs from canonical parent')
         split = 'held' if (seed-config['training_seed_start']) % 4 == 3 else 'train'
         if (row['teacher_action'] != teacher or row['action'] != alternate or alternate == teacher
                 or alternate not in row['eligible'] or row['source_split'] != split
@@ -66,8 +97,14 @@ def validate_rows(payload, seed, config, protocol, reward=None):
         prefix = row['prefix_events']; source_log = controls[key[1]]['mjai_log']
         if not 0 < prefix <= len(source_log):raise ValueError('Invalid native prefix length')
         for index,world in enumerate(worlds):
-            if world['future_seed'] != derived_seed(config['seed'],seed,key[1],key[2],f'future-{index}'):
+            if world['future_seed'] != derived_seed(config['seed'],seed,origin[1],origin[2],f'future-{index}'):
                 raise ValueError('Future seed changed or was selected after outcomes')
+            if expanded:
+                parent_world=parent_row['counterfactual_worlds'][index]
+                if (world['future_seed']!=parent_world['future_seed'] or world['future_wall_sha256']!=parent_world['future_wall_sha256']
+                        or world['control']!=parent_world['control']):raise ValueError('Expanded pair changed its parent future or control')
+                if alternate==parent_row['action'] and world['branch']!=parent_world['branch']:
+                    raise ValueError('Reused parent branch changed')
             wall_hash = world['future_wall_sha256']
             if not isinstance(wall_hash,str) or len(wall_hash) != 64:
                 raise ValueError('Paired future wall identity missing')

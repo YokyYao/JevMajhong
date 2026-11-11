@@ -24,13 +24,13 @@ def fit(cfg):
         return (torch.stack([m[r['action']] for m,r in zip(matrices,rows)]),
             torch.stack([m[r['teacher_action']] for m,r in zip(matrices,rows)]))
     xa,xt=sides(parts['train'],matrices);ha,ht=sides(parts['held'],held_matrices)
-    w,coverage=weights(parts['train'],cfg['action_mix'],cfg['max_example_weight'],cfg.get('context_mix'))
+    w,coverage=weights(parts['train'],cfg['action_mix'],cfg['max_example_weight'],cfg.get('context_mix'),cfg.get('state_balanced_training',False))
     w=torch.tensor(w,dtype=torch.float64);write(out/'data-coverage.json',coverage)
     net=make_network(cfg['hidden']);optimizer=torch.optim.AdamW(net.parameters(),lr=cfg['lr'],weight_decay=cfg['weight_decay'])
     curve=[]
     @torch.no_grad()
     def save(epoch):
-        prediction=(net(ha)-net(ht)).flatten();prof=prediction_profile(prediction,parts['held'],hy,sources)
+        prediction=(net(ha)-net(ht)).flatten();prof=prediction_profile(prediction,parts['held'],hy,sources,cfg.get('state_balanced_validation',False))
         checkpoint=out/f'{cfg["model_id"]}-e{epoch:02d}.pt'
         context={'version':VERSION,'names':list(NAMES),'model_kind':'mlp','hidden':cfg['hidden'],
             'state_dict':{k:v.detach().clone() for k,v in net.state_dict().items()}}
@@ -60,7 +60,8 @@ def fit(cfg):
     for path,h in hashes.items():
         if digest(Path(path))!=h:raise ValueError('Input changed during fit')
     result={'status':'trained','model_id':cfg['model_id'],'selected':best,'curve':curve,'config':cfg,
-        'fit_method':'nonlinear-public-feature-paired-utility-MSE','loss_definition':'mean squared paired utility error',
+        'fit_method':'nonlinear-public-feature-paired-utility-MSE',
+        'loss_definition':'state-balanced mean squared paired utility error' if cfg.get('state_balanced_validation') else 'mean squared paired utility error',
         'parameter_count':sum(p.numel() for p in net.parameters()),'optimizer_updates':updates,'stop_reason':reason,
         'train_rows':len(parts['train']),'held_rows':len(parts['held']),'data':[s['path'] for s in sources],
         'data_sources':sources,'data_sha256':hashes,'baseline_held_loss':baseline,

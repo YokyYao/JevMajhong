@@ -22,6 +22,15 @@ def request(kind):
 
 
 class KanContextTests(unittest.TestCase):
+    def test_validation_averages_public_states_instead_of_counting_more_options_as_more_states(self):
+        from jevmahjong.training.context_fit import prediction_profile
+        rows=[{'episode_key':(100,0,0,1),'request_sha256':'same'},
+            {'episode_key':(100,0,0,2),'request_sha256':'same'},
+            {'episode_key':(101,0,0,1),'request_sha256':'other'}]
+        sources=[{'path':'one','seed_start':100,'seeds':2}]
+        p=prediction_profile(torch.zeros(3),rows,torch.tensor([1.,1.,0.]),sources,state_balanced=True)[0]
+        self.assertEqual(p['states'],2);self.assertEqual(p['rows'],3);self.assertEqual(p['loss'],.5)
+
     def test_nonlinear_inference_matches_training_and_zero_start_preserves_play(self):
         from jevmahjong.training.context_network import make_network
         torch.manual_seed(17);net=make_network(3);req=request('daiminkan')
@@ -77,3 +86,7 @@ class KanContextTests(unittest.TestCase):
         panel=evaluate({},[row],per_direction=1,context=context)
         self.assertEqual(panel['actions']['ankan']['positive']['pair_order_correct'],1)
         self.assertEqual(panel['actions']['ankan']['positive']['operation_selected_from_full_legal_set'],1)
+        row['request_sha256']='same-state';duplicate=dict(row,episode_key=(0,0,0,2))
+        panel=evaluate({},[row,duplicate],per_direction=8,context=context)
+        self.assertEqual(panel['actions']['ankan']['positive']['cases'],1)
+        self.assertFalse(panel['actions']['ankan']['positive']['coverage_complete'])
