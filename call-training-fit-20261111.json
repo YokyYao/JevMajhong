@@ -1,0 +1,11 @@
+{
+  "out": "runs/call-training-fit-20261111",
+  "data_source_config": "feature-closed-opportunity-20261111.json",
+  "models": {
+    "stage2": "feature-unseen-continuation-20261110.json",
+    "stage4": "feature-closed-opportunity-20261111.json"
+  },
+  "expected_records": {"train": 4320, "validation": 1024},
+  "parity_atol": 0.0005,
+  "purpose": "Diagnose before/after fit on the exact stage4 executed TRAIN reactions versus unchanged validation, before choosing further training. No optimization, strength inference, test opening or deployment."
+}
