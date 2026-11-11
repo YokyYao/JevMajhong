@@ -8,6 +8,8 @@ from tools.run_experiment import freeze_source
 from jevmahjong.training.sampling import stratum, weights
 from jevmahjong.data.native_pairs import ENCODER_FILES, load_sources
 from jevmahjong.core.io import digest, request_hash
+from jevmahjong.training.fit import initialize_heads, save_head_checkpoint
+from jevmahjong.training.provenance import verify
 
 
 def row(kind, delta):
@@ -42,6 +44,31 @@ def native_collection(root, start, gamma=.995):
 
 
 class SamplingTests(unittest.TestCase):
+    def test_continuation_restores_parent_heads_and_preserves_epoch_zero(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); source = root / 'parent.pt'
+            parent = {s: torch.nn.Linear(2, 2, bias=False) for s in ('ordinary', 'calling')}
+            with torch.no_grad():
+                for head in parent.values(): head.weight.fill_(.75)
+            files = {'discard': {}, 'call': {}}
+            torch.save({'model_id': 'jev-tempo-safe-v1', 'heads': {s: h.state_dict() for s,h in parent.items()},
+                'model_files': files, 'base_and_LoRA_frozen': True}, source)
+            protocol = {'model_files': files, 'code_sha256': {},
+                'initial_heads': {'checkpoint': str(source), 'sha256': digest(source)}}
+            heads = {s: torch.nn.Linear(2, 2, bias=False) for s in parent}
+            info = initialize_heads(heads, protocol)
+            self.assertTrue(info['optimizer_reinitialized'])
+            item = save_head_checkpoint(root, 'child', heads, protocol, 0, .2)
+            zero = torch.load(item['checkpoint'], map_location='cpu', weights_only=True)
+            for scope in heads:
+                self.assertTrue(torch.equal(zero['heads'][scope]['weight'], parent[scope].weight))
+            verify(protocol)
+            source.write_bytes(b'changed')
+            with self.assertRaisesRegex(ValueError, 'checkpoint changed'):
+                initialize_heads(heads, protocol)
+            with self.assertRaisesRegex(ValueError, 'checkpoint changed'):
+                verify(protocol)
+
     def test_combined_collections_keep_all_seats_and_branches_in_whole_wall_split(self):
         with tempfile.TemporaryDirectory() as directory:
             a, b = Path(directory) / 'a', Path(directory) / 'b'

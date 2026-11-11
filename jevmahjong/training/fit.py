@@ -21,6 +21,26 @@ def loss_on(heads, rows, config):
         for r in rows) / len(rows)
 
 
+def initialize_heads(heads, protocol):
+    initial = protocol.get('initial_heads')
+    if not initial: return {'source': 'reference_heads', 'optimizer_reinitialized': True}
+    if digest(Path(initial['checkpoint'])) != initial['sha256']:
+        raise ValueError('Initial head checkpoint changed')
+    saved = torch.load(initial['checkpoint'], map_location='cpu', weights_only=True)
+    if saved.get('base_and_LoRA_frozen') is not True or saved['model_files'] != protocol['model_files']:
+        raise ValueError('Initial heads use different frozen encoders')
+    for scope, head in heads.items(): head.load_state_dict(saved['heads'][scope])
+    return {**initial, 'model_id': saved['model_id'], 'optimizer_reinitialized': True}
+
+
+def save_head_checkpoint(out, model_id, heads, protocol, epoch, metric):
+    checkpoint = out / f'{model_id}-e{epoch:02d}.pt'
+    torch.save({'model_id': model_id, 'heads': {s: copy.deepcopy(h.state_dict()) for s, h in heads.items()},
+        'model_files': protocol['model_files'], 'base_and_LoRA_frozen': True, 'epoch': epoch,
+        'initial_heads': protocol.get('initial_heads')}, checkpoint)
+    return {'epoch': epoch, 'held_loss': metric, 'checkpoint': str(checkpoint.resolve()), 'sha256': digest(checkpoint)}
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--config', type=Path, required=True)
     config = json.loads(parser.parse_args().config.read_text())
@@ -45,9 +65,12 @@ def main():
                 raise ValueError('Cached input uses a different source head')
     w, coverage = weights(train, config['action_mix'], config['max_example_weight'])
     write(out / 'data-coverage.json', coverage)
+    initialization = initialize_heads(heads, protocol)
     params = [p for h in heads.values() for p in h.parameters()]
     optimizer = torch.optim.AdamW(params, lr=config['lr'], weight_decay=config['weight_decay'])
-    baseline = loss_on(heads, held, config); best = None; curve = []; updates = 0
+    baseline = loss_on(heads, held, config)
+    best = save_head_checkpoint(out, config['model_id'], heads, protocol, 0, baseline)
+    curve = [best]; updates = 0
     stale_epochs = 0; stop_reason = 'epoch_limit'
     for epoch in range(1, config['epochs'] + 1):
         order = list(range(len(train))); random.Random(config['seed'] + epoch).shuffle(order)
@@ -61,12 +84,9 @@ def main():
             if not torch.isfinite(gradient): raise ValueError('Nonfinite gradient')
             optimizer.step(); updates += 1
         metric = loss_on(heads, held, config)
-        checkpoint = out / f"{config['model_id']}-e{epoch:02d}.pt"
-        torch.save({'model_id': config['model_id'], 'heads': {s: copy.deepcopy(h.state_dict()) for s, h in heads.items()},
-            'model_files': protocol['model_files'], 'base_and_LoRA_frozen': True, 'epoch': epoch}, checkpoint)
-        item = {'epoch': epoch, 'held_loss': metric, 'checkpoint': str(checkpoint.resolve()), 'sha256': digest(checkpoint)}
+        item = save_head_checkpoint(out, config['model_id'], heads, protocol, epoch, metric)
         curve.append(item)
-        if best is None or metric < best['held_loss']:
+        if metric < best['held_loss']:
             best = item; stale_epochs = 0
         else:
             stale_epochs += 1
@@ -88,6 +108,7 @@ def main():
     result = {'status': 'trained', 'model_id': config['model_id'], 'selected': best, 'curve': curve,
         'baseline_held_loss': baseline, 'optimizer_updates': updates, 'train_rows': len(train), 'held_rows': len(held),
         'stop_reason': stop_reason, 'held_loss_improved': best['held_loss'] < baseline,
+        'initialization': initialization, 'selected_is_starting_model': best['epoch'] == 0,
         'data': [s['path'] for s in sources] if len(sources) > 1 else sources[0]['path'],
         'data_sources': sources, 'data_sha256': hashes, 'config': config,
         'human_test_opened': False, 'deployed': False, 'strength_improvement_proven': False}
