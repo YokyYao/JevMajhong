@@ -34,3 +34,5 @@
 结果导出恢复保持冻结入口不改。后续新实验应在导出前使用[规范化路径函数](../sampling_finalization.py)，避免SDK返回相对目录时重复出现该错误。291291评估已接续，291292依赖`afterok:291291`，实际作业与早停结果以本页顶部完成更新及完整报告为准；尚无完整得点结论。
 
 [训练配置](../sampling-likelihood-20261111.json)、[TOML配方](../sampling-likelihood-20261111.toml)、[损失实现](../sampling_loss.py)、[准备入口](../scripts/prepare_sampling_loss.py)、[训练入口](../scripts/train_sampling_loss.py)、[开发配对](../sampling-likelihood-development-20261111.json)、[预留独立确认](../sampling-likelihood-confirmation-20261111.json)。只公开代码、配置与聚合Markdown，所有新权重、真人牌谱及逐条记录私有，Windows和截图测试继续暂缓。
+
+后续数据准备增加[源赛制元数据核查要求](source-rule-metadata-20261111.md)：当前专家样本统一East-only指令，但已核查源牌谱头部缺少明确赛制长度，不能仅用场风补出比赛长度。此项只记录后续输入语义要求，不改变当前冻结候选、原始验证或完整东风得点比较。
