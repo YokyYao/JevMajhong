@@ -1,4 +1,4 @@
-**0.3.0 鸣牌增强版已发布：** [下载并双击 Windows 安装程序](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.3.0/JevMahjong-Setup-0.3.0-win-x64.exe)。安装程序自动下载并校验运行组件，无需安装Python。已通过实际冻结EXE、无Python环境安装及安装后CPU推理检查。普通决策使用旧B，吃碰/跳过使用[第二阶段第200步](../checkpoints/feature-stage2-step200/README.md)；两套策略采用相同Qwen底座版本，目前分别加载。固定东风模拟中的+1045.83点/场属于这个组合，不是真人或截图胜率；[单模型与组合补充对照](../plans/stage2-full-vs-hybrid-20261111.md)另行进行。旧0.2.1不会自动升级。
+**0.3.0 鸣牌增强版已发布：** [下载并双击 Windows 安装程序](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.3.0/JevMahjong-Setup-0.3.0-win-x64.exe)。安装程序自动下载并校验运行组件，无需安装Python。已通过实际冻结EXE、无Python环境安装及安装后CPU推理检查。普通决策使用旧B，吃碰/跳过使用[第二阶段第200步](../checkpoints/feature-stage2-step200/README.md)；两套策略采用相同Qwen底座版本，目前分别加载。固定东风模拟中的+1045.83点/场属于这个组合，不是真人或截图胜率；[单模型与组合补充对照](../plans/stage2-full-vs-hybrid-20261111.md)已完成：单模型减组合−1521.61点/场，区间跨零，当前保留组合。旧0.2.1不会自动升级。
 
 **本场与立直棒自动读取：** 截图后自动读取本场数和立直棒数，更新Jev输入并在计数变化时重新推荐，不增加计数识别错误提示。下方安装程序已包含该功能。
 
