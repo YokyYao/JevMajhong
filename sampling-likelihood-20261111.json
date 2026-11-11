@@ -1,0 +1,31 @@
+{
+  "data": "data/sampling-likelihood-20261111",
+  "out": "runs/sampling-likelihood-20261111",
+  "trainer_config": "sampling-likelihood-20261111.toml",
+  "sampling_diagnostic_config": "call-sampling-prior-20261111.json",
+  "parent_config": "feature-unseen-continuation-20261110.json",
+  "parent_step": 200,
+  "warm_start": "runs/feature-unseen-continuation-20261110/training-run/checkpoints/step-000200",
+  "reference": "runs/head-rl-diagonal-value-20261030/checkpoints/calibration-02",
+  "reference_protocol": "runs/call-repair-20261109/protocol.json",
+  "baseline_rows": "runs/call-fit-control-20261111/natural/training-run/training_eval/step-000000/development/rows.json",
+  "views": [
+    "native"
+  ],
+  "max_steps": 128,
+  "validation_every": 16,
+  "patience": 3,
+  "seed": 2026111105,
+  "selection_scope": "reaction",
+  "selection_policy": "Unadjusted actual1024 reaction transfer_nll; full1408 retained for raw parity/diagnostics. Updated chi/pon exact-hit admission; step0 baseline only; patience3/max128. No posterior inference correction.",
+  "initialization": "Exact preserved stage2 step200 adapter/head, base frozen; new AdamW/OneCycle. Same512 balanced records/seed/LR/4epochs/max128 as completed control; only training likelihood offsets differ.",
+  "training_interpretation": "CE on training logits plus known log inclusion; raw logits for validation/serving. No new unseen requests or independent matches.",
+  "development_seed_start": 10090000,
+  "development_seeds": 32,
+  "confirmation_seed_start": 10100000,
+  "confirmation_seeds": 128,
+  "allow_feature_baseline": false,
+  "primary_goal": "Complete-East terminal net points versus frozenB and matched preservedstage2; no fixed point cutoff",
+  "privacy": "Only code/config/aggregateMarkdown public, newweights/records private",
+  "desktop_testing": "deferred_by_user"
+}
