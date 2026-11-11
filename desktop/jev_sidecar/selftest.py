@@ -51,7 +51,7 @@ def run(report, model_test=False):
         assert sum(v['eligible'] for v in prediction['all_candidates']) >= 2
         assert prediction['top3'][0]['tile'] in board.hand
         from .call_policy import CallPolicyClient
-        assert isinstance(adviser.model, CallPolicyClient), 'Stage2 call adapter missing from release'
+        assert isinstance(adviser.model, CallPolicyClient), 'Jev Call v1 adapter missing from release'
         call_board = Board(parse('123456m345p67s11z'), rivers=[[], [], [], []], metadata_confirmed=True,
             reaction={'tile': '5s', 'seat': 3, 'offered': ['chi']})
         call_prediction = adviser.recommend(call_board, use_model=True)

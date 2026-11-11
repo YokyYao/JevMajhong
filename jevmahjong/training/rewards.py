@@ -13,7 +13,7 @@ def scope_for(request):
     if is_call_request(request):
         return 'calling'
     # Keep the established encoder routing: every kan-containing request uses
-    # oldB, including simultaneous pon/pass alternatives in a daiminkan window.
+    # Jev Discard v1, including pon/pass alternatives in a daiminkan window.
     if kinds and kinds <= {'dahai', 'reach', 'ankan', 'daiminkan', 'kakan', 'pon', 'chi', 'none'}:
         return 'ordinary'
     return None
