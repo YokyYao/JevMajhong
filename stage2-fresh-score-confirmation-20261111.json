@@ -1,0 +1,14 @@
+{
+  "source_config": "stage2-fresh-continuation-20261111.json",
+  "scope": "calls",
+  "game_mode": "4p-red-east",
+  "scope_evidence": "runs/stage2-full-vs-hybrid-reuse-20261111/evaluation-audit.json",
+  "include_training_selected": true,
+  "checkpoint_policy": "Registered50/100/200plus the official training-selected checkpoint if distinct; registration before any fresh development score; NLL does not rank strength",
+  "privacy": "Only code/config/aggregate Markdown public; updated weights, human logs and per-game rows private",
+  "out": "runs/stage2-fresh-score-confirmation-20261111",
+  "stage": "independent_confirmation",
+  "seed_start": 10420000,
+  "seeds": 128,
+  "development_out": "runs/stage2-fresh-score-development-20261111"
+}
