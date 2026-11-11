@@ -10,6 +10,7 @@ from jevmahjong.training.provenance import snapshot, verify
 from .agents import PolicyAgent
 from .game import play
 from .metrics import summarize, SUITES, POLICIES
+from .reference_cache import load_reference
 
 
 def main():
@@ -33,6 +34,10 @@ def main():
         if not previous['eligible_for_confirmation']:
             write(out / 'status.json', {'status': 'skipped', 'reason': 'no_joint_speed_and_point_gain'}); return
     protocol = snapshot(cfg); protocol['checkpoint_sha256'] = digest(checkpoint)
+    cached = []
+    if cfg.get('reference_cache_out'):
+        cached, receipt = load_reference(cfg['reference_cache_out'], cfg, protocol)
+        protocol['reference_cache'] = receipt
     if (out/'protocol.json').exists() and json.loads((out/'protocol.json').read_text()) != protocol:
         raise ValueError('Resume requires the same candidate and protocol')
     write(out / 'protocol.json', protocol)
@@ -64,6 +69,9 @@ def main():
     write(out / 'native-parity.json', checked)
     agents = {'reference': PolicyAgent(HybridPolicy(ordinary, calling)), 'candidate': PolicyAgent(router)}
     strong = PolicyAgent(ordinary); raw = out / 'games-private.jsonl'
+    if not raw.exists() and cached:
+        with raw.open('w') as stream:
+            for row in cached: stream.write(json.dumps(row) + '\n')
     rows = [json.loads(l) for l in raw.read_text().splitlines()] if raw.exists() else []
     done = {(r['suite'],r['seed'],r['seat'],r['policy']) for r in rows}
     expected = {(s,n,p,k) for s in SUITES for n in range(cfg['seed_start'],cfg['seed_start']+cfg['seeds']) for p in range(4) for k in POLICIES}
@@ -78,7 +86,8 @@ def main():
                         row = dict(policy=name, **play(agents[name], strong, seed, seat, suite, cfg['fast_gamma']))
                         stream.write(json.dumps(row) + '\n'); stream.flush(); rows.append(row)
                         write(out / 'status.json', {'status': 'evaluating', 'games': len(rows),
-                            'expected_games': cfg['seeds'] * 24})
+                            'expected_games': cfg['seeds'] * 24, 'reused_reference_games': len(cached),
+                            'new_games_simulated': len(rows) - len(cached)})
     result = summarize(rows, cfg)
     verify(protocol)
     if digest(checkpoint) != protocol['checkpoint_sha256']: raise ValueError('Candidate changed during evaluation')
@@ -87,6 +96,8 @@ def main():
         raise ValueError('Saved game reaggregation differs')
     result['improvement_verified'] = (cfg['stage'] == 'independent_confirmation'
         and result['overall']['candidate_minus_reference']['ci95'][0] > 0)
+    result['reference_games_reused'] = len(cached)
+    result['new_games_simulated'] = len(rows) - len(cached)
     write(out / 'result.json', result)
     write(out / 'audit.json', {'status': 'passed_complete', 'games': len(rows),
         'games_sha256': digest(raw), 'checkpoint_sha256': digest(checkpoint)})

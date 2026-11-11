@@ -5,6 +5,7 @@ import unittest
 
 import torch
 from jevmahjong.training.rewards import alternate_indices, credit_pair, fast_game_stats, fast_reward, hand_outcomes, pair_loss, pairwise_preference_loss, scope_for, HeadPolicyClient
+from jevmahjong.training.utility import hand_utility
 
 
 def log(winner, draws, second_winner=None):
@@ -21,6 +22,31 @@ def request(types):
 
 
 class FastWinTest(unittest.TestCase):
+    def test_risk_utility_penalizes_dealin_and_keeps_own_win_primary(self):
+        config = {'mode': 'risk_adjusted_fast_win_v1', 'dealin_penalty': .3, 'net_weight': .1, 'point_scale': 8000.}
+        def settled(actor, target, delta, draws=10):
+            return [{'type': 'start_kyoku'}] + [{'type': 'tsumo'}] * draws + [
+                {'type': 'hora', 'actor': actor, 'target': target, 'deltas': delta}, {'type': 'end_kyoku'}]
+        ron = hand_utility(settled(1, 0, [-8000, 8000, 0, 0]), 0, 0, 0, .995, config)
+        tsumo = hand_utility(settled(1, 1, [-8000, 12000, -2000, -2000]), 0, 0, 0, .995, config)
+        self.assertAlmostEqual(tsumo['utility'] - ron['utility'], .3)
+        cheap = hand_utility(settled(0, 1, [1000, -1000, 0, 0]), 0, 0, 0, .995, config)
+        valuable = hand_utility(settled(0, 1, [12000, -12000, 0, 0]), 0, 0, 0, .995, config)
+        self.assertGreater(cheap['utility'], 0)
+        self.assertGreater(valuable['utility'], cheap['utility'])
+        self.assertEqual(valuable['fast_reward'], cheap['fast_reward'])
+
+    def test_risk_utility_counts_current_deposit_but_never_future_hand_points(self):
+        config = {'mode': 'risk_adjusted_fast_win_v1', 'dealin_penalty': .3, 'net_weight': .1, 'point_scale': 8000.}
+        events = [{'type': 'start_kyoku'}, {'type': 'reach_accepted', 'actor': 0},
+            {'type': 'ryukyoku', 'deltas': [0] * 4}, {'type': 'end_kyoku'}]
+        before = hand_utility(events, 0, 0, 0, .995, config)
+        events += [{'type': 'start_kyoku'}, {'type': 'tsumo'},
+            {'type': 'hora', 'actor': 0, 'target': 1, 'deltas': [48000, -48000, 0, 0]}, {'type': 'end_kyoku'}]
+        self.assertEqual(hand_utility(events, 0, 0, 0, .995, config), before)
+        self.assertEqual(before['net_points'], -1000)
+        self.assertEqual(before['fast_reward'], 0.)
+
     def test_direct_ranking_prioritizes_wrong_order_over_already_correct_order(self):
         logits = torch.tensor([0., -4.], requires_grad=True)
         reference = logits.detach().clone()
@@ -75,6 +101,9 @@ class FastWinTest(unittest.TestCase):
         loss, _, _ = pair_loss(head, row, .05, 1.); loss.backward()
         self.assertLess(head.logits.grad[1], head.logits.grad[0])
         head.zero_grad(); row['fast_advantage'] = -1.
+        pair_loss(head, row, .05, 1.)[0].backward()
+        self.assertGreater(head.logits.grad[1], head.logits.grad[0])
+        head.zero_grad(); row['fast_advantage'] = 1.; row['training_advantage'] = -1.
         pair_loss(head, row, .05, 1.)[0].backward()
         self.assertGreater(head.logits.grad[1], head.logits.grad[0])
 

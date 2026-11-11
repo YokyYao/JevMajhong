@@ -20,21 +20,22 @@ def evaluate(heads, rows, per_direction=8):
             reference_correct = 0; reference_choices = 0
             reference_mass = []; candidate_mass = []; margin_gains = []
             for row in selected:
+                delta = row.get('training_advantage', row['fast_advantage'])
                 head = heads[row['scope']]
                 z = head(row['decide'], row['options'])
                 margin = float(z[row['action']] - z[row['teacher_action']])
-                correct += int(margin * row['fast_advantage'] > 0)
+                correct += int(margin * delta > 0)
                 selected_index = max(row['eligible'], key=lambda i: float(z[i]))
                 kinds = [v['type'] for v in row['public_request']['questions']['action']['criteria'].values()]
                 operation_choices += int(kinds[selected_index] == category)
                 reference = row['reference'].to(z.device).clamp_min(1e-30)
                 prior_margin = float(reference[row['action']].log() - reference[row['teacher_action']].log())
-                reference_correct += int(prior_margin * row['fast_advantage'] > 0)
+                reference_correct += int(prior_margin * delta > 0)
                 reference_choices += int(kinds[row['teacher_action']] == category)
                 indices = [i for i, kind in enumerate(kinds) if kind == category]
                 reference_mass.append(float(reference[indices].sum()))
                 candidate_mass.append(float(z.softmax(-1)[indices].sum()))
-                margin_gains.append((margin - prior_margin) * (1 if row['fast_advantage'] > 0 else -1))
+                margin_gains.append((margin - prior_margin) * (1 if delta > 0 else -1))
             result[category][direction] = {'cases': len(selected), 'pair_order_correct': correct,
                 'pair_order_accuracy': correct / len(selected) if selected else None,
                 'operation_selected_from_full_legal_set': operation_choices,
@@ -55,6 +56,7 @@ def main():
     from jevmahjong.core.io import digest, write
     from jevmahjong.policy.routing import make_head
     from jevmahjong.training.provenance import verify
+    from jevmahjong.data.native_pairs import load_sources
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--fit-run', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
@@ -72,20 +74,16 @@ def main():
             map_location='cpu', weights_only=True)
         heads[scope] = make_head(meta, 'cpu').eval().requires_grad_(False)
         heads[scope].load_state_dict(saved['heads'][scope])
-    source = json.loads((Path(fit['data']) / 'protocol.json').read_text())['config']
-    partitions = {'train': [], 'held': []}
-    for path, expected in fit['data_sha256'].items():
-        if digest(Path(path)) != expected:
-            raise ValueError('Source shard changed')
-        for row in torch.load(path, map_location='cpu', weights_only=False)['rows']:
-            key = 'held' if (row['episode_key'][0] - source['training_seed_start']) % 4 == 3 else 'train'
-            partitions[key].append(row)
+    partitions, hashes, _ = load_sources(fit['data'], saved['model_files'], fit['config'].get('reward'))
+    if hashes != fit['data_sha256']:
+        raise ValueError('Source shard manifest differs')
     if len(partitions['train']) != fit['train_rows'] or len(partitions['held']) != fit['held_rows']:
         raise ValueError('Whole-wall split coverage differs')
     result = {'model_id': fit['model_id'], 'checkpoint_sha256': digest(checkpoint),
         'strength_improvement_proven': False, 'human_test_opened': False}
     for key, rows in partitions.items():
         result[key] = evaluate(heads, rows)
+        result[key]['label_target'] = fit['config'].get('reward', {'mode': 'fast_win'})
         result[key]['role'] = key + '-wall action diagnostic; not independent full-game strength'
     write(args.out, result)
 

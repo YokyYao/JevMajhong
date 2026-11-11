@@ -11,7 +11,7 @@ def stratum(row):
     alternative, baseline = kinds[row['action']], kinds[row['teacher_action']]
     if category not in OPERATIONS:
         category = alternative if alternative in OPERATIONS else baseline if baseline in OPERATIONS else 'ordinary'
-    delta = row['fast_advantage']
+    delta = row.get('training_advantage', row['fast_advantage'])
     if abs(delta) <= 1e-12:
         direction = 'neutral'
     elif category == 'ordinary':

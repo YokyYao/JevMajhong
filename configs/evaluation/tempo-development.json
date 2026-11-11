@@ -1,10 +1,11 @@
 {
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
-  "candidate_run": "runs/jev-tempo-rank-v1",
+  "candidate_run": "runs/jev-tempo-safe-v1",
   "out": "runs/tempo-development",
   "stage": "development",
   "seed_start": 10720000,
   "seeds": 8,
-  "fast_gamma": 0.995
+  "fast_gamma": 0.995,
+  "confirmation_objective": "net_points"
 }

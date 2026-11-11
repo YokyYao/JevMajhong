@@ -81,13 +81,23 @@
     },
     "jev-tempo-rank-v1": {
       "role": "direct-fast-reward-ranking-with-KL",
-      "status": "experimental-not-deployed",
+      "status": "not-adopted-negative-development",
       "frozen_encoders": [
         "jev-discard-v1",
         "jev-call-v1"
       ],
       "selected_epoch": 3,
       "artifact_public": false
+    },
+    "jev-tempo-safe-v1": {
+      "role": "fast-win-with-dealin-penalty-and-local-point-utility",
+      "status": "experimental-development-running",
+      "selected_epoch": 6,
+      "artifact_public": false,
+      "frozen_encoders": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ]
     }
   },
   "legacy_aliases": {

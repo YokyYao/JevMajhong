@@ -84,7 +84,7 @@ def pair_loss(head, row, kl_beta, beta, reference_margin_weight=1.):
     reference = row['reference'].to(device).clamp_min(1e-30)
     reference_logits = reference.log()
     ranking = pairwise_preference_loss(logits, reference_logits, row['action'],
-        row['teacher_action'], row['fast_advantage'], beta, reference_margin_weight)
+        row['teacher_action'], row.get('training_advantage', row['fast_advantage']), beta, reference_margin_weight)
     eligible = row['eligible']
     logp = logits[eligible].float().log_softmax(-1)
     target = reference[eligible]; target = target / target.sum()

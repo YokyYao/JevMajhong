@@ -1,9 +1,14 @@
 """Known paired outcomes must drive score/speed decisions on the complete grid."""
 import copy
+import json
+from pathlib import Path
+import tempfile
 import unittest
 import torch
 from jevmahjong.evaluation.action_suite import evaluate as action_panel
 from jevmahjong.evaluation.metrics import summarize
+from jevmahjong.evaluation.reference_cache import GAMEPLAY_FILES, load_reference
+from jevmahjong.core.io import digest
 
 
 def example():
@@ -36,6 +41,60 @@ def example():
 
 
 class FastEvaluationTest(unittest.TestCase):
+    def test_multiple_ron_is_one_dealin_hand_and_two_payment_events(self):
+        rows, cfg = example(); r = rows[0]; seat = r['seat']
+        first, second = [0] * 4, [0] * 4
+        first[seat] = second[seat] = -100; first[1] = second[2] = 100
+        r.update(score=24800, rank=4, dealins=2, point_components={'ron_payments': -200},
+            final_scores=[24800, 25100, 25100, 25000],
+            mjai_log=[{'type': 'start_kyoku', 'scores': [25000] * 4, 'kyotaku': 0}, {'type': 'tsumo'},
+                {'type': 'hora', 'actor': 1, 'target': seat, 'deltas': first},
+                {'type': 'hora', 'actor': 2, 'target': seat, 'deltas': second}, {'type': 'end_kyoku'}, {'type': 'end_game'}])
+        result = summarize(rows, cfg)['overall']['policies']['reference']
+        self.assertAlmostEqual(result['dealin_rate'] * result['games'], 1)
+        self.assertAlmostEqual(result['dealin_event_rate'] * result['games'], 2)
+
+    def test_reference_cache_requires_complete_grid_matching_contract_and_unchanged_logs(self):
+        rows, cfg = example()
+        package = Path(__file__).resolve().parents[2] / 'jevmahjong'
+        code = {str(package / p): digest(package / p) for p in GAMEPLAY_FILES}
+        protocol = {'config': cfg, 'code_sha256': code, 'model_files': {'discard': {}, 'call': {}}}
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); raw = root / 'games-private.jsonl'
+            raw.write_text(''.join(json.dumps(r) + '\n' for r in rows))
+            (root / 'protocol.json').write_text(json.dumps(protocol))
+            (root / 'result.json').write_text(json.dumps(summarize(rows, cfg)))
+            (root / 'audit.json').write_text(json.dumps({'status': 'passed_complete',
+                'games': len(rows), 'games_sha256': digest(raw)}))
+            cached, receipt = load_reference(root, cfg, protocol)
+            self.assertEqual(len(cached), len(rows) // 2)
+            self.assertTrue(all(r['policy'] == 'reference' for r in cached))
+            self.assertEqual(receipt['games_sha256'], digest(raw))
+            with self.assertRaisesRegex(ValueError, 'contract differs'):
+                load_reference(root, dict(cfg, seed_start=200), protocol)
+            changed = copy.deepcopy(protocol); changed['model_files']['call']['head.pt'] = 'changed'
+            with self.assertRaisesRegex(ValueError, 'contract differs'):
+                load_reference(root, cfg, changed)
+            raw.write_text(raw.read_text() + '\n')
+            with self.assertRaisesRegex(ValueError, 'unchanged'):
+                load_reference(root, cfg, protocol)
+
+    def test_declared_point_objective_does_not_reject_point_gain_for_slower_wins(self):
+        rows, cfg = example()
+        for r in rows:
+            if r['policy'] == 'reference':
+                r.update(hand_wins=1, fast_hand_wins=1, fast_reward_sum=.995, winning_table_draws=1,
+                    point_components={'win_income': 0},
+                    mjai_log=[{'type': 'start_kyoku', 'scores': [25000] * 4, 'kyotaku': 0},
+                        {'type': 'tsumo'}, {'type': 'hora', 'actor': r['seat'], 'target': (r['seat'] + 1) % 4,
+                        'deltas': [0] * 4}, {'type': 'end_kyoku'}, {'type': 'end_game'}])
+        self.assertFalse(summarize(rows, cfg)['eligible_for_confirmation'])
+        cfg['confirmation_objective'] = 'net_points'
+        result = summarize(rows, cfg)
+        self.assertLess(result['fast_reward_paired']['gain'], 0)
+        self.assertGreater(result['overall']['candidate_minus_reference']['gain'], 0)
+        self.assertTrue(result['eligible_for_confirmation'])
+
     def test_probability_improvement_does_not_count_as_action_success(self):
         class FixedHead:
             def __call__(self, decide, options):

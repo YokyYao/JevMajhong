@@ -19,7 +19,7 @@ def aggregate(rows, cfg):
             raise ValueError('Invalid terminal score, rank, or hands')
         if not row['settlement_ledger_passed'] or sum(row['point_components'].values()) != row['score'] - 25000:
             raise ValueError('Terminal net points differ from audited ledger')
-        if not 0 <= row['hand_wins'] <= row['hands'] or not 0 <= row['dealins'] <= row['hands']:
+        if not 0 <= row['hand_wins'] <= row['hands'] or row['dealins'] < 0:
             raise ValueError('Impossible win or deal-in count')
 
     def stats(selected):
@@ -30,7 +30,8 @@ def aggregate(rows, cfg):
                 'fourth_rate': statistics.mean(r['rank']==4 for r in selected),
                 'mean_rank': statistics.mean(r['rank'] for r in selected),
                 'hand_win_rate': sum(r['hand_wins'] for r in selected)/hands,
-                'dealin_rate': sum(r['dealins'] for r in selected)/hands,
+                'dealin_rate': sum(hand_dealin_count(r['mjai_log'], r['seat']) for r in selected)/hands,
+                'dealin_event_rate': sum(r['dealins'] for r in selected)/hands,
                 'calls_per_game': statistics.mean(r['calls'] for r in selected),
                 'mean_point_components': {k:statistics.mean(r['point_components'].get(k,0) for r in selected)
                     for k in sorted({k for r in selected for k in r['point_components']})}}
@@ -61,6 +62,15 @@ def interval(values):
 from jevmahjong.core.scoring import settlement_ledger
 from jevmahjong.training.rewards import fast_game_stats
 
+
+def hand_dealin_count(log, seat):
+    count = 0; hit = False
+    for event in log:
+        if event['type'] == 'start_kyoku': hit = False
+        elif event['type'] == 'hora' and event['target'] == seat and event['actor'] != seat: hit = True
+        elif event['type'] == 'end_kyoku': count += int(hit)
+    return count
+
 def summarize(rows, cfg):
     result = aggregate(rows, cfg)
     indexed = {(r['suite'], r['seed'], r['seat'], r['policy']): r for r in rows}
@@ -73,6 +83,8 @@ def summarize(rows, cfg):
             raise ValueError('Reward or point summary differs from actual native event log')
         if r['fast_hand_count'] != r['hands'] or r['fast_hand_wins'] != r['hand_wins']:
             raise ValueError('Fast reward and arena hand counts differ')
+        if r['dealins'] != sum(e['type'] == 'hora' and e['target'] == r['seat'] and e['actor'] != r['seat'] for e in r['mjai_log']):
+            raise ValueError('Ron payment event count differs')
         if not 0 <= r['fast_reward_sum'] <= r['hands']:
             raise ValueError('Invalid discounted wins')
     gains = [statistics.mean(indexed[s, n, p, 'candidate']['fast_reward_sum'] / indexed[s, n, p, 'candidate']['hands']
@@ -82,14 +94,21 @@ def summarize(rows, cfg):
         'unit': 'discounted own wins per hand, equal-weight match means, whole-wall paired CI'}
     for name in POLICIES:
         subset = [r for r in rows if r['policy'] == name]; wins = sum(r['hand_wins'] for r in subset)
+        hands = sum(r['hands'] for r in subset)
         result['overall']['policies'][name].update(
+            dealin_event_rate=sum(r['dealins'] for r in subset) / hands,
+            dealin_rate=sum(hand_dealin_count(r['mjai_log'], r['seat']) for r in subset) / hands,
             discounted_own_wins_per_hand=statistics.mean(r['fast_reward_sum'] / r['hands'] for r in subset),
             mean_table_draws_when_winning=sum(r['winning_table_draws'] for r in subset) / wins if wins else None,
             kan_opportunities={k: sum(r['kan_opportunities'].get(k, 0) for r in subset) for k in ('ankan', 'daiminkan', 'kakan')},
             kan_choices={k: sum(r['kan_choices'].get(k, 0) for r in subset) for k in ('ankan', 'daiminkan', 'kakan')})
     # Keep net points as the overarching improvement objective. Positive speed
     # with negative points is evidence to adjust risk, not a deployment claim.
-    result['eligible_for_confirmation'] = (result['fast_reward_paired']['gain'] > 0
-        and result['overall']['candidate_minus_reference']['gain'] > 0)
+    objective = cfg.get('confirmation_objective', 'joint_fast_points')
+    if objective not in ('joint_fast_points', 'net_points'):
+        raise ValueError('Unknown confirmation objective')
+    result['eligible_for_confirmation'] = (result['overall']['candidate_minus_reference']['gain'] > 0
+        and (objective == 'net_points' or result['fast_reward_paired']['gain'] > 0))
+    if 'confirmation_objective' in cfg: result['confirmation_objective'] = objective
     result['not_deployed'] = True
     return result
