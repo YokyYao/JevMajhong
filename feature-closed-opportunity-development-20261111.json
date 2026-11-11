@@ -1,0 +1,10 @@
+{
+  "source_config": "feature-closed-opportunity-20261111.json",
+  "out": "runs/feature-closed-opportunity-development-20261111",
+  "stage": "development",
+  "seed_start": 10070000,
+  "seeds": 32,
+  "parity_per_phase_view": 2,
+  "parity_atol": 0.0005,
+  "paired_parent_out": "runs/feature-closed-opportunity-development-20261111/parent-comparison"
+}

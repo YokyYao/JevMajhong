@@ -1,0 +1,43 @@
+{
+  "data": "data/feature-closed-opportunity-20261111",
+  "out": "runs/feature-closed-opportunity-20261111",
+  "trainer_config": "feature-closed-opportunity-20261111.toml",
+  "parent_config": "feature-unseen-continuation-20261110.json",
+  "parent_development_out": "runs/feature-unseen-development-20261110",
+  "parent_step": 200,
+  "exclude_parent_requests": 3200,
+  "warm_start": "runs/feature-unseen-continuation-20261110/training-run/checkpoints/step-000200",
+  "reference": "runs/head-rl-diagonal-value-20261030/checkpoints/calibration-02",
+  "reference_protocol": "runs/call-repair-20261109/protocol.json",
+  "views": [
+    "native"
+  ],
+  "seed": 2026111104,
+  "max_steps": 300,
+  "validation_every": 50,
+  "patience": 3,
+  "allow_feature_baseline": false,
+  "development_seed_start": 10070000,
+  "development_seeds": 32,
+  "confirmation_seed_start": 10080000,
+  "confirmation_seeds": 128,
+  "initialization": "Return to preserved stage2 step200 adapter/head; fresh AdamW/OneCycle with peaks5e-6 and2.5e-5; no stage3 failed weights loaded",
+  "training_interpretation": "Exclude all3200 actually updated stage3 IDs in addition to prior6400; select4800 new requests from31360 remaining using only public closed-chi eligibility and opponent-riichi strata. Existing TRAIN matches, unchanged expert labels, no forced-call quota or reward.",
+  "selection_policy": "Actual SDK transfer_nll on unchanged1024 reaction validation; full1408 diagnostics/parity retained. Updated chi/pon exact-hit admission; step0 baseline only. Three stale updated validations stop; maximum300 updates.",
+  "primary_goal": "Complete-East terminal net points versus frozenB and matched preserved stage2 parent; closed-hand chi and threat diagnostics do not replace score evidence",
+  "privacy": "Only code, configuration and aggregate Markdown summaries public; weights and human records remain private",
+  "desktop_testing": "deferred_by_user",
+  "parent_confirmation_out": "runs/feature-unseen-confirmation-20261110",
+  "parent_increment_out": "runs/feature-unseen-confirmation-parent-20261111",
+  "selection_scope": "reaction",
+  "exclude_executed_config": "feature-reaction-continuation-20261111-v2.json",
+  "exclude_executed_requests": 3200,
+  "failed_continuation_development_out": "runs/feature-reaction-development-20261111-v2",
+  "failed_continuation_confirmation_config": "feature-reaction-confirmation-20261111-v2.json",
+  "public_stratum_quotas": {
+    "closed_chi_no_threat": 2400,
+    "closed_chi_threat": 960,
+    "other_reaction": 960,
+    "ordinary": 480
+  }
+}
