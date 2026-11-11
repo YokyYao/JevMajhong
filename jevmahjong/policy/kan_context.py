@@ -92,16 +92,30 @@ def feature_vectors(request):
     return result
 
 
-def probabilities(request, reference, context):
+def context_scores(request, context):
     if context['version'] != VERSION or tuple(context['names']) != NAMES: raise ValueError('Context feature schema differs')
+    x = torch.tensor(feature_vectors(request),dtype=torch.float64)
+    if context.get('model_kind','ridge') == 'mlp':
+        h = context['hidden']; weights = context['state_dict']
+        if not isinstance(h,int) or not 1 <= h <= 128:raise ValueError('Invalid context hidden width')
+        shapes = {'0.weight':(h,len(NAMES)),'0.bias':(h,),'2.weight':(1,h)}
+        if set(weights) != set(shapes) or any(v.shape != shapes[k] or not torch.isfinite(v).all() for k,v in weights.items()):
+            raise ValueError('Invalid context network parameters')
+        hidden = torch.tanh(x @ weights['0.weight'].double().cpu().T + weights['0.bias'].double().cpu())
+        return (hidden @ weights['2.weight'].double().cpu().T).flatten()
+    if context.get('model_kind','ridge') != 'ridge': raise ValueError('Unknown context model kind')
     coef = context['coefficients'].double().cpu()
     if coef.shape != (len(NAMES),) or not torch.isfinite(coef).all(): raise ValueError('Invalid context coefficients')
+    return x @ coef
+
+
+def probabilities(request, reference, context):
+    scores = context_scores(request,context)
     q = torch.as_tensor(reference, dtype=torch.float64)
     if q.ndim != 1 or len(q) != len(request['questions']['action']['criteria']) or not torch.isfinite(q).all() or (q < 0).any() or q.sum() <= 0:
         raise ValueError('Invalid reference distribution')
     q = q / q.sum()
-    if not torch.count_nonzero(coef): return q.tolist()
-    scores = torch.tensor(feature_vectors(request), dtype=torch.float64) @ coef
+    if not torch.count_nonzero(scores): return q.tolist()
     # The tiny prior resolves value ties; it is not a fixed call bonus.
     return (scores + 1e-8 * q.clamp_min(1e-30).log()).softmax(-1).tolist()
 

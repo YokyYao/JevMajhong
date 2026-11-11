@@ -219,7 +219,7 @@
     },
     "jev-kan-context-v1": {
       "role": "public-context-paired-utility-value-difference-component",
-      "status": "trained-development-running",
+      "status": "not-adopted-negative-development",
       "initialized_from": "jev-play-v1",
       "unchanged_nonkan_policy": "jev-play-v1",
       "activation": "kan_windows",
@@ -230,6 +230,37 @@
       "train_rows": 400,
       "held_rows": 137,
       "checkpoint_sha256": "77b459b620906fbfd3b77c68e819e761603722328fcf48a166cccfd94ae238b6",
+      "original_pointer_heads_unchanged": true,
+      "artifact_exists": true,
+      "artifact_public": false,
+      "independent_improvement_proven": false,
+      "development_net_gain_vs_play_v1": -545.8333333333334,
+      "development_ci95": [
+        -1768.219711952584,
+        676.5530452859172
+      ],
+      "independent_confirmation_run": false
+    },
+    "jev-kan-context-v2": {
+      "role": "public-context-nonlinear-paired-utility-value-component",
+      "status": "trained-development-running",
+      "frozen_components": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ],
+      "unchanged_nonkan_policy": "jev-play-v1",
+      "activation": "kan_windows",
+      "feature_version": "public-kan-context-v1",
+      "feature_count": 152,
+      "model_kind": "mlp",
+      "hidden_width": 16,
+      "trained_parameter_count": 2464,
+      "selected_epoch": 10,
+      "epochs_run": 14,
+      "optimizer_updates": 182,
+      "train_rows": 400,
+      "held_rows": 137,
+      "checkpoint_sha256": "611bc37ab4d02fa7ef72730a75106e0571d8beb5d5e6ab826dc9fbbce34dd89f",
       "original_pointer_heads_unchanged": true,
       "artifact_exists": true,
       "artifact_public": false,

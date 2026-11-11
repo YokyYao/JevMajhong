@@ -32,11 +32,14 @@
   ],
   "decision_filter": "kan_windows",
   "selection_validation": "latest_source",
-  "model_id": "jev-kan-context-v1",
-  "out": "runs/jev-kan-context-v1",
-  "regularizers": [
-    0.01,
-    0.1,
-    1.0
-  ]
+  "model_id": "jev-kan-context-v2",
+  "out": "runs/jev-kan-context-v2",
+  "fit_model": "mlp",
+  "hidden": 16,
+  "epochs": 32,
+  "patience_epochs": 4,
+  "batch": 32,
+  "lr": 0.001,
+  "weight_decay": 0.001,
+  "seed": 2026111203
 }

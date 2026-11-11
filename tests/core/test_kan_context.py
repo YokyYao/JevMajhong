@@ -2,7 +2,7 @@ import copy
 import unittest
 import torch
 from riichienv import MeldType
-from jevmahjong.policy.kan_context import VERSION, NAMES, feature_vectors, probabilities, KanContextPolicyClient
+from jevmahjong.policy.kan_context import VERSION, NAMES, feature_vectors, probabilities, context_scores, KanContextPolicyClient
 
 
 def request(kind):
@@ -22,6 +22,17 @@ def request(kind):
 
 
 class KanContextTests(unittest.TestCase):
+    def test_nonlinear_inference_matches_training_and_zero_start_preserves_play(self):
+        from jevmahjong.training.context_network import make_network
+        torch.manual_seed(17);net=make_network(3);req=request('daiminkan')
+        context={'version':VERSION,'names':list(NAMES),'model_kind':'mlp','hidden':3,'state_dict':net.state_dict()}
+        self.assertEqual(probabilities(req,[.8,.2],context),[.8,.2])
+        with torch.no_grad():net[2].weight.copy_(torch.tensor([[.1,.2,-.4]],dtype=torch.float64))
+        actual=context_scores(req,context);expected=net(torch.tensor(feature_vectors(req),dtype=torch.float64)).flatten()
+        self.assertTrue(torch.allclose(actual,expected,atol=1e-12,rtol=0))
+        context['hidden']=4
+        with self.assertRaises(ValueError):context_scores(req,context)
+
     def test_all_three_kans_handle_owned_tiles_closed_status_and_known_dora(self):
         for kind in ('ankan','daiminkan','kakan'):
             req=request(kind);old=copy.deepcopy(req);values=feature_vectors(req)[1]
