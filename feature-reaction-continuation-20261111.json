@@ -1,0 +1,33 @@
+{
+  "data": "data/feature-reaction-continuation-20261111",
+  "out": "runs/feature-reaction-continuation-20261111",
+  "trainer_config": "feature-reaction-continuation-20261111.toml",
+  "parent_config": "feature-unseen-continuation-20261110.json",
+  "parent_development_out": "runs/feature-unseen-development-20261110",
+  "parent_step": 200,
+  "exclude_parent_requests": 3200,
+  "warm_start": "runs/feature-unseen-continuation-20261110/training-run/checkpoints/step-000200",
+  "reference": "runs/head-rl-diagonal-value-20261030/checkpoints/calibration-02",
+  "reference_protocol": "runs/call-repair-20261109/protocol.json",
+  "views": [
+    "native"
+  ],
+  "seed": 2026111103,
+  "max_steps": 200,
+  "validation_every": 50,
+  "patience": 4,
+  "allow_feature_baseline": false,
+  "development_seed_start": 10050000,
+  "development_seeds": 32,
+  "confirmation_seed_start": 10060000,
+  "confirmation_seeds": 128,
+  "initialization": "Exact second feature-stage200 adapter/head, fresh AdamW/OneCycle at unchanged peaks1e-5 and5e-5; not optimizer resume",
+  "training_interpretation": "Exclude exact3200 second-stage requests from37760 pool already excluding first-stage3200; remaining34560 requests from existing TRAIN matches; no new independent matches claimed",
+  "selection_policy": "Actual SDK transfer_nll on the exact1024 native chi/pon/pass validation subset; unchanged full1408 validation retained as diagnostics and parity. Step0 is baseline only. Updated chi and pon exact hits required; score improvement is measured only in complete-East games.",
+  "primary_goal": "Fresh complete-East net points versus frozenB and matched frozen second-stage parent; preserve small positive signals, report wall-cluster uncertainty and strong-suite risk",
+  "privacy": "Only code, configuration and aggregate Markdown summaries public; weights and human records remain private",
+  "desktop_testing": "deferred_by_user",
+  "parent_confirmation_out": "runs/feature-unseen-confirmation-20261110",
+  "parent_increment_out": "runs/feature-unseen-confirmation-parent-20261111",
+  "selection_scope": "reaction"
+}

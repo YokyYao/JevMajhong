@@ -1,0 +1,10 @@
+{
+  "source_config": "feature-reaction-continuation-20261111.json",
+  "out": "runs/feature-reaction-confirmation-20261111",
+  "stage": "independent_confirmation",
+  "seed_start": 10060000,
+  "seeds": 128,
+  "parity_per_phase_view": 2,
+  "parity_atol": 0.0005,
+  "development_out": "runs/feature-reaction-development-20261111"
+}
