@@ -12,7 +12,7 @@
 | **Jev Call v1** | 吃、碰、跳过 | 当前鸣牌策略 |
 | **Jev Play v1** | 上面两套策略的组合 | Windows 0.3.0 使用的组合 |
 | **Jev Value v1** | 本局净得点为主、快和为辅，更新两个动作头 | 独立确认未改善，未采用 |
-| **Jev Value Defense v1** | 补充副露后面对立直的决策与风险分层训练 | 新数据采集中，尚无新权重 |
+| **Jev Value Defense v1** | 副露后立直风险数据与分层续训 | 已短训，开发评估中，未部署 |
 
 Jev Play v1 在固定东风模拟中，相对仅使用 Jev Discard v1 提高 **1045.83 点／场**，95%配对区间为 **[321.68，1769.99]**。这项结果属于组合策略；真人对局和截图使用效果仍需验证。[完整记录](docs/experiments/results/2026-11-11-feature-continuation-confirmation/README.md)
 
