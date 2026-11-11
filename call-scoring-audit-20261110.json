@@ -1,8 +1,0 @@
-{
-  "out": "runs/call-scoring-audit-20261110",
-  "source_config": "call-natural-query-trust-20261110.json",
-  "seed_start": 8810000,
-  "seeds": 2,
-  "purpose": "Audit scoring on opened development cases, without claiming new strength evidence",
-  "privacy": "Only source/config and an aggregate Markdown report are public; all logs and observations stay private"
-}

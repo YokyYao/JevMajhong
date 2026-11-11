@@ -263,7 +263,7 @@ class Adviser:
         self.model = None
         self.device = None
         self.ready = False
-        self.policy_name = 'Jev 校正版2'
+        self.policy_name = 'Jev Discard v1'
 
     def prepare(self, checkpoint, progress=None):
         """Load and execute a real inference before reporting match readiness."""
@@ -305,16 +305,16 @@ class Adviser:
                 inference_options=InferenceOptions(max_state_tokens=4096, max_branch_tokens=8192,
                                                   max_packed_tokens=8192, prefix_cache_size=0))
         ordinary = load(checkpoint)
-        stage2 = checkpoint.parent / 'feature-stage2'
-        if stage2.is_dir():
-            from .stage2_runtime import Stage2Client, validate_stage2_checkpoint
-            validate_stage2_checkpoint(stage2)
-            calling = load(stage2)
-            self.model = Stage2Client(ordinary, calling)
-            self.policy_name = 'Jev 鸣牌增强版（第二阶段）'
+        call_checkpoint = checkpoint.parent / 'jev-call-v1'
+        if call_checkpoint.is_dir():
+            from .call_policy import CallPolicyClient, validate_call_checkpoint
+            validate_call_checkpoint(call_checkpoint)
+            calling = load(call_checkpoint)
+            self.model = CallPolicyClient(ordinary, calling)
+            self.policy_name = 'Jev Play v1'
         else:
             self.model = ordinary
-            self.policy_name = 'Jev 校正版2'
+            self.policy_name = 'Jev Discard v1'
         self.device = device
         return f'{self.policy_name} · {device.upper()} · {dtype}'
 

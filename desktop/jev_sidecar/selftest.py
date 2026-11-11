@@ -45,18 +45,18 @@ def run(report, model_test=False):
     panel.close()
     if model_test:
         adviser = Adviser()
-        adviser.load(ROOT / 'models/calibration-02', device='cpu')
+        adviser.load(ROOT / 'models/jev-discard-v1', device='cpu')
         board = Board(parse('12389m278p589s457z'), rivers=[[], [], [], []], metadata_confirmed=True)
         prediction = adviser.recommend(board, use_model=True)
         assert sum(v['eligible'] for v in prediction['all_candidates']) >= 2
         assert prediction['top3'][0]['tile'] in board.hand
-        from .stage2_runtime import Stage2Client
-        assert isinstance(adviser.model, Stage2Client), 'Stage2 call adapter missing from release'
+        from .call_policy import CallPolicyClient
+        assert isinstance(adviser.model, CallPolicyClient), 'Stage2 call adapter missing from release'
         call_board = Board(parse('123456m345p67s11z'), rivers=[[], [], [], []], metadata_confirmed=True,
             reaction={'tile': '5s', 'seat': 3, 'offered': ['chi']})
         call_prediction = adviser.recommend(call_board, use_model=True)
         assert call_prediction['reaction'] and len(call_prediction['all_candidates']) >= 2
         result.update(model=True, chosen=prediction['top3'][0]['tile'], device='cpu',
-            call_model='feature-stage2-step200', ordinary_model='calibration-02',
+            call_model='jev-call-v1', ordinary_model='jev-discard-v1',
             call_choice=call_prediction['top3'][0]['action'])
     Path(report).write_text(json.dumps(result, indent=2), encoding='utf-8')

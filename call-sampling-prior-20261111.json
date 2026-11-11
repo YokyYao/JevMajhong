@@ -1,5 +1,0 @@
-{
-  "out": "runs/call-sampling-prior-20261111",
-  "control_config": "call-fit-control-20261111.json",
-  "purpose": "After both controls finish, audit complete curves and inspect fixed source-class/sample-class inverse inclusion correction on already-opened TRAIN/validation predictions. No tuned thresholds, optimizer update, test access or strength promotion."
-}

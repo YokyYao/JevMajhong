@@ -30,3 +30,8 @@ MIGRATION.txt
 PROGRESS.txt
 RUN.txt
 research-plan.txt
+
+/core
+/core.*
+/.cleanup-mapping.json
+*.egg-info/

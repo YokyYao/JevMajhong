@@ -1,0 +1,62 @@
+# 扩大训练覆盖：更新8独立确认+251.95点，继续加数据训练
+
+训练作业253552完成16次更新后按预设门槛停止。**更新8开发净得点提高738.28125点/场，更新16回落到比旧模型低54.6875点/场。原训练方案没有通过开发精度筛选，尚无稳定提升结论。** 更新8完整保留，随后按[公开的单候选后续方案](../../plans/score-east-coverage-followup.md)完成独立确认：净得点增加251.953125点/场，95%区间仍包含0，未达到最终目标。已按[从更新8继续的方案](../../plans/score-east-carry8.md)启动另一张GPU上的新增数据训练。
+
+## 同批128场完整开发结果
+
+| 模型 | 平均净得点 | 相对旧模型 | 一位率 | 前二率 | 末位率 |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 旧2000步模型 | +559.375 | 0 | 29.6875% | 56.2500% | 22.6563% |
+| 更新8 | +1297.65625 | +738.28125 | 32.0313% | 60.1563% | 18.7500% |
+| 更新16 | +504.6875 | -54.6875 | 30.4688% | 57.8125% | 21.0938% |
+
+32个独立牌山流，每流换座4次。更新8配对净得点差95%区间[-502.530218,1979.092718]，更新16为[-822.737848,713.362848]。均包含0。更新16相对更新8净得点下降792.96875点/场，说明在这一批开发对局上，继续增加更新未保持早期收益；不能据此证明过拟合是唯一原因。
+
+## 训练与实际更新核对
+
+- 32个训练牌山流，256场候选探索对局及128场独立冻结旧模型对照，20266个决策状态，256个独立派生采样种子。
+- 奖励为完整东风终局净得点除以1000，优势为候选减同起始条件旧模型奖励后除以10，逐状态核对通过。对照未进入梯度。
+- 原Qwen和LoRA冻结，只训练524800参数评分头；critic不训练且保持0，优化器只有一个参数组，原权重文件指纹未变。
+- minibatch1024，实际完成16次小批更新；8次时使用8192个状态，16次时使用16384个状态，尚未完整遍历全部20266个训练状态。不能将8到16的开发回退简单解释为重复训练了许多轮。
+- 更新8相对旧模型在训练状态上贪心动作改变519/20266（2.56%），更新16为380/20266（1.88%）。完整训练轨迹KL分别为0.000814691和0.000652874；初始学习率1e-4未触发衰减。更新16更接近旧策略，开发表现也回落，因果关系仍需新数据检验。
+- 保存更新0/4/8/12/16；没有继续到24/32，未替换默认策略。
+
+## 后续处理
+
+原训练停止结论保留，`selected_for_confirmation=null`。后续另立一次研究：在打开任何新确认牌山前，按完整开发均值选定唯一的更新8，公开其SHA-256及选择规则调整。原来的“开发CI下界大于0”没有通过，本次改为直接独立检验这个正向候选；最终+500和新牌山配对CI下界大于0的门槛不变。
+
+确认使用2902000至2902127、128个新牌山流，双方各512场。测试不选择其他检查点，不更新参数。若未达目标，再从保留的较好检查点增加新训练数据；不使用本次确认牌山做下一轮测试。该后续方案已在提交确认之前公开，固定候选后完成了全部独立测试，结果如下。
+
+## 完整独立确认：正向点估计，未达最终目标
+
+128个新牌山流、双方各512场，逻辑ID2902000至2902127；每流换座4次。唯一候选在测试前的公开提交`2e1e5abcbc209842a7c84fdb53d3e7354fcc4895`中固定，没有在测试后重选其他检查点。
+
+| 指标 | 原2000步模型 | 更新8 | 差值 |
+| --- | ---: | ---: | ---: |
+| 平均净得点 | +691.796875 | +943.75 | +251.953125 |
+| 一位率 | 29.2969% | 28.9063% | -0.3906个百分点 |
+| 前二率 | 55.2734% | 55.6641% | +0.3906个百分点 |
+| 末位率 | 23.6328% | 21.8750% | -1.7578个百分点 |
+| 平均顺位 | 2.390625 | 2.373046875 | -0.017578125 |
+
+配对净得点差95%区间 **[-213.159306, +717.065556]点/场**，`qualified=false`。本批净得点均值提高，但未达到+500点门槛，区间也包含0；一位率的点估计没有提高。不能将开发+738.28当作可稳定推广的收益。
+
+128个流中50组净得点提高、46组下降、32组相同；总净得点差+129000。512场中77场得分提高、79场降低，另有2场同分但顺位不同。变化分散且收益波动大，不能据此说大多数牌山都改善。与上一配方的+195.12来自不同模型、不同测试范围，不能用251.95比195.12更大就推断数据扩充的因果效果。
+
+确认作业253703及CPU审计253704均正常退出。此前253695在GPU预检阶段因卡上已有其他进程而退出，尚未产生任何测试场次；随后改到干净GPU，使用同一候选和同一固定范围完成。原始记录、协议、奖励、完整覆盖、数据隔离和权重指纹核验通过；核验通过不等于效果达标。
+
+## 已启动的下一步
+
+从更新8继续的作业253768在本次确认结果产生前就已启动并冻结配置。初始化已逐项核对等于更新8；新增64个训练牌山流、512场候选和256场冻结对照，参考与KL锚设为更新8，学习率5e-5，每4次验证、最多16次。
+
+本支线相对更新8的+250点仅是训练阶段目标，最终评估会切回原2000步模型，并维持+500且配对区间下界大于0的目标。使用新的3001000训练、3102000开发、3202000最终确认范围。当前正向信号支持继续研究，尚未完成持续改进目标，也未发布为已验证提升模型或替换默认策略。
+
+## 原始记录与协议
+
+- [原训练协议](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/training-protocol.json)、[完整训练停止分析](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/training-analysis.json)、[逐检查点开发结果](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/development-results.json)。
+- [旧模型128场](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/baseline-games.jsonl)、[更新8](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/update8-games.jsonl)、[更新16](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/update16-games.jsonl)。
+- [256场采样](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/training-games.json)、[128场冻结对照](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/reference-controls.json)、[更新8实际训练核对](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/training-audit-update8.json)、[完整KL与学习率记录](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/trust-region.json)、[16次优化记录](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/policy-update-metrics.jsonl)。
+- [后续独立确认协议](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/followup-protocol.json)、[测试前唯一候选选择](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/followup-confirmation-selection.json)。
+
+- [独立确认结果](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/followup-result.json)、[完整核验](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/followup-audit.json)、[逐流变化分析](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/followup-analysis.json)、[GPU作业尝试](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/followup-job-attempts.json)。
+- [旧模型512场](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/followup-reference-games.jsonl)、[更新8的512场](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/reports/2026-10-29-score-coverage/followup-candidate-games.jsonl)。

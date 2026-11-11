@@ -1,0 +1,24 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "model_id": "jev-tempo-balanced-v1",
+  "data": "runs/tempo-native",
+  "out": "runs/jev-tempo-balanced-v1",
+  "seed": 2026111119,
+  "epochs": 3,
+  "batch": 16,
+  "lr": 1e-05,
+  "weight_decay": 0.001,
+  "kl_beta": 0.05,
+  "pair_beta": 1.0,
+  "max_example_weight": 4.0,
+  "action_mix": {
+    "ordinary": 0.4,
+    "chi": 0.12,
+    "pon": 0.12,
+    "ankan": 0.12,
+    "daiminkan": 0.12,
+    "kakan": 0.12
+  },
+  "action_cases_per_direction": 8
+}

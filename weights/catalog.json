@@ -1,0 +1,88 @@
+{
+  "base_model": "Qwen/Qwen3.5-0.8B",
+  "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
+  "models": {
+    "jev-supervised-v1": {
+      "role": "supervised-pretraining",
+      "status": "historical-reproducible",
+      "archive": "jev-supervised-v1/manifest.json"
+    },
+    "jev-discard-v1": {
+      "role": "ordinary-and-kan",
+      "status": "deployed-component",
+      "local_path": "models/jev-discard-v1",
+      "recipe": "jev-discard-v1/recipe.json",
+      "head_tensor_sha256": "ed19999b02abb0a72f3aed0d5f8cc42d9ab04b68f555fff1ba2135de5b462683",
+      "original_head_sha256": "b1248fbc9c9bd1a768a9eaf5fdb5241c82c96ac50eaabf8e0ca8fed885bec1ea"
+    },
+    "jev-call-v1": {
+      "role": "chi-pon-pass",
+      "status": "deployed-component",
+      "local_path": "models/jev-call-v1",
+      "archive": "jev-call-v1/manifest.json",
+      "head_sha256": "8f3421dca9a700c63d2a7b1694a81c80a0ef9f29c263a13a75fb13e426452a04",
+      "adapter_sha256": "7788cff96a921f1358f0e68fa6ee16f69782174c106e98c6a11008acdff0becb"
+    },
+    "jev-play-v1": {
+      "role": "hybrid",
+      "status": "deployed-desktop-0.3.0",
+      "components": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ],
+      "east_simulation_gain_vs_discard_v1": 1045.8333333333333,
+      "ci95": [
+        321.67839747,
+        1769.9882692
+      ],
+      "not_human_win_rate": true
+    },
+    "jev-tempo-v1": {
+      "role": "two-head-fast-win-reward",
+      "status": "experimental-not-deployed",
+      "frozen_encoders": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ]
+    },
+    "jev-call-data-v2": {
+      "role": "fresh-human-match-continuation",
+      "status": "experimental-not-deployed",
+      "checkpoint_steps": [
+        50,
+        100,
+        150,
+        200
+      ],
+      "artifact_public": false
+    },
+    "jev-tempo-balanced-v1": {
+      "role": "action-and-direction-balanced-fast-win-heads",
+      "status": "experimental-not-deployed",
+      "frozen_encoders": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ]
+    },
+    "jev-call-v0": {
+      "role": "initial-feature-expert-call-policy",
+      "status": "historical-superseded",
+      "artifact_public": false
+    },
+    "jev-call-reaction-v1": {
+      "role": "reaction-only-continuation",
+      "status": "historical-not-adopted",
+      "artifact_public": false
+    },
+    "jev-call-curriculum-v1": {
+      "role": "public-opportunity-curriculum",
+      "status": "historical-not-adopted",
+      "artifact_public": false
+    }
+  },
+  "legacy_aliases": {
+    "calibration-02": "jev-discard-v1",
+    "oldB": "jev-discard-v1",
+    "feature-stage2-step200": "jev-call-v1"
+  }
+}

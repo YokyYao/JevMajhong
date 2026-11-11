@@ -1,0 +1,20 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "out": "runs/tempo-native",
+  "seed": 2026111119,
+  "game_mode": "4p-red-east",
+  "seed_scheme": "spaced-v1",
+  "training_seed_start": 10710000,
+  "training_seeds_per_stage": 96,
+  "training_replicas": 6,
+  "intervention_categories": [
+    "ordinary",
+    "chi",
+    "pon",
+    "ankan",
+    "daiminkan",
+    "kakan"
+  ],
+  "fast_gamma": 0.995
+}

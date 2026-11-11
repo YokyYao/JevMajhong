@@ -1,0 +1,28 @@
+"""Freeze maintained source and model files for a new run."""
+from pathlib import Path
+from jevmahjong.core.io import digest
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def snapshot(config):
+    models = {}
+    for role in ('discard', 'call'):
+        directory = Path(config[role + '_checkpoint']).resolve()
+        models[role] = {str(p): digest(p) for p in directory.iterdir()
+            if p.is_file() and p.name in ('head.pt', 'adapter_model.safetensors', 'adapter_config.json',
+                'tokenizer.json', 'tokenizer_config.json', 'chat_template.jinja')}
+        if len(models[role]) != 6:
+            raise ValueError('Incomplete inference model: ' + role)
+    return {'config': config, 'code_sha256': {str(p): digest(p) for p in (ROOT / 'jevmahjong').rglob('*.py')},
+        'model_files': models, 'human_test_opened': False}
+
+
+def verify(protocol):
+    for path, expected in protocol['code_sha256'].items():
+        if digest(Path(path)) != expected:
+            raise ValueError('Registered source changed: ' + path)
+    for files in protocol['model_files'].values():
+        for path, expected in files.items():
+            if digest(Path(path)) != expected:
+                raise ValueError('Registered model changed: ' + path)

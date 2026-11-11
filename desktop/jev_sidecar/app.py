@@ -379,14 +379,12 @@ class Sidecar(QMainWindow):
         self.monitor.hide()
         settings.addWidget(QLabel('截图来源：自动连接雀魂窗口，切换到其他应用仍继续捕获'))
         self.mode = QComboBox()
-        self.mode.addItems(['牌理引擎', 'Jev GPU 鸣牌增强版'])
+        self.mode.addItems(['牌理引擎', 'Jev Play v1（GPU）'])
         self.mode.setCurrentIndex(1)
         self.mode.currentIndexChanged.connect(self.invalidate)
         settings.addWidget(QLabel('推荐引擎'))
         settings.addWidget(self.mode)
-        checkpoint = ROOT / 'models/calibration-02'
-        if not checkpoint.exists():
-            checkpoint = ROOT / 'runs/head-rl-diagonal-value-20261030/checkpoints/calibration-02'
+        checkpoint = ROOT / 'models/jev-discard-v1'
         self.checkpoint = QLineEdit(str(checkpoint))
         settings.addWidget(QLabel('本地Jev检查点目录'))
         settings.addWidget(self.checkpoint)

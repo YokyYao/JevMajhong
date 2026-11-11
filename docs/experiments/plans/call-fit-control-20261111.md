@@ -1,0 +1,39 @@
+# 自然采样与吃碰正例均衡：短程训练拟合对照
+
+[完整拟合诊断](../results/2026-11-11-call-training-fit/README.md)发现，Jev Call Curriculum v1训练过的264条门清吃牌仍只命中3条，门清碰牌100/188降至82/188，验证集也未改善。先检查现有LoRA能否通过更充分的正例训练学会这些TRAIN请求，不直接认定需要全参数微调，也不继续盲目扩展同一种低学习率、大量跳过的训练。
+
+**完成更新：** 两组均完成128步、4轮，选中自然80步与均衡128步，CPU完整审计和固定抽样校正均通过。均衡能明显改变吃碰判断，但跳过不一致大幅增加；固定校正也未同时保留两类判断。见[完整结果](../results/2026-11-11-call-fit-controls/README.md)。已登记并启动[训练时抽样似然修正](sampling-likelihood-20261111.md)，不部署拟合模型。
+
+## 两组都从保留的Jev Call v1第200步出发
+
+源池为Jev Call Curriculum v1已执行的4800条TRAIN，标签、公开选项和特征不变。两个不同的512条子集，均448条reaction和64条普通动作，按整场与原validation分离。两组允许共享部分TRAIN请求；不是增加新独立比赛，也没有新的未见请求。自然组只在该池reaction内随机抽取，不读取标签来筛选；它代表Jev Call Curriculum v1源池的频率，并非整个真实对局总体分布。均衡组明确读取专家标签，刻意增加稀有正例。
+
+| 专家标签/局面 | 自然组 | 均衡组 |
+| --- | ---: | ---: |
+| 门清吃 | 26 | 128 |
+| 门清碰 | 17 | 128 |
+| 已开门吃 | 8 | 32 |
+| 已开门碰 | 4 | 32 |
+| 跳过 | 393 | 128 |
+| 普通动作 | 64 | 64 |
+| 合计 | 512 | 512 |
+
+两组同为rank16 LoRA和动作头，底座冻结，精确加载Jev Call v1372个适配器张量及动作头；新AdamW/OneCycle，LoRA峰值2e-5、头1e-4，batch1/累积16，最多4轮、128个优化步（最多2048次请求曝光）。相对Jev Call Curriculum v1，学习率和重复训练强度都改变；只能通过本次两组之间判断采样差异，不能把相对Jev Call Curriculum v1的变化单独归因于采样。
+
+## 训练、验证与停止
+
+每16步保存并检查512条本组TRAIN及原有1408条validation；第0步复现相同父模型。TRAIN通过SDK transfer接口提供仅为复用真实评估与早停，manifest明确标为TRAIN fit，不是独立transfer测试。按本组TRAIN NLL选拟合检查点，连续三次不改善则早停，最多128步；两组最大预算相同，若提前停止则如实报告实际预算，不当作消耗相同。
+
+原validation只诊断，不用于该拟合试验选权重。分别记录TRAIN和validation的门清吃碰、开门吃碰、跳过误鸣与NLL。两组全部512条必须通过token准入，精确父权重及底座冻结核对失败则停止。准备冻结代码、配置、输入、已完成诊断与逐条重算来源；不修改历史实验或封存test。
+
+均衡组改变了标签先验，可能过度鸣牌或损害防守。即使TRAIN命中明显改善，也只说明该条件下参数能学习，不能证明完整对局更强。输出状态为`fit_control_complete`，显式`strength_candidate=false`，不能交给原有得点评估器直接当成已合格的候选；不部署、不更换保留的Jev Call v1。
+
+若自然组也能学会，优先考虑原先训练强度不足；若只有均衡组学会，正例曝光/损失分配是可行改进方向，但还需以有反例和风险约束的后续训练检查泛化与净得点；若两组TRAIN门清吃碰仍没有学会，再检查表征、梯度和真正解冻底座的全参数短程对照。以上是决策依据，不是单一因果证明。最终目标仍是新牌山上的完整东风净得点，后续效果候选须重新登记和做Jev Discard v1、同牌山父模型及独立确认，不能用训练拟合代替。
+
+## 执行与公开范围
+
+作业291206已提交，两组在同一张调度分配的GPU上按自然、均衡顺序运行，每组新进程，前一组报错则停止。上限2小时，实际状态以Slurm及运行目录为准，提交不等于已完成训练。11项CPU测试、两组真实SDK行构建/套件读取和冻结来源准备通过；GPU初始化、优化与验证仍须核对。
+
+[配置](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/call-fit-control-20261111.json)、[自然组配方](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/call-fit-control-natural-20261111.toml)、[均衡组配方](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/call-fit-control-balanced-20261111.toml)、[抽样](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/call_fit_control.py)、[准备入口](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/scripts/prepare_call_fit_control.py)、[训练入口](https://github.com/YokyYao/JevMajhong/blob/4bdbd79c39071fb523f79bbe1079303c13770a65/scripts/train_call_fit_control.py)。只公开代码、配置和聚合Markdown；所有新权重、真人牌谱和逐条记录私有，Windows及截图测试继续暂缓。
+
+两组训练完成后，已预登记[固定抽样比例的CPU诊断与完整审计](call-sampling-prior-20261111.md)，作业291255依赖291206。使用TRAIN已知采样数量推导固定概率权重，不拟合验证阈值，不改动当前训练或选模规则；只有完整对照完成后才分析均衡组选中模型。该项仍不是得分或部署结果。

@@ -19,7 +19,7 @@ hidden += ['jevany.api', 'jevany.model', 'jevany.checkpoint', 'jevany.inference'
            'transformers.models.qwen2.tokenization_qwen2', 'transformers.models.qwen2.tokenization_qwen2_fast',
            'transformers.generation', 'peft.tuners.lora', 'torch._C']
 datas += [(str(root / 'desktop/jev_sidecar/identity_data.json'), 'desktop/jev_sidecar')]
-datas += [(str(root / 'desktop/jev_sidecar/stage2_identity.json'), 'desktop/jev_sidecar')]
+datas += [(str(root / 'desktop/jev_sidecar/call_policy_identity.json'), 'desktop/jev_sidecar')]
 a = Analysis([str(root / 'desktop/launcher.py')], pathex=[str(root)],
              binaries=binaries, datas=datas, hiddenimports=hidden,
              excludes=['tkinter', 'matplotlib', 'IPython', 'pytest', 'tensorboard', 'wandb',

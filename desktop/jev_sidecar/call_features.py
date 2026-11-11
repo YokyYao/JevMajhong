@@ -7,7 +7,7 @@ state lacks the provenance needed to de-duplicate called tiles in old rivers.
 from collections import Counter
 import copy
 
-from .stage2_runtime import is_call_request
+from .call_policy import is_call_request
 from .call_feature_helpers import call_discards, dora_type, tile_ids
 from .call_feature_helpers import MeldType
 from .engine import shanten
