@@ -22,6 +22,47 @@ def request(types):
 
 
 class FastWinTest(unittest.TestCase):
+    def test_future_sampling_preserves_current_state_and_changes_only_draw_order(self):
+        from collections import Counter
+        from riichienv import RiichiEnv
+        from jevmahjong.training.futures import sample_future
+        from jevmahjong.core.state import build_request
+        env=RiichiEnv(seed=7);env.reset();wall=list(env.wall);hands=env.hands
+        future=sample_future(env,123)
+        self.assertEqual(env.wall,wall);self.assertEqual(future.hands,hands)
+        self.assertEqual(Counter(future.wall),Counter(wall));self.assertEqual(future.wall[:14],wall[:14])
+        self.assertNotEqual(future.wall[14:],wall[14:])
+        a=env.clone().get_observations();b=future.clone().get_observations()
+        for seat in a:self.assertEqual(build_request(a[seat])[0],build_request(b[seat])[0])
+        unseen=sample_future(env,123,'unseen')
+        self.assertEqual(unseen.hands,hands);self.assertEqual(Counter(unseen.wall),Counter(wall))
+        for tile in env.dora_indicators:self.assertEqual(unseen.wall[wall.index(tile)],tile)
+        self.assertNotEqual(unseen.wall[:14],wall[:14])
+        b=unseen.clone().get_observations()
+        for seat in a:self.assertEqual(build_request(a[seat])[0],build_request(b[seat])[0])
+
+    def test_exact_prefix_replay_and_hand_only_rollout_keep_native_settlements(self):
+        from riichienv import RiichiEnv,ActionType
+        from jevmahjong.training.futures import replay_prefix,finish_intervention_hand
+        from jevmahjong.training.collector import call_observation_digest
+        def choose(obs):
+            legal=obs.legal_actions()
+            return next((a for a in legal if a.action_type==ActionType.PASS),
+                next((a for a in legal if a.action_type==ActionType.DISCARD),legal[0]))
+        env=RiichiEnv(seed=17);observations=env.reset();expected=None
+        for step in range(18):
+            if step==12:expected=call_observation_digest(observations)
+            observations=env.step({p:choose(o) for p,o in observations.items()})
+        restored=RiichiEnv(seed=17);actual=replay_prefix(restored,env.mjai_log,12)
+        self.assertEqual(call_observation_digest(actual),expected)
+        class Policy:
+            def act(self,obs,frozen=False):return choose(obs)
+            def opponent(self,player,obs,seat,suite):return choose(obs)
+        result=finish_intervention_hand(restored,{p:choose(o) for p,o in actual.items()},Policy(),0,'closed',0)
+        hands=hand_outcomes(result['mjai_log'])
+        self.assertTrue(hands[0]['complete']);self.assertEqual(sum(h['complete'] for h in hands),1)
+        self.assertEqual(sum(result['scores_at_stop'])+1000*result['point_ledger']['unclaimed_riichi_sticks'],100000)
+
     def test_targeted_collection_uses_public_threat_and_open_status_without_forcing_calls(self):
         from riichienv import MeldType
         req = request(['chi', 'pon', 'none'])

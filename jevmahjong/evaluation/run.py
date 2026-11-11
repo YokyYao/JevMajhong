@@ -38,6 +38,24 @@ def candidate_activation(config, trained_filter='all'):
     return mode
 
 
+def parity_sources(fit):
+    """EV-only datasets retain original native inputs for unchanged routes."""
+    paths = {}
+    for source in fit.get('data_sources', []):
+        path = Path(source['path']) / 'protocol.json'
+        if digest(path) != source['protocol_sha256']:
+            raise ValueError('Data provenance changed')
+        protocol = json.loads(path.read_text())
+        if protocol.get('collection_method') == 'paired_future_ev_v1':
+            for original,h in protocol['source_files'].items():
+                if original in paths and paths[original] != h:raise ValueError('Conflicting parity source identity')
+                paths[original] = h
+    for path, h in fit['data_sha256'].items():
+        if path in paths and paths[path] != h:raise ValueError('Conflicting parity source identity')
+        paths[path] = h
+    return paths
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--config', type=Path, required=True)
     parser.add_argument('--resume', action='store_true')
@@ -91,7 +109,7 @@ def main():
         else HeadPolicyClient(ordinary, calling, heads))
     checked = {'ordinary': 0, 'calling': 0}
     if activation == 'kan_windows': checked['ordinary_nonkan'] = 0
-    for path, h in fit['data_sha256'].items():
+    for path, h in parity_sources(fit).items():
         if digest(Path(path)) != h: raise ValueError('TRAIN parity source changed')
         for row in torch.load(path, map_location='cpu', weights_only=False)['rows']:
             scope = row['scope']

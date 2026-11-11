@@ -1,13 +1,13 @@
 {
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
-  "model_id": "jev-kan-v1",
+  "model_id": "jev-kan-ev-v1",
   "data": [
-    "runs/tempo-native",
-    "runs/tempo-native-separated-actions-v1",
-    "runs/value-defense-native-v1"
+    "runs/kan-future-unseen-labels-v1/source_0",
+    "runs/kan-future-unseen-labels-v1/source_1",
+    "runs/kan-future-unseen-labels-v1/source_2"
   ],
-  "out": "runs/jev-kan-v1",
+  "out": "runs/jev-kan-ev-v1",
   "seed": 2026111119,
   "epochs": 8,
   "batch": 16,

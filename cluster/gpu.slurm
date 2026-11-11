@@ -9,4 +9,4 @@ set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:?Submit from the repository root}"
 export OMP_NUM_THREADS=8 HF_HUB_OFFLINE=1 PYTHONUNBUFFERED=1 TOKENIZERS_PARALLELISM=false
 .venv/bin/python tools/check_gpu.py
-.venv/bin/python tools/run_experiment.py "${1:?collect or evaluate}" --config "${2:?configuration JSON}"
+.venv/bin/python tools/run_experiment.py "${1:?collect, collect-ev or evaluate}" --config "${2:?configuration JSON}" "${@:3}"

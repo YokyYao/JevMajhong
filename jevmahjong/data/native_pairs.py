@@ -54,6 +54,11 @@ def load_sources(roots, model_files=None, reward=None):
         if identity is not None and current != identity:
             raise ValueError('Source frozen encoders differ')
         identity = current
+        if protocol.get('collection_method') == 'paired_future_ev_v1':
+            for path, checksum in protocol['source_files'].items():
+                if (path in hashes and hashes[path] != checksum) or digest(Path(path)) != checksum:
+                    raise ValueError('Future-data original input changed')
+                hashes[path] = checksum
         expected = set(range(config['training_seed_start'],
             config['training_seed_start'] + config['training_seeds_per_stage']))
         if seen_walls & expected:
@@ -66,9 +71,14 @@ def load_sources(roots, model_files=None, reward=None):
             payload = torch.load(path, map_location='cpu', weights_only=False); seed = payload['seed']
             if seed not in expected or seed in actual:
                 raise ValueError('Foreign or duplicate whole-wall shard')
-            actual.add(seed); validate(payload, seed, config)
+            actual.add(seed)
             split = 'held' if (seed - config['training_seed_start']) % 4 == 3 else 'train'
-            selected = relabel(payload, config, reward) if reward else payload['rows']
+            if protocol.get('collection_method') == 'paired_future_ev_v1':
+                from .future_pairs import validate_rows
+                selected = validate_rows(payload,seed,config,protocol,reward)
+            else:
+                validate(payload, seed, config)
+                selected = relabel(payload, config, reward) if reward else payload['rows']
             counts[split] += 1; partitions[split].extend(selected); rows += len(selected)
             hashes[str(path)] = checksum
         if actual != expected or len(actual) != collection['walls'] or rows != collection['rows']:

@@ -44,6 +44,45 @@ def native_collection(root, start, gamma=.995):
 
 
 class SamplingTests(unittest.TestCase):
+    def test_future_averages_remain_one_state_and_reject_changed_labels_seeds_and_points(self):
+        from jevmahjong.data.future_pairs import mean_credit,validate_rows,METHOD
+        from jevmahjong.training.collector import derived_seed
+        from jevmahjong.core.scoring import settlement_ledger
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);(root/'walls-private').mkdir();source=root/'walls-private/100.pt'
+            config={'source_root':str(root),'training_seed_start':100,'fast_gamma':.995,'seed':9,'worlds':2,
+                'reward':{'mode':'net_points_with_fast_support_v1','net_weight':1.,'fast_weight':.1,
+                    'dealin_penalty':.1,'point_scale':8000.}}
+            start={'type':'start_kyoku','scores':[25000]*4,'kyotaku':0}
+            old=dict(row('daiminkan',0.),scope='ordinary',episode_key=(100,0,0),eligible=[0,1],
+                decide=torch.zeros(2),options=torch.zeros(2,2),action_keys=['none','daiminkan'],hand_index=0,draws_before=0)
+            old['request_sha256']=request_hash(old['public_request'])
+            control_log=[start,{'type':'ryukyoku','deltas':[0]*4},{'type':'end_kyoku'}]
+            torch.save({'rows':[old],'controls':[{'seat':0,'mjai_log':control_log}],
+                'games':[{'seed':100,'seat':0,'replica':0,'intervention_state_digest':'fixed'}]},source)
+            def arm(log,scores):return {'mjai_log':log,'scores_at_stop':scores,
+                'point_ledger':settlement_ledger(log,scores),'stopped_after_intervention_hand':True}
+            branch_log=[start,{'type':'tsumo'},{'type':'hora','actor':0,'target':1,
+                'deltas':[1000,-1000,0,0]},{'type':'end_kyoku'}]
+            worlds=[{'future_seed':derived_seed(9,100,0,0,f'future-{i}'),'future_wall_sha256':'a'*64,
+                'control':arm(control_log,[25000]*4),'branch':arm(branch_log,[26000,24000,25000,25000])} for i in range(2)]
+            new=dict(old,reference=torch.tensor([.9,.1]),source_split='train',source_state_digest='fixed',
+                prefix_events=1,counterfactual_worlds=worlds)
+            means=mean_credit(worlds,new,config,config['reward']);new.update(training_credit=means,
+                training_advantage=means['branch']['utility']-means['control']['utility'],
+                fast_advantage=means['branch']['fast_reward']-means['control']['fast_reward'])
+            checksum=digest(source);payload={'seed':100,'collection_method':METHOD,'source_path':str(source),
+                'source_sha256':checksum,'rows':[new]};protocol={'source_files':{str(source):checksum},'selected_case_keys':[[100,0,0]]}
+            validated=validate_rows(payload,100,config,protocol)
+            self.assertEqual(len(validated),1);self.assertNotIn('counterfactual_worlds',validated[0])
+            self.assertAlmostEqual(validated[0]['training_advantage'],.125+.1*.995)
+            changed=copy.deepcopy(payload);changed['rows'][0]['training_advantage']+=1
+            with self.assertRaisesRegex(ValueError,'advantage changed'):validate_rows(changed,100,config,protocol)
+            changed=copy.deepcopy(payload);changed['rows'][0]['counterfactual_worlds'][1]['future_seed']=0
+            with self.assertRaisesRegex(ValueError,'Future seed'):validate_rows(changed,100,config,protocol)
+            changed=copy.deepcopy(payload);changed['rows'][0]['counterfactual_worlds'][0]['branch']['scores_at_stop'][0]+=1
+            with self.assertRaises(ValueError):validate_rows(changed,100,config,protocol)
+
     def test_kan_training_filter_keeps_pon_alternatives_and_whole_wall_assignment(self):
         regular=dict(row('dahai',1.),scope='ordinary',episode_key=(100,0,0))
         call=dict(row('pon',1.),scope='calling',episode_key=(101,0,0))

@@ -8,7 +8,7 @@ import torch
 from jevmahjong.evaluation.action_suite import evaluate as action_panel
 from jevmahjong.evaluation.metrics import summarize
 from jevmahjong.evaluation.reference_cache import GAMEPLAY_FILES, load_reference
-from jevmahjong.evaluation.run import candidate_scopes, select_heads, candidate_activation
+from jevmahjong.evaluation.run import candidate_scopes, select_heads, candidate_activation, parity_sources
 from jevmahjong.policy.kan import KanPolicyClient
 from jevmahjong.core.io import digest
 
@@ -43,6 +43,17 @@ def example():
 
 
 class FastEvaluationTest(unittest.TestCase):
+    def test_kan_only_ev_data_keeps_pinned_inputs_for_unchanged_route_parity(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);protocol=root/'protocol.json'
+            protocol.write_text(json.dumps({'collection_method':'paired_future_ev_v1','source_files':{'original.pt':'original-hash'}}))
+            fit={'data_sources':[{'path':str(root),'protocol_sha256':digest(protocol)}],
+                'data_sha256':{'revalued.pt':'new-hash'}}
+            self.assertEqual(list(parity_sources(fit)),['original.pt','revalued.pt'])
+            protocol.write_text('{}')
+            # A changed method marker cannot bypass the stored provenance hash.
+            with self.assertRaises(ValueError):parity_sources(fit)
+
     def test_kan_activation_preserves_discard_and_pure_call_routes(self):
         class Client:
             def __init__(self, name): self.name=name
