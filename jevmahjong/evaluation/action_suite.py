@@ -5,7 +5,7 @@ from jevmahjong.training.sampling import OPERATIONS, stratum
 
 
 @torch.no_grad()
-def evaluate(heads, rows, per_direction=8):
+def evaluate(heads, rows, per_direction=8, context=None):
     buckets = defaultdict(list)
     for row in rows:
         category, direction = stratum(row)
@@ -21,8 +21,13 @@ def evaluate(heads, rows, per_direction=8):
             reference_mass = []; candidate_mass = []; margin_gains = []
             for row in selected:
                 delta = row.get('training_advantage', row['fast_advantage'])
-                head = heads[row['scope']]
-                z = head(row['decide'], row['options'])
+                if context is not None:
+                    from jevmahjong.policy.kan_context import probabilities
+                    p = probabilities(row['public_request'],row['reference'].tolist(),context)
+                    z = torch.tensor(p,dtype=torch.float64).clamp_min(1e-300).log()
+                else:
+                    head = heads[row['scope']]
+                    z = head(row['decide'], row['options'])
                 margin = float(z[row['action']] - z[row['teacher_action']])
                 correct += int(margin * delta > 0)
                 selected_index = max(row['eligible'], key=lambda i: float(z[i]))
@@ -74,7 +79,7 @@ def main():
             map_location='cpu', weights_only=True)
         heads[scope] = make_head(meta, 'cpu').eval().requires_grad_(False)
         heads[scope].load_state_dict(saved['heads'][scope])
-    partitions, hashes, _ = load_sources(fit['data'], saved['model_files'], fit['config'].get('reward'))
+    partitions, hashes, _ = load_sources(fit.get('data',fit['config']['data']), saved['model_files'], fit['config'].get('reward'))
     partitions = select_decisions(partitions, fit['config'].get('decision_filter', 'all'), fit['config'].get('train_scopes'))
     if hashes != fit['data_sha256']:
         raise ValueError('Source shard manifest differs')
@@ -83,7 +88,7 @@ def main():
     result = {'model_id': fit['model_id'], 'checkpoint_sha256': digest(checkpoint),
         'strength_improvement_proven': False, 'human_test_opened': False}
     for key, rows in partitions.items():
-        result[key] = evaluate(heads, rows)
+        result[key] = evaluate(heads, rows, context=saved.get('kan_context'))
         result[key]['label_target'] = fit['config'].get('reward', {'mode': 'fast_win'})
         result[key]['role'] = key + '-wall action diagnostic; not independent full-game strength'
     write(args.out, result)

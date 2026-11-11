@@ -191,7 +191,7 @@
     },
     "jev-kan-ev-v1": {
       "role": "kan-window-head-with-paired-future-mean-labels",
-      "status": "label-generation-running",
+      "status": "not-adopted-zero-development-gain",
       "initialized_from": "jev-discard-v1",
       "unchanged_nonkan_policy": "jev-play-v1",
       "activation": "kan_windows",
@@ -204,7 +204,34 @@
       "paired_futures_per_state": 8,
       "concealed_hands": "fixed",
       "wall_scope": "unseen-except-revealed-indicators",
-      "artifact_exists": false,
+      "artifact_exists": true,
+      "artifact_public": false,
+      "independent_improvement_proven": false,
+      "selected_epoch": 8,
+      "optimizer_updates": 200,
+      "checkpoint_sha256": "d16c4c2a31e80d719701464f28092ac5553ea79e0c8fb6e63cba9a71a37f63d1",
+      "development_net_gain_vs_play_v1": 0,
+      "development_ci95": [
+        0.0,
+        0.0
+      ],
+      "independent_confirmation_run": false
+    },
+    "jev-kan-context-v1": {
+      "role": "public-context-paired-utility-value-difference-component",
+      "status": "trained-development-running",
+      "initialized_from": "jev-play-v1",
+      "unchanged_nonkan_policy": "jev-play-v1",
+      "activation": "kan_windows",
+      "feature_version": "public-kan-context-v1",
+      "coefficient_count": 152,
+      "fit_method": "weighted-ridge-paired-utility-differences",
+      "selected_regularization": 0.1,
+      "train_rows": 400,
+      "held_rows": 137,
+      "checkpoint_sha256": "77b459b620906fbfd3b77c68e819e761603722328fcf48a166cccfd94ae238b6",
+      "original_pointer_heads_unchanged": true,
+      "artifact_exists": true,
       "artifact_public": false,
       "independent_improvement_proven": false
     }

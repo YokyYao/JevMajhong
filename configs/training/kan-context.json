@@ -1,0 +1,42 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "data": [
+    "runs/kan-future-unseen-labels-v1/source_0",
+    "runs/kan-future-unseen-labels-v1/source_1",
+    "runs/kan-future-unseen-labels-v1/source_2"
+  ],
+  "reward": {
+    "mode": "net_points_with_fast_support_v1",
+    "net_weight": 1.0,
+    "fast_weight": 0.1,
+    "dealin_penalty": 0.1,
+    "point_scale": 8000.0
+  },
+  "action_mix": {
+    "ordinary": 0.0,
+    "chi": 0.02,
+    "pon": 0.08,
+    "ankan": 0.3,
+    "daiminkan": 0.3,
+    "kakan": 0.3
+  },
+  "max_example_weight": 4.0,
+  "context_mix": {
+    "open_threat": 0.4,
+    "other_threat": 0.2,
+    "no_threat": 0.4
+  },
+  "train_scopes": [
+    "ordinary"
+  ],
+  "decision_filter": "kan_windows",
+  "selection_validation": "latest_source",
+  "model_id": "jev-kan-context-v1",
+  "out": "runs/jev-kan-context-v1",
+  "regularizers": [
+    0.01,
+    0.1,
+    1.0
+  ]
+}

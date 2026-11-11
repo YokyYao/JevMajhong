@@ -7,6 +7,7 @@ import torch
 from jevmahjong.core.io import digest, write
 from jevmahjong.policy.routing import HybridPolicy, HeadPolicyClient, load_model, make_head
 from jevmahjong.policy.kan import KanPolicyClient, is_kan_request
+from jevmahjong.policy.kan_context import KanContextPolicyClient, probabilities as context_probabilities
 from jevmahjong.training.provenance import snapshot, verify
 from .agents import PolicyAgent
 from .game import play
@@ -105,8 +106,18 @@ def main():
         meta = torch.load(Path(cfg[role + '_checkpoint']) / 'head.pt', map_location='cpu', weights_only=True)
         heads[scope] = make_head(meta, 'cuda').eval().requires_grad_(False)
     select_heads(heads, model['heads'], cfg)
-    router = (KanPolicyClient(ordinary, calling, heads) if activation == 'kan_windows'
-        else HeadPolicyClient(ordinary, calling, heads))
+    context = model.get('kan_context')
+    if context is not None:
+        if activation != 'kan_windows': raise ValueError('Context component requires kan-window activation')
+        for scope, role in [('ordinary','discard'),('calling','call')]:
+            original = torch.load(Path(cfg[role + '_checkpoint'])/'head.pt',map_location='cpu',weights_only=True)['head']
+            if any(not torch.equal(v.cpu(),original[k])
+                    for k,v in model['heads'][scope].items()):
+                raise ValueError('Context component must preserve original pointer heads')
+        router = KanContextPolicyClient(HybridPolicy(ordinary,calling),context)
+    else:
+        router = (KanPolicyClient(ordinary, calling, heads) if activation == 'kan_windows'
+            else HeadPolicyClient(ordinary, calling, heads))
     checked = {'ordinary': 0, 'calling': 0}
     if activation == 'kan_windows': checked['ordinary_nonkan'] = 0
     for path, h in parity_sources(fit).items():
@@ -119,6 +130,8 @@ def main():
             head = ordinary.runtime.model.head if key == 'ordinary_nonkan' else heads[scope]
             with torch.no_grad():
                 expected = head(row['decide'].cuda(), row['options'].cuda()).softmax(-1).cpu()
+            if context is not None and key == 'ordinary':
+                expected = torch.tensor(context_probabilities(row['public_request'],expected.tolist(),context))
             p = router.system_one(**row['public_request'])['answers']['action']['probabilities']
             if not torch.allclose(expected, torch.tensor(list(p.values())), atol=2e-5, rtol=2e-4):
                 raise ValueError('Updated head and native probabilities disagree')

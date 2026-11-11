@@ -1,12 +1,12 @@
 # 训练与评测
 
-目标是提高完整东风净得点。当前安装包仍使用 **Jev Play v1**；Value、Value Defense 和 Kan v1 都没有取得可采用的净得点改善。当前检验 **Jev Kan EV v1**：用多个配对后续牌山的平均收益训练杠牌窗口动作头。历史曲线、失败分析和数据扩充记录集中在[实验记录](experiments/results/2026-11-11-tempo-action-learning/README.md)，模型身份见[模型目录](../weights/README.md)。
+目标是提高完整东风净得点。当前安装包仍使用 **Jev Play v1**；Value、Value Defense、Kan和Kan EV v1均未取得可采用的净得点改善。当前检验 **Jev Kan Context v1**：从公开局面特征预测杠窗口动作收益差。历史曲线、失败分析和数据扩充记录集中在[实验记录](experiments/results/2026-11-11-tempo-action-learning/README.md)，模型身份见[模型目录](../weights/README.md)。
 
 ## 当前训练流程
 
 ```bash
 python tools/run_experiment.py collect-ev --config configs/training/kan-futures.json
-python tools/run_experiment.py train --config configs/training/kan-fit.json
+python tools/run_experiment.py train-context --config configs/training/kan-context.json
 python tools/run_experiment.py evaluate --config configs/evaluation/tempo-development.json
 ```
 
@@ -16,7 +16,19 @@ python tools/run_experiment.py evaluate --config configs/evaluation/tempo-develo
 
 每个动作对的标签是8组实际收益差的平均值，**仍只算一条样本**。当前原始539条杠窗口记录去掉2条重复状态动作对后为537条：400训练、137内部验证。它们来自已有240个整牌山分组，不是537场新比赛，也不是8倍独立训练数据。对手暗手在同一状态的8组未来中保持固定，因此尚未覆盖所有与公开状态一致的暗手可能性。12状态小试用于核对实现，不作为模型实力证据。
 
-## 奖励与拟合
+标签已全部生成并审计，共8592次本局续打。当前Context组件复用这些标签，不重新续打牌局。`kan-fit.json`及`train`保留用于复现EV指针头实验。
+
+## 公开上下文组件
+
+`policy/kan_context.py`按固定版本提取152维特征：动作类型、向听变化、门清变化、已有役牌材料、已公开宝牌、手牌对子、立直威胁、巡目、场棒／立直棒及分数差，并包含动作与公开状态的交互。役牌和断幺材料不保证最终有役；未知岭上牌、新宝牌和里宝牌不进入特征。杠后向听描述补牌前状态，不偷看替换摸牌。加杠只移除手中的第四张牌，原碰转换为杠；暗杠保持门清。
+
+以两动作特征差预测已审计的平均本局效用差，使用带正则的加权最小二乘。三个预先固定的正则强度0.01／0.1／1仅需三次CPU线性求解，按最新来源的28条内部验证选择，零系数起点也参与；并非三组完整对局。其余109条内部验证也分别报告，不参与该次正则选择。当前选中0.1，最新均方误差0.036642→0.034184；三来源误差都低于零增益起点。均方误差与旧指针头排序损失含义不同，不横比数值。
+
+底座、LoRA及两套原指针头全部冻结，训练的是152个收益预测系数。原生推理仅在合法杠窗口按预测值排序，以极小原策略先验解开收益相同的选择；没有固定杠奖励或要求增加操作次数。普通非杠、纯吃碰仍走Play。启用方式仍为 `candidate_activation=kan_windows` 和普通决策范围。拟合需核对原缓存输入、完整结算与分组，保存特征版本及原模型身份；原生概率预检后才进行完整东风评测。内部预测改善不能证明得点改善。
+
+## 奖励与指针头复现
+
+以下指针头拟合流程对应已停止的EV实验；Context使用上面的闭式拟合，两者使用相同本局效用标签。
 
 ```text
 本局效用 = 本局实际净得点 / 8000
