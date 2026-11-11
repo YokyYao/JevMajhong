@@ -16,4 +16,6 @@ CPU机制检查覆盖原生指针概率重放、拟合与服务特征差精确�
 
 单次干预数据只估计后续沿教师行动的价值。服务端连续多次改动作可能改变局面分布，因此即便CV有改善，也必须打完整新牌山，不能用CV推导胜率提升。任一完整得点比较未显示增益，保留原版并调整下一步。
 
+两臂对照的监控可使用[只读进度快照](../scripts/snapshot_score_progress.py)的`--kind paired`模式，只计算已完成场数和完整配对牌山覆盖；全部32个登记牌山完整后才输出数值比较，不根据早期子集选模。快照不修改正式评估，也不代替Slurm存活检查及最终来源审计。
+
 配置：[开发](../feature-point-value-development-20261111.json)、[条件独立确认](../feature-point-value-confirmation-20261111.json)。[原生服务](../feature_point_value.py)、[对局入口](../scripts/evaluate_feature_point_value.py)、[独立聚合复核](../scripts/audit_feature_point_value.py)均另存新文件，不改采样协议、标签、已冻结源或历史权重。新预测器权重和逐场继续私有，Windows不使用此未验证候选。
