@@ -880,6 +880,92 @@
         "manual_audit_passed": true,
         "eligible_for_confirmation": false
       }
+    },
+    "jev-call-win-v2": {
+      "role": "own-win-first-calling-head-with-double-dealin-penalty",
+      "status": "development-risk-limit-exceeded-not-adopted",
+      "frozen_components": [
+        "jev-call-v1-encoder-and-LoRA",
+        "jev-discard-v1"
+      ],
+      "trainable_parameters": 524800,
+      "train_states": 156,
+      "held_states": 50,
+      "train_pairs": 183,
+      "held_pairs": 68,
+      "train_only_reference_anchor_states": 256,
+      "selected_epoch": 2,
+      "epochs_run": 6,
+      "optimizer_updates": 60,
+      "checkpoint_sha256": "b3a1905c31755a3e504d556d2a1e76556b3788c3d500f4d5b9a8fced619f85d4",
+      "held_sampled_own_win_probability_gain": 0.0225,
+      "held_sampled_dealin_probability_gain": 0.00875,
+      "held_sampled_point_gain_per_state": 146.5,
+      "not_full_match_metrics": true,
+      "artifact_exists": true,
+      "artifact_public": false,
+      "deployed": false,
+      "independent_improvement_proven": false,
+      "development": {
+        "games": 192,
+        "logical_walls": 8,
+        "hand_win_paired": {
+          "gain": 0.007833167989417989,
+          "ci95": [
+            -0.01105095185764208,
+            0.02671728783647806
+          ],
+          "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+        },
+        "dealin_rate_paired": {
+          "gain": 0.014537863756613756,
+          "ci95": [
+            -0.017042140199023115,
+            0.046117867712250626
+          ],
+          "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+        },
+        "net_points_paired": {
+          "gain": -447.9166666666667,
+          "ci95": [
+            -1781.4266624966015,
+            885.593329163268
+          ],
+          "independent_wall_streams": 8
+        },
+        "manual_audit_passed": true,
+        "eligible_for_confirmation": false
+      }
+    },
+    "jev-call-win-v3": {
+      "role": "public-route-weighted-own-win-first-calling-head",
+      "status": "development-running-not-adopted",
+      "frozen_components": [
+        "jev-call-v1-encoder-and-LoRA",
+        "jev-discard-v1"
+      ],
+      "trainable_parameters": 524800,
+      "train_states": 156,
+      "held_states": 50,
+      "train_pairs": 183,
+      "held_pairs": 68,
+      "train_only_reference_anchor_states": 256,
+      "selected_epoch": 2,
+      "epochs_run": 6,
+      "optimizer_updates": 60,
+      "checkpoint_sha256": "6adfa88340b81d2150fa9808b24122a21feedb1b257e4297f235ff11ca0bdbed",
+      "held_sampled_own_win_probability_gain": 0.0225,
+      "held_sampled_dealin_probability_gain": 0.00875,
+      "held_sampled_point_gain_per_state": 146.5,
+      "not_full_match_metrics": true,
+      "artifact_exists": true,
+      "artifact_public": false,
+      "deployed": false,
+      "independent_improvement_proven": false,
+      "route_loss_weights": {
+        "closed_chi_tanyao_gain": 4.0,
+        "opponent_riichi": 2.0
+      }
     }
   },
   "legacy_aliases": {

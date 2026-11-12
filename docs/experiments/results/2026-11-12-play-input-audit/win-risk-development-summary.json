@@ -1,0 +1,114 @@
+{
+  "model_id": "jev-call-win-v2",
+  "stage": "development",
+  "games": 192,
+  "logical_walls": 8,
+  "checkpoint_sha256": "b3a1905c31755a3e504d556d2a1e76556b3788c3d500f4d5b9a8fced619f85d4",
+  "policies": {
+    "reference": {
+      "games": 96,
+      "mean_net_points": 2972.9166666666665,
+      "first_rate": 0.4166666666666667,
+      "top2_rate": 0.6145833333333334,
+      "fourth_rate": 0.17708333333333334,
+      "mean_rank": 2.1458333333333335,
+      "hand_win_rate": 0.23883495145631067,
+      "dealin_rate": 0.09320388349514563,
+      "dealin_event_rate": 0.10097087378640776,
+      "calls_per_game": 1.7916666666666667,
+      "mean_point_components": {
+        "draw_settlement": 494.7916666666667,
+        "final_unclaimed_pool": 114.58333333333333,
+        "riichi_deposits": -1593.75,
+        "ron_payments": -2629.1666666666665,
+        "tsumo_payments": -2405.2083333333335,
+        "win_income": 8991.666666666666
+      },
+      "discounted_own_wins_per_hand": 0.095115967016645,
+      "mean_table_draws_when_winning": 48.49593495934959,
+      "kan_opportunities": {
+        "ankan": 15,
+        "daiminkan": 39,
+        "kakan": 14
+      },
+      "kan_choices": {
+        "ankan": 1,
+        "daiminkan": 0,
+        "kakan": 2
+      },
+      "mean_match_hand_win_rate": 0.2459118716931217
+    },
+    "candidate": {
+      "games": 96,
+      "mean_net_points": 2525,
+      "first_rate": 0.3854166666666667,
+      "top2_rate": 0.6354166666666666,
+      "fourth_rate": 0.21875,
+      "mean_rank": 2.1979166666666665,
+      "hand_win_rate": 0.2465753424657534,
+      "dealin_rate": 0.1095890410958904,
+      "dealin_event_rate": 0.11741682974559686,
+      "calls_per_game": 2.3645833333333335,
+      "mean_point_components": {
+        "draw_settlement": 531.25,
+        "final_unclaimed_pool": 41.666666666666664,
+        "riichi_deposits": -1468.75,
+        "ron_payments": -2889.5833333333335,
+        "tsumo_payments": -2481.25,
+        "win_income": 8791.666666666666
+      },
+      "discounted_own_wins_per_hand": 0.09821643602775919,
+      "mean_table_draws_when_winning": 48.32539682539682,
+      "kan_opportunities": {
+        "ankan": 6,
+        "daiminkan": 38,
+        "kakan": 14
+      },
+      "kan_choices": {
+        "ankan": 0,
+        "daiminkan": 0,
+        "kakan": 0
+      },
+      "mean_match_hand_win_rate": 0.2537450396825397
+    }
+  },
+  "hand_win_paired": {
+    "gain": 0.007833167989417989,
+    "ci95": [
+      -0.01105095185764208,
+      0.02671728783647806
+    ],
+    "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+  },
+  "dealin_rate_paired": {
+    "gain": 0.014537863756613756,
+    "ci95": [
+      -0.017042140199023115,
+      0.046117867712250626
+    ],
+    "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+  },
+  "fast_reward_paired": {
+    "gain": 0.0031004690111141866,
+    "ci95": [
+      -0.0068411035682834865,
+      0.013042041590511859
+    ],
+    "unit": "discounted own wins per hand, equal-weight match means, whole-wall paired CI"
+  },
+  "net_points_paired": {
+    "gain": -447.9166666666667,
+    "ci95": [
+      -1781.4266624966015,
+      885.593329163268
+    ],
+    "independent_wall_streams": 8
+  },
+  "eligible_for_confirmation": false,
+  "improvement_verified": false,
+  "reason_not_advanced": "dealin increase exceeds registered0.01; own-win interval crosses zero",
+  "manual_winner_payment_rank_audit": "passed_complete",
+  "different_walls_from_v1_not_direct_v2_vs_v1": true,
+  "raw_records_public": false,
+  "deployed": false
+}
