@@ -1,0 +1,96 @@
+{
+  "model_id": "jev-call-win-v4",
+  "selected_sha256": "36f1bf7a7e719eb8f9df53e0532e2dfdeb071b314bdc388d36115444683133a4",
+  "held_states_summarized": 0,
+  "confirmation_records_opened": 0,
+  "sampled_labels_are_not_expert_truth": true,
+  "prior_strength": 0.05,
+  "routes": {
+    "all": {
+      "states": 444,
+      "sample_utility_best_is_call": 221,
+      "target_is_call": 117,
+      "selected_is_call": 61,
+      "target_argmax_matched": 356,
+      "sample_positive_skipped_call_states": 91,
+      "target_recovers_positive_call": 72,
+      "model_recovers_positive_call": 18,
+      "prior_target_still_passes_positive_call": 19,
+      "model_misses_positive_target_call": 54,
+      "model_recovers_call_despite_target_pass": 0
+    },
+    "closed": {
+      "states": 413,
+      "sample_utility_best_is_call": 200,
+      "target_is_call": 100,
+      "selected_is_call": 47,
+      "target_argmax_matched": 337,
+      "sample_positive_skipped_call_states": 86,
+      "target_recovers_positive_call": 68,
+      "model_recovers_positive_call": 17,
+      "prior_target_still_passes_positive_call": 18,
+      "model_misses_positive_target_call": 51,
+      "model_recovers_call_despite_target_pass": 0
+    },
+    "closed_pon_yakuhai": {
+      "states": 39,
+      "sample_utility_best_is_call": 32,
+      "target_is_call": 31,
+      "selected_is_call": 33,
+      "target_argmax_matched": 35,
+      "sample_positive_skipped_call_states": 12,
+      "target_recovers_positive_call": 12,
+      "model_recovers_positive_call": 11,
+      "prior_target_still_passes_positive_call": 0,
+      "model_misses_positive_target_call": 1,
+      "model_recovers_call_despite_target_pass": 0
+    },
+    "closed_chi_tanyao_gain": {
+      "states": 37,
+      "sample_utility_best_is_call": 24,
+      "target_is_call": 21,
+      "selected_is_call": 7,
+      "target_argmax_matched": 18,
+      "sample_positive_skipped_call_states": 21,
+      "target_recovers_positive_call": 21,
+      "model_recovers_positive_call": 5,
+      "prior_target_still_passes_positive_call": 0,
+      "model_misses_positive_target_call": 16,
+      "model_recovers_call_despite_target_pass": 0
+    },
+    "opponent_riichi": {
+      "states": 200,
+      "sample_utility_best_is_call": 109,
+      "target_is_call": 25,
+      "selected_is_call": 8,
+      "target_argmax_matched": 177,
+      "sample_positive_skipped_call_states": 24,
+      "target_recovers_positive_call": 15,
+      "model_recovers_positive_call": 2,
+      "prior_target_still_passes_positive_call": 9,
+      "model_misses_positive_target_call": 13,
+      "model_recovers_call_despite_target_pass": 0
+    },
+    "open": {
+      "states": 31,
+      "sample_utility_best_is_call": 21,
+      "target_is_call": 17,
+      "selected_is_call": 14,
+      "target_argmax_matched": 19,
+      "sample_positive_skipped_call_states": 5,
+      "target_recovers_positive_call": 4,
+      "model_recovers_positive_call": 1,
+      "prior_target_still_passes_positive_call": 1,
+      "model_misses_positive_target_call": 3,
+      "model_recovers_call_despite_target_pass": 0
+    }
+  },
+  "script_sha256": "82ebf1217aa81cab75a2328d60c2aa72a4df97e40221abbe6290cd7ce7c8cb9d",
+  "scope": "Training-state target and actual-choice diagnosis only; no new simulations, no confirmation outcomes, no weight changes.",
+  "interpretation": [
+    "In the closed chi acceleration subgroup, all 21 sampled positive missed-call states have positive-call target argmax, but only 5 are recovered by the selected head. The reference-adjusted target does not explain these 16 remaining training misses.",
+    "This points to fitting, shared representation, or regularization constraints as hypotheses; it does not distinguish their causal roles.",
+    "Future-rollout estimates use 16 sampled worlds and are not expert optimal-action labels or a match-strength estimate."
+  ],
+  "deployed": false
+}
