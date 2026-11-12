@@ -70,6 +70,7 @@ class Board:
     forbidden_discards: list[str] = field(default_factory=list)
     riichi_available: bool = False
     riichi_selecting: bool = False
+    self_kan_available: bool = False
 
     def visible(self):
         if len(self.rivers) != 4 or len(self.melds) != 4 or len(self.scores) != 4:
@@ -107,7 +108,7 @@ def hand_strategy(board, choice, direction_only=False):
     groups = board.melds[board.seat]
     all_tiles = hand + [t for g in groups for t in parse(g['tiles'])]
     counts = Counter(index(t) for t in all_tiles)
-    closed = not groups
+    closed = all(g['type'] == 3 for g in groups)
     pairs = sum(n >= 2 for n in counts.values())
     triples = sum(n >= 3 for n in counts.values())
     suits = Counter(t[1] for t in all_tiles if t[1] != 'z')
@@ -129,11 +130,13 @@ def hand_strategy(board, choice, direction_only=False):
     elif all(i < 27 and i % 9 not in (0, 8) for i in counts):
         plan = '以中张组成面子，朝断幺九推进' + ('，保留门清立直机会' if closed else '')
     else:
-        plan = '保留门清，优先完成顺子与对子，朝立直推进' if closed else '优先补齐面子与雀头，保留有役和牌路线'
+        plan = '优先补齐面子与雀头，兼顾立直与有役副露路线' if closed else '优先补齐面子与雀头，保留有役副露路线'
     if direction_only:
         return plan
     if action == 'none':
         return '跳过这次鸣牌；' + plan + '。'
+    if action in ('ankan', 'kakan'):
+        return choice['name'] + '；杠后补牌，再重新判断弃牌与和牌路线。'
     if action in ('chi', 'pon', 'daiminkan'):
         return '鸣牌后重新整理弃牌；需保留役牌等有役路线。'
     distance = choice.get('sh')
@@ -150,6 +153,8 @@ def decision_description(board, choice):
         return '跳过这次吃碰，保留现有手牌。'
     if action == 'hora':
         return '和牌，完成本局。'
+    if action in ('ankan', 'kakan'):
+        return choice['name'] + '；杠后补牌，再重新判断弃牌。'
     if action in ('chi', 'pon', 'daiminkan'):
         return choice['name'] + '；鸣牌后继续选择弃牌，需保留有役路线。'
     detail = ('立直后打 ' if action == 'reach' else '打 ') + name(choice['tile'])
@@ -208,7 +213,51 @@ def candidates(board):
         values += [{**v, 'name': '立直 → 打 ' + v['name'],
                     'action': {'type': 'reach', 'discard': mjai(v['tile'])}}
                    for v in list(values) if v['sh'] == 0]
+    if board.self_kan_available and not board.riichi_selecting:
+        values += self_kan_candidates(board)
     return values
+
+
+def self_kan_candidates(board):
+    """Own-turn kans are considered only when the game offers the kan button."""
+    if not board.self_kan_available:
+        return []
+    actions = []
+    counts = Counter(index(t) for t in board.hand)
+    for tile_type, count in sorted(counts.items()):
+        if count != 4:
+            continue
+        consumed = [t for t in board.hand if index(t) == tile_type]
+        if board.seat in board.riichi:
+            # The visible button can represent several choices. Only retain a
+            # drawn-tile ankan which preserves the complete set of waits.
+            if not board.drawn or index(board.drawn) != tile_type:
+                continue
+            before = list(board.hand)
+            before.remove(board.drawn)
+            after = [t for t in board.hand if index(t) != tile_type]
+            def waits(hand):
+                types = [index(t) for t in hand]
+                return {t for t in range(34) if types.count(t) < 4 and
+                        shanten(tuple(sorted(types + [t]))) == -1}
+            if not waits(before) or waits(before) != waits(after):
+                continue
+        actions.append({'type': 'ankan', 'pai': mjai(consumed[0]),
+                        'consumed': sorted(mjai(t) for t in consumed)})
+    if board.seat not in board.riichi:
+        for group in board.melds[board.seat]:
+            if group['type'] != 1:
+                continue
+            tiles = parse(group['tiles'])
+            for tile in sorted(set(board.hand)):
+                if index(tile) == index(tiles[0]):
+                    actions.append({'type': 'kakan', 'pai': mjai(tile),
+                                    'consumed': sorted(mjai(t) for t in tiles)})
+    return [{'action': action, 'name': ('暗杠 ' if action['type'] == 'ankan' else '加杠 ') +
+             name(next(t for t in board.hand if mjai(t) == action['pai'])),
+             'tile': next(t for t in board.hand if mjai(t) == action['pai']),
+             'sh': None, 'ukeire': None, 'safe': [], 'red': False, 'eligible': True}
+            for action in actions]
 
 
 def request(board, values):
@@ -334,7 +383,7 @@ class Adviser:
                 value['preference'] = float(probability)
             ranked = sorted([v for v in values if v['eligible']], key=lambda v: -v['preference'])
         else:
-            ranked = sorted([v for v in values if v['eligible']], key=lambda v:
+            ranked = sorted([v for v in values if v['eligible'] and v['sh'] is not None], key=lambda v:
                 (len(threats - set(v['safe'])) if threats and v['sh'] >= 1 else 0,
                  v['sh'], -v['ukeire'], v['dora'], v['red'], v['tile']))
         return {'top3': ranked[:3], 'all_candidates': values, 'engine': self.policy_name if use_model else '牌理引擎',

@@ -17,6 +17,8 @@ Jev Play v1 在固定东风模拟中，相对仅使用 Jev Discard v1 提高 **1
 
 当前定向训练计划见[副露防守训练](docs/experiments/plans/discard-defense-20261112.md)。Call Coverage v1 的已注册鸣牌数据实验并行继续。
 
+最新[Windows真人实测与截图证据](docs/experiments/results/2026-11-12-windows-live-test/README.md)：21300分第三名，31次吃碰推荐均跳过；优先复查鸣牌输入与判断，并新增“对手立直后重新比较有役吃碰加速、门清和防守路线”的修复／训练要求，尚未训练部署。
+
 完整实验版本及未采用原因见[模型目录](weights/README.md)；后续候选尚未确认优于Play v1。
 
 权重参数保持原样，模型目录、加载路径和源码界面已使用上述名称。历史报告中的编号对应关系见[模型索引](weights/README.md)。已发布的安装包保持原版本。

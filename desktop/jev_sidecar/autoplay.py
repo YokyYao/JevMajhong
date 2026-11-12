@@ -66,6 +66,11 @@ def plan_click(result, detections, screen, hand_rect, image_size):
         return ClickPlan(.53, .752, '立直') if screen.get('riichi_available') else None
     if action == 'none':
         return ClickPlan(.683, .752, '跳过') if screen.get('reaction') and offered else None
+    if action in ('ankan', 'kakan'):
+        options = [v for v in result['all_candidates'] if v.get('action', {}).get('type') in ('ankan', 'kakan')]
+        if not screen.get('self_kan_available') or 'daiminkan' not in offered or len(options) != 1:
+            return None
+        return ClickPlan(.53 - .13 * (len(offered) - 1 - offered.index('daiminkan')), .752, top['name'])
     if action in ('hora', 'chi', 'pon', 'daiminkan'):
         if action not in offered or not screen.get('reaction'):
             return None

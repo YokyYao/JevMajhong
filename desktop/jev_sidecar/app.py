@@ -298,7 +298,7 @@ class Sidecar(QMainWindow):
         self.hero.setWordWrap(True)
         self.hero.setObjectName('hero')
         c.addWidget(self.hero)
-        self.overall_strategy = QLabel('整体策略：等待手牌')
+        self.overall_strategy = QLabel('整体策略（牌理参考）：等待手牌')
         self.overall_strategy.setWordWrap(True)
         c.addWidget(self.overall_strategy)
         self.explanation = QLabel('框选完成后自动运行，无需点击“分析这手牌”。')
@@ -707,7 +707,7 @@ class Sidecar(QMainWindow):
         hand_id = screen.get('hand_id')
         if hand_id is not None and hand_id != self.strategy_hand_id:
             if self.strategy_hand_id is not None:
-                self.overall_strategy.setText('整体策略：新一局，正在计算')
+                self.overall_strategy.setText('整体策略（牌理参考）：新一局，正在计算')
                 self.current_decision = None
                 self.explanation.setText('当前决策：等待新一局推荐')
             self.strategy_hand_id = hand_id
@@ -853,7 +853,8 @@ class Sidecar(QMainWindow):
                      reaction=self.reaction if self.live.isChecked() else None,
                      forbidden_discards=self.forbidden_discards if self.live.isChecked() else [],
                      riichi_available=self.live.isChecked() and self.screen_riichi.get('riichi_available', False),
-                     riichi_selecting=self.live.isChecked() and self.screen_riichi.get('riichi_selecting', False))
+                     riichi_selecting=self.live.isChecked() and self.screen_riichi.get('riichi_selecting', False),
+                     self_kan_available=self.live.isChecked() and self.latest_screen.get('self_kan_available', False))
 
     def analyze(self, checked=False, automatic=False):
         if self.busy & {'analysis', 'load'}:
@@ -872,7 +873,7 @@ class Sidecar(QMainWindow):
             # Public river OCR can jitter while nothing about our legal decision
             # changes. Calculate once per decision, not once per screenshot.
             signature = (repr((board.hand, board.reaction, board.melds[0], board.riichi,
-                               board.riichi_available, board.riichi_selecting, board.forbidden_discards,
+                               board.riichi_available, board.riichi_selecting, board.self_kan_available, board.forbidden_discards,
                                board.honba, board.sticks))
                          if automatic else repr(board)) + str(self.mode.currentIndex())
             if signature == self.last_analyzed:
@@ -912,7 +913,7 @@ class Sidecar(QMainWindow):
         elif result.get('riichi_selecting'):
             self.explanation.setText('已进入立直选牌，只推荐能听牌的弃牌；单击推荐牌完成立直。')
         if result.get('direction'):
-            text = '整体策略：' + result['direction']
+            text = '整体策略（牌理参考）：' + result['direction']
             if self.overall_strategy.text() != text:
                 self.overall_strategy.setText(text)
         if result.get('decision'):
@@ -964,6 +965,9 @@ class Sidecar(QMainWindow):
                     self.screen_reader.expected_riichi_hand = list(hand)
                     self.screen_reader.expected_riichi_tile = top['tile']
                 self.status.setText('已自动点击：' + plan.label + ' · 等待操作完成')
+                if top.get('action', {}).get('type') in ('ankan', 'kakan'):
+                    self.screen_reader.expected_self_kan = {'action': top['action'], 'hand': list(hand),
+                        'melds': [dict(g) for g in self.latest_screen.get('melds') or []], 'time': time.monotonic()}
                 self.debug_event('auto_click', hand=list(hand), action=plan.label, x=plan.x, y=plan.y)
             elif plan is None:
                 self.status.setText('该动作需要选择吃碰组合，自动点击等待')

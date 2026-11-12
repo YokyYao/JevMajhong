@@ -1,0 +1,79 @@
+{
+  "upstream_commit": "eadfd27c52cd16c68fccf288e1f8d6753f55d6eb",
+  "local_overlay": "retained 2026-11-11 own-turn kan and strategy-label hotfix",
+  "models": "Jev Play v1 (Discard v1 + Call v1), unchanged published tensors",
+  "match": "bronze four-player East ranked",
+  "matches": 1,
+  "final_rank": 3,
+  "final_score": 21300,
+  "recommendation_events": 118,
+  "latency_seconds": {
+    "median": 1.0080000000016298,
+    "p95": 1.4210000000020955,
+    "max": 1.7810000000026776
+  },
+  "call_recommendation_events": 31,
+  "call_choices": {
+    "none": 31
+  },
+  "auto_click_events": {
+    "打 4z": 5,
+    "打 1s": 5,
+    "跳过": 27,
+    "打 3z": 4,
+    "打 9p": 2,
+    "打 1m": 5,
+    "打 7z": 2,
+    "打 3s": 2,
+    "打 6z": 3,
+    "打 6s": 2,
+    "立直": 3,
+    "打 2z": 4,
+    "打 1z": 4,
+    "打 9s": 4,
+    "打 4p": 1,
+    "和牌": 1,
+    "打 4m": 2,
+    "打 8m": 3,
+    "打 5m": 1,
+    "打 8p": 3,
+    "打 5z": 3,
+    "打 3m": 2,
+    "打 1p": 2,
+    "打 7p": 2,
+    "打 2m": 1,
+    "打 9m": 1
+  },
+  "riichi_discard_clicks": 3,
+  "errors": {
+    "手牌张数与自己的副露组数不一致，请在牌桌信息中校正": 22
+  },
+  "images": {
+    "count": 128,
+    "total_bytes": 15343850,
+    "max_bytes": 144207
+  },
+  "issues": [
+    "East3 8000-point deal-in after recommended 8p",
+    "All chi/pon recommendations passed; no positive call execution validated",
+    "Transient hand/meld inconsistency during animation",
+    "Single match is not a strength or win-rate estimate"
+  ],
+  "core_source_sha256": {
+    "app.py": "48ea80b731092d8a266faa5db988cb2d424688c15ea3175f4dd5030bf0943af5",
+    "autoplay.py": "2772c945fb37251058f8753b09fafd8fda608f77a42ee216a712493edab50db1",
+    "call_features.py": "8388ed45ab3c56f91fb3786f5d0af9d1a4a1238cf4fb67a64b6471291b4d97fb",
+    "call_feature_helpers.py": "99d2d7446c8901be8b4dd387306b90f15ca3f2204c3a4bc6587c34ef820a06c3",
+    "call_policy.py": "4f4135c3704b34a3dfc47e7df16f057f36472c4ea2648d1408aac45e347fbf4b",
+    "dataset.py": "c78105d5ace6e0f2b2882fddf08c64dc7c0307d2e0aa04b7836031c589b00943",
+    "engine.py": "c0bac3069afe69042421542326fe66af95cc4abbbd7fd50dfd67de618b830693",
+    "model_identity.py": "333bec7e51200a0a45a179d0d21350f6b2604758a0906d264308e0f1ebaf6ed7",
+    "screen_state.py": "4d142e7d4454108c70a4e0b3b7e2a8320ee109af17091b521dc0f5fcccb08ab2",
+    "selftest.py": "3331b14b3bdce875988a560c966c48f558304d53a219cb7bd265e7dafaa7c420",
+    "table_counters.py": "ab3649345be3f29bee26e23d3335ca3daeaa0a2109401d17cf01ebbd74debb83",
+    "tiles.py": "ec57cd32575f7101c8befa615821c21756f027185975166490d7c960441c3a40",
+    "vision.py": "39dd731b2cd1edb05c6a867240f0c108be4c82cdf708a41e65ae9ffc65af707d",
+    "window_capture.py": "a9028fadaadd843197459dfbe245e8d46fb3f4911500eaa6869ed4e97f0b5f2f",
+    "__init__.py": "575d19f21c6548664433c92d54b0c4f08017f22be85dd66907d84b5c545ef7a8"
+  }
+}

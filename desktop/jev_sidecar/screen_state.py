@@ -7,8 +7,8 @@ import time
 
 import numpy as np
 
-from .engine import Board, parse_melds, reaction_candidates
-from .tiles import mjai, normal
+from .engine import Board, parse_melds, reaction_candidates, self_kan_candidates
+from .tiles import mjai, normal, parse
 from .table_counters import TableCounterReader
 
 
@@ -57,6 +57,7 @@ class ScreenStateReader:
         self.last_discard = None
         self.previous_hand = []
         self.previous_reaction = None
+        self.expected_self_kan = None
         self.melds = []
         self.forbidden = []
         self.riichi_selecting = False
@@ -113,6 +114,28 @@ class ScreenStateReader:
     def read(self, image, regions, detector, found):
         hand = [d.tile for d in found.get('hand', [])]
         meld_count = (14 - len(hand)) // 3 if len(hand) % 3 == 2 else (13 - len(hand)) // 3
+        expected = self.expected_self_kan
+        if expected and time.monotonic() - expected['time'] > 12:
+            self.expected_self_kan = None
+            expected = None
+        if expected:
+            action, original = expected['action'], expected['hand']
+            removed = Counter(mjai(t) for t in original) - Counter(mjai(t) for t in hand)
+            added = Counter(mjai(t) for t in hand) - Counter(mjai(t) for t in original)
+            needed = Counter(action['consumed']) if action['type'] == 'ankan' else Counter([action['pai']])
+            required_groups = len(expected['melds']) + (action['type'] == 'ankan')
+            if removed == needed and sum(added.values()) <= 1 and meld_count == required_groups:
+                self.melds = [dict(g) for g in expected['melds']]
+                if action['type'] == 'ankan':
+                    tiles = [t for t in original if mjai(t) in needed]
+                    self.melds += parse_melds('a:' + ''.join(tiles))
+                else:
+                    tile = next(t for t in original if mjai(t) == action['pai'])
+                    for group in self.melds:
+                        if group['type'] == 1 and normal(parse(group['tiles'])[0]) == normal(tile):
+                            group.update(type=4, tiles=group['tiles'] + ' ' + tile)
+                            break
+                self.expected_self_kan = None
         if self.previous_reaction and meld_count == len(self.melds) + 1:
             consumed = Counter(self.previous_hand) - Counter(hand)
             for candidate in reaction_candidates(Board(self.previous_hand, reaction=self.previous_reaction)):
@@ -189,6 +212,7 @@ class ScreenStateReader:
             pending_incomplete = was_selecting and len(hand) == 13 and self.expected_riichi_tile is not None
             self.riichi_selecting = bool(selecting or pending_incomplete) and not self.own_riichi
         self._reach_available = available
+        self_kan_available = 'daiminkan' in offered and len(hand) % 3 == 2
         calls = [kind for kind in offered if kind not in ('reach', 'reach_select')] if len(hand) % 3 == 1 else []
         reaction = None
         if calls:
@@ -234,6 +258,7 @@ class ScreenStateReader:
             temporary.replace(self.state_path)
         return {'melds': melds, 'offered': offered, 'reaction': reaction, 'forbidden': self.forbidden, 'hand_id': self.hand_id,
                 'riichi_available': available, 'riichi_selecting': self.riichi_selecting,
+                'self_kan_available': self_kan_available,
                 'own_riichi': self.own_riichi,
                 'counters': self.counter_reader.read(image, regions.get('counters'), self.ocr_engine)}
 
