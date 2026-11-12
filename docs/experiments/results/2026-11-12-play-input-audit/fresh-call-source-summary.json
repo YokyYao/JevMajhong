@@ -1,0 +1,44 @@
+{
+  "status": "passed_complete",
+  "walls": 8,
+  "control_matches_audited": 32,
+  "states": 634,
+  "state_splits": {
+    "train": 489,
+    "held": 145
+  },
+  "prefixes_replayed": 634,
+  "cached_head_probability_max_error": 8.344650268554688e-07,
+  "whole_wall_disjoint": true,
+  "new_simulations": 0,
+  "reward_labels_available": false,
+  "independent_strength_proven": false,
+  "call_state_coverage": {
+    "closed": 592,
+    "opponent_riichi": 198,
+    "chi": 407,
+    "pon": 238,
+    "open": 42
+  },
+  "method": "native_call_states_v1",
+  "selected_label_plan": {
+    "states": 384,
+    "pairs": 446,
+    "split_counts": {
+      "train": 288,
+      "train_pairs": 337,
+      "held": 96,
+      "held_pairs": 109
+    },
+    "public_coverage": {
+      "closed": 342,
+      "open": 42
+    },
+    "maximum_first_arm_rollouts": 12288,
+    "new_option_hand_rollouts": 992,
+    "worlds": 16,
+    "no_future_outcomes_used": true
+  },
+  "raw_records_public": false,
+  "optimizer_updates": 0
+}

@@ -8,7 +8,7 @@ from jevmahjong.core.scoring import settlement_ledger
 from jevmahjong.policy.kan import is_kan_request
 from jevmahjong.policy.routing import is_call_request
 from jevmahjong.policy.defense import is_defense_request
-from .native_states import METHOD as INPUT_METHOD,decision_records,validate as validate_inputs
+from .native_states import METHOD as INPUT_METHOD,CALL_METHOD,INPUT_METHODS,decision_records,validate as validate_inputs
 from jevmahjong.training.collector import derived_seed
 from jevmahjong.training.rewards import hand_outcomes
 from jevmahjong.training.utility import hand_utility
@@ -43,8 +43,10 @@ def validate_rows(payload, seed, config, protocol, reward=None):
             or digest(source) != payload['source_sha256']):
         raise ValueError('Original source shard changed')
     original = torch.load(source,map_location='cpu',weights_only=False)
-    if original.get('collection_method') == INPUT_METHOD:
-        if mode != 'open_tenpai_riichi':raise ValueError('Native defense inputs require their declared scope')
+    if original.get('collection_method') in INPUT_METHODS:
+        if ((original['collection_method']==INPUT_METHOD and mode!='open_tenpai_riichi')
+                or (original['collection_method']==CALL_METHOD and (scope!='calling' or mode!='all'))):
+            raise ValueError('Native inputs require their declared scope')
         validate_inputs(original,seed,config)
     originals = {tuple(r['episode_key']):r for r in original['rows']}
     controls = {c['seat']:c for c in original['controls']}

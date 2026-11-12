@@ -939,7 +939,7 @@
     },
     "jev-call-win-v3": {
       "role": "public-route-weighted-own-win-first-calling-head",
-      "status": "development-running-not-adopted",
+      "status": "development-no-own-win-gain-risk-limit-exceeded-not-adopted",
       "frozen_components": [
         "jev-call-v1-encoder-and-LoRA",
         "jev-discard-v1"
@@ -965,6 +965,36 @@
       "route_loss_weights": {
         "closed_chi_tanyao_gain": 4.0,
         "opponent_riichi": 2.0
+      },
+      "development": {
+        "games": 192,
+        "logical_walls": 8,
+        "hand_win_paired": {
+          "gain": -0.004388377825877825,
+          "ci95": [
+            -0.06112214397573714,
+            0.052345388323981494
+          ],
+          "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+        },
+        "dealin_rate_paired": {
+          "gain": 0.012888182419432419,
+          "ci95": [
+            -0.013250873884090205,
+            0.03902723872295504
+          ],
+          "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+        },
+        "net_points_paired": {
+          "gain": -73.95833333333331,
+          "ci95": [
+            -1809.8602507095286,
+            1661.943584042862
+          ],
+          "independent_wall_streams": 8
+        },
+        "manual_audit_passed": true,
+        "eligible_for_confirmation": false
       }
     }
   },

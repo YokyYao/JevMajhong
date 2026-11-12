@@ -43,8 +43,8 @@ def load_sources(roots, model_files=None, reward=None, *, allow_unlabeled=False)
         marker = root / 'collection-result.json'; protocol_file = root / 'protocol.json'
         collection = json.loads(marker.read_text()); protocol = json.loads(protocol_file.read_text())
         config = protocol['config']
-        from .native_states import METHOD as INPUT_METHOD, validate as validate_inputs
-        unlabeled = protocol.get('collection_method') == INPUT_METHOD
+        from .native_states import INPUT_METHODS, validate as validate_inputs
+        unlabeled = protocol.get('collection_method') in INPUT_METHODS
         if unlabeled and not allow_unlabeled:
             raise ValueError('Native decision inputs have no reward labels; collect paired futures before fitting')
         behavior = protocol.get('behavior_heads')

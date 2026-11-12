@@ -207,3 +207,8 @@ python tools/run_experiment.py evaluate --config configs/evaluation/play-call-ro
 ## 用户进一步明确：本局先和优先
 
 当前奖励与评测目标见[先和牌方案](experiments/plans/play-own-win-20261112.md)。Call Win v1将实际自家和牌记为1、未和记为0，和牌后的速度作辅助、放铳扣分；点数不参与奖励。完整对局按单局和牌率比较，净点和名次继续报告。吃牌小子组保留诊断，不再替代整体效果。便携入口与上面的动作头命令一致，分别使用`call-win-fit.json`、`call-win-fit-audit.json`、`call-win-development.json`。
+
+
+### 完整鸣牌窗口的原生输入采样
+
+`collect-call-states`在每场控制比赛中保存所有纯吃碰决策，包括已副露状态；`audit-native-states`逐条重放原生前缀并检查原模型概率。它与原来的防守状态采样共享不可变分片写入和恢复逻辑；旧命令仍可用。新输入没有奖励标签，拟合器会拒绝直接使用。只有匹配来源核验完成后，才允许生成配对未来标签。含杠窗口保持Discard路由。[新数据计划](experiments/plans/play-fresh-call-stream-20261112.md)。

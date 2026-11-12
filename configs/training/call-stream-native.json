@@ -1,0 +1,15 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "out": "runs/play-call-stream-native-v1",
+  "seed": 2026111241,
+  "game_mode": "4p-red-east",
+  "seed_scheme": "spaced-v1",
+  "training_seed_start": 11510000,
+  "training_seeds_per_stage": 8,
+  "fast_gamma": 0.995,
+  "train_scopes": [
+    "calling"
+  ],
+  "decision_filter": "all"
+}

@@ -45,6 +45,35 @@ def native_collection(root, start, gamma=.995):
 
 
 class SamplingTests(unittest.TestCase):
+    def test_bounded_future_sampling_covers_rare_open_calls_without_using_outcomes(self):
+        from jevmahjong.training.ev_collect import choose_cases,select_case_plan
+        class Head:
+            def __call__(self,decide,options):return torch.tensor([1.,0.])
+        def case(index,opened):
+            return dict(scope='calling',episode_key=(100,0,index),request_sha256=str(index),
+                teacher_action=0,action=1,eligible=[0,1],decide=torch.zeros(1),options=torch.zeros(2,1),
+                training_advantage=999. if index%2 else -999.,public_request={'state':{
+                    'seat':0,'riichi':[],'melds':[[{'type':1}] if opened else [],[],[],[]]},
+                    'questions':{'action':{'criteria':{'a0':{'type':'none'},'a1':{'type':'chi'}}}}})
+        rows=[case(i,False) for i in range(10)]+[case(10,True)]
+        parts={'train':rows,'held':[]}
+        selected=choose_cases(parts,Head(),2,True,True)
+        self.assertEqual([r['episode_key'][2] for r in selected],[0,10])
+        for r in rows:r['training_advantage']*=-1
+        self.assertEqual([r['episode_key'] for r in choose_cases(parts,Head(),2,True,True)],
+            [r['episode_key'] for r in selected])
+        self.assertEqual([r['episode_key'][2] for r in choose_cases(parts,Head(),2,True)],[0,1])
+        with self.assertRaises(ValueError):choose_cases(parts,Head(),2,True,'yes')
+        held=copy.deepcopy(rows)
+        for r in held:r['episode_key']=(101,0,r['episode_key'][2])
+        cfg=dict(max_states=5,max_states_by_split={'train':3,'held':2},canonical_state_only=True,
+            stratify_call_openness=True)
+        selected=select_case_plan({'train':rows,'held':held},Head(),cfg)
+        self.assertEqual([r['source_split'] for r in selected],['train']*3+['held']*2)
+        self.assertTrue(any(r['episode_key'][2]==10 for r in selected if r['source_split']=='held'))
+        cfg['max_states']=6
+        with self.assertRaises(ValueError):select_case_plan({'train':rows,'held':held},Head(),cfg)
+
     def test_queued_launch_uses_registered_source_without_resuming_model_state(self):
         from tools import run_experiment
         with tempfile.TemporaryDirectory() as temporary:

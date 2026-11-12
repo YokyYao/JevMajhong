@@ -1,0 +1,18 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "candidate_run": "runs/jev-call-win-v4",
+  "out": "runs/call-win-v4-development",
+  "stage": "development",
+  "seed_start": 11440000,
+  "seeds": 8,
+  "fast_gamma": 0.98,
+  "confirmation_objective": "hand_win",
+  "max_dealin_rate_increase": 0.01,
+  "updated_scopes": [
+    "calling"
+  ],
+  "candidate_activation": "all",
+  "required_call_head_audit_config": "configs/training/call-win-fresh-fit-audit.json",
+  "parity_source_run": "runs/play-call-routes-native-v1"
+}

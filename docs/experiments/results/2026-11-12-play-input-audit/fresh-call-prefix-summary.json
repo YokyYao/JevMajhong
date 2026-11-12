@@ -1,0 +1,27 @@
+{
+  "status": "passed_registered_prefix",
+  "walls": 4,
+  "control_matches_audited": 16,
+  "states": 322,
+  "state_splits": {
+    "train": 227,
+    "held": 95
+  },
+  "prefixes_replayed": 322,
+  "cached_head_probability_max_error": 6.556510925292969e-07,
+  "whole_wall_disjoint": true,
+  "new_simulations": 0,
+  "reward_labels_available": false,
+  "independent_strength_proven": false,
+  "call_state_coverage": {
+    "closed": 305,
+    "opponent_riichi": 115,
+    "chi": 213,
+    "pon": 114,
+    "open": 17
+  },
+  "total_registered_walls": 8,
+  "method": "native_call_states_v1",
+  "raw_records_public": false,
+  "optimizer_updates": 0
+}
