@@ -35,3 +35,8 @@ Jev Call Win v1在6轮60次更新后早停，选第2轮。50验证局面中先�
 吃牌具体路线与截图输入的稳健性继续诊断，安装包等待模型效果核实后再测。
 
 配置：[拟合](../../../configs/training/call-win-fit.json)、[权重检查](../../../configs/training/call-win-fit-audit.json)、[完整开发](../../../configs/evaluation/call-win-development.json)。源码通过148项本地检查。
+
+
+## 开发完成后的调整
+
+固定v1在192场开发中配对和牌率+1.81个百分点、放铳+1.75个百分点、净点+133.33点／场。独立赢家和支付核对通过，但放铳超过登记上限，和牌率区间跨零，未进入独立确认。Call Win v2保持上述目标，仅将放铳惩罚改成2；同数据短训，四轮未改善即停。新开发牌山11420000—11420007，作用域、速度折扣与风险上限不变。详见[开发结果](../results/2026-11-12-play-input-audit/win-development-summary.json)。
