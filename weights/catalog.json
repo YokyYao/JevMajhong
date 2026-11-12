@@ -547,7 +547,7 @@
     },
     "jev-call-progress-v1": {
       "role": "pure-chi-pon-pass-public-progress-residual-policy-component",
-      "status": "native-development-running",
+      "status": "not-adopted-negative-development",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -598,7 +598,56 @@
       },
       "complete_option_pairs": 774,
       "extra_hand_rollouts": 2032,
-      "independent_confirmation_run": false
+      "independent_confirmation_run": false,
+      "development_net_gain_vs_play_v1": -1054.1666666666665,
+      "development_ci95": [
+        -4253.094616057131,
+        2144.7612827237976
+      ],
+      "development_games": 192,
+      "development_candidate_games": 96,
+      "development_changed_event_log_pairs": 60
+    },
+    "jev-call-risk-v1": {
+      "role": "pure-call-progress-residual-policy-with-stronger-dealin-penalty",
+      "status": "native-development-running",
+      "frozen_components": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ],
+      "activation": "call_windows",
+      "comparison": "same data, initialization, prior, architecture and stopping as Call Progress v1; only dealin penalty0.1to0.4",
+      "feature_version": "public-kan-context-v2",
+      "feature_count": 158,
+      "model_kind": "mlp",
+      "hidden_width": 16,
+      "trainable_parameters": 2560,
+      "reference_prior_strength": 0.05,
+      "reward": {
+        "mode": "net_points_with_fast_support_v1",
+        "net_weight": 1.0,
+        "fast_weight": 0.1,
+        "dealin_penalty": 0.4,
+        "point_scale": 8000.0
+      },
+      "train_rows": 581,
+      "held_rows": 193,
+      "train_states": 484,
+      "held_states": 163,
+      "selected_epoch": 2,
+      "epochs_run": 6,
+      "optimizer_updates": 96,
+      "checkpoint_sha256": "d475485e26b992a578e412b5efb3bf4e7e1a9e3655df6ea648b7c337bf39b362",
+      "held_label_policy_gain_improved": true,
+      "held_changed_states": 11,
+      "held_sampled_utility_gain_per_state": 0.01179446261404826,
+      "held_sampled_net_point_gain_per_state": 91.83282208588957,
+      "sampled_state_points_not_full_match_points": true,
+      "training_audit": "passed-seven-checkpoints-frozen-heads-zero-and-actual-inference",
+      "artifact_exists": true,
+      "artifact_public": false,
+      "independent_confirmation_run": false,
+      "independent_improvement_proven": false
     }
   },
   "legacy_aliases": {
