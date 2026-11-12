@@ -355,7 +355,7 @@
     },
     "jev-kan-residual-data-v1": {
       "role": "fresh-kan-menu-and-threat-data-residual-policy-component",
-      "status": "fresh-native-source-audited-paired-futures-running-fit-dependent",
+      "status": "trained-audited-full-match-development-running",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -368,7 +368,7 @@
       "reference_prior_strength": 0.05,
       "planned_new_wall_groups": 48,
       "planned_paired_futures_per_new_state": 16,
-      "artifact_exists": false,
+      "artifact_exists": true,
       "artifact_public": false,
       "independent_improvement_proven": false,
       "new_wall_groups": 48,
@@ -378,7 +378,22 @@
       "new_original_pairs_for_future_revaluation": 184,
       "new_paired_futures_per_pair": 16,
       "native_source_audit": "passed-complete-grid-ledgers-frozen-inputs",
-      "native_cached_head_probability_max_error": 4.172325134277344e-07
+      "native_cached_head_probability_max_error": 4.172325134277344e-07,
+      "selected_epoch": 1,
+      "epochs_run": 5,
+      "optimizer_updates": 75,
+      "trained_parameter_count": 2464,
+      "train_rows": 1237,
+      "held_rows": 424,
+      "train_states": 470,
+      "held_states": 157,
+      "new_complete_option_pairs": 284,
+      "checkpoint_sha256": "cac3a8f69fd43c8a226eb8e9ca6ea9ccbc870232471af82b68ca9ed8907e3485",
+      "training_audit": "passed-inputs-frozen-heads-all-checkpoints-and-direct-inference",
+      "latest_held_states": 25,
+      "latest_held_changed_states": 2,
+      "latest_held_sampled_current_hand_point_gain_per_state": 4.75,
+      "sampled_state_points_not_full_match_points": true
     }
   },
   "legacy_aliases": {
