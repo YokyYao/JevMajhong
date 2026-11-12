@@ -85,5 +85,23 @@
     "new_simulations": 0,
     "not_strength_evaluation": true,
     "reward_recounted_from_native_events": true
+  },
+  "prospective_development": {
+    "stage": "development",
+    "new_logical_walls": 8,
+    "expected_matches": 192,
+    "conditional_on_completed_fit_audit_and_positive_internal_own_win_gain": true,
+    "ineligible_candidate_plays_zero_matches": true,
+    "native_parity_required": [
+      "ordinary",
+      "calling",
+      "ordinary_kan"
+    ],
+    "checkpoint_bound_to_audited_fit_and_startup_protocol": true,
+    "independent_event_recount_queued": true,
+    "binding_regression_existing_matches": 192,
+    "binding_regression_new_simulations": 0,
+    "tampered_wrapper_config_and_recipe_rejected": 3,
+    "no_v2_match_results_yet": true
   }
 }
