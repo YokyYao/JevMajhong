@@ -1140,7 +1140,7 @@
     },
     "jev-call-feature-win-v1": {
       "role": "public-feature-nonlinear-own-win-first-call-component",
-      "status": "fit-audited-new-development-submitted",
+      "status": "positive-development-independent-confirmation-submitted",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1-encoder-and-LoRA",
@@ -1197,7 +1197,44 @@
       "adopted": false,
       "deployed": false,
       "strength_improvement_proven": false,
-      "experimental_weights_public": false
+      "experimental_weights_public": false,
+      "development": {
+        "games": 192,
+        "logical_walls": 8,
+        "hand_win_paired": {
+          "gain": 0.011495535714285715,
+          "ci95": [
+            -0.022098947519786187,
+            0.04509001894835762
+          ],
+          "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+        },
+        "dealin_rate_paired": {
+          "gain": 0.0067956349206349225,
+          "ci95": [
+            -0.019642099092320356,
+            0.033233368933590204
+          ],
+          "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+        },
+        "net_points_paired": {
+          "gain": 552.0833333333333,
+          "ci95": [
+            -1116.162871761644,
+            2220.3295384283106
+          ],
+          "independent_wall_streams": 8
+        },
+        "manual_audit_passed": true,
+        "eligible_for_confirmation": true
+      },
+      "confirmation": {
+        "stage": "independent_confirmation",
+        "logical_walls": 32,
+        "expected_games": 768,
+        "status": "submitted",
+        "candidate_unchanged": true
+      }
     }
   },
   "legacy_aliases": {

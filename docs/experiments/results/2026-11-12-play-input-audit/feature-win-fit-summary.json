@@ -355,9 +355,11 @@
   "whole_wall_disjoint": true,
   "data_and_reward_unchanged_from_v4": true,
   "not_single_factor_comparison_to_pointer_head": true,
-  "development": "submitted_8_new_walls_192_matches",
+  "development": "completed_positive_signal_not_independent_proof",
   "strength_improvement_proven": false,
   "deployed": false,
   "experimental_weights_public": false,
-  "raw_records_public": false
+  "raw_records_public": false,
+  "development_summary": "feature-win-development-summary.json",
+  "independent_confirmation": "registered_and_submitted_32_new_walls"
 }
