@@ -14,11 +14,15 @@ python tools/run_experiment.py audit-futures --config configs/training/defense-f
 python tools/run_experiment.py collect-ev --config configs/training/defense-options.json
 python tools/run_experiment.py audit-futures --config configs/training/defense-option-audit.json
 python tools/run_experiment.py train-context --config configs/training/defense-context.json
+python tools/run_experiment.py audit-context-fit --config configs/training/defense-fit-audit.json
+python tools/run_experiment.py evaluate --config configs/evaluation/defense-development.json
 ```
 
 96个新整牌山，72训练／24内部验证，共384场控制东风；捕获所有满足公开条件的普通弃牌窗口。原始输入不含虚构的分支结果，不能直接送入拟合器。审计后用每状态16份共同未来生成真实支付收益并补齐全部合格弃牌。新版本158维公开特征，2560参数残差网络，按局面等权训练，不按收益正负调整样本权重。最多32轮、4轮停滞早停。首4牌山属于正式采集的一部分，16场产生24状态，全部24个原生前缀重放通过、缓存概率最大差约3.58e−7；正式续采复用这4牌山。75项核心回归通过；接口验证不是实力证据。
 
-完成拟合及权重核对后，只对内部采样选牌收益改善的固定候选开展8牌山192场开发，再决定是否使用未消费的32新牌山768场独立确认。净得点区间下界大于零才确认模拟协议内提升；不把这轮训练或更多防守直接写成已改善。详细设计和失败后的调整规则见[注册方案](experiments/plans/discard-defense-20261112.md)。
+`audit-context-fit`核对全部检查点、冻结原头、原始输入摘要、完整备选、实际推理、零起点及注册早停，并独立重算内部状态的采样得点／放铳／快和差异。已在完成的Call Risk v1上回归：7份检查点、484训练／163验证状态通过，重算选模误差0、真实推理概率最大差2.22e−16；这不是新的模型提升。新增4项回归后核心检查共79项。
+
+开发入口绑定上述审计与选中权重；内部采样选牌收益改善且选中策略采样净得点为正才开展8牌山192场开发，再决定是否使用未消费的32新牌山768场独立确认。所列开发模板的参考缓存与其他路由输入需要本地已注册的私有实验目录，按实际路径配置；它们没有随源码公开。净得点区间下界大于零才确认模拟协议内提升；不把这轮训练或更多防守直接写成已改善。详细设计和失败后的调整规则见[注册方案](experiments/plans/discard-defense-20261112.md)。
 
 ## 并行的鸣牌覆盖实验
 

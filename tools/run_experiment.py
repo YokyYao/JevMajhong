@@ -37,7 +37,7 @@ def freeze_source(root):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=('collect', 'collect-defense-states', 'collect-ev', 'audit-defense-states', 'audit-futures', 'train', 'train-context', 'evaluate'))
+    parser.add_argument('command', choices=('collect', 'collect-defense-states', 'collect-ev', 'audit-defense-states', 'audit-futures', 'audit-context-fit', 'train', 'train-context', 'evaluate'))
     parser.add_argument('--config', type=Path, required=True)
     parser.add_argument('--resume', action='store_true')
     parser.add_argument('--max-walls',type=int)

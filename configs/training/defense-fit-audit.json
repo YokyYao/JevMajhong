@@ -1,0 +1,18 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "fit_config": "configs/training/defense-context.json",
+  "fit_config_sha256": "e578a72be18ecaad1627ee3de31ba50da296aef764736570a27858e4f03689a4",
+  "data_audits": [
+    "runs/discard-defense-states-v1-full-audit",
+    "runs/discard-defense-v1-futures-audit",
+    "runs/discard-defense-v1-options-audit"
+  ],
+  "expected": {
+    "wall_groups": 96,
+    "features": 158,
+    "parameters": 2560,
+    "policy_state_weighting": "uniform"
+  },
+  "out": "runs/discard-defense-v1-fit-audit"
+}

@@ -1,0 +1,19 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "candidate_run": "runs/jev-discard-defense-v1",
+  "out": "runs/discard-defense-v1-development",
+  "stage": "development",
+  "seed_start": 10920000,
+  "seeds": 8,
+  "fast_gamma": 0.995,
+  "confirmation_objective": "net_points",
+  "updated_scopes": [
+    "ordinary"
+  ],
+  "candidate_activation": "defense_windows",
+  "candidate_action_admission": "open_tenpai_genbutsu_v1",
+  "required_fit_audit_config": "configs/training/defense-fit-audit.json",
+  "reference_cache_out": "runs/value-defense-v1-development",
+  "parity_source_run": "runs/jev-call-risk-v1"
+}
