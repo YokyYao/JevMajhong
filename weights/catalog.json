@@ -801,7 +801,7 @@
     },
     "jev-call-routes-v1": {
       "role": "chi-pon-pass-pointer-head-repair",
-      "status": "registered-fit-awaiting-complete-input-audits",
+      "status": "not-adopted-route-diagnostic-failed",
       "frozen_components": [
         "jev-call-v1-encoder-and-LoRA",
         "jev-discard-v1"
@@ -813,7 +813,40 @@
       "new_held_pairs": 68,
       "train_only_reference_anchor_states": 256,
       "anchor_labels_used": false,
-      "artifact_exists": false,
+      "artifact_exists": true,
+      "artifact_public": false,
+      "deployed": false,
+      "independent_improvement_proven": false,
+      "selected_epoch": 2,
+      "epochs_run": 6,
+      "optimizer_updates": 60,
+      "checkpoint_sha256": "11be0ed99d8c33eb045c85ab92456249775e1d46e31fc74e835bedd0587160ce",
+      "held_sampled_point_gain_per_state": 172.375,
+      "held_closed_chi_sampled_point_gain_per_state": -92.36111111111111,
+      "complete_development_matches": 0
+    },
+    "jev-call-win-v1": {
+      "role": "own-win-probability-first-calling-head",
+      "status": "full-match-development-started-or-queued",
+      "frozen_components": [
+        "jev-call-v1-encoder-and-LoRA",
+        "jev-discard-v1"
+      ],
+      "trainable_parameters": 524800,
+      "train_states": 156,
+      "held_states": 50,
+      "train_pairs": 183,
+      "held_pairs": 68,
+      "train_only_reference_anchor_states": 256,
+      "selected_epoch": 2,
+      "epochs_run": 6,
+      "optimizer_updates": 60,
+      "checkpoint_sha256": "808a15f58656a0329d4e27bf104f62efddc372d7af801a03c64e67ab3f4221e1",
+      "held_sampled_own_win_probability_gain": 0.0225,
+      "held_sampled_dealin_probability_gain": 0.00875,
+      "held_sampled_point_gain_per_state": 146.5,
+      "not_full_match_metrics": true,
+      "artifact_exists": true,
       "artifact_public": false,
       "deployed": false,
       "independent_improvement_proven": false

@@ -202,3 +202,8 @@ python tools/run_experiment.py evaluate --config configs/evaluation/play-call-ro
 ```
 
 计划排队后再执行时，先对每条命令加`--prepare-only`固定源码与配置，正式执行用`--registered`。这不会启动模型训练，也不会向训练模块传`--resume`。开发入口需要完整匹配的权重检查结果；实际改选无净点收益或门清吃牌子组未恢复时，跳过完整比赛。旧数据原始轨迹和新权重保持私有。
+
+
+## 用户进一步明确：本局先和优先
+
+当前奖励与评测目标见[先和牌方案](experiments/plans/play-own-win-20261112.md)。Call Win v1将实际自家和牌记为1、未和记为0，和牌后的速度作辅助、放铳扣分；点数不参与奖励。完整对局按单局和牌率比较，净点和名次继续报告。吃牌小子组保留诊断，不再替代整体效果。便携入口与上面的动作头命令一致，分别使用`call-win-fit.json`、`call-win-fit-audit.json`、`call-win-development.json`。

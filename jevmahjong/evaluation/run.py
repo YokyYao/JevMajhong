@@ -63,6 +63,32 @@ def parity_sources(fit):
     return paths
 
 
+def parity_anchor_paths(directory, model_files):
+    """Parity inputs may come from a fit or a completed native collection."""
+    root=Path(directory).resolve();proto_file=root/'protocol.json'
+    protocol=json.loads(proto_file.read_text());verify(protocol)
+    if protocol['model_files']!=model_files:raise ValueError('Parity encoders differ')
+    paths={str(proto_file):digest(proto_file)}
+    if (root/'result.json').exists():
+        fit_file=root/'result.json';fit=json.loads(fit_file.read_text())
+        if fit['status']!='trained':raise ValueError('Completed parity fit required')
+        paths[str(fit_file)]=digest(fit_file);paths.update(parity_sources(fit));return paths
+    marker_file=root/'collection-result.json';marker=json.loads(marker_file.read_text())
+    cfg=protocol['config'];start=cfg['training_seed_start'];count=cfg['training_seeds_per_stage']
+    if marker['status']!='collection_complete' or marker['walls']!=count:
+        raise ValueError('Complete native parity source required')
+    shards=list((root/'walls-private').glob('*.pt'))
+    if len(shards)!=count or {int(p.stem) for p in shards}!=set(range(start,start+count)):
+        raise ValueError('Native parity wall grid differs')
+    rows=0;paths[str(marker_file)]=digest(marker_file)
+    for shard in sorted(shards):
+        receipt=shard.with_suffix('.audit.json');record=json.loads(receipt.read_text());checksum=digest(shard)
+        if record['sha256']!=checksum:raise ValueError('Native parity shard changed')
+        rows+=record['rows'];paths[str(shard)]=checksum;paths[str(receipt)]=digest(receipt)
+    if rows!=marker['rows']:raise ValueError('Native parity row count differs')
+    return paths
+
+
 def parity_route(row,activation):
     scope=row['scope'];request=row['public_request']
     if activation=='defense_windows' and scope=='ordinary':
@@ -93,6 +119,10 @@ def main():
         audit = json.loads((development / 'audit.json').read_text())
         development_protocol = json.loads((development / 'protocol.json').read_text())
         verify(development_protocol)
+        if 'hand_win' in (cfg.get('confirmation_objective'),development_protocol['config'].get('confirmation_objective')):
+            if any(cfg.get(k)!=development_protocol['config'].get(k) for k in
+                    ('confirmation_objective','fast_gamma','max_dealin_rate_increase')):
+                raise ValueError('Confirmation must preserve the registered win objective and risk constraint')
         if candidate_scopes(development_protocol['config']) != scopes:
             raise ValueError('Confirmation must preserve development head scopes')
         if candidate_activation(development_protocol['config']) != activation:
@@ -111,7 +141,8 @@ def main():
         protocol['fit_audit_receipt']=receipt
         if not cfg.get('preflight_only',False) and not checked['eligible_for_development']:
             write(out/'protocol.json',protocol)
-            write(out/'status.json',{'status':'skipped','reason':'no_audited_held_choice_point_gain',
+            write(out/'status.json',{'status':'skipped','reason':('no_audited_held_hand_win_and_route_gain'
+                if checked.get('selection_objective')=='hand_win' else 'no_audited_held_choice_point_gain'),
                 'complete_matches_simulated':0,'independent_strength_proven':False});return
     if activation=='defense_windows' or cfg.get('required_fit_audit_config'):
         from .context_audit import checked_receipt
@@ -127,15 +158,11 @@ def main():
         protocol['reference_cache'] = receipt
     parity_paths=parity_sources(fit)
     if cfg.get('parity_source_run'):
-        anchor=Path(cfg['parity_source_run']);anchor_protocol=json.loads((anchor/'protocol.json').read_text())
-        verify(anchor_protocol)
-        if anchor_protocol['model_files']!=protocol['model_files']:raise ValueError('Parity encoders differ')
-        anchor_fit=json.loads((anchor/'result.json').read_text())
-        if anchor_fit['status']!='trained':raise ValueError('Completed parity source required')
-        for path,h in parity_sources(anchor_fit).items():
+        external=parity_anchor_paths(cfg['parity_source_run'],protocol['model_files'])
+        for path,h in external.items():
             if path in parity_paths and parity_paths[path]!=h:raise ValueError('Conflicting external parity identity')
             parity_paths[path]=h
-        protocol['parity_source_receipt']={str(anchor/name):digest(anchor/name) for name in ('protocol.json','result.json')}
+        protocol['parity_source_receipt']=external
     if (out/'protocol.json').exists() and json.loads((out/'protocol.json').read_text()) != protocol:
         raise ValueError('Resume requires the same candidate and protocol')
     write(out / 'protocol.json', protocol)
@@ -237,7 +264,8 @@ def main():
     if summarize([json.loads(l) for l in raw.read_text().splitlines()], cfg) != result:
         raise ValueError('Saved game reaggregation differs')
     result['improvement_verified'] = (cfg['stage'] == 'independent_confirmation'
-        and result['overall']['candidate_minus_reference']['ci95'][0] > 0)
+        and (result['hand_win_paired']['ci95'][0]>0 and result['dealin_rate_paired']['gain']<=cfg['max_dealin_rate_increase']
+            if cfg.get('confirmation_objective')=='hand_win' else result['overall']['candidate_minus_reference']['ci95'][0]>0))
     result['reference_games_reused'] = len(cached)
     result['new_games_simulated'] = len(rows) - len(cached)
     if 'updated_scopes' in cfg: result['updated_scopes'] = list(scopes)

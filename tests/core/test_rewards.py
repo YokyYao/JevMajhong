@@ -22,6 +22,26 @@ def request(types):
 
 
 class FastWinTest(unittest.TestCase):
+    def test_win_first_reward_uses_actual_winner_and_speed_not_hand_value(self):
+        cfg=dict(mode='own_win_first_v1',win_weight=1.,fast_weight=.25,dealin_penalty=1.,
+            net_weight=0.,point_scale=8000.,speed_gamma=.98)
+        def settled(actor,target,points,draws):
+            delta=[0]*4;delta[actor]=points;delta[target]-=points
+            return ([{'type':'start_kyoku'}]+[{'type':'tsumo'}]*draws+
+                [{'type':'hora','actor':actor,'target':target,'deltas':delta},{'type':'end_kyoku'}])
+        cheap=hand_utility(settled(0,1,1000,8),0,0,0,.995,cfg)
+        from jevmahjong.evaluation.call_head_audit import native_win_credit,check_close
+        check_close(cheap,native_win_credit(settled(0,1,1000,8),0,0,0,cfg))
+        expensive=hand_utility(settled(0,1,8000,8),0,0,0,.995,cfg)
+        self.assertEqual(cheap['utility'],expensive['utility'])
+        self.assertNotEqual(cheap['net_points'],expensive['net_points'])
+        slow=hand_utility(settled(0,1,8000,24),0,0,0,.995,cfg)
+        self.assertGreater(cheap['utility'],slow['utility'])
+        other=hand_utility(settled(1,2,8000,8),0,0,0,.995,cfg)
+        self.assertEqual(other['own_win'],0);self.assertEqual(other['utility'],0)
+        hit=hand_utility(settled(1,0,8000,8),0,0,0,.995,cfg)
+        self.assertEqual(hit['own_win'],0);self.assertEqual(hit['utility'],-1.)
+
     def test_call_in_kan_sampling_requires_mixed_menu_and_keeps_requested_alternative(self):
         row={'scope':'ordinary','eligible':[0,1,2],'teacher_action':0,
             'public_request':request(['none','chi','daiminkan'])}

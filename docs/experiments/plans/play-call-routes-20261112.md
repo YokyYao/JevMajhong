@@ -41,3 +41,6 @@
 源码与配置已在排队前固定到不可变快照 `97e39b686f0e4e97bc6bedd512dc45227aa3b92ef36eaf64cdd362ff993ad947`；拟合、权重检查、开发按标签检查后的依赖顺序提交。当前仍在生成标签，拟合未开始。`--prepare-only`只登记任务；`--registered`使用登记源码执行，不等同于恢复一个未完成的模型训练。
 
 便携模板：[拟合](../../../configs/training/play-call-routes-fit.json)、[权重检查](../../../configs/training/play-call-routes-fit-audit.json)、[开发](../../../configs/evaluation/play-call-routes-development.json)。模板需已有的私有模拟数据与检查结果，未公开逐场记录。新增训练逻辑与入口通过142项本地检查。
+
+
+用户随后明确本局先和优先，后续奖励与开发准入转到[和牌率优先方案](play-own-win-20261112.md)。上面的净点优先与稀有吃牌子组硬门槛保留为已执行历史；Call Routes v1未采用，不能将其内部+172.38点／局面作为比赛提升。

@@ -16,16 +16,58 @@ from jevmahjong.training.call_head import load_inputs, route_groups
 def read(path): return json.loads(Path(path).read_text(encoding='utf-8'))
 
 
+def native_win_credit(log, hand_index, seat, draws_before, reward):
+    """Winner/draw counting independent of the fitter's reward transform."""
+    hand=-1;draws=0;points=0;own=False;hit=False;speed=0.;ended=False
+    for event in log:
+        kind=event['type']
+        if kind=='start_kyoku':hand+=1;draws=0
+        if hand!=hand_index:continue
+        if kind=='tsumo':draws+=1
+        elif kind=='reach_accepted' and event['actor']==seat:points-=1000
+        elif kind in ('hora','ryukyoku'):
+            points+=event['deltas'][seat]
+            if kind=='hora':
+                if event['actor']==seat:
+                    if own or draws<draws_before:raise ValueError('Invalid own win timing')
+                    own=True;speed=reward['speed_gamma']**(draws-draws_before)
+                if event['actor']!=seat and event['target']==seat:hit=True
+        elif kind=='end_kyoku':ended=True;break
+    if not ended:raise ValueError('Complete intervention hand required')
+    return dict(own_win=float(own),fast_reward=speed,dealin=float(hit),net_points=points,
+        utility=float(own)+reward['fast_weight']*speed-reward['dealin_penalty']*hit)
+
+
+def check_win_targets(training,parts):
+    expected={tuple(r['episode_key']):r for rows in parts.values() for r in rows};seen=set();arms=0
+    for directory in training['data']:
+        for path in Path(directory).glob('walls-private/*.pt'):
+            for raw in torch.load(path,map_location='cpu',weights_only=False)['rows']:
+                key=tuple(raw['episode_key'])
+                if key not in expected:continue
+                if key in seen:raise ValueError('Repeated win-target pair')
+                seen.add(key);row=expected[key];worlds=raw['counterfactual_worlds']
+                for name in ('control','branch'):
+                    values=[native_win_credit(w[name]['mjai_log'],row['hand_index'],key[1],row['draws_before'],training['reward']) for w in worlds]
+                    means={k:sum(v[k] for v in values)/len(values) for k in values[0]}
+                    check_close(means,row['training_credit'][name]);arms+=len(values)
+    if seen!=set(expected):raise ValueError('Missing native win-target records')
+    return arms
+
+
 @torch.no_grad()
 def manual_profile(head, groups):
     totals = dict(label_regret=0.,mean_label_utility_gain=0.,mean_sampled_net_point_gain=0.,
         mean_sampled_fast_gain=0.,mean_sampled_dealin_change=0.,changed_argmax_states=0)
+    win_first='own_win' in groups[0]['credit'][groups[0]['teacher']]
+    if win_first:totals['mean_sampled_hand_win_gain']=0.
     for group in groups:
         row = group['row']; z = head(row['decide'],row['options'])
         choice = max(row['eligible'],key=lambda i:float(z[i]))
         matches = [r for r in group['records'] if r['action']==choice]
         if choice == row['teacher_action']:
             values = dict(utility=0.,net_points=0.,fast_reward=0.,dealin=0.)
+            if win_first:values['own_win']=0.
         else:
             if len(matches)!=1: raise ValueError('Chosen alternative missing')
             c = matches[0]['training_credit']
@@ -36,6 +78,7 @@ def manual_profile(head, groups):
                             ('mean_sampled_fast_gain','fast_reward'),('mean_sampled_dealin_change','dealin')]:
             totals[name] += values[field]
         totals['changed_argmax_states'] += choice != row['teacher_action']
+        if win_first:totals['mean_sampled_hand_win_gain']+=values['own_win']
     return dict(states=len(groups),**{k:v if k=='changed_argmax_states' else v/len(groups) for k,v in totals.items()})
 
 
@@ -51,16 +94,21 @@ def manual_route_profile(head, groups):
         if criteria[row['teacher_action']]['type']!='none':continue
         z=head(row['decide'],row['options']);choice=max(row['eligible'],key=lambda i:float(z[i]))
         records=[r for r in g['records'] if criteria[r['action']]['type'] in ('chi','pon')]
-        deltas={r['action']:(r['training_credit']['branch']['utility']-r['training_credit']['control']['utility'],
-            r['training_credit']['branch']['net_points']-r['training_credit']['control']['net_points']) for r in records}
-        good={action for action,(utility,points) in deltas.items() if utility>0 and points>0}
-        bad=bool(deltas) and all(u<=0 and p<=0 for u,p in deltas.values())
+        win_first='own_win' in g['credit'][g['teacher']]
+        deltas={}
+        for r in records:
+            b,c=r['training_credit']['branch'],r['training_credit']['control']
+            priority=(b['own_win']-c['own_win'],b['fast_reward']-c['fast_reward']) if win_first else (b['net_points']-c['net_points'],0.)
+            deltas[r['action']]=(b['utility']-c['utility'],priority)
+        good={action for action,(utility,gain) in deltas.items() if utility>0 and gain>(0.,0.)}
+        bad=bool(deltas) and all(u<=0 and gain<=(0.,0.) for u,gain in deltas.values())
         positive+=bool(good);recovered+=choice in good;negative+=bad;skipped+=bad and criteria[choice]['type']=='none'
     result.update(missed_positive_call_states=positive,recovered_sample_positive_call_states=recovered,
         all_sample_negative_call_states=negative,negative_states_still_skipped=skipped)
     return result
 
 
+@torch.no_grad()
 def audit(cfg):
     torch.set_num_threads(4)
     fit_file=Path(cfg['fit_config']).resolve();training=read(fit_file)
@@ -71,6 +119,7 @@ def audit(cfg):
     if training['fit_model']!='complete_option_call_head' or training['train_scopes']!=['calling']:
         raise ValueError('Only calling pointer-head repair is supported')
     parts,groups,hashes,sources,anchors,anchor_meta,data_audits=load_inputs(training,registered)
+    win_arms=check_win_targets(training,parts) if training['reward']['mode']=='own_win_first_v1' else 0
     if hashes!=fit['data_sha256'] or sources!=fit['data_sources'] or anchor_meta!=fit['anchor_metadata'] or data_audits!=fit['data_audit_sha256']:
         raise ValueError('Fit or anchor inputs differ')
     expected=cfg['expected']
@@ -128,9 +177,16 @@ def audit(cfg):
             if held['changed_argmax_states'] or abs(held['mean_sampled_net_point_gain'])>1e-10:
                 raise ValueError('Starting policy differs from Play v1')
             best=item;continue
-        improved=(drift<=training['anchor_kl_limit']
-            and held['mean_sampled_net_point_gain']>best['held_policy']['mean_sampled_net_point_gain']+1e-12
-            and held['mean_label_utility_gain']>fit['curve'][0]['held_policy']['mean_label_utility_gain']+1e-12)
+        if training.get('selection_objective','net_points')=='hand_win':
+            priority=lambda p:(p['mean_sampled_hand_win_gain'],p['mean_sampled_fast_gain'])
+            improved=(drift<=training['anchor_kl_limit'] and priority(held)>priority(best['held_policy'])
+                and held['mean_sampled_hand_win_gain']>=fit['curve'][0]['held_policy']['mean_sampled_hand_win_gain']
+                and held['mean_label_utility_gain']>fit['curve'][0]['held_policy']['mean_label_utility_gain']+1e-12
+                and held['mean_sampled_dealin_change']<=training['max_held_dealin_increase'])
+        else:
+            improved=(drift<=training['anchor_kl_limit']
+                and held['mean_sampled_net_point_gain']>best['held_policy']['mean_sampled_net_point_gain']+1e-12
+                and held['mean_label_utility_gain']>fit['curve'][0]['held_policy']['mean_label_utility_gain']+1e-12)
         if improved:best=item;stale=0
         else:stale+=1
     if best!=fit['selected'] or fit['selected_is_starting_model']!=(best['epoch']==0): raise ValueError('Checkpoint selection differs')
@@ -138,16 +194,26 @@ def audit(cfg):
         raise ValueError('Epoch or optimizer update count differs')
     eligible=(best['epoch']>0 and best['held_policy']['mean_sampled_net_point_gain']>0
         and best['held_policy']['mean_label_utility_gain']>0 and best['anchor_kl']<=training['anchor_kl_limit'])
+    if training.get('selection_objective')=='hand_win':
+        eligible=(best['epoch']>0 and best['held_policy']['mean_sampled_hand_win_gain']>0
+            and best['held_policy']['mean_label_utility_gain']>0 and best['anchor_kl']<=training['anchor_kl_limit']
+            and best['held_policy']['mean_sampled_dealin_change']<=training['max_held_dealin_increase'])
     route=best['held_routes'].get('closed_chi_tanyao_gain',{})
     route_verified=route.get('recovered_sample_positive_call_states',0)>=cfg['minimum_held_closed_chi_recoveries']
-    eligible=eligible and route_verified
+    require_route=cfg.get('require_route_recovery_for_development',True)
+    if not isinstance(require_route,bool) or (not require_route and training.get('selection_objective')!='hand_win'):
+        raise ValueError('Diagnostic-only route checks require the explicitly registered hand-win objective')
+    eligible=eligible and (route_verified or not require_route)
     if fit['held_policy_gain_improved']!=(best['epoch']>0):raise ValueError('Policy improvement flag differs')
     protocol=snapshot(cfg);protocol['source_files']=files
     if protocol['model_files']!=registered['model_files']:raise ValueError('Audit models differ')
     out=Path(cfg['out']);out.mkdir(parents=True,exist_ok=False)
     result=dict(status='passed_complete',selected_sha256=best['sha256'],selected_epoch=best['epoch'],curves=curve,
         train_states=len(groups['train']),held_states=len(groups['held']),anchor_states=len(anchors),
-        route_recovery_verified=route_verified,eligible_for_development=eligible,strength_improvement_proven=False)
+        selection_objective=training.get('selection_objective','net_points'),
+        win_reward_arms_recomputed=win_arms,
+        route_recovery_verified=route_verified,route_is_diagnostic_only=not require_route,
+        eligible_for_development=eligible,strength_improvement_proven=False)
     write(out/'protocol.json',protocol);write(out/'result.json',result);write(out/'status.json',result)
     return result
 
@@ -155,13 +221,16 @@ def audit(cfg):
 def checked_receipt(config_path,fit_run,fit,model_files):
     path=Path(config_path).resolve();cfg=read(path);root=Path(cfg['out']).resolve()
     result=read(root/'result.json');protocol=read(root/'protocol.json');verify(protocol)
+    fit_file=Path(fit_run).resolve()/'result.json'
     if (result['status']!='passed_complete' or protocol['config']!=cfg or protocol['model_files']!=model_files
             or read(cfg['fit_config'])!=fit['config'] or Path(fit['config']['out']).resolve()!=Path(fit_run).resolve()
             or digest(Path(cfg['fit_config']))!=cfg['fit_config_sha256']
             or result['selected_sha256']!=fit['selected']['sha256']):raise ValueError('Matching call-head audit required')
+    if read(fit_file)!=fit or protocol['source_files'].get(str(fit_file))!=digest(fit_file):
+        raise ValueError('Audited fit result identity differs')
     for file,sha in protocol['source_files'].items():
         if digest(Path(file))!=sha:raise ValueError('Audited fit input changed')
-    return result,dict(config_sha256=digest(path),protocol_sha256=digest(root/'protocol.json'),result_sha256=digest(root/'result.json'))
+    return result,{str(file):digest(file) for file in (path,root/'protocol.json',root/'result.json')}
 
 
 def main():

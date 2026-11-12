@@ -6,7 +6,8 @@ import unittest
 from unittest.mock import patch
 import torch
 from jevmahjong.training.call_head import complete_groups, anchor_kl, distillation_loss, profile, route_profile, policy_improved, fit
-from jevmahjong.evaluation.call_head_audit import manual_profile, manual_route_profile, check_close
+from jevmahjong.evaluation.call_head_audit import manual_profile, manual_route_profile, check_close, checked_receipt
+from jevmahjong.core.io import digest
 
 
 def row(action, utility, points):
@@ -25,6 +26,22 @@ class Head(torch.nn.Module):
 
 
 class CallHeadTests(unittest.TestCase):
+    def test_audit_receipt_rechecks_real_files_and_binds_the_saved_fit(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);run=root/'fit';run.mkdir();aud=root/'audit';aud.mkdir()
+            fitcfg={'out':str(run)};cfgfile=root/'fit.json';cfgfile.write_text(json.dumps(fitcfg))
+            fit={'config':fitcfg,'selected':{'sha256':'0'*64}};fitfile=run/'result.json';fitfile.write_text(json.dumps(fit))
+            cfg={'fit_config':str(cfgfile),'fit_config_sha256':digest(cfgfile),'out':str(aud)}
+            auditcfg=root/'audit.json';auditcfg.write_text(json.dumps(cfg))
+            (aud/'result.json').write_text(json.dumps({'status':'passed_complete','selected_sha256':'0'*64}))
+            (aud/'protocol.json').write_text(json.dumps({'config':cfg,'model_files':{},'code_sha256':{},
+                'source_files':{str(fitfile):digest(fitfile)}}))
+            _,receipt=checked_receipt(auditcfg,run,fit,{})
+            self.assertEqual(len(receipt),3)
+            for file,sha in receipt.items():self.assertEqual(digest(Path(file)),sha)
+            fitfile.write_text('{}')
+            with self.assertRaises(ValueError):checked_receipt(auditcfg,run,fit,{})
+
     def test_complete_menu_is_one_unit_and_rejects_missing_or_conflicting_alternative(self):
         rows=[row(1,.1,800.),row(2,-.2,-1600.)]
         self.assertEqual(len(complete_groups(rows)),1)
@@ -66,6 +83,31 @@ class CallHeadTests(unittest.TestCase):
         self.assertTrue(policy_improved(candidate,best,base,.05))
         candidate['anchor_kl']=.1
         self.assertFalse(policy_improved(candidate,best,base,.05))
+
+    def test_win_objective_can_prefer_more_actual_wins_with_lower_points(self):
+        p=dict(mean_sampled_hand_win_gain=0.,mean_sampled_fast_gain=0.,mean_label_utility_gain=0.,
+            mean_sampled_net_point_gain=0.,mean_sampled_dealin_change=0.)
+        base={'held_policy':p,'anchor_kl':0.}
+        candidate={'held_policy':dict(p,mean_sampled_hand_win_gain=.02,mean_sampled_fast_gain=.01,
+            mean_label_utility_gain=.0225,mean_sampled_net_point_gain=-100.),'anchor_kl':.02}
+        self.assertTrue(policy_improved(candidate,base,base,.05,'hand_win',.01))
+        self.assertFalse(policy_improved(candidate,base,base,.05,'net_points'))
+        candidate['held_policy']['mean_sampled_hand_win_gain']=-.01
+        candidate['held_policy']['mean_sampled_net_point_gain']=10000.
+        self.assertFalse(policy_improved(candidate,base,base,.05,'hand_win',.01))
+
+    def test_win_credit_full_menu_and_independent_profile_agree(self):
+        rows=[row(1,.1,-500.),row(2,-.2,2000.)]
+        for r,win in zip(rows,[.375,.1875]):
+            r['training_credit']['control']['own_win']=.25
+            r['training_credit']['branch']['own_win']=win
+        groups=complete_groups(rows);groups[0]['records']=rows;head=Head()
+        with torch.no_grad():head.offset[1]=3
+        actual=profile(head,groups)
+        self.assertEqual(actual['mean_sampled_hand_win_gain'],.125)
+        self.assertEqual(actual['mean_sampled_net_point_gain'],-500.)
+        check_close(actual,manual_profile(head,groups))
+        check_close(route_profile(head,groups),manual_route_profile(head,groups))
 
     def test_fit_saves_actual_choice_gain_or_keeps_reference_and_stops(self):
         # Exercise the optimizer, checkpoint selection and early stop without

@@ -26,6 +26,7 @@ def complete_groups(rows):
         if teacher not in eligible or len(eligible) != len(set(eligible)):
             raise ValueError('Invalid eligible menu')
         credit = {teacher: dict(utility=0., net_points=0., fast_reward=0., dealin=0.)}
+        if 'own_win' in first['training_credit']['control']:credit[teacher]['own_win']=0.
         for row in items:
             if (row['eligible'] != eligible or row['teacher_action'] != teacher
                     or row['public_request'] != first['public_request']
@@ -78,13 +79,21 @@ def profile(head, groups):
             mean_label_utility_gain=c['utility'], mean_sampled_net_point_gain=c['net_points'],
             mean_sampled_fast_gain=c['fast_reward'], mean_sampled_dealin_change=c['dealin'],
             changed_argmax_states=int(selected != g['teacher'])))
+        if 'own_win' in c:records[-1]['mean_sampled_hand_win_gain']=c['own_win']
     return dict(states=len(records), **{k: (sum(r[k] for r in records) if k == 'changed_argmax_states'
         else sum(r[k] for r in records) / len(records)) for k in records[0]})
 
 
-def policy_improved(candidate, best, baseline, anchor_limit):
+def policy_improved(candidate, best, baseline, anchor_limit, objective='net_points', max_dealin_increase=.01):
     """Loss-only improvement never resets the actual-choice early-stop clock."""
     p = candidate['held_policy']; b = best['held_policy']; start = baseline['held_policy']
+    if objective=='hand_win':
+        key=lambda q:(q['mean_sampled_hand_win_gain'],q['mean_sampled_fast_gain'])
+        return (candidate['anchor_kl']<=anchor_limit and key(p)>key(b)
+            and p['mean_sampled_hand_win_gain']>=start['mean_sampled_hand_win_gain']
+            and p['mean_label_utility_gain']>start['mean_label_utility_gain']+1e-12
+            and p['mean_sampled_dealin_change']<=max_dealin_increase)
+    if objective!='net_points':raise ValueError('Unknown choice objective')
     return (candidate['anchor_kl'] <= anchor_limit
         and p['mean_sampled_net_point_gain'] > b['mean_sampled_net_point_gain'] + 1e-12
         and p['mean_label_utility_gain'] > start['mean_label_utility_gain'] + 1e-12)
@@ -114,9 +123,11 @@ def route_profile(head, groups):
         selected=g['eligible'][int(logits(head,g['row']).argmax())]
         calls=[a for a in g['eligible'] if values[a]['type'] in ('chi','pon')]
         if values[g['teacher']]['type']=='none':
-            good=[a for a in calls if g['credit'][a]['utility']>0 and g['credit'][a]['net_points']>0]
+            win_first='own_win' in g['credit'][g['teacher']]
+            gain=lambda c: (c['own_win'],c['fast_reward']) if win_first else (c['net_points'],0.)
+            good=[a for a in calls if g['credit'][a]['utility']>0 and gain(g['credit'][a])>(0.,0.)]
             positive+=bool(good);recovers+=selected in good
-            bad=bool(calls) and all(g['credit'][a]['utility']<=0 and g['credit'][a]['net_points']<=0 for a in calls)
+            bad=bool(calls) and all(g['credit'][a]['utility']<=0 and gain(g['credit'][a])<=(0.,0.) for a in calls)
             negative+=bad;skipped+=bad and values[selected]['type']=='none'
     result.update(missed_positive_call_states=positive,recovered_sample_positive_call_states=recovers,
         all_sample_negative_call_states=negative,negative_states_still_skipped=skipped)
@@ -163,6 +174,11 @@ def load_inputs(cfg, protocol):
 
 def fit(cfg):
     torch.set_num_threads(4); torch.manual_seed(cfg['seed'])
+    objective=cfg.get('selection_objective','net_points')
+    if objective not in ('net_points','hand_win') or ((objective=='hand_win') != (cfg.get('reward',{}).get('mode')=='own_win_first_v1')):
+        raise ValueError('Reward and checkpoint selection must share the registered objective')
+    if objective=='hand_win' and (not math.isfinite(cfg['max_held_dealin_increase']) or not 0<=cfg['max_held_dealin_increase']<=1):
+        raise ValueError('Valid hand-win risk constraint required')
     if (cfg['train_scopes'] != ['calling'] or cfg['decision_filter'] != 'all'
             or cfg['fit_model'] != 'complete_option_call_head'
             or cfg['anchor_beta'] <= 0 or cfg['anchor_kl_limit'] <= 0
@@ -212,7 +228,8 @@ def fit(cfg):
             if not torch.isfinite(norm): raise ValueError('Nonfinite gradient')
             optimizer.step(); updates += 1
         item = save(epoch)
-        if policy_improved(item,best,baseline,cfg['anchor_kl_limit']): best=item; stale=0
+        if policy_improved(item,best,baseline,cfg['anchor_kl_limit'],cfg.get('selection_objective','net_points'),
+                cfg.get('max_held_dealin_increase',.01)): best=item; stale=0
         else: stale += 1
         write(out/'status.json',dict(status='training',optimizer_updates=updates,curve=curve,selected=best))
         if stale >= cfg['patience_epochs']: reason='held_actual_choices_stalled'; break

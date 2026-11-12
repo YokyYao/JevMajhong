@@ -8,7 +8,7 @@ import torch
 from jevmahjong.evaluation.action_suite import evaluate as action_panel
 from jevmahjong.evaluation.metrics import summarize
 from jevmahjong.evaluation.reference_cache import GAMEPLAY_FILES, load_reference
-from jevmahjong.evaluation.run import candidate_scopes, select_heads, candidate_activation, parity_sources
+from jevmahjong.evaluation.run import candidate_scopes, select_heads, candidate_activation, parity_sources, parity_anchor_paths
 from jevmahjong.policy.kan import KanPolicyClient
 from jevmahjong.core.io import digest
 
@@ -88,6 +88,41 @@ class OpenTenpaiAdmissionTest(unittest.TestCase):
 
 
 class FastEvaluationTest(unittest.TestCase):
+    def test_native_parity_collection_is_accepted_without_a_fit_result(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);shards=root/'walls-private';shards.mkdir()
+            shard=shards/'100.pt';torch.save({'rows':[{}]},shard)
+            (root/'protocol.json').write_text(json.dumps({'config':{'training_seed_start':100,'training_seeds_per_stage':1},
+                'model_files':{},'code_sha256':{}}))
+            (root/'collection-result.json').write_text(json.dumps({'status':'collection_complete','walls':1,'rows':1}))
+            receipt=shard.with_suffix('.audit.json');receipt.write_text(json.dumps({'sha256':digest(shard),'rows':1}))
+            files=parity_anchor_paths(root,{})
+            self.assertIn(str(shard),files);self.assertFalse((root/'result.json').exists())
+            shard.write_bytes(b'changed')
+            with self.assertRaises(ValueError):parity_anchor_paths(root,{})
+
+    def test_hand_win_objective_reports_point_loss_without_calling_it_a_win_rate_loss(self):
+        rows,cfg=example();cfg.update(confirmation_objective='hand_win',max_dealin_rate_increase=.01)
+        for r in rows:
+            seat=r['seat'];scores=list(r['final_scores']);other=(seat+1)%4
+            delta=[0]*4
+            if r['policy']=='candidate':
+                delta=[-600]*4;delta[other]=1800
+                ending={'type':'hora','actor':other,'target':other,'deltas':delta}
+                r['point_components']['tsumo_payments']=-600
+            else:ending={'type':'ryukyoku','deltas':delta}
+            r['mjai_log']=r['mjai_log'][:-1]+[{'type':'start_kyoku','scores':scores,'kyotaku':0}]+[
+                {'type':'tsumo'}]*4+[ending,{'type':'end_kyoku'},{'type':'end_game'}]
+            r['final_scores']=[a+b for a,b in zip(scores,delta)];r['score']=r['final_scores'][seat]
+            r['rank']=sorted(range(4),key=lambda p:(-r['final_scores'][p],p)).index(seat)+1
+            r['hands']=r['fast_hand_count']=2
+        result=summarize(rows,cfg)
+        self.assertEqual(result['hand_win_paired']['gain'],.5)
+        self.assertEqual(result['overall']['candidate_minus_reference']['gain'],-500.)
+        self.assertTrue(result['positive_signal']);self.assertTrue(result['eligible_for_confirmation'])
+        cfg['confirmation_objective']='net_points'
+        self.assertFalse(summarize(rows,cfg)['eligible_for_confirmation'])
+
     def test_kan_only_ev_data_keeps_pinned_inputs_for_unchanged_route_parity(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);protocol=root/'protocol.json'

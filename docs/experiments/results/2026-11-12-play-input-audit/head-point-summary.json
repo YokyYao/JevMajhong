@@ -1,0 +1,173 @@
+{
+  "model_id": "jev-call-routes-v1",
+  "selected_epoch": 2,
+  "checkpoint_sha256": "11be0ed99d8c33eb045c85ab92456249775e1d46e31fc74e835bedd0587160ce",
+  "epochs_run": 6,
+  "optimizer_updates": 60,
+  "train_states": 156,
+  "held_states": 50,
+  "train_pairs": 183,
+  "held_pairs": 68,
+  "trainable_head_parameters": 524800,
+  "selected_metrics": {
+    "held_policy": {
+      "states": 50,
+      "label_regret": 0.059976461776187706,
+      "mean_label_utility_gain": 0.021633142206472347,
+      "mean_sampled_net_point_gain": 172.375,
+      "mean_sampled_fast_gain": 0.020862672064723507,
+      "mean_sampled_dealin_change": 0.005,
+      "changed_argmax_states": 6
+    },
+    "train_policy": {
+      "states": 156,
+      "label_regret": 0.050321574735993475,
+      "mean_label_utility_gain": 0.01276400430783198,
+      "mean_sampled_net_point_gain": 83.97435897435898,
+      "mean_sampled_fast_gain": 0.024274658462935167,
+      "mean_sampled_dealin_change": 0.00040064102564102563,
+      "changed_argmax_states": 13
+    },
+    "anchor_kl": 0.025018417430844528,
+    "held_routes": {
+      "closed": {
+        "states": 48,
+        "label_regret": 0.061110045697426334,
+        "mean_label_utility_gain": 0.02253452313174203,
+        "mean_sampled_net_point_gain": 179.55729166666666,
+        "mean_sampled_fast_gain": 0.02173195006742032,
+        "mean_sampled_dealin_change": 0.005208333333333333,
+        "changed_argmax_states": 6,
+        "missed_positive_call_states": 21,
+        "recovered_sample_positive_call_states": 3,
+        "all_sample_negative_call_states": 21,
+        "negative_states_still_skipped": 20
+      },
+      "closed_chi_tanyao_gain": {
+        "states": 9,
+        "label_regret": 0.13608290458430597,
+        "mean_label_utility_gain": -0.01874708778964055,
+        "mean_sampled_net_point_gain": -92.36111111111111,
+        "mean_sampled_fast_gain": 0.011313844325816716,
+        "mean_sampled_dealin_change": 0.020833333333333332,
+        "changed_argmax_states": 1,
+        "missed_positive_call_states": 4,
+        "recovered_sample_positive_call_states": 0,
+        "all_sample_negative_call_states": 3,
+        "negative_states_still_skipped": 3
+      },
+      "opponent_riichi": {
+        "states": 27,
+        "label_regret": 0.05135137268125724,
+        "mean_label_utility_gain": -0.00045293600269574947,
+        "mean_sampled_net_point_gain": 2.0833333333333335,
+        "mean_sampled_fast_gain": 0.0021257325656351043,
+        "mean_sampled_dealin_change": 0.0023148148148148147,
+        "changed_argmax_states": 1,
+        "missed_positive_call_states": 11,
+        "recovered_sample_positive_call_states": 0,
+        "all_sample_negative_call_states": 13,
+        "negative_states_still_skipped": 13
+      },
+      "open": {
+        "states": 2,
+        "label_regret": 0.03277044766646073,
+        "mean_label_utility_gain": 0.0,
+        "mean_sampled_net_point_gain": 0.0,
+        "mean_sampled_fast_gain": 0.0,
+        "mean_sampled_dealin_change": 0.0,
+        "changed_argmax_states": 0,
+        "missed_positive_call_states": 0,
+        "recovered_sample_positive_call_states": 0,
+        "all_sample_negative_call_states": 1,
+        "negative_states_still_skipped": 1
+      },
+      "closed_pon_yakuhai": {
+        "states": 8,
+        "label_regret": 0.010537815376407716,
+        "mean_label_utility_gain": 0.13578980005379782,
+        "mean_sampled_net_point_gain": 967.1875,
+        "mean_sampled_fast_gain": 0.11766362553797811,
+        "mean_sampled_dealin_change": -0.0078125,
+        "changed_argmax_states": 4,
+        "missed_positive_call_states": 2,
+        "recovered_sample_positive_call_states": 2,
+        "all_sample_negative_call_states": 4,
+        "negative_states_still_skipped": 3
+      }
+    },
+    "train_routes": {
+      "closed": {
+        "states": 154,
+        "label_regret": 0.05006568888587945,
+        "mean_label_utility_gain": 0.012929770597544082,
+        "mean_sampled_net_point_gain": 85.06493506493507,
+        "mean_sampled_fast_gain": 0.02458991376764861,
+        "mean_sampled_dealin_change": 0.00040584415584415587,
+        "changed_argmax_states": 13,
+        "missed_positive_call_states": 62,
+        "recovered_sample_positive_call_states": 11,
+        "all_sample_negative_call_states": 66,
+        "negative_states_still_skipped": 64
+      },
+      "closed_pon_yakuhai": {
+        "states": 23,
+        "label_regret": 0.0231839653606764,
+        "mean_label_utility_gain": 0.07207065277364802,
+        "mean_sampled_net_point_gain": 475.0,
+        "mean_sampled_fast_gain": 0.11608696251908877,
+        "mean_sampled_dealin_change": -0.002717391304347826,
+        "changed_argmax_states": 8,
+        "missed_positive_call_states": 10,
+        "recovered_sample_positive_call_states": 8,
+        "all_sample_negative_call_states": 1,
+        "negative_states_still_skipped": 1
+      },
+      "closed_chi_tanyao_gain": {
+        "states": 27,
+        "label_regret": 0.08727946695720977,
+        "mean_label_utility_gain": 0.014350589193625349,
+        "mean_sampled_net_point_gain": 89.12037037037037,
+        "mean_sampled_fast_gain": 0.04136468823254978,
+        "mean_sampled_dealin_change": 0.0023148148148148147,
+        "changed_argmax_states": 4,
+        "missed_positive_call_states": 12,
+        "recovered_sample_positive_call_states": 3,
+        "all_sample_negative_call_states": 12,
+        "negative_states_still_skipped": 11
+      },
+      "opponent_riichi": {
+        "states": 77,
+        "label_regret": 0.05389229625072098,
+        "mean_label_utility_gain": 0.0030429290645394296,
+        "mean_sampled_net_point_gain": 19.23701298701299,
+        "mean_sampled_fast_gain": 0.006383024411628065,
+        "mean_sampled_dealin_change": 0.0,
+        "changed_argmax_states": 3,
+        "missed_positive_call_states": 35,
+        "recovered_sample_positive_call_states": 2,
+        "all_sample_negative_call_states": 32,
+        "negative_states_still_skipped": 31
+      },
+      "open": {
+        "states": 2,
+        "label_regret": 0.07002478519477298,
+        "mean_label_utility_gain": 0.0,
+        "mean_sampled_net_point_gain": 0.0,
+        "mean_sampled_fast_gain": 0.0,
+        "mean_sampled_dealin_change": 0.0,
+        "changed_argmax_states": 0,
+        "missed_positive_call_states": 0,
+        "recovered_sample_positive_call_states": 0,
+        "all_sample_negative_call_states": 0,
+        "negative_states_still_skipped": 0
+      }
+    }
+  },
+  "not_full_match_evaluation": true,
+  "not_human_win_rate": true,
+  "weights_public": false,
+  "deployed": false,
+  "status": "not-adopted-route-diagnostic-failed",
+  "complete_matches_simulated": 0
+}
