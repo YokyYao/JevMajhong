@@ -158,5 +158,24 @@
     "caveat": "Local Euclidean full-batch gradients at one fixed checkpoint. Not AdamW trajectory, a causal ablation, optimal-action truth, or strength evidence.",
     "script_sha256": "6d1c5363af091c4fdf8c5f801ba2a4fc42075dd8406c77aeafcd08b347704614",
     "interpretation": "At the selected checkpoint, the reference anchor gradient opposes both full-training and chi-group distillation gradients. Combined descent still aligns weakly with the positive-chi group. This motivates a controlled anchor-strength ablation, without proving a causal training effect or a strength improvement."
+  },
+  "conditional_control": {
+    "model_id": "jev-call-win-v5",
+    "status": "registered_and_dependency_queued_not_started",
+    "single_factor": {
+      "anchor_beta": {
+        "reference": 0.2,
+        "control": 0.05
+      }
+    },
+    "trigger": "Only after complete independently audited v4 confirmation that does not verify improvement; verified v4 causes skip; missing or mismatched audit causes stop.",
+    "pure_decision_cases_passed": 10,
+    "missing_real_audit_rejected_before_output_creation": true,
+    "training_started": false,
+    "confirmation_outcomes_used_for_recipe_selection": false,
+    "confirmation_seeds_used_for_fitting": false,
+    "source_sha256": "f161ea4dadeec3223395ed6ac7a17da472ff9d65e94f495194f18ceb9ad6e42d",
+    "control_fit_config": "../../../../configs/training/call-win-anchor-fit.json",
+    "experimental_weights_public": false
   }
 }
