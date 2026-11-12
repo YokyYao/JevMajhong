@@ -274,7 +274,7 @@
     },
     "jev-kan-context-v3": {
       "role": "all-eligible-option-supported-nonlinear-kan-context-component",
-      "status": "option-label-expansion-running-fit-dependent",
+      "status": "trained-audited-full-east-development-running",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -294,9 +294,20 @@
       "held_states": 132,
       "state_balanced_training": true,
       "state_balanced_validation": true,
-      "artifact_exists": false,
+      "artifact_exists": true,
       "artifact_public": false,
-      "independent_improvement_proven": false
+      "independent_improvement_proven": false,
+      "selected_epoch": 5,
+      "epochs_run": 9,
+      "optimizer_updates": 288,
+      "train_rows": 1011,
+      "held_rows": 366,
+      "baseline_latest_state_mse": 0.04770666581509362,
+      "selected_latest_state_mse": 0.04269691775443498,
+      "checkpoint_sha256": "5f80a0442bc18b0008be660c4ccdfea3cc630e698dabfb92f7e2681347852c92",
+      "trained_parameter_count": 2464,
+      "training_audit": "passed-all10checkpoints-original-heads-and-whole-wall-split",
+      "independent_confirmation_run": false
     }
   },
   "legacy_aliases": {
