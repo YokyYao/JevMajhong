@@ -248,9 +248,11 @@
     "expert_labels_created": 0,
     "not_strength_test": true
   },
-  "full_match_development": "running",
+  "full_match_development": "completed_positive_signal_not_independent_proof",
   "not_full_match_metrics": true,
   "not_human_win_rate": true,
   "weights_public": false,
-  "deployed": false
+  "deployed": false,
+  "development_summary": "win-fresh-development-summary.json",
+  "independent_confirmation": "registered_and_submitted_32_new_walls"
 }

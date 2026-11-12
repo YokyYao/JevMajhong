@@ -999,7 +999,7 @@
     },
     "jev-call-win-v4": {
       "role": "fresh-call-data-own-win-first-calling-head",
-      "status": "development-running-not-adopted",
+      "status": "positive-own-win-development-independent-confirmation-submitted",
       "frozen_components": [
         "jev-call-v1-encoder-and-LoRA",
         "jev-discard-v1"
@@ -1028,6 +1028,43 @@
         "none": 25,
         "chi": 0,
         "pon": 2
+      },
+      "development": {
+        "games": 192,
+        "logical_walls": 8,
+        "hand_win_paired": {
+          "gain": 0.015715939153439152,
+          "ci95": [
+            -0.024007940755317102,
+            0.0554398190621954
+          ],
+          "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+        },
+        "dealin_rate_paired": {
+          "gain": -0.010342261904761904,
+          "ci95": [
+            -0.03050756126429667,
+            0.00982303745477286
+          ],
+          "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+        },
+        "net_points_paired": {
+          "gain": 245.83333333333331,
+          "ci95": [
+            -2475.358046690903,
+            2967.02471335757
+          ],
+          "independent_wall_streams": 8
+        },
+        "manual_audit_passed": true,
+        "eligible_for_confirmation": true
+      },
+      "confirmation": {
+        "stage": "independent_confirmation",
+        "logical_walls": 32,
+        "expected_games": 768,
+        "status": "submitted",
+        "candidate_unchanged": true
       }
     }
   },
