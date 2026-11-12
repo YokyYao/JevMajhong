@@ -378,5 +378,142 @@
     "confirmation_expected_games": 768,
     "confirmation_new_walls": 32,
     "improvement_verified": false
+  },
+  "post_chi_first_discard_diagnosis": {
+    "status": "completed",
+    "summary": {
+      "training_public_chi_route_states": 37,
+      "qualifying_chi_options": 40,
+      "future_worlds_per_option": 16,
+      "all": {
+        "chi_options": 40,
+        "options_with_realized_chi": 40,
+        "realized_chi_worlds": 640,
+        "options_with_any_worse_shanten": 3,
+        "options_with_any_lost_all_simples": 6,
+        "options_with_multiple_first_discard_choices": 0,
+        "mean_option_best_shanten_fraction": 0.925,
+        "mean_option_all_simples_fraction": 0.85
+      },
+      "sample_positive": {
+        "chi_options": 22,
+        "options_with_realized_chi": 22,
+        "realized_chi_worlds": 352,
+        "options_with_any_worse_shanten": 0,
+        "options_with_any_lost_all_simples": 3,
+        "options_with_multiple_first_discard_choices": 0,
+        "mean_option_best_shanten_fraction": 1.0,
+        "mean_option_all_simples_fraction": 0.8636363636363636
+      }
+    },
+    "selection": "public closed chi acceleration route, all outcome signs",
+    "held_states_analyzed": 0,
+    "confirmation_records_opened": 0,
+    "optimizer_updates": 0,
+    "new_match_simulations": 0,
+    "saved_weights": 0,
+    "caveat": "Descriptive first-discard behavior, not causal win-rate proof. Future worlds share the source opponent hands and are not independent decision states.",
+    "script_sha256": "12d3c8c0d569c92c2c8a61527a9ecde506d9d25ec7df422eaf38865cc5f19e44",
+    "manifest_sha256": "99c2d5460a864a1d9e9bb5ff4e7c7bf87efa96bd1eda89f54835fe67ddb8e21f"
+  },
+  "post_chi_label_uncertainty_join": {
+    "status": "completed",
+    "summary": {
+      "all_sample_positive_calls": {
+        "pairs": 25,
+        "nominal_interval_lower_positive_pairs": 5,
+        "both_fixed_halves_positive_pairs": 21
+      },
+      "qualified_chi": {
+        "pairs": 22,
+        "nominal_interval_lower_positive_pairs": 5,
+        "both_fixed_halves_positive_pairs": 18,
+        "pairs_with_lost_all_simples": 3,
+        "pairs_with_worse_shanten": 0
+      },
+      "other_call_options_in_chi_route_states": {
+        "pairs": 3,
+        "nominal_interval_lower_positive_pairs": 0,
+        "both_fixed_halves_positive_pairs": 3
+      }
+    },
+    "same_public_feature_and_grouping_source_verified": true,
+    "source_result_hashes": {
+      "conditional_label_details": "d941addad536d2864c23f1f1fc332cbdb1d2b418b8fce74d00452ba75bf7f54b",
+      "first_discard_details": "eb912fc26a7f288bee291577cff355cd981a6dcdcf6e43a59fc569988195300b"
+    },
+    "held_states_analyzed": 0,
+    "confirmation_records_opened": 0,
+    "new_simulations": 0,
+    "optimizer_updates": 0,
+    "caveat": "Descriptive join of already selected positive training estimates; conditional on source opponent hands, unadjusted for selection. Other options are not automatically pon; their type is not classified here."
+  },
+  "fixed_model_positive_training_call_choice": {
+    "status": "completed",
+    "summary": {
+      "all_sample_positive_calls": {
+        "action_pairs": 25,
+        "states": 21,
+        "selected_positive_action_pairs": {
+          "jev-call-win-v4": 5,
+          "jev-call-win-v5": 6,
+          "jev-call-feature-win-v1": 6
+        },
+        "states_selecting_any_listed_positive_action": {
+          "jev-call-win-v4": 5,
+          "jev-call-win-v5": 6,
+          "jev-call-feature-win-v1": 6
+        }
+      },
+      "qualified_chi": {
+        "action_pairs": 22,
+        "states": 21,
+        "selected_positive_action_pairs": {
+          "jev-call-win-v4": 3,
+          "jev-call-win-v5": 4,
+          "jev-call-feature-win-v1": 4
+        },
+        "states_selecting_any_listed_positive_action": {
+          "jev-call-win-v4": 3,
+          "jev-call-win-v5": 4,
+          "jev-call-feature-win-v1": 4
+        }
+      },
+      "qualified_chi_nominal_lower_positive": {
+        "action_pairs": 5,
+        "states": 5,
+        "selected_positive_action_pairs": {
+          "jev-call-win-v4": 2,
+          "jev-call-win-v5": 3,
+          "jev-call-feature-win-v1": 3
+        },
+        "states_selecting_any_listed_positive_action": {
+          "jev-call-win-v4": 2,
+          "jev-call-win-v5": 3,
+          "jev-call-feature-win-v1": 3
+        }
+      },
+      "qualified_chi_interval_crosses_zero": {
+        "action_pairs": 17,
+        "states": 16,
+        "selected_positive_action_pairs": {
+          "jev-call-win-v4": 1,
+          "jev-call-win-v5": 1,
+          "jev-call-feature-win-v1": 1
+        },
+        "states_selecting_any_listed_positive_action": {
+          "jev-call-win-v4": 1,
+          "jev-call-win-v5": 1,
+          "jev-call-feature-win-v1": 1
+        }
+      }
+    },
+    "held_states_analyzed": 0,
+    "confirmation_records_opened": 0,
+    "optimizer_updates": 0,
+    "new_match_simulations": 0,
+    "caveat": "Post-selection, conditional Monte Carlo training estimates; nominal intervals are not expert truth or human win-rate proof.",
+    "manifest_sha256": "62c6a64bf00affda3fac064cddea198b8cf05d723dc975bf3fe1d23f1b38d6a9",
+    "script_sha256": "a9e7c8ee5601b51d6ac439fb78f8fd1cd304053a4bd2767f097295b0becb1faa"
   }
 }
