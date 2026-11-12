@@ -48,7 +48,9 @@ def prediction_profile(prediction,rows,y,sources,state_balanced=False):
 def prepare(cfg):
     out=Path(cfg['out']);out.mkdir(parents=True,exist_ok=False)
     if cfg['train_scopes'] != ['ordinary'] or cfg['decision_filter'] != 'kan_windows':raise ValueError('Kan-only context component required')
-    if cfg.get('selection_validation','latest_source') != 'latest_source':raise ValueError('Select on latest source')
+    selection=cfg.get('selection_validation','latest_source')
+    if selection != 'latest_source' and not (selection == 'all_sources' and cfg.get('fit_model') == 'residual_policy'):
+        raise ValueError('Unsupported validation selection for fit model')
     torch.set_num_threads(4);protocol=snapshot(cfg);write(out/'protocol.json',protocol)
     parts,hashes,sources=load_sources(cfg['data'],protocol['model_files'],cfg['reward'])
     parts=select_decisions(parts,'kan_windows',['ordinary']);train,held=parts['train'],parts['held']

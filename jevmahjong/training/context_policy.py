@@ -67,9 +67,23 @@ def policy_profile(net,groups,sources,strength):
     return result
 
 
+def selection_profile(profiles, mode):
+    if not profiles or any(p['states'] <= 0 for p in profiles):
+        raise ValueError('Nonempty validation states required')
+    if mode == 'latest_source': return profiles[-1]
+    if mode != 'all_sources': raise ValueError('Unknown validation selection')
+    count = sum(p['states'] for p in profiles)
+    return {'source':'all_sources','states':count,
+        **{k:sum(p[k]*p['states'] for p in profiles)/count for k in
+            ('policy_kl','label_regret','mean_label_utility_gain_vs_play')},
+        'changed_argmax_states':sum(p['changed_argmax_states'] for p in profiles),
+        'aggregation':'equal public-state means across all validation sources'}
+
+
 def fit(cfg):
     strength=cfg['reference_prior_strength']
     version=cfg.get('feature_version',VERSION);names=feature_names(version)
+    selection=cfg.get('selection_validation','latest_source')
     if not math.isfinite(strength) or strength<=0:raise ValueError('Positive prior strength required')
     out,protocol,parts,hashes,sources,heads=prepare(cfg);torch.manual_seed(cfg['seed'])
     w,coverage=weights(parts['train'],cfg['action_mix'],cfg['max_example_weight'],cfg.get('context_mix'),True)
@@ -84,15 +98,17 @@ def fit(cfg):
     @torch.no_grad()
     def save(epoch):
         prof=policy_profile(net,held,sources,strength);checkpoint=out/f'{cfg["model_id"]}-e{epoch:02d}.pt'
+        selected_profile=selection_profile(prof,selection)
         context={'version':version,'names':list(names),'model_kind':'mlp','hidden':cfg['hidden'],
             'reference_prior_strength':strength,'state_dict':{k:v.detach().clone() for k,v in net.state_dict().items()}}
         torch.save({'model_id':cfg['model_id'],'model_files':protocol['model_files'],'base_and_LoRA_frozen':True,
             'heads':{s:copy.deepcopy(h.state_dict()) for s,h in heads.items()},'trained_scopes':['ordinary'],
             'decision_filter':'kan_windows','kan_context':context,'epoch':epoch},checkpoint)
-        item={'epoch':epoch,'held_loss':prof[-1]['label_regret'],'validation_sources':prof,
+        item={'epoch':epoch,'held_loss':selected_profile['label_regret'],'validation_sources':prof,
+            'validation_selection':selected_profile,
             'checkpoint':str(checkpoint.resolve()),'sha256':digest(checkpoint)}
         curve.append(item);return item
-    def selection_key(item):return item['held_loss'],item['validation_sources'][-1]['policy_kl']
+    def selection_key(item):return item['held_loss'],item['validation_selection']['policy_kl']
     best=save(0);baseline=best['held_loss']
     for epoch in range(1,cfg['epochs']+1):
         order=list(range(len(train)));random.Random(cfg['seed']+epoch).shuffle(order)
@@ -115,8 +131,8 @@ def fit(cfg):
     result={'status':'trained','model_id':cfg['model_id'],'config':cfg,'selected':best,'curve':curve,
         'fit_method':'complete-option-reference-prior-residual-policy-distillation',
         'loss_definition':'state-weighted cross entropy to softmax(log prior + sampled utility / prior strength)',
-        'selection_metric':'latest-source state-mean label regret; policy KL breaks ties',
-        'selection_validation':'latest_source','optimizer_updates':updates,'stop_reason':reason,
+        'selection_metric':selection+' state-mean label regret; policy KL breaks ties',
+        'selection_validation':selection,'optimizer_updates':updates,'stop_reason':reason,
         'train_rows':len(parts['train']),'held_rows':len(parts['held']),'train_states':len(train),'held_states':len(held),
         'parameter_count':sum(p.numel() for p in net.parameters()),'baseline_held_loss':baseline,
         'held_label_policy_gain_improved':best['held_loss']<baseline,

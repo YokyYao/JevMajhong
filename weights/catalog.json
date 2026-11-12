@@ -439,7 +439,7 @@
     },
     "jev-kan-progress-v1": {
       "role": "public-ukeire-bounds-and-retained-dora-residual-policy-component",
-      "status": "trained-audited-full-match-development-running",
+      "status": "not-adopted-zero-development-gain",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -478,7 +478,58 @@
         "train": 500,
         "held": 290
       },
-      "legacy_feature_prefix_unchanged": true
+      "legacy_feature_prefix_unchanged": true,
+      "development_net_gain_vs_play_v1": 0,
+      "development_ci95": [
+        0.0,
+        0.0
+      ],
+      "development_games": 192,
+      "development_candidate_games": 96,
+      "development_candidate_logs_identical_to_residual_data_v1": 96,
+      "independent_confirmation_run": false
+    },
+    "jev-kan-progress-v2": {
+      "role": "public-progress-residual-policy-with-combined-internal-validation-selection",
+      "status": "trained-audited-full-match-development-running",
+      "frozen_components": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ],
+      "activation": "kan_windows",
+      "feature_version": "public-kan-context-v2",
+      "feature_count": 158,
+      "model_kind": "mlp",
+      "hidden_width": 16,
+      "trainable_parameters": 2560,
+      "reference_prior_strength": 0.05,
+      "selection_validation": "all_sources",
+      "selection_states": 157,
+      "latest_source_states_reported_separately": 25,
+      "comparison": "same data, feature schema, architecture, seed and reward as Progress v1; only model selection and early stopping use all held states instead of latest source",
+      "initialization": "same zero-output reset, no continuation from prior selected weights",
+      "train_rows": 1237,
+      "held_rows": 424,
+      "train_states": 470,
+      "held_states": 157,
+      "artifact_public": false,
+      "independent_improvement_proven": false,
+      "artifact_exists": true,
+      "selected_epoch": 3,
+      "epochs_run": 7,
+      "optimizer_updates": 105,
+      "checkpoint_sha256": "75a221009a56de10d5000def670849609056b18db118012c7793567075cab58c",
+      "held_label_policy_gain_improved": true,
+      "pooled_held_sampled_utility_gain_per_state": 0.0030103012469088744,
+      "held_changed_states": 20,
+      "latest_held_sampled_utility_gain_per_state": -0.007933879267250324,
+      "latest_held_changed_states": 5,
+      "sampled_state_utility_not_match_points": true,
+      "training_audit": "passed-inputs-frozen-heads-all-checkpoints-direct-inference-and-common-parent-epochs",
+      "common_parent_checkpoints_exactly_identical": 6,
+      "pooled_held_sampled_net_point_gain_per_state": 25.87579617834395,
+      "latest_held_sampled_net_point_gain_per_state": -55.5,
+      "sampled_state_points_not_full_match_points": true
     }
   },
   "legacy_aliases": {

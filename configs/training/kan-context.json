@@ -32,9 +32,9 @@
     "ordinary"
   ],
   "decision_filter": "kan_windows",
-  "selection_validation": "latest_source",
-  "model_id": "jev-kan-progress-v1",
-  "out": "runs/jev-kan-progress-v1",
+  "selection_validation": "all_sources",
+  "model_id": "jev-kan-progress-v2",
+  "out": "runs/jev-kan-progress-v2",
   "fit_model": "residual_policy",
   "hidden": 16,
   "epochs": 32,

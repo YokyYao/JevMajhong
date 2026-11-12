@@ -22,6 +22,22 @@ def request(kind):
 
 
 class KanContextTests(unittest.TestCase):
+    def test_combined_selection_weights_states_and_exposes_source_tradeoff(self):
+        from jevmahjong.training.context_policy import selection_profile
+        def source(n,regret):
+            return {'source':str(n),'states':n,'policy_kl':.5,'label_regret':regret,
+                'mean_label_utility_gain_vs_play':-regret,'changed_argmax_states':1}
+        first=[source(100,.3),source(1,0)]
+        later=[source(100,.1),source(1,.2)]
+        self.assertLess(selection_profile(first,'latest_source')['label_regret'],
+            selection_profile(later,'latest_source')['label_regret'])
+        self.assertGreater(selection_profile(first,'all_sources')['label_regret'],
+            selection_profile(later,'all_sources')['label_regret'])
+        merged=selection_profile(later,'all_sources')
+        self.assertAlmostEqual(merged['label_regret'],10.2/101)
+        self.assertEqual(merged['states'],101);self.assertEqual(merged['changed_argmax_states'],2)
+        with self.assertRaises(ValueError):selection_profile(later,'test_set')
+
     def test_progress_distinguishes_equal_legacy_features_with_different_public_ukeire(self):
         from jevmahjong.policy.kan_context import feature_names
         from jevmahjong.policy.kan_progress import VERSION as v2
