@@ -3,7 +3,9 @@ import copy
 import json
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 from desktop.jev_sidecar.call_policy import CallPolicyClient
 from desktop.jev_sidecar.dataset import DecisionRecorder
@@ -26,6 +28,13 @@ def call_board():
 
 
 class PlayInputTests(unittest.TestCase):
+    def setUp(self):
+        # These tests exercise routing/state capture using Capture, not JevAny.
+        # Keep the lightweight Windows UI checks independent of the GPU backend.
+        api = SimpleNamespace(validate_distribution=lambda p, keys: ([p[k] for k in keys], None))
+        mocked = patch.dict('sys.modules', {'jevany': None, 'jevany.api': api})
+        mocked.start(); self.addCleanup(mocked.stop)
+
     def test_positive_riichi_survives_router_without_confirming_other_metadata(self):
         ordinary, calling = Capture(), Capture()
         adviser = Adviser(); adviser.model = CallPolicyClient(ordinary, calling)
