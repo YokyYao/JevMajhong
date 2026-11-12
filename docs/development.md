@@ -34,3 +34,11 @@ Windows 上安装桌面依赖、PyInstaller、匹配驱动的 PyTorch，恢复�
 通过 `tools/run_experiment.py` 启动时，会把当前可复用代码冻结到忽略的 `runs/code/` 目录，再从该快照运行；后续整理主分支不会改变运行中的代码。每次运行使用新输出目录，记录源码、参数、输入分片摘要。采样器支持 `--resume`，只复用校验通过的完整分片；输出有缺失或损坏时先检查，不静默重写。GPU 作业通过调度器提交，模板见 `cluster/`。
 
 整理前的代码快照固定在 [4bdbd79](https://github.com/YokyYao/JevMajhong/tree/4bdbd79c39071fb523f79bbe1079303c13770a65)。历史报告引用被删除的一次性程序时，链接指向该快照。正在运行的实验继续使用它们注册的原工作区，完成后再迁移后续任务。
+
+## 已生成未来标签的审计
+
+```bash
+python tools/run_experiment.py audit-futures --config configs/training/call-audit.json
+```
+
+入口`evaluation/future_audit.py`只接受完整的配对未来集合，在CPU上重新核对来源、整牌山划分、缓存动作头概率、逐臂原生账本与收益均值，再重放原生前缀并重建注册未来牌山，检查库存和四家手牌保持。支持普通吃碰与杠窗口的已注册作用域；`expected`用于预先固定覆盖量。结果是数据一致性证据，不是独立规则引擎或模型实力评测；不运行新策略对局，也不新增训练采样。输出、逐项记录和数据摘要保存在忽略的`runs/`目录。通过启动器冻结源码，`--resume`要求配置与输入摘要一致。
