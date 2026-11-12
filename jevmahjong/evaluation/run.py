@@ -98,6 +98,17 @@ def parity_route(row,activation):
     return scope
 
 
+def parity_rows(path,checksum):
+    """Receipts also bind model weights; only native shards contain inputs."""
+    path=Path(path)
+    if digest(path)!=checksum:raise ValueError('TRAIN parity source changed')
+    if path.suffix!='.pt' or path.parent.name!='walls-private':return []
+    payload=torch.load(path,map_location='cpu',weights_only=False)
+    if not isinstance(payload,dict) or not isinstance(payload.get('rows'),list):
+        raise ValueError('Native parity shard rows missing')
+    return payload['rows']
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--config', type=Path, required=True)
     parser.add_argument('--resume', action='store_true')
@@ -202,13 +213,13 @@ def main():
     if activation == 'call_windows': checked['ordinary_kan'] = 0
     if activation == 'defense_windows':checked.update(ordinary_other=0,ordinary_kan=0)
     for path, h in parity_paths.items():
-        if digest(Path(path)) != h: raise ValueError('TRAIN parity source changed')
-        if Path(path).suffix != '.pt': continue
+        rows=parity_rows(path,h)
+        if not rows:continue
         shard_config=None
         if activation=='defense_windows':
             shard_protocol=Path(path).parent.parent/'protocol.json'
             shard_config=json.loads(shard_protocol.read_text())['config']
-        for row in torch.load(path, map_location='cpu', weights_only=False)['rows']:
+        for row in rows:
             if shard_config is not None and (row['episode_key'][0]-shard_config['training_seed_start'])%4==3:continue
             scope = row['scope']
             key = parity_route(row,activation)

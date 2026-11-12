@@ -2,7 +2,7 @@
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
   "candidate_run": "runs/jev-call-feature-win-v2",
-  "out": "runs/call-feature-win-v2-development",
+  "out": "runs/call-feature-win-v2-development-r2",
   "stage": "development",
   "seed_start": 11480000,
   "seeds": 8,

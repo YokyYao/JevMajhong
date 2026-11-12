@@ -8,7 +8,7 @@ import torch
 from jevmahjong.evaluation.action_suite import evaluate as action_panel
 from jevmahjong.evaluation.metrics import summarize
 from jevmahjong.evaluation.reference_cache import GAMEPLAY_FILES, load_reference
-from jevmahjong.evaluation.run import candidate_scopes, select_heads, candidate_activation, parity_sources, parity_anchor_paths
+from jevmahjong.evaluation.run import candidate_scopes, select_heads, candidate_activation, parity_sources, parity_anchor_paths, parity_rows, parity_route
 from jevmahjong.policy.kan import KanPolicyClient
 from jevmahjong.core.io import digest
 
@@ -88,6 +88,28 @@ class OpenTenpaiAdmissionTest(unittest.TestCase):
 
 
 class FastEvaluationTest(unittest.TestCase):
+    def test_behavior_weight_receipt_does_not_hide_or_replace_native_parity_routes(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);shards=root/'collection/walls-private';shards.mkdir(parents=True)
+            actor=root/'exploration.pt';torch.save({'heads':{'calling':torch.ones(2)}},actor)
+            def row(scope,kinds):
+                return dict(scope=scope,public_request={'questions':{'action':{'criteria':{
+                    str(i):{'type':kind} for i,kind in enumerate(kinds)}}}})
+            calling=shards/'1.pt';ordinary=shards/'2.pt'
+            torch.save({'rows':[row('calling',['chi','none'])]},calling)
+            torch.save({'rows':[row('ordinary',['dahai']),row('ordinary',['dahai','ankan'])]},ordinary)
+            # The provenance-bound actor appears before the external ordinary/kan inputs.
+            paths={str(p):digest(p) for p in [calling,actor,ordinary]}
+            routes=[parity_route(r,'call_windows') for p,h in paths.items() for r in parity_rows(p,h)]
+            self.assertEqual(routes,['calling','ordinary','ordinary_kan'])
+            actor.write_bytes(b'changed checkpoint')
+            with self.assertRaisesRegex(ValueError,'parity source changed'):
+                parity_rows(actor,paths[str(actor)])
+            # A malformed actual dataset must fail, rather than being skipped as a weight file.
+            torch.save({'heads':{}},ordinary)
+            with self.assertRaisesRegex(ValueError,'parity shard rows missing'):
+                parity_rows(ordinary,digest(ordinary))
+
     def test_native_parity_collection_is_accepted_without_a_fit_result(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);shards=root/'walls-private';shards.mkdir()

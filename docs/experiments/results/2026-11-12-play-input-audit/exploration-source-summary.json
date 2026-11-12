@@ -58,7 +58,7 @@
     "zero_residual_reset": true,
     "early_stop_patience_epochs": 4
   },
-  "core_tests_passed": 104,
+  "core_tests_passed": 105,
   "github_source_ci": {
     "head_sha": "2fa79c718489c3a8a5f1e2a9466023215a690541",
     "run_id": 43321484843,
@@ -102,6 +102,15 @@
     "binding_regression_existing_matches": 192,
     "binding_regression_new_simulations": 0,
     "tampered_wrapper_config_and_recipe_rejected": 3,
-    "no_v2_match_results_yet": true
+    "no_v2_match_results_yet": true,
+    "parity_file_loading_fix": {
+      "model_receipts_remain_hash_checked": true,
+      "only_native_wall_shards_provide_rows": true,
+      "malformed_native_shards_rejected": true,
+      "regression_preserves_all_three_routes": true,
+      "training_and_collection_source_unchanged": true,
+      "only_unstarted_evaluation_jobs_superseded": true,
+      "old_evaluation_games_simulated": 0
+    }
   }
 }
