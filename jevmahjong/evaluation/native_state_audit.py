@@ -13,6 +13,7 @@ from jevmahjong.evaluation.agents import guarded_indices
 from jevmahjong.policy.defense import eligible_indices
 from jevmahjong.policy.routing import make_head
 from jevmahjong.training.collector import action_key,call_observation_digest
+from jevmahjong.training.call_behavior import collection_mode,load_collection_heads
 from jevmahjong.training.futures import replay_prefix
 from jevmahjong.training.provenance import snapshot,verify
 from jevmahjong.training.rewards import hand_outcomes
@@ -36,7 +37,13 @@ def audit(cfg):
     protocol=snapshot(cfg)
     if protocol['model_files']!=original['model_files']:raise ValueError('Audit frozen models differ')
     role='call' if method==CALL_METHOD else 'discard'
-    head=make_head(torch.load(Path(cfg[role+'_checkpoint'])/'head.pt',map_location='cpu',weights_only=True),'cpu').eval()
+    behavior_heads=load_collection_heads(source_cfg,original) if method==CALL_METHOD else None
+    if method!=CALL_METHOD and original.get('behavior_heads'):
+        raise ValueError('Defense native inputs require original frozen Play')
+    head=(behavior_heads['calling'] if behavior_heads is not None else
+        make_head(torch.load(Path(cfg[role+'_checkpoint'])/'head.pt',map_location='cpu',weights_only=True),'cpu').eval())
+    if behavior_heads is not None:
+        receipt=original['behavior_heads'];hashes[receipt['checkpoint']]=receipt['sha256']
     checked=0;max_error=0.;splits={'train':0,'held':0};coverage=Counter()
     for seed in range(source_cfg['training_seed_start'],source_cfg['training_seed_start']+count):
         path=root/'walls-private'/f'{seed}.pt';receipt=path.with_suffix('.audit.json')
@@ -84,7 +91,10 @@ def audit(cfg):
         'walls':count,'control_matches_audited':count*4,'states':checked,'state_splits':splits,
         'prefixes_replayed':checked,'cached_head_probability_max_error':max_error,'whole_wall_disjoint':True,
         'new_simulations':0,'reward_labels_available':False,'independent_strength_proven':False}
-    if method==CALL_METHOD:result['call_state_coverage']=dict(coverage)
+    if method==CALL_METHOD:
+        result['call_state_coverage']=dict(coverage)
+        result['collection_policy']=collection_mode(source_cfg)
+        if behavior_heads is not None:result['behavior_checkpoint_sha256']=original['behavior_heads']['sha256']
     write(out/'result.json',result);write(out/'status.json',result);return result
 
 

@@ -5,12 +5,16 @@ from pathlib import Path
 from jevmahjong.data.native_states import CALL_METHOD
 from .collector import NativeCollector
 from .defense_states import collect_native_inputs
+from .call_behavior import collection_mode,load_collection_heads
 
 
 class CallStateCollector(NativeCollector):
     def __init__(self,config,device='cuda'):
-        if config.get('behavior_heads'):raise ValueError('Original frozen Play collection required')
+        collection_mode(config)
         super().__init__(config,device)
+
+    def load_behavior_heads(self,protocol,device):
+        return load_collection_heads(self.config,protocol,device)
 
     def act(self,obs,frozen=False,stochastic=False,trace=None):
         captured=[] if trace is not None else None

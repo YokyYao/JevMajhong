@@ -1,0 +1,6 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "collection": "runs/play-call-exploration-native-v2",
+  "out": "runs/play-call-exploration-source-audit-v2"
+}

@@ -1,0 +1,20 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "out": "runs/play-call-exploration-native-v2",
+  "seed": 2026111311,
+  "game_mode": "4p-red-east",
+  "seed_scheme": "spaced-v1",
+  "training_seed_start": 11520000,
+  "training_seeds_per_stage": 16,
+  "fast_gamma": 0.995,
+  "train_scopes": [
+    "calling"
+  ],
+  "decision_filter": "all",
+  "call_collection_policy": "calling_only_pointer",
+  "behavior_heads": {
+    "checkpoint": "runs/jev-call-win-v4/jev-call-win-v4-e02.pt",
+    "sha256": "36f1bf7a7e719eb8f9df53e0532e2dfdeb071b314bdc388d36115444683133a4"
+  }
+}
