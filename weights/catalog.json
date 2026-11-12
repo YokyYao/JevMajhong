@@ -1137,6 +1137,67 @@
           "selected_argmax_differences": 0
         }
       }
+    },
+    "jev-call-feature-win-v1": {
+      "role": "public-feature-nonlinear-own-win-first-call-component",
+      "status": "fit-audited-new-development-submitted",
+      "frozen_components": [
+        "jev-discard-v1",
+        "jev-call-v1-encoder-and-LoRA",
+        "jev-call-v1-pointer-head"
+      ],
+      "selected_sha256": "c25ec8e963d3cd21ce6dd6a10350658aae22d0078141c398301c9f098d4977d5",
+      "selected_epoch": 1,
+      "epochs_run": 5,
+      "optimizer_updates": 140,
+      "public_features": 158,
+      "trainable_parameters": 10240,
+      "selected_held_policy": {
+        "epoch": 1,
+        "states": 146,
+        "label_regret": 0.10054100232362292,
+        "policy_kl": 0.452584018247018,
+        "mean_label_utility_gain_vs_play": 0.00949682537114848,
+        "mean_sampled_net_point_gain_per_state": 73.58732876712328,
+        "mean_sampled_dealin_change_per_state": 0.0025684931506849314,
+        "mean_sampled_fast_reward_change_per_state": 0.0071653836763747435,
+        "mean_sampled_hand_win_gain_per_state": 0.012842465753424657,
+        "changed_argmax_states": 11,
+        "validation_sources": [
+          {
+            "source": "original-routes",
+            "states": 50,
+            "label_regret": 0.12027923906098018,
+            "policy_kl": 0.448329405871428,
+            "mean_label_utility_gain_vs_play": 0.00406264688681921,
+            "mean_sampled_net_point_gain_per_state": 139.875,
+            "mean_sampled_dealin_change_per_state": 0.01,
+            "mean_sampled_fast_reward_change_per_state": 0.011250587547276838,
+            "mean_sampled_hand_win_gain_per_state": 0.02125,
+            "changed_argmax_states": 8
+          },
+          {
+            "source": "fresh-call-stream",
+            "states": 96,
+            "label_regret": 0.0902606706895827,
+            "policy_kl": 0.4547999621926378,
+            "mean_label_utility_gain_vs_play": 0.012327126665069974,
+            "mean_sampled_net_point_gain_per_state": 39.0625,
+            "mean_sampled_dealin_change_per_state": -0.0013020833333333333,
+            "mean_sampled_fast_reward_change_per_state": 0.00503767332694657,
+            "mean_sampled_hand_win_gain_per_state": 0.008463541666666666,
+            "changed_argmax_states": 3
+          }
+        ]
+      },
+      "held_positive_chi_route_recovered": 0,
+      "held_sample_positive_chi_route_states": 6,
+      "manual_fit_audit_passed": true,
+      "development_expected_games": 192,
+      "adopted": false,
+      "deployed": false,
+      "strength_improvement_proven": false,
+      "experimental_weights_public": false
     }
   },
   "legacy_aliases": {

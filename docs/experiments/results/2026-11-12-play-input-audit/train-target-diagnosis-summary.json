@@ -264,5 +264,99 @@
     "manifest_sha256": "04afe7890098f94dab90de215fd7c9f2014a1d4bc0c1208458f65172bb1812c7",
     "script_sha256": "71882309ef1c5f28d4a14fc90f353ba964e4ddb1958c3db9c7bd20d4bbddb188",
     "interpretation": "No strong fitting improvement from this particular unanchored, faster, 400-update probe: 21 sampled positive training chi-route opportunities recovered 6 to 7. This does not prove an intrinsic representation limit; optimization and sampled-target conflict remain possible. Fixed v4-v5 held choices are identical on these 146 cached inputs only."
+  },
+  "public_feature_representation_probe": {
+    "status": "completed",
+    "optimizer_updates": 400,
+    "feature_version": "public-kan-context-v2",
+    "features": 158,
+    "parameter_count": 10240,
+    "curve": [
+      {
+        "updates": 0,
+        "train_loss": 0.6008446344607714,
+        "train_target_argmax_matches": 347,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 0
+      },
+      {
+        "updates": 25,
+        "train_loss": 0.5280225885009275,
+        "train_target_argmax_matches": 356,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 8
+      },
+      {
+        "updates": 50,
+        "train_loss": 0.5102848666451393,
+        "train_target_argmax_matches": 350,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 10
+      },
+      {
+        "updates": 100,
+        "train_loss": 0.5127201316646728,
+        "train_target_argmax_matches": 362,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 8
+      },
+      {
+        "updates": 200,
+        "train_loss": 0.5030986683840312,
+        "train_target_argmax_matches": 343,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 19
+      },
+      {
+        "updates": 400,
+        "train_loss": 0.47994783344881314,
+        "train_target_argmax_matches": 365,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 10
+      }
+    ],
+    "conditional_label_summary": {
+      "training_chi_route_states": 37,
+      "sampled_positive_call_states": 21,
+      "sampled_positive_call_pairs": 25,
+      "worlds_per_pair": 16,
+      "nominal_utility_interval_lower_positive_pairs": 5,
+      "both_fixed_halves_utility_positive_pairs": 21,
+      "caveat": "Descriptive post-selection intervals conditional on the recorded opponent hands. No multiplicity adjustment or independent optimal-action guarantee. Only live/dead unseen wall tiles were resampled in the source protocol."
+    },
+    "training_states": 444,
+    "held_states_used_for_fitting": 0,
+    "held_states_used_for_selection": 0,
+    "confirmation_records_opened": 0,
+    "saved_policy_checkpoints": 0,
+    "new_match_simulations": 0,
+    "not_strength_evidence": true,
+    "not_a_single_factor_architecture_ablation": true,
+    "manifest_sha256": "acf4a64144aa8409b750481c68877ef6b7d85fc13e72e9a09be883e0009713bc",
+    "script_sha256": "90a72e5bcc780e97069f5fa83789ab5eea1325a9de07fa4a56edc13d45a1253e"
+  },
+  "next_candidate": {
+    "model_id": "jev-call-feature-win-v1",
+    "status": "fit_and_audit_completed_development_submitted",
+    "architecture": "64-hidden tanh public-feature residual over frozen Play call probabilities",
+    "public_features": 158,
+    "trainable_parameters": 10240,
+    "data_and_reward_unchanged_from_v4": true,
+    "selection_objective": "hand_win",
+    "max_held_dealin_increase": 0.01,
+    "full_match_evaluation_started": false,
+    "deployed": false,
+    "selected_epoch": 1,
+    "checkpoint_sha256": "c25ec8e963d3cd21ce6dd6a10350658aae22d0078141c398301c9f098d4977d5",
+    "selected_held_own_win_gain": 0.012842465753424657,
+    "selected_held_dealin_change": 0.0025684931506849314,
+    "held_chi_recovered": 0,
+    "development_expected_games": 192
   }
 }

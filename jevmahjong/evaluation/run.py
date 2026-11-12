@@ -150,7 +150,8 @@ def main():
         protocol['fit_audit_receipt']=receipt
         if not cfg.get('preflight_only',False) and not checked['eligible_for_development']:
             write(out/'protocol.json',protocol)
-            write(out/'status.json',{'status':'skipped','reason':'no_audited_held_policy_and_sampled_net_point_gain',
+            write(out/'status.json',{'status':'skipped','reason':('no_audited_held_hand_win_gain'
+                if checked.get('selection_objective')=='hand_win' else 'no_audited_held_policy_and_sampled_net_point_gain'),
                 'complete_matches_simulated':0,'independent_strength_proven':False});return
     cached = []
     if cfg.get('reference_cache_out'):

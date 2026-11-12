@@ -15,6 +15,7 @@ from jevmahjong.training.sampling import state_key
 METRICS=('label_regret','policy_kl','mean_label_utility_gain_vs_play',
     'mean_sampled_net_point_gain_per_state','mean_sampled_dealin_change_per_state',
     'mean_sampled_fast_reward_change_per_state')
+WIN_METRIC='mean_sampled_hand_win_gain_per_state'
 
 
 def require(condition,message):
@@ -26,7 +27,8 @@ def read(path):return json.loads(Path(path).read_text())
 
 def aggregate(records):
     require(bool(records),'Nonempty held states required')
-    return {'states':len(records),**{k:sum(r[k] for r in records)/len(records) for k in METRICS},
+    metrics=(*METRICS,WIN_METRIC) if WIN_METRIC in records[0] else METRICS
+    return {'states':len(records),**{k:sum(r[k] for r in records)/len(records) for k in metrics},
         'changed_argmax_states':sum(r['changed_argmax_states'] for r in records)}
 
 
@@ -42,6 +44,7 @@ def held_groups(rows,sources,version,strength):
         require(all(r['teacher_action']==teacher and r['eligible']==eligible and r['public_request']==first['public_request']
             and torch.equal(r['reference'],first['reference']) for r in items),'Conflicting public-state inputs')
         values={teacher:{k:0. for k in ('utility','net_points','dealin','fast_reward')}}
+        if 'own_win' in first['training_credit']['control']:values[teacher]['own_win']=0.
         for row in items:
             credit=row['training_credit'];values[row['action']]={k:credit['branch'][k]-credit['control'][k] for k in values[teacher]}
             require(abs(values[row['action']]['utility']-row['training_advantage'])<1e-12,'Credit differs from target')
@@ -58,9 +61,24 @@ def held_groups(rows,sources,version,strength):
 def check_profiles(actual,registered):
     require(actual['states']==registered['states'] and actual['changed_argmax_states']==registered['changed_argmax_states'],
         'Registered validation state counts differ')
-    errors=[abs(actual[k]-registered[k]) for k in METRICS[:3]]
+    metrics=(*METRICS,WIN_METRIC) if WIN_METRIC in actual else METRICS[:3]
+    require(all(k in registered for k in metrics),'Registered win/risk metrics missing')
+    errors=[abs(actual[k]-registered[k]) for k in metrics]
     require(all(math.isfinite(e) and e<1e-10 for e in errors),'Independent held profile differs')
     return max(errors)
+
+
+def manual_win_improves(profile,best,baseline,risk_limit):
+    """Independent selection reconstruction from manually aggregated credits."""
+    keys=(WIN_METRIC,'mean_sampled_fast_reward_change_per_state',
+        'mean_sampled_dealin_change_per_state','mean_label_utility_gain_vs_play')
+    if not all(math.isfinite(item[k]) for item in (profile,best,baseline) for k in keys):return False
+    win=profile[WIN_METRIC];previous=best[WIN_METRIC]
+    grows=win-previous>1e-12
+    ties=abs(win-previous)<=1e-12
+    faster=profile[keys[1]]-best[keys[1]]>1e-12
+    return ((grows or (ties and faster)) and win>=baseline[WIN_METRIC]-1e-12
+        and profile[keys[3]]>baseline[keys[3]]+1e-12 and profile[keys[2]]<=risk_limit+1e-12)
 
 
 @torch.no_grad()
@@ -73,6 +91,13 @@ def audit(cfg):
     fit_run=resolve(training['out']);fit=read(fit_run/'result.json');original=read(fit_run/'protocol.json')
     require(fit['status']=='trained' and fit['config']==training and original['config']==training,'Completed registered fit required')
     require(training['fit_model']=='residual_policy' and training['selection_validation']=='all_sources','Residual pooled-validation fit required')
+    objective=training.get('selection_objective','utility')
+    require(objective in ('utility','hand_win') and fit.get('selection_objective','utility')==objective,
+        'Registered selection objective differs')
+    if objective=='hand_win':
+        require(training['train_scopes']==['calling'] and training['reward']['mode']=='own_win_first_v1'
+            and math.isfinite(training.get('max_held_dealin_increase',float('nan')))
+            and 0<=training['max_held_dealin_increase']<=1,'Explicit call hand-win objective and risk cap required')
     mode=training['decision_filter'];activation=('defense_windows' if mode=='open_tenpai_riichi' else
         'call_windows' if training['train_scopes']==['calling'] else 'kan_windows')
     require(fit['decision_filter']==activation and fit['trained_scopes']==training['train_scopes'],'Registered model activation differs')
@@ -93,6 +118,9 @@ def audit(cfg):
         audit_collections.add(resolve(registered['config']['collection']))
     parts,data_hashes,sources=load_sources([resolve(p) for p in training['data']],original['model_files'],training['reward'])
     parts=select_decisions(parts,mode,training['train_scopes'])
+    if objective=='hand_win':
+        require(all(Path(s['path']).parent in audit_collections for s in sources),
+            'Every win-call option source requires its complete matching data audit')
     require(data_hashes==fit['data_sha256'] and sources==fit['data_sources'],'Registered fit data changed')
     for path,h in data_hashes.items():
         require(path not in hashes or hashes[path]==h,'Fit data and audited inputs differ');hashes[path]=h
@@ -126,7 +154,7 @@ def audit(cfg):
     if training.get('policy_state_weighting')=='uniform':
         require(coverage['policy_state_weighting']=='uniform' and coverage['outcome_sign_reweighting'] is False
             and coverage['unique_states']==counts['train'],'Uniform public-state coverage differs')
-    curves=[];profile_error=inference_error=zero_error=0.
+    curves=[];profile_error=inference_error=zero_error=0.;selected_records=[]
     require([c['epoch'] for c in fit['curve']]==list(range(len(fit['curve']))),'Contiguous saved epochs required')
     for item in fit['curve']:
         path=Path(item['checkpoint']);require(digest(path)==item['sha256'],'Saved checkpoint changed');hashes[str(path)]=item['sha256']
@@ -158,6 +186,15 @@ def audit(cfg):
                 'mean_label_utility_gain_vs_play':float(y[index]),'changed_argmax_states':int(choice!=row['teacher_action']),
                 **{'mean_sampled_'+key+'_per_state':values[choice][credit] for key,credit in
                     [('net_point_gain','net_points'),('dealin_change','dealin'),('fast_reward_change','fast_reward')]}})
+            if 'own_win' in values[choice]:
+                record=by_source[source][-1];record[WIN_METRIC]=values[choice]['own_win']
+                if selected and objective=='hand_win':
+                    menu=list(row['public_request']['questions']['action']['criteria'].values())
+                    good=[a for a in eligible if menu[a]['type'] in ('chi','pon')
+                        and values[a]['utility']>0 and (values[a]['own_win'],values[a]['fast_reward'])>(0.,0.)]
+                    skipped=menu[row['teacher_action']]['type']=='none'
+                    selected_records.append(dict(record,sampled_positive_call_state=int(skipped and bool(good)),
+                        recovered_sample_positive_call=int(skipped and choice in good)))
             if selected or item['epoch']==0:
                 actual=torch.tensor(probabilities(row['public_request'],row['reference'].tolist(),context),dtype=torch.float64)
                 eligible_p=actual[eligible]/actual[eligible].sum();error=float((eligible_p-z.softmax(-1)).abs().max())
@@ -172,19 +209,22 @@ def audit(cfg):
         require(abs(combined['label_regret']-item['held_loss'])<1e-10,'Held selection loss differs')
         curves.append({'epoch':item['epoch'],**combined,'validation_sources':profiles})
     require(zero_error<1e-12,'Starting model does not preserve original probabilities')
-    best=min(fit['curve'],key=lambda c:(c['held_loss'],c['validation_selection']['policy_kl']))
+    require(fit['optimizer_updates']==(len(fit['curve'])-1)*math.ceil(counts['train']/training['batch']),'Optimizer update count differs')
+    require(len(fit['curve'])<=training['epochs']+1,'Registered epoch limit exceeded')
+    stale=0;best=fit['curve'][0]
+    for item in fit['curve'][1:]:
+        require(stale<training['patience_epochs'],'Fit continued beyond registered early stop')
+        advances=(manual_win_improves(curves[item['epoch']],curves[best['epoch']],curves[0],
+            training['max_held_dealin_increase']) if objective=='hand_win' else
+            (item['held_loss'],item['validation_selection']['policy_kl'])<(best['held_loss'],best['validation_selection']['policy_kl']))
+        if advances:
+            best=item;stale=0
+        else:stale+=1
     require(best==fit['selected'],'Selected checkpoint differs from registered selection')
     chosen=curves[best['epoch']];improved=chosen['label_regret']<curves[0]['label_regret']
     require(fit['held_label_policy_gain_improved']==improved and fit['selected_is_starting_model']==(best['epoch']==0),'Held gain flags differ')
-    require(fit['optimizer_updates']==(len(fit['curve'])-1)*math.ceil(counts['train']/training['batch']),'Optimizer update count differs')
-    require(len(fit['curve'])<=training['epochs']+1,'Registered epoch limit exceeded')
-    stale=0;best_so_far=fit['curve'][0]
-    for item in fit['curve'][1:]:
-        require(stale<training['patience_epochs'],'Fit continued beyond registered early stop')
-        if (item['held_loss'],item['validation_selection']['policy_kl'])<(best_so_far['held_loss'],best_so_far['validation_selection']['policy_kl']):
-            best_so_far=item;stale=0
-        else:stale+=1
-    require(fit['stop_reason']==('held_policy_regret_and_kl_stalled' if stale>=training['patience_epochs'] else 'epoch_limit'),'Stop reason differs')
+    stalled='held_actual_hand_wins_stalled' if objective=='hand_win' else 'held_policy_regret_and_kl_stalled'
+    require(fit['stop_reason']==(stalled if stale>=training['patience_epochs'] else 'epoch_limit'),'Stop reason differs')
     protocol['source_files']=hashes;write(out/'protocol.json',protocol);verify(protocol);verify(original)
     for path,h in hashes.items():require(digest(Path(path))==h,'Fit audit input changed')
     result={'status':'passed_complete','model_id':training['model_id'],'checkpoint_sha256':best['sha256'],
@@ -193,8 +233,21 @@ def audit(cfg):
         'train_states':counts['train'],'held_states':counts['held'],'frozen_original_heads':True,'whole_wall_disjoint':True,
         'max_cached_head_probability_error':cached_error,'max_profile_recomputation_error':profile_error,
         'max_actual_inference_error':inference_error,'max_zero_probability_error':zero_error,
-        'eligible_for_development':improved and chosen['mean_sampled_net_point_gain_per_state']>0,
+        'selection_objective':objective,
+        'eligible_for_development':(chosen[WIN_METRIC]>1e-12 and chosen['mean_label_utility_gain_vs_play']>1e-12
+            and chosen['mean_sampled_dealin_change_per_state']<=training['max_held_dealin_increase']+1e-12
+            if objective=='hand_win' else improved and chosen['mean_sampled_net_point_gain_per_state']>0),
         'independent_strength_proven':False,'new_full_matches':0}
+    if objective=='hand_win':
+        from jevmahjong.training.call_head import route_groups
+        require(len(selected_records)==len(groups),'Selected route diagnostics incomplete')
+        routes=route_groups([{'row':g[0],'index':i} for i,g in enumerate(groups)])
+        result['held_routes']={}
+        for name,items in routes.items():
+            records=[selected_records[g['index']] for g in items]
+            result['held_routes'][name]={**aggregate(records),
+                'sampled_positive_call_states':sum(r['sampled_positive_call_state'] for r in records),
+                'recovered_sample_positive_calls':sum(r['recovered_sample_positive_call'] for r in records)}
     write(out/'result.json',result);write(out/'status.json',result);return result
 
 
