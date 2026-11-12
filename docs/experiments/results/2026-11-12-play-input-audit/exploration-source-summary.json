@@ -75,5 +75,15 @@
     "The exploration actor is not a verified stronger policy. More open states do not prove better hand-win probability.",
     "Future worlds fix opponent concealed hands and only resample unseen wall tiles.",
     "Fresh confirmation is required after fitting and development; consumed prior tests are not reused."
-  ]
+  ],
+  "paired_label_prefix_audit": {
+    "status": "passed_one_committed_shard",
+    "states": 93,
+    "validated_pair_rows": 93,
+    "raw_arm_records_checked": 5952,
+    "complete_collection_audit": false,
+    "new_simulations": 0,
+    "not_strength_evaluation": true,
+    "reward_recounted_from_native_events": true
+  }
 }
