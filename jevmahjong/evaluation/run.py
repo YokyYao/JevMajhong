@@ -7,7 +7,7 @@ import torch
 from jevmahjong.core.io import digest, write
 from jevmahjong.policy.routing import HybridPolicy, HeadPolicyClient, load_model, make_head
 from jevmahjong.policy.kan import KanPolicyClient, is_kan_request
-from jevmahjong.policy.kan_context import KanContextPolicyClient, probabilities as context_probabilities
+from jevmahjong.policy.kan_context import KanContextPolicyClient, CallContextPolicyClient, probabilities as context_probabilities
 from jevmahjong.training.provenance import snapshot, verify
 from .agents import PolicyAgent
 from .game import play
@@ -30,12 +30,14 @@ def select_heads(heads, saved, config):
 
 def candidate_activation(config, trained_filter='all'):
     mode = config.get('candidate_activation', 'all')
-    if mode not in ('all', 'kan_windows'):
+    if mode not in ('all', 'kan_windows', 'call_windows'):
         raise ValueError('Unknown candidate activation')
     if mode == 'kan_windows' and candidate_scopes(config) != ('ordinary',):
         raise ValueError('Kan activation requires only the ordinary updated head')
-    if trained_filter == 'kan_windows' and mode != 'kan_windows':
-        raise ValueError('Kan-only training requires kan-window activation')
+    if mode == 'call_windows' and candidate_scopes(config) != ('calling',):
+        raise ValueError('Call activation requires only the calling scope')
+    if trained_filter in ('kan_windows','call_windows') and mode != trained_filter:
+        raise ValueError('Context training requires the registered activation')
     return mode
 
 
@@ -61,10 +63,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--config', type=Path, required=True)
     parser.add_argument('--resume', action='store_true')
     args = parser.parse_args(); cfg = json.loads(args.config.read_text()); out = Path(cfg['out'])
+    if not isinstance(cfg.get('preflight_only',False),bool):raise ValueError('Boolean preflight flag required')
     scopes = candidate_scopes(cfg)
     activation = candidate_activation(cfg)
     fit_run = Path(cfg['candidate_run']); fit = json.loads((fit_run / 'result.json').read_text())
-    candidate_activation(cfg, fit.get('config', {}).get('decision_filter', 'all'))
+    candidate_activation(cfg, fit.get('decision_filter', fit.get('config', {}).get('decision_filter', 'all')))
     if fit['status'] != 'trained': raise ValueError('A completed trained candidate is required')
     verify(json.loads((fit_run / 'protocol.json').read_text()))
     checkpoint = Path(fit['selected']['checkpoint'])
@@ -108,18 +111,24 @@ def main():
     select_heads(heads, model['heads'], cfg)
     context = model.get('kan_context')
     if context is not None:
-        if activation != 'kan_windows': raise ValueError('Context component requires kan-window activation')
+        if activation not in ('kan_windows','call_windows') or model['decision_filter'] != activation:
+            raise ValueError('Context component requires its registered activation')
+        if tuple(model['trained_scopes']) != scopes:
+            raise ValueError('Context component differs from its registered decision scope')
         for scope, role in [('ordinary','discard'),('calling','call')]:
             original = torch.load(Path(cfg[role + '_checkpoint'])/'head.pt',map_location='cpu',weights_only=True)['head']
             if any(not torch.equal(v.cpu(),original[k])
                     for k,v in model['heads'][scope].items()):
                 raise ValueError('Context component must preserve original pointer heads')
-        router = KanContextPolicyClient(HybridPolicy(ordinary,calling),context)
+        wrapper = KanContextPolicyClient if activation == 'kan_windows' else CallContextPolicyClient
+        router = wrapper(HybridPolicy(ordinary,calling),context)
     else:
+        if activation == 'call_windows': raise ValueError('Call-window activation requires a context component')
         router = (KanPolicyClient(ordinary, calling, heads) if activation == 'kan_windows'
             else HeadPolicyClient(ordinary, calling, heads))
     checked = {'ordinary': 0, 'calling': 0}
     if activation == 'kan_windows': checked['ordinary_nonkan'] = 0
+    if activation == 'call_windows': checked['ordinary_kan'] = 0
     for path, h in parity_sources(fit).items():
         if digest(Path(path)) != h: raise ValueError('TRAIN parity source changed')
         if Path(path).suffix != '.pt': continue
@@ -127,11 +136,14 @@ def main():
             scope = row['scope']
             key = ('ordinary_nonkan' if activation == 'kan_windows' and scope == 'ordinary'
                 and not is_kan_request(row['public_request']) else scope)
+            if activation == 'call_windows' and scope == 'ordinary' and is_kan_request(row['public_request']):
+                key = 'ordinary_kan'
             if checked[key] >= 2: continue
-            head = ordinary.runtime.model.head if key == 'ordinary_nonkan' else heads[scope]
+            head = (ordinary.runtime.model.head if key == 'ordinary_nonkan'
+                or (activation == 'call_windows' and scope == 'ordinary') else heads[scope])
             with torch.no_grad():
                 expected = head(row['decide'].cuda(), row['options'].cuda()).softmax(-1).cpu()
-            if context is not None and key == 'ordinary':
+            if context is not None and key == ('ordinary' if activation == 'kan_windows' else 'calling'):
                 expected = torch.tensor(context_probabilities(row['public_request'],expected.tolist(),context))
             p = router.system_one(**row['public_request'])['answers']['action']['probabilities']
             if not torch.allclose(expected, torch.tensor(list(p.values())), atol=2e-5, rtol=2e-4):
@@ -140,6 +152,10 @@ def main():
         if all(n == 2 for n in checked.values()): break
     if not all(n == 2 for n in checked.values()): raise ValueError('Two-policy native parity missing')
     write(out / 'native-parity.json', checked)
+    if cfg.get('preflight_only',False):
+        write(out/'status.json',{'status':'native_parity_complete','native_routes':checked,
+            'complete_matches_simulated':0,'independent_strength_proven':False})
+        return
     agents = {'reference': PolicyAgent(HybridPolicy(ordinary, calling)), 'candidate': PolicyAgent(router)}
     strong = PolicyAgent(ordinary); raw = out / 'games-private.jsonl'
     if not raw.exists() and cached:

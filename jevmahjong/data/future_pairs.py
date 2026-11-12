@@ -6,11 +6,20 @@ import torch
 from jevmahjong.core.io import digest, request_hash
 from jevmahjong.core.scoring import settlement_ledger
 from jevmahjong.policy.kan import is_kan_request
+from jevmahjong.policy.routing import is_call_request
 from jevmahjong.training.collector import derived_seed
 from jevmahjong.training.rewards import hand_outcomes
 from jevmahjong.training.utility import hand_utility
 
 METHOD = 'paired_future_ev_v1'
+
+
+def future_scope(config):
+    scopes = config.get('train_scopes', ['ordinary'])
+    mode = config.get('decision_filter', 'kan_windows')
+    if scopes == ['ordinary'] and mode == 'kan_windows': return 'ordinary', mode
+    if scopes == ['calling'] and mode == 'all': return 'calling', mode
+    raise ValueError('Future data requires one declared kan or pure-call scope')
 
 
 def mean_credit(worlds, row, config, reward):
@@ -22,6 +31,7 @@ def mean_credit(worlds, row, config, reward):
 
 
 def validate_rows(payload, seed, config, protocol, reward=None):
+    scope, _ = future_scope(config)
     if payload['collection_method'] != METHOD or payload['seed'] != seed:
         raise ValueError('Wrong future-data method or origin wall')
     source = Path(config['source_root']).resolve() / 'walls-private' / f'{seed}.pt'
@@ -60,9 +70,10 @@ def validate_rows(payload, seed, config, protocol, reward=None):
         if (len(origin)!=3 or (expanded and (len(key)!=4 or key[:3]!=origin or key[3]!=row['action']))
                 or (not expanded and key!=origin)):raise ValueError('Invalid expanded origin identity')
         old = originals[origin]; game = games[origin]
-        if not is_kan_request(row['public_request']) or row['scope'] != 'ordinary':
-            raise ValueError('Future data must represent a legal kan window')
-        if (row['public_request'] != old['public_request'] or request_hash(row['public_request']) != row['request_sha256']
+        accepted = is_kan_request if scope == 'ordinary' else is_call_request
+        if not accepted(row['public_request']) or row['scope'] != scope:
+            raise ValueError('Future data differs from its declared decision scope')
+        if (row['scope'] != old['scope'] or row['public_request'] != old['public_request'] or request_hash(row['public_request']) != row['request_sha256']
                 or row['request_sha256'] != old['request_sha256']
                 or row['action_keys'] != old['action_keys'] or row['eligible'] != old['eligible']
                 or (not expanded and row['category'] != old['category']) or row['hand_index'] != old['hand_index']

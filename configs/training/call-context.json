@@ -1,0 +1,43 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "data": [
+    "runs/call-options-v1/source_0"
+  ],
+  "reward": {
+    "mode": "net_points_with_fast_support_v1",
+    "net_weight": 1.0,
+    "fast_weight": 0.1,
+    "dealin_penalty": 0.1,
+    "point_scale": 8000.0
+  },
+  "action_mix": {
+    "chi": 0.5,
+    "pon": 0.5
+  },
+  "max_example_weight": 4.0,
+  "context_mix": {
+    "open_threat": 0.4,
+    "other_threat": 0.2,
+    "no_threat": 0.4
+  },
+  "train_scopes": [
+    "calling"
+  ],
+  "decision_filter": "all",
+  "selection_validation": "all_sources",
+  "model_id": "jev-call-progress-v1",
+  "out": "runs/jev-call-progress-v1",
+  "fit_model": "residual_policy",
+  "hidden": 16,
+  "epochs": 32,
+  "patience_epochs": 4,
+  "batch": 32,
+  "lr": 0.001,
+  "weight_decay": 0.001,
+  "seed": 2026111203,
+  "state_balanced_training": true,
+  "state_balanced_validation": true,
+  "reference_prior_strength": 0.05,
+  "feature_version": "public-kan-context-v2"
+}

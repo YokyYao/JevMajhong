@@ -1,16 +1,16 @@
 {
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
-  "candidate_run": "runs/jev-kan-progress-v2",
-  "out": "runs/kan-progress-v2-development",
+  "candidate_run": "runs/jev-call-progress-v1",
+  "out": "runs/call-progress-v1-development",
   "stage": "development",
   "seed_start": 10920000,
   "seeds": 8,
   "fast_gamma": 0.995,
   "confirmation_objective": "net_points",
   "updated_scopes": [
-    "ordinary"
+    "calling"
   ],
-  "candidate_activation": "kan_windows",
+  "candidate_activation": "call_windows",
   "reference_cache_out": "runs/value-defense-v1-development"
 }

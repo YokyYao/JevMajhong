@@ -100,6 +100,9 @@ def collect(cfg,resume=False):
             or parent_protocol['config'].get('expand_from')):raise ValueError('Complete original future parent required')
     if any(cfg[k]!=parent_protocol['config'][k] for k in ('worlds','seed','wall_scope','fast_gamma','game_mode','seed_scheme','reward')):
         raise ValueError('Expanded alternatives must share the parent future protocol')
+    from jevmahjong.data.future_pairs import future_scope
+    if future_scope(cfg) != future_scope(parent_protocol['config']):
+        raise ValueError('Expanded alternatives must preserve the parent decision scope')
     protocol=snapshot(cfg);protocol['collection_method']=METHOD
     if protocol['model_files']!=parent_protocol['model_files']:raise ValueError('Parent baseline model differs')
     _,hashes,sources=load_sources(parent_result['source_outputs'],protocol['model_files'],cfg['reward'])

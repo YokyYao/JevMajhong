@@ -491,7 +491,7 @@
     },
     "jev-kan-progress-v2": {
       "role": "public-progress-residual-policy-with-combined-internal-validation-selection",
-      "status": "trained-audited-full-match-development-running",
+      "status": "not-adopted-negative-development",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -529,7 +529,50 @@
       "common_parent_checkpoints_exactly_identical": 6,
       "pooled_held_sampled_net_point_gain_per_state": 25.87579617834395,
       "latest_held_sampled_net_point_gain_per_state": -55.5,
-      "sampled_state_points_not_full_match_points": true
+      "sampled_state_points_not_full_match_points": true,
+      "development_net_gain_vs_play_v1": -42.708333333333336,
+      "development_ci95": [
+        -130.47295326393825,
+        45.05628659727157
+      ],
+      "development_games": 192,
+      "development_candidate_games": 96,
+      "development_pairs_with_different_event_logs": 6,
+      "development_candidate_kan_choices": {
+        "ankan": 4,
+        "daiminkan": 6,
+        "kakan": 0
+      },
+      "independent_confirmation_run": false
+    },
+    "jev-call-progress-v1": {
+      "role": "pure-chi-pon-pass-public-progress-residual-policy-component",
+      "status": "paired-future-training-data-generation-running",
+      "frozen_components": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ],
+      "activation": "call_windows",
+      "reference_policy": "Jev Call v1 within pure call menus; other decisions remain Jev Play v1",
+      "feature_version": "public-kan-context-v2",
+      "feature_count": 158,
+      "model_kind": "mlp",
+      "hidden_width": 16,
+      "planned_trainable_parameters": 2560,
+      "reference_prior_strength": 0.05,
+      "selection_validation": "all_sources",
+      "source_wall_groups": 48,
+      "source_call_state_instances": 647,
+      "planned_train_states": 484,
+      "planned_held_states": 163,
+      "paired_futures_per_state": 16,
+      "planned_parent_hand_rollouts": 20704,
+      "original_source": "value-defense-native-v1",
+      "source_states_not_new_matches": true,
+      "pilot_status": "passed12states4futures17complete-option-pairs-and-native-three-route-preflight",
+      "artifact_exists": false,
+      "artifact_public": false,
+      "independent_improvement_proven": false
     }
   },
   "legacy_aliases": {

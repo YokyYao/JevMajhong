@@ -7,6 +7,7 @@ from riichienv import MeldType
 from jevmahjong.core.state import shanten
 from .call_helpers import tile_ids, dora_type, call_discards
 from .kan import is_kan_request
+from .routing import is_call_request
 from .kan_progress import VERSION as PROGRESS_VERSION, NAMES as PROGRESS_NAMES, visible_bounds, option_progress
 
 VERSION = 'public-kan-context-v1'
@@ -29,7 +30,8 @@ def feature_names(version=VERSION):
 
 def feature_vectors(request, version=VERSION):
     names = feature_names(version)
-    if not is_kan_request(request): raise ValueError('Legal kan window required')
+    if not is_kan_request(request) and not (version == PROGRESS_VERSION and is_call_request(request)):
+        raise ValueError('Legal kan or versioned pure-call window required')
     s = request['state']; pid = s['seat']; hand = tile_ids(s['hand'])
     own = [(m['type'], tile_ids(m['tiles'])) for m in s['melds'][pid]]
     closed = all(kind == int(MeldType.Ankan) for kind, _ in own)
@@ -139,13 +141,19 @@ def probabilities(request, reference, context):
 
 
 class KanContextPolicyClient:
+    accepts = staticmethod(is_kan_request)
     def __init__(self, frozen, context): self.frozen, self.context = frozen, context
 
     def system_one(self, **request):
         answer = self.frozen.system_one(**request)
-        if not is_kan_request(request): return answer
+        if not self.accepts(request): return answer
         keys = list(request['questions']['action']['criteria'])
         reference = answer['answers']['action']['probabilities']
         values = probabilities(request, [reference[k] for k in keys], self.context)
         result = copy.deepcopy(answer); result['answers']['action']['probabilities'] = dict(zip(keys, values))
         return result
+
+
+class CallContextPolicyClient(KanContextPolicyClient):
+    """Public progress residual only for chi/pon/pass, preserving kan routing."""
+    accepts = staticmethod(is_call_request)

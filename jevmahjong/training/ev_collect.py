@@ -1,4 +1,4 @@
-"""Revalue existing kan states with paired, same-hand future-wall rollouts."""
+"""Revalue declared decision states with paired same-hand future-wall rollouts."""
 import argparse
 from collections import Counter, defaultdict
 import copy
@@ -26,19 +26,22 @@ def case_key(row):
     return tuple(row['episode_key'])
 
 
-def choose_cases(partitions, head, limit):
+def choose_cases(partitions, head, limit, canonical_state_only=False):
     buckets = defaultdict(list); seen = set()
     for split, rows in partitions.items():
-        for original in rows:
+        for original in sorted(rows, key=case_key) if canonical_state_only else rows:
             row = copy.deepcopy(original)
-            with torch.no_grad(): reference = head(row['decide'], row['options']).softmax(-1)
+            current_head = head[row['scope']] if isinstance(head, dict) else head
+            with torch.no_grad(): reference = current_head(row['decide'], row['options']).softmax(-1)
             teacher = max(row['eligible'], key=lambda i: float(reference[i]))
             alternative = row['action'] if row['action'] != teacher else row['teacher_action']
             identity = (row['episode_key'][0], row['episode_key'][1], row['request_sha256'], teacher, alternative)
+            if canonical_state_only: identity = identity[:3]
             if identity in seen: continue
             seen.add(identity)
             kinds = {v['type'] for v in row['public_request']['questions']['action']['criteria'].values()}
             kan = '+'.join(sorted(kinds & {'ankan', 'daiminkan', 'kakan'}))
+            if row['scope'] == 'calling': kan = '+'.join(sorted(kinds & {'chi', 'pon'}))
             state = row['public_request']['state']; threat = bool(set(state['riichi']) - {state['seat']})
             row.update(reference=reference, teacher_action=teacher, action=alternative, source_split=split)
             row.pop('alternative_probability', None)
@@ -107,10 +110,13 @@ def main():
     parts,hashes,sources=load_sources(cfg['data'],protocol['model_files'],cfg['reward'])
     if any(json.loads((Path(s['path'])/'protocol.json').read_text()).get('collection_method') == METHOD for s in sources):
         raise ValueError('Revalue original native states, not an already revalued dataset')
-    parts=select_decisions(parts,'kan_windows',['ordinary']);torch.set_num_threads(4)
-    meta=torch.load(Path(cfg['discard_checkpoint'])/'head.pt',map_location='cpu',weights_only=True)
+    from jevmahjong.data.future_pairs import future_scope
+    scope, mode = future_scope(cfg)
+    parts=select_decisions(parts,mode,[scope]);torch.set_num_threads(4)
+    role = 'discard' if scope == 'ordinary' else 'call'
+    meta=torch.load(Path(cfg[role+'_checkpoint'])/'head.pt',map_location='cpu',weights_only=True)
     head=make_head(meta,'cpu').eval().requires_grad_(False)
-    cases=choose_cases(parts,head,cfg.get('max_states'));by_wall=defaultdict(list)
+    cases=choose_cases(parts,head,cfg.get('max_states'),cfg.get('canonical_state_only',False));by_wall=defaultdict(list)
     for row in cases:by_wall[row['episode_key'][0]].append(row)
     protocol['source_files']=hashes;protocol['selected_case_keys']=[list(case_key(r)) for r in cases]
     if (out/'protocol.json').exists() and json.loads((out/'protocol.json').read_text()) != protocol:

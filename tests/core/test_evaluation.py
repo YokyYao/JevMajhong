@@ -69,6 +69,11 @@ class FastEvaluationTest(unittest.TestCase):
         with self.assertRaises(ValueError):candidate_activation({'updated_scopes':['ordinary']},'kan_windows')
 
     def test_head_ablation_keeps_unselected_reference_parameters_and_contract_explicit(self):
+        config={'updated_scopes':['calling'],'candidate_activation':'call_windows'}
+        self.assertEqual(candidate_activation(config,'call_windows'),'call_windows')
+        with self.assertRaises(ValueError):candidate_activation(dict(config,updated_scopes=['ordinary']))
+        with self.assertRaises(ValueError):candidate_activation(dict(config,candidate_activation='all'),'call_windows')
+        with self.assertRaises(ValueError):candidate_activation(config,'kan_windows')
         for scope in ('ordinary', 'calling'):
             heads = {s:torch.nn.Linear(1, 1, bias=False) for s in ('ordinary', 'calling')}
             with torch.no_grad():

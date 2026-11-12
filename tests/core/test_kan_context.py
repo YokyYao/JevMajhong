@@ -22,6 +22,29 @@ def request(kind):
 
 
 class KanContextTests(unittest.TestCase):
+    def test_pure_call_progress_is_versioned_and_keeps_kan_and_discard_routes_frozen(self):
+        from jevmahjong.policy.kan_context import feature_names, CallContextPolicyClient
+        from jevmahjong.policy.kan_progress import VERSION as v2
+        req=request('daiminkan');req['state']['rivers'][1]='E'
+        req['questions']['action']['criteria']['a1']={'type':'pon','pai':'E','consumed':['E','E']}
+        with self.assertRaises(ValueError):feature_vectors(req)
+        self.assertEqual(len(feature_vectors(req,v2)[0]),158)
+        names=feature_names(v2)
+        context={'version':v2,'names':list(names),'coefficients':torch.zeros(len(names)),
+            'reference_prior_strength':.05}
+        answer={'answers':{'action':{'probabilities':{'a0':.8,'a1':.2}}}}
+        class Frozen:
+            def system_one(self,**request):return answer
+        client=CallContextPolicyClient(Frozen(),context)
+        self.assertEqual(client.system_one(**req),answer)
+        context['coefficients'][names.index('pon')]=1.
+        self.assertGreater(client.system_one(**req)['answers']['action']['probabilities']['a1'],.5)
+        self.assertIs(client.system_one(**request('ankan')),answer)
+        self.assertIs(KanContextPolicyClient(Frozen(),context).system_one(**req),answer)
+        discard=copy.deepcopy(req)
+        discard['questions']['action']['criteria']['a1']={'type':'dahai','pai':'P'}
+        self.assertIs(client.system_one(**discard),answer)
+
     def test_combined_selection_weights_states_and_exposes_source_tradeoff(self):
         from jevmahjong.training.context_policy import selection_profile
         def source(n,regret):

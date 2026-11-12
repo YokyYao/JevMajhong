@@ -44,6 +44,32 @@ def native_collection(root, start, gamma=.995):
 
 
 class SamplingTests(unittest.TestCase):
+    def test_future_scope_is_explicit_and_preserves_legacy_kan_default(self):
+        from jevmahjong.data.future_pairs import future_scope
+        self.assertEqual(future_scope({}),('ordinary','kan_windows'))
+        self.assertEqual(future_scope({'train_scopes':['calling'],'decision_filter':'all'}),('calling','all'))
+        for invalid in [{'train_scopes':['calling']},
+                {'train_scopes':['ordinary'],'decision_filter':'all'},
+                {'train_scopes':['ordinary','calling'],'decision_filter':'all'}]:
+            with self.assertRaises(ValueError):future_scope(invalid)
+
+    def test_future_call_cases_keep_one_metadata_selected_origin_per_public_state(self):
+        from jevmahjong.training.ev_collect import choose_cases
+        req={'state':{'seat':0,'riichi':[1]},'questions':{'action':{'criteria':{
+            'a0':{'type':'chi'},'a1':{'type':'pon'},'a2':{'type':'none'}}}}}
+        base={'scope':'calling','public_request':req,'request_sha256':'same',
+            'teacher_action':2,'action':0,'eligible':[0,1,2],
+            'decide':torch.zeros(1),'options':torch.zeros(3,1),'episode_key':(100,0,1)}
+        other=dict(base,action=1,episode_key=(100,0,2))
+        class Head:
+            def __call__(self,decide,options):return torch.tensor([-1.,-1.,1.])
+        parts={'train':[other,base],'held':[]}
+        self.assertEqual(len(choose_cases(parts,{'calling':Head()},None)),2)
+        selected=choose_cases(parts,{'calling':Head()},None,True)
+        self.assertEqual(len(selected),1);self.assertEqual(selected[0]['episode_key'],(100,0,1))
+        self.assertEqual(selected[0]['teacher_action'],2)
+        self.assertEqual(parts['train'][0]['action'],1)
+
     def test_same_state_alternatives_share_training_mass(self):
         from jevmahjong.training.sampling import weights
         first=dict(row('ankan',.1),episode_key=(100,0,0,1),request_sha256='same')

@@ -47,13 +47,17 @@ def prediction_profile(prediction,rows,y,sources,state_balanced=False):
 
 def prepare(cfg):
     out=Path(cfg['out']);out.mkdir(parents=True,exist_ok=False)
-    if cfg['train_scopes'] != ['ordinary'] or cfg['decision_filter'] != 'kan_windows':raise ValueError('Kan-only context component required')
+    kan = cfg['train_scopes'] == ['ordinary'] and cfg['decision_filter'] == 'kan_windows'
+    call = (cfg['train_scopes'] == ['calling'] and cfg['decision_filter'] == 'all'
+        and cfg.get('fit_model') == 'residual_policy'
+        and cfg.get('feature_version') == 'public-kan-context-v2')
+    if not (kan or call): raise ValueError('One declared kan or pure-call context component required')
     selection=cfg.get('selection_validation','latest_source')
     if selection != 'latest_source' and not (selection == 'all_sources' and cfg.get('fit_model') == 'residual_policy'):
         raise ValueError('Unsupported validation selection for fit model')
     torch.set_num_threads(4);protocol=snapshot(cfg);write(out/'protocol.json',protocol)
     parts,hashes,sources=load_sources(cfg['data'],protocol['model_files'],cfg['reward'])
-    parts=select_decisions(parts,'kan_windows',['ordinary']);train,held=parts['train'],parts['held']
+    parts=select_decisions(parts,cfg['decision_filter'],cfg['train_scopes']);train,held=parts['train'],parts['held']
     if not train or not held:raise ValueError('Whole-wall train and validation required')
     heads={s:make_head(torch.load(Path(cfg[k])/'head.pt',map_location='cpu',weights_only=True),'cpu').eval()
         for s,k in [('ordinary','discard_checkpoint'),('calling','call_checkpoint')]}

@@ -84,6 +84,7 @@ def fit(cfg):
     strength=cfg['reference_prior_strength']
     version=cfg.get('feature_version',VERSION);names=feature_names(version)
     selection=cfg.get('selection_validation','latest_source')
+    activation='call_windows' if cfg['train_scopes'] == ['calling'] else 'kan_windows'
     if not math.isfinite(strength) or strength<=0:raise ValueError('Positive prior strength required')
     out,protocol,parts,hashes,sources,heads=prepare(cfg);torch.manual_seed(cfg['seed'])
     w,coverage=weights(parts['train'],cfg['action_mix'],cfg['max_example_weight'],cfg.get('context_mix'),True)
@@ -102,8 +103,8 @@ def fit(cfg):
         context={'version':version,'names':list(names),'model_kind':'mlp','hidden':cfg['hidden'],
             'reference_prior_strength':strength,'state_dict':{k:v.detach().clone() for k,v in net.state_dict().items()}}
         torch.save({'model_id':cfg['model_id'],'model_files':protocol['model_files'],'base_and_LoRA_frozen':True,
-            'heads':{s:copy.deepcopy(h.state_dict()) for s,h in heads.items()},'trained_scopes':['ordinary'],
-            'decision_filter':'kan_windows','kan_context':context,'epoch':epoch},checkpoint)
+            'heads':{s:copy.deepcopy(h.state_dict()) for s,h in heads.items()},'trained_scopes':cfg['train_scopes'],
+            'decision_filter':activation,'kan_context':context,'epoch':epoch},checkpoint)
         item={'epoch':epoch,'held_loss':selected_profile['label_regret'],'validation_sources':prof,
             'validation_selection':selected_profile,
             'checkpoint':str(checkpoint.resolve()),'sha256':digest(checkpoint)}
@@ -129,6 +130,7 @@ def fit(cfg):
     for path,h in hashes.items():
         if digest(Path(path))!=h:raise ValueError('Input changed during policy fit')
     result={'status':'trained','model_id':cfg['model_id'],'config':cfg,'selected':best,'curve':curve,
+        'decision_filter':activation,'trained_scopes':cfg['train_scopes'],
         'fit_method':'complete-option-reference-prior-residual-policy-distillation',
         'loss_definition':'state-weighted cross entropy to softmax(log prior + sampled utility / prior strength)',
         'selection_metric':selection+' state-mean label regret; policy KL breaks ties',
