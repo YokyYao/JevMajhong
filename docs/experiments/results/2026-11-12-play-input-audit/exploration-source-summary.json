@@ -1,0 +1,79 @@
+{
+  "candidate_model_id": "jev-call-feature-win-v2",
+  "stage": "source_complete_audited_paired_labels_running",
+  "native_source": {
+    "fresh_logical_walls": 16,
+    "control_matches": 64,
+    "states": 1132,
+    "state_splits": {
+      "train": 892,
+      "held": 240
+    },
+    "coverage": {
+      "closed": 991,
+      "opponent_riichi": 406,
+      "chi": 728,
+      "pon": 425,
+      "open": 141
+    },
+    "collection_policy": "calling_only_pointer",
+    "behavior_checkpoint_sha256": "36f1bf7a7e719eb8f9df53e0532e2dfdeb071b314bdc388d36115444683133a4",
+    "ordinary_and_kan_frozen_to_play": true
+  },
+  "input_audit": {
+    "status": "passed_complete",
+    "prefixes_replayed": 1132,
+    "probability_max_error": 5.364418029785156e-07
+  },
+  "fixed_outcome_blind_label_plan": {
+    "states": 512,
+    "state_splits": {
+      "train": {
+        "states": 384,
+        "open": 104,
+        "opponent_riichi": 184,
+        "chi": 214,
+        "pon": 188
+      },
+      "held": {
+        "states": 128,
+        "open": 37,
+        "opponent_riichi": 58,
+        "chi": 75,
+        "pon": 56
+      }
+    },
+    "worlds_per_state": 32,
+    "initial_hand_rollout_budget": 32768,
+    "full_menu_expansion_adds_remaining_eligible_actions": true,
+    "reference_action_and_continuation": "original_frozen_play",
+    "behavior_actor_used_only_for_source_prefix": true
+  },
+  "fit_plan": {
+    "source_wall_groups": 36,
+    "public_features": 158,
+    "trainable_parameters": 10240,
+    "net_point_reward_weight": 0,
+    "own_win_first_reward_unchanged": true,
+    "zero_residual_reset": true,
+    "early_stop_patience_epochs": 4
+  },
+  "core_tests_passed": 104,
+  "github_source_ci": {
+    "head_sha": "2fa79c718489c3a8a5f1e2a9466023215a690541",
+    "run_id": 43321484843,
+    "core": "success",
+    "desktop": "success"
+  },
+  "optimizer_updates": 0,
+  "weights_available": false,
+  "strength_improvement_proven": false,
+  "raw_records_public": false,
+  "experimental_weights_public": false,
+  "deployed": false,
+  "limitations": [
+    "The exploration actor is not a verified stronger policy. More open states do not prove better hand-win probability.",
+    "Future worlds fix opponent concealed hands and only resample unseen wall tiles.",
+    "Fresh confirmation is required after fitting and development; consumed prior tests are not reused."
+  ]
+}
