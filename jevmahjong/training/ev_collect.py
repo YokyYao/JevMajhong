@@ -13,6 +13,7 @@ from jevmahjong.core.io import digest, request_hash, write
 from jevmahjong.core.seeds import engine_seed
 from jevmahjong.core.state import build_request, legal_candidates
 from jevmahjong.data.native_pairs import load_sources, select_decisions
+from jevmahjong.data.native_states import decision_records
 from jevmahjong.policy.routing import make_head
 from .collector import NativeCollector, action_key, call_observation_digest, derived_seed
 from .futures import replay_prefix, sample_future, finish_intervention_hand
@@ -20,6 +21,14 @@ from .provenance import snapshot, verify
 from .utility import hand_utility
 
 METHOD = 'paired_future_ev_v1'
+
+
+def continuation_policy(config):
+    """Keep the expanded defense admission identical in controls and futures."""
+    if config.get('decision_filter') == 'open_tenpai_riichi':
+        from .defense_states import DefenseStateCollector
+        return DefenseStateCollector(config)
+    return NativeCollector(config)
 
 
 def case_key(row):
@@ -58,7 +67,7 @@ def choose_cases(partitions, head, limit, canonical_state_only=False):
 def collect_case(row, source, payload, policy, config):
     seed, seat, replica = case_key(row)
     source_cfg = source['config']
-    game = next(g for g in payload['games'] if (g['seed'], g['seat'], g['replica']) == (seed, seat, replica))
+    game = next(g for g in decision_records(payload) if (g['seed'], g['seat'], g['replica']) == (seed, seat, replica))
     control = next(g for g in payload['controls'] if g['seat'] == seat)
     env = RiichiEnv(game_mode=source_cfg['game_mode'], rule=GameRule.default_mjsoul(),
         seed=engine_seed(seed, source_cfg['seed_scheme']))
@@ -107,11 +116,25 @@ def main():
     out=Path(cfg['out']);out.mkdir(parents=True,exist_ok=args.resume)
     lock=(out/'collector.lock').open('w');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     protocol=snapshot(cfg);protocol['collection_method']=METHOD
-    parts,hashes,sources=load_sources(cfg['data'],protocol['model_files'],cfg['reward'])
+    parts,hashes,sources=load_sources(cfg['data'],protocol['model_files'],cfg['reward'],allow_unlabeled=True)
     if any(json.loads((Path(s['path'])/'protocol.json').read_text()).get('collection_method') == METHOD for s in sources):
         raise ValueError('Revalue original native states, not an already revalued dataset')
     from jevmahjong.data.future_pairs import future_scope
     scope, mode = future_scope(cfg)
+    if mode=='open_tenpai_riichi':
+        audit_root=Path(cfg['required_native_audit']).resolve()
+        audited=json.loads((audit_root/'result.json').read_text())
+        audit_protocol=json.loads((audit_root/'protocol.json').read_text());verify(audit_protocol)
+        if (audited['status']!='passed_complete' or len(sources)!=1
+                or Path(audit_protocol['config']['collection']).resolve()!=Path(sources[0]['path'])
+                or audited['walls']!=sources[0]['seeds'] or audited['states']!=sources[0]['rows']
+                or audit_protocol['model_files']!=protocol['model_files']):
+            raise ValueError('Complete matching native defense audit required before future labels')
+        for path,h in audit_protocol['source_files'].items():
+            if digest(Path(path))!=h:raise ValueError('Audited native input changed')
+            if path in hashes and hashes[path]!=h:raise ValueError('Native audit and selected inputs differ')
+            hashes[path]=h
+        for name in ('protocol.json','result.json'):hashes[str(audit_root/name)]=digest(audit_root/name)
     parts=select_decisions(parts,mode,[scope]);torch.set_num_threads(4)
     role = 'discard' if scope == 'ordinary' else 'call'
     meta=torch.load(Path(cfg[role+'_checkpoint'])/'head.pt',map_location='cpu',weights_only=True)
@@ -122,7 +145,7 @@ def main():
     if (out/'protocol.json').exists() and json.loads((out/'protocol.json').read_text()) != protocol:
         raise ValueError('Resume requires unchanged inputs, cases and source')
     write(out/'protocol.json',protocol)
-    policy=NativeCollector(cfg);completed=0;counts=Counter()
+    policy=continuation_policy(cfg);completed=0;counts=Counter()
     try:
         for source_index, source in enumerate(sources):
             source_proto=json.loads((Path(source['path'])/'protocol.json').read_text())

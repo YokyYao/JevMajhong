@@ -51,7 +51,11 @@ def prepare(cfg):
     call = (cfg['train_scopes'] == ['calling'] and cfg['decision_filter'] == 'all'
         and cfg.get('fit_model') == 'residual_policy'
         and cfg.get('feature_version') == 'public-kan-context-v2')
-    if not (kan or call): raise ValueError('One declared kan or pure-call context component required')
+    defense = (cfg['train_scopes'] == ['ordinary'] and cfg['decision_filter'] == 'open_tenpai_riichi'
+        and cfg.get('fit_model') == 'residual_policy'
+        and cfg.get('feature_version') == 'public-discard-defense-context-v1'
+        and cfg.get('policy_state_weighting') == 'uniform')
+    if not (kan or call or defense): raise ValueError('One declared kan, pure-call or defense context component required')
     selection=cfg.get('selection_validation','latest_source')
     if selection != 'latest_source' and not (selection == 'all_sources' and cfg.get('fit_model') == 'residual_policy'):
         raise ValueError('Unsupported validation selection for fit model')

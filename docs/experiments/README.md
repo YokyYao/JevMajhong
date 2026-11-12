@@ -1,6 +1,6 @@
 # 实验记录
 
-保留当时的方案、观察和结果。历史阶段名对应关系见[模型目录](../../weights/README.md)，当前训练入口见[训练说明](../training.md)。
+保留当时的方案、观察和结果。历史阶段名对应关系见[模型目录](../../weights/README.md)，当前训练入口见[训练说明](../training.md)，新方案见[副露防守训练](plans/discard-defense-20261112.md)。
 
 旧程序和旧配置已移出当前分支；记录中的源码链接指向[整理前快照](https://github.com/YokyYao/JevMajhong/tree/4bdbd79c39071fb523f79bbe1079303c13770a65)。记录不表示候选已经部署。
 

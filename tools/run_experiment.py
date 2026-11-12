@@ -37,10 +37,13 @@ def freeze_source(root):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=('collect', 'collect-ev', 'audit-futures', 'train', 'train-context', 'evaluate'))
+    parser.add_argument('command', choices=('collect', 'collect-defense-states', 'collect-ev', 'audit-defense-states', 'audit-futures', 'train', 'train-context', 'evaluate'))
     parser.add_argument('--config', type=Path, required=True)
     parser.add_argument('--resume', action='store_true')
+    parser.add_argument('--max-walls',type=int)
     args = parser.parse_args(); config = json.loads(args.config.read_text())
+    if args.max_walls is not None and args.command!='collect-defense-states':
+        raise ValueError('Bounded prefix collection is only supported for native defense states')
     out = (ROOT / config['out']).resolve()
     key = hashlib.sha256(str(out).encode()).hexdigest()
     launches = ROOT / 'runs/launches'; launches.mkdir(parents=True, exist_ok=True)
@@ -64,6 +67,7 @@ def main():
         'from jevmahjong.__main__ import main;sys.argv=[sys.argv[0],*sys.argv[2:]];main()')
     command = [sys.executable, '-c', bootstrap, str(source), args.command, '--config', str(frozen_config)]
     if args.resume: command.append('--resume')
+    if args.max_walls is not None: command.extend(['--max-walls',str(args.max_walls)])
     subprocess.run(command, cwd=ROOT, check=True)
 
 

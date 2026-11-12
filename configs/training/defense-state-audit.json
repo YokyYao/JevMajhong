@@ -1,0 +1,6 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "collection": "runs/discard-defense-states-v1",
+  "out": "runs/discard-defense-states-v1-full-audit"
+}

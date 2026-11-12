@@ -1,0 +1,10 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "collection": "runs/discard-defense-v1-futures",
+  "out": "runs/discard-defense-v1-futures-audit",
+  "expected": {
+    "worlds_per_state": 16,
+    "new_simulations": 0
+  }
+}

@@ -11,10 +11,12 @@ ENCODER_FILES = ('adapter_model.safetensors', 'adapter_config.json', 'tokenizer.
 
 
 def select_decisions(partitions, mode='all', scopes=None):
-    if mode not in ('all', 'kan_windows'): raise ValueError('Unknown decision filter')
+    if mode not in ('all', 'kan_windows', 'open_tenpai_riichi'): raise ValueError('Unknown decision filter')
     if mode == 'all' and scopes is None: return partitions
     from jevmahjong.policy.kan import is_kan_request
-    return {split:[r for r in rows if (mode == 'all' or is_kan_request(r['public_request']))
+    from jevmahjong.policy.defense import is_defense_request
+    accepted = is_defense_request if mode == 'open_tenpai_riichi' else is_kan_request
+    return {split:[r for r in rows if (mode == 'all' or accepted(r['public_request']))
         and (scopes is None or r['scope'] in scopes)] for split,rows in partitions.items()}
 
 
@@ -27,7 +29,7 @@ def encoder_identity(protocol):
     return {role: {name: normalized[role][name] for name in ENCODER_FILES} for role in normalized}
 
 
-def load_sources(roots, model_files=None, reward=None):
+def load_sources(roots, model_files=None, reward=None, *, allow_unlabeled=False):
     if reward is not None: validate_config(reward)
     if isinstance(roots, (str, Path)):
         roots = [roots]
@@ -41,6 +43,10 @@ def load_sources(roots, model_files=None, reward=None):
         marker = root / 'collection-result.json'; protocol_file = root / 'protocol.json'
         collection = json.loads(marker.read_text()); protocol = json.loads(protocol_file.read_text())
         config = protocol['config']
+        from .native_states import METHOD as INPUT_METHOD, validate as validate_inputs
+        unlabeled = protocol.get('collection_method') == INPUT_METHOD
+        if unlabeled and not allow_unlabeled:
+            raise ValueError('Native decision inputs have no reward labels; collect paired futures before fitting')
         behavior = protocol.get('behavior_heads')
         if behavior and digest(Path(behavior['checkpoint'])) != behavior['sha256']:
             raise ValueError('Source behavior head checkpoint changed')
@@ -76,6 +82,8 @@ def load_sources(roots, model_files=None, reward=None):
             if protocol.get('collection_method') == 'paired_future_ev_v1':
                 from .future_pairs import validate_rows
                 selected = validate_rows(payload,seed,config,protocol,reward)
+            elif unlabeled:
+                selected = validate_inputs(payload,seed,config)
             else:
                 validate(payload, seed, config)
                 selected = relabel(payload, config, reward) if reward else payload['rows']

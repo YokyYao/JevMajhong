@@ -1,8 +1,26 @@
 # 训练与评测
 
-目标是提高完整东风净得点。当前安装包仍使用 **Jev Play v1**。Call Progress v1开发−1054.17点／场，Call Risk v1为−628.13点／场，区间均跨零，均未采用。提高放铳惩罚后实际放铳率仍未下降；当前 **Jev Call Coverage v1** 保持Risk v1的奖励、模型结构、初始化及早停，补充另外两批已有牌山的普通吃碰多未来标签，合并后计划1329训练／448内部验证状态。原模型、普通出牌和杠窗口继续使用Play v1。历史方案与结果集中在[实验记录](experiments/results/2026-11-11-tempo-action-learning/README.md)，模型身份见[模型目录](../weights/README.md)。
+目标是提高完整东风净得点，当前安装包仍使用 **Jev Play v1**。主要新实验为 **Jev Discard Defense v1**：针对已经定位的副露听牌防守缺口采集新数据。**Jev Call Coverage v1** 的已注册鸣牌覆盖实验并行继续。当前候选均未确认优于Play v1；[模型身份](../weights/README.md)及[完整结果](experiments/results/2026-11-11-tempo-action-learning/README.md)保留。
 
-## 当前训练流程
+## 当前副露防守训练
+
+固定 Call Risk 权重的安全弃牌准入修正已完成192场开发与独立重算：净得点仍为−628.13点／场，96场候选四家最终分数与修正前逐场相同；6个关键危险弃牌均未改变。仅增加可选动作没有教会普通出牌策略选择防守。新候选 **Jev Discard Defense v1** 从冻结Play v1及扩展动作准入收集数据，鸣牌继续使用Call v1。
+
+```bash
+python tools/run_experiment.py collect-defense-states --config configs/training/defense-states.json
+python tools/run_experiment.py audit-defense-states --config configs/training/defense-state-audit.json
+python tools/run_experiment.py collect-ev --config configs/training/defense-futures.json
+python tools/run_experiment.py audit-futures --config configs/training/defense-future-audit.json
+python tools/run_experiment.py collect-ev --config configs/training/defense-options.json
+python tools/run_experiment.py audit-futures --config configs/training/defense-option-audit.json
+python tools/run_experiment.py train-context --config configs/training/defense-context.json
+```
+
+96个新整牌山，72训练／24内部验证，共384场控制东风；捕获所有满足公开条件的普通弃牌窗口。原始输入不含虚构的分支结果，不能直接送入拟合器。审计后用每状态16份共同未来生成真实支付收益并补齐全部合格弃牌。新版本158维公开特征，2560参数残差网络，按局面等权训练，不按收益正负调整样本权重。最多32轮、4轮停滞早停。首4牌山属于正式采集的一部分，16场产生24状态，全部24个原生前缀重放通过、缓存概率最大差约3.58e−7；正式续采复用这4牌山。75项核心回归通过；接口验证不是实力证据。
+
+完成拟合及权重核对后，只对内部采样选牌收益改善的固定候选开展8牌山192场开发，再决定是否使用未消费的32新牌山768场独立确认。净得点区间下界大于零才确认模拟协议内提升；不把这轮训练或更多防守直接写成已改善。详细设计和失败后的调整规则见[注册方案](experiments/plans/discard-defense-20261112.md)。
+
+## 并行的鸣牌覆盖实验
 
 以下命令假设本地已有注册的原生采样结果；公开仓库保留配置和代码，训练数据仍为私有：
 
@@ -33,7 +51,7 @@ python tools/run_experiment.py evaluate --config configs/evaluation/tempo-develo
 
 ## 新发现的副露防守动作限制
 
-Risk开发7次首次改选当局放铳的原生前缀重放中，6次有合法现物，但需要退听；当前最小向听为0的筛选排除了这些弃牌。候选侧补入现物的原型已通过7局面动作准入核对，可复用Agent见`tools/open_tenpai_admission.py`，需显式用于候选评测。固定Call Risk v1第2轮权重的完整对局作业已提交，等待前置权重审计与资源；逐场记录新增现物和实际选中次数。68项核心回归通过，尚未完成完整对局评测，不属于已部署模型。现有Coverage数据实验保留其注册协议；后续将先检验准入修正，再判断是否调整续打标签及弃牌训练。详细范围与限制见[实验记录](experiments/results/2026-11-11-tempo-action-learning/README.md)。
+Risk开发7次首次改选当局放铳的原生前缀重放中，6次有合法现物，但需要退听；当前最小向听为0的筛选排除了这些弃牌。候选侧补入现物的原型已通过7局面动作准入核对，可复用Agent见`tools/open_tenpai_admission.py`，需显式用于候选评测。固定Call Risk v1第2轮权重的完整开发与独立账本重算已完成，新增安全选项331个、实际选中5次，但四家最终分数96场逐场不变。它没有显示收益提升，不属于已部署模型。现有Coverage数据实验保留其注册协议；后续转向上面的普通弃牌防守训练。详细范围与限制见[实验记录](experiments/results/2026-11-11-tempo-action-learning/README.md)。
 
 ## 历史杠窗口数据流程
 

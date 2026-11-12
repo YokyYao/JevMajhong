@@ -14,6 +14,7 @@ from jevmahjong.core.io import digest, request_hash, write
 from jevmahjong.core.seeds import engine_seed
 from jevmahjong.core.state import build_request
 from jevmahjong.data.native_pairs import load_sources
+from jevmahjong.data.native_states import decision_records
 from jevmahjong.policy.routing import make_head
 from jevmahjong.training.collector import action_key, call_observation_digest
 from jevmahjong.training.futures import replay_prefix, sample_future
@@ -85,7 +86,7 @@ def audit(cfg, resume=False):
                     continue
                 seen_origins.add(identity)
                 seed,seat,replica = origin
-                game = next(g for g in original['games'] if (g['seed'],g['seat'],g['replica'])==origin)
+                game = next(g for g in decision_records(original) if (g['seed'],g['seat'],g['replica'])==origin)
                 control = next(g for g in original['controls'] if g['seat']==seat)
                 env = RiichiEnv(game_mode=subcfg['game_mode'],rule=GameRule.default_mjsoul(),
                     seed=engine_seed(seed,subcfg['seed_scheme']))

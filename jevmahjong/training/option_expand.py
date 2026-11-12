@@ -11,6 +11,7 @@ from jevmahjong.core.seeds import engine_seed
 from jevmahjong.core.state import build_request
 from jevmahjong.data.native_pairs import load_sources
 from jevmahjong.data.future_pairs import METHOD,mean_credit,validate_rows
+from jevmahjong.data.native_states import decision_records
 from .collector import NativeCollector,action_key,call_observation_digest
 from .futures import replay_prefix,sample_future,finish_intervention_hand
 from .provenance import snapshot,verify
@@ -51,7 +52,7 @@ def choose_origins(infos,limit=None):
 
 def expand_state(row,original,policy,cfg):
     origin=tuple(row['episode_key']);seed,seat,replica=origin
-    game=next(g for g in original['games'] if (g['seed'],g['seat'],g['replica'])==origin)
+    game=next(g for g in decision_records(original) if (g['seed'],g['seat'],g['replica'])==origin)
     control=next(c for c in original['controls'] if c['seat']==seat)
     env=RiichiEnv(game_mode=cfg['game_mode'],rule=GameRule.default_mjsoul(),seed=engine_seed(seed,cfg['seed_scheme']))
     obs=replay_prefix(env,control['mjai_log'],game['intervention_step'])
@@ -122,7 +123,8 @@ def collect(cfg,resume=False):
     for name in ('protocol.json','collection-result.json'):hashes[str(parent/name)]=digest(parent/name)
     protocol.update(source_files=hashes,selected_case_keys=keys,selected_origin_keys=[list(v) for v in sorted(selected)])
     if (out/'protocol.json').exists() and json.loads((out/'protocol.json').read_text())!=protocol:raise ValueError('Expansion resume inputs changed')
-    write(out/'protocol.json',protocol);policy=NativeCollector(cfg);completed=states_done=0;counts=Counter()
+    from .ev_collect import continuation_policy
+    write(out/'protocol.json',protocol);policy=continuation_policy(cfg);completed=states_done=0;counts=Counter()
     try:
         for index,source in enumerate(sources):
             directory=Path(source['path']);parent_cfg=json.loads((directory/'protocol.json').read_text())['config']

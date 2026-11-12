@@ -80,17 +80,29 @@ def selection_profile(profiles, mode):
         'aggregation':'equal public-state means across all validation sources'}
 
 
+def training_groups(rows,cfg,version):
+    mode=cfg.get('policy_state_weighting','stratified')
+    if mode=='uniform':
+        groups=pack_options(rows,feature_version=version)
+        return groups,{'policy_state_weighting':'uniform','unique_states':len(groups),
+            'outcome_sign_reweighting':False,'rows':len(rows)}
+    if mode!='stratified':raise ValueError('Unknown policy state weighting')
+    pair_weights,coverage=weights(rows,cfg['action_mix'],cfg['max_example_weight'],cfg.get('context_mix'),True)
+    groups=pack_options(rows,pair_weights,version)
+    mean=sum(g['weight'] for g in groups)/len(groups)
+    for g in groups:g['weight']=min(cfg['max_example_weight'],g['weight']/mean)
+    return groups,coverage
+
+
 def fit(cfg):
     strength=cfg['reference_prior_strength']
     version=cfg.get('feature_version',VERSION);names=feature_names(version)
     selection=cfg.get('selection_validation','latest_source')
-    activation='call_windows' if cfg['train_scopes'] == ['calling'] else 'kan_windows'
+    activation=('defense_windows' if cfg['decision_filter']=='open_tenpai_riichi' else
+        'call_windows' if cfg['train_scopes'] == ['calling'] else 'kan_windows')
     if not math.isfinite(strength) or strength<=0:raise ValueError('Positive prior strength required')
     out,protocol,parts,hashes,sources,heads=prepare(cfg);torch.manual_seed(cfg['seed'])
-    w,coverage=weights(parts['train'],cfg['action_mix'],cfg['max_example_weight'],cfg.get('context_mix'),True)
-    train=pack_options(parts['train'],w,version);held=pack_options(parts['held'],feature_version=version)
-    mean=sum(g['weight'] for g in train)/len(train)
-    for g in train:g['weight']=min(cfg['max_example_weight'],g['weight']/mean)
+    train,coverage=training_groups(parts['train'],cfg,version);held=pack_options(parts['held'],feature_version=version)
     coverage.update(policy_loss_unit='one complete eligible action set per state',
         policy_state_weight_cap=cfg['max_example_weight'],policy_training_states=len(train))
     write(out/'data-coverage.json',coverage)

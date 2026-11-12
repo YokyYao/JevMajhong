@@ -8,6 +8,7 @@ from jevmahjong.core.state import shanten
 from .call_helpers import tile_ids, dora_type, call_discards
 from .kan import is_kan_request
 from .routing import is_call_request
+from .defense import VERSION as DEFENSE_VERSION,is_defense_request
 from .kan_progress import VERSION as PROGRESS_VERSION, NAMES as PROGRESS_NAMES, visible_bounds, option_progress
 
 VERSION = 'public-kan-context-v1'
@@ -24,13 +25,15 @@ NAMES = (*KINDS, *AFTER_NAMES, *(f'{kind}/{name}' for kind in KINDS for name in 
 
 def feature_names(version=VERSION):
     if version == VERSION: return NAMES
-    if version == PROGRESS_VERSION: return (*NAMES, *PROGRESS_NAMES)
+    if version in (PROGRESS_VERSION,DEFENSE_VERSION): return (*NAMES, *PROGRESS_NAMES)
     raise ValueError('Context feature schema differs')
 
 
 def feature_vectors(request, version=VERSION):
     names = feature_names(version)
-    if not is_kan_request(request) and not (version == PROGRESS_VERSION and is_call_request(request)):
+    accepted = (is_defense_request(request) if version == DEFENSE_VERSION else
+        is_kan_request(request) or (version == PROGRESS_VERSION and is_call_request(request)))
+    if not accepted:
         raise ValueError('Legal kan or versioned pure-call window required')
     s = request['state']; pid = s['seat']; hand = tile_ids(s['hand'])
     own = [(m['type'], tile_ids(m['tiles'])) for m in s['melds'][pid]]
@@ -51,7 +54,7 @@ def feature_vectors(request, version=VERSION):
         pairs(hand) / 7, sum(m['type'] in kans for ms in s['melds'] for m in ms) / 4,
         len(indicators) / 5]
     result = []
-    bounds = visible_bounds(s) if version == PROGRESS_VERSION else None
+    bounds = visible_bounds(s) if version in (PROGRESS_VERSION,DEFENSE_VERSION) else None
     for c in request['questions']['action']['criteria'].values():
         kind = c['type']
         if kind not in KINDS: raise ValueError('Unsupported action in kan context: ' + kind)
@@ -157,3 +160,8 @@ class KanContextPolicyClient:
 class CallContextPolicyClient(KanContextPolicyClient):
     """Public progress residual only for chi/pon/pass, preserving kan routing."""
     accepts = staticmethod(is_call_request)
+
+
+class DefenseContextPolicyClient(KanContextPolicyClient):
+    """Ordinary push/fold residual; all call and kan menus keep their routing."""
+    accepts = staticmethod(is_defense_request)

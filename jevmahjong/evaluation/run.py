@@ -7,7 +7,8 @@ import torch
 from jevmahjong.core.io import digest, write
 from jevmahjong.policy.routing import HybridPolicy, HeadPolicyClient, load_model, make_head
 from jevmahjong.policy.kan import KanPolicyClient, is_kan_request
-from jevmahjong.policy.kan_context import KanContextPolicyClient, CallContextPolicyClient, probabilities as context_probabilities
+from jevmahjong.policy.kan_context import KanContextPolicyClient, CallContextPolicyClient, DefenseContextPolicyClient, probabilities as context_probabilities
+from jevmahjong.policy.defense import DefensePolicyAgent,is_defense_request
 from jevmahjong.training.provenance import snapshot, verify
 from .agents import PolicyAgent
 from .game import play
@@ -30,13 +31,16 @@ def select_heads(heads, saved, config):
 
 def candidate_activation(config, trained_filter='all'):
     mode = config.get('candidate_activation', 'all')
-    if mode not in ('all', 'kan_windows', 'call_windows'):
+    if mode not in ('all', 'kan_windows', 'call_windows', 'defense_windows'):
         raise ValueError('Unknown candidate activation')
     if mode == 'kan_windows' and candidate_scopes(config) != ('ordinary',):
         raise ValueError('Kan activation requires only the ordinary updated head')
     if mode == 'call_windows' and candidate_scopes(config) != ('calling',):
         raise ValueError('Call activation requires only the calling scope')
-    if trained_filter in ('kan_windows','call_windows') and mode != trained_filter:
+    if mode == 'defense_windows' and (candidate_scopes(config) != ('ordinary',)
+            or config.get('candidate_action_admission')!='open_tenpai_genbutsu_v1'):
+        raise ValueError('Defense activation requires ordinary scope and explicit expanded admission')
+    if trained_filter in ('kan_windows','call_windows','defense_windows') and mode != trained_filter:
         raise ValueError('Context training requires the registered activation')
     return mode
 
@@ -57,6 +61,15 @@ def parity_sources(fit):
         if path in paths and paths[path] != h:raise ValueError('Conflicting parity source identity')
         paths[path] = h
     return paths
+
+
+def parity_route(row,activation):
+    scope=row['scope'];request=row['public_request']
+    if activation=='defense_windows' and scope=='ordinary':
+        return 'ordinary' if is_defense_request(request) else 'ordinary_kan' if is_kan_request(request) else 'ordinary_other'
+    if activation=='kan_windows' and scope=='ordinary' and not is_kan_request(request):return 'ordinary_nonkan'
+    if activation=='call_windows' and scope=='ordinary' and is_kan_request(request):return 'ordinary_kan'
+    return scope
 
 
 def main():
@@ -84,6 +97,8 @@ def main():
             raise ValueError('Confirmation must preserve development head scopes')
         if candidate_activation(development_protocol['config']) != activation:
             raise ValueError('Confirmation must preserve development activation')
+        if development_protocol['config'].get('candidate_action_admission')!=cfg.get('candidate_action_admission'):
+            raise ValueError('Confirmation must preserve candidate action admission')
         if (audit['checkpoint_sha256'] != digest(checkpoint)
                 or digest(development / 'games-private.jsonl') != audit['games_sha256']):
             raise ValueError('Frozen, audited development required')
@@ -94,6 +109,17 @@ def main():
     if cfg.get('reference_cache_out'):
         cached, receipt = load_reference(cfg['reference_cache_out'], cfg, protocol)
         protocol['reference_cache'] = receipt
+    parity_paths=parity_sources(fit)
+    if cfg.get('parity_source_run'):
+        anchor=Path(cfg['parity_source_run']);anchor_protocol=json.loads((anchor/'protocol.json').read_text())
+        verify(anchor_protocol)
+        if anchor_protocol['model_files']!=protocol['model_files']:raise ValueError('Parity encoders differ')
+        anchor_fit=json.loads((anchor/'result.json').read_text())
+        if anchor_fit['status']!='trained':raise ValueError('Completed parity source required')
+        for path,h in parity_sources(anchor_fit).items():
+            if path in parity_paths and parity_paths[path]!=h:raise ValueError('Conflicting external parity identity')
+            parity_paths[path]=h
+        protocol['parity_source_receipt']={str(anchor/name):digest(anchor/name) for name in ('protocol.json','result.json')}
     if (out/'protocol.json').exists() and json.loads((out/'protocol.json').read_text()) != protocol:
         raise ValueError('Resume requires the same candidate and protocol')
     write(out / 'protocol.json', protocol)
@@ -111,7 +137,7 @@ def main():
     select_heads(heads, model['heads'], cfg)
     context = model.get('kan_context')
     if context is not None:
-        if activation not in ('kan_windows','call_windows') or model['decision_filter'] != activation:
+        if activation not in ('kan_windows','call_windows','defense_windows') or model['decision_filter'] != activation:
             raise ValueError('Context component requires its registered activation')
         if tuple(model['trained_scopes']) != scopes:
             raise ValueError('Context component differs from its registered decision scope')
@@ -120,30 +146,34 @@ def main():
             if any(not torch.equal(v.cpu(),original[k])
                     for k,v in model['heads'][scope].items()):
                 raise ValueError('Context component must preserve original pointer heads')
-        wrapper = KanContextPolicyClient if activation == 'kan_windows' else CallContextPolicyClient
+        wrapper = {'kan_windows':KanContextPolicyClient,'call_windows':CallContextPolicyClient,
+            'defense_windows':DefenseContextPolicyClient}[activation]
         router = wrapper(HybridPolicy(ordinary,calling),context)
     else:
-        if activation == 'call_windows': raise ValueError('Call-window activation requires a context component')
+        if activation in ('call_windows','defense_windows'): raise ValueError('Scoped activation requires a context component')
         router = (KanPolicyClient(ordinary, calling, heads) if activation == 'kan_windows'
             else HeadPolicyClient(ordinary, calling, heads))
     checked = {'ordinary': 0, 'calling': 0}
     if activation == 'kan_windows': checked['ordinary_nonkan'] = 0
     if activation == 'call_windows': checked['ordinary_kan'] = 0
-    for path, h in parity_sources(fit).items():
+    if activation == 'defense_windows':checked.update(ordinary_other=0,ordinary_kan=0)
+    for path, h in parity_paths.items():
         if digest(Path(path)) != h: raise ValueError('TRAIN parity source changed')
         if Path(path).suffix != '.pt': continue
+        shard_config=None
+        if activation=='defense_windows':
+            shard_protocol=Path(path).parent.parent/'protocol.json'
+            shard_config=json.loads(shard_protocol.read_text())['config']
         for row in torch.load(path, map_location='cpu', weights_only=False)['rows']:
+            if shard_config is not None and (row['episode_key'][0]-shard_config['training_seed_start'])%4==3:continue
             scope = row['scope']
-            key = ('ordinary_nonkan' if activation == 'kan_windows' and scope == 'ordinary'
-                and not is_kan_request(row['public_request']) else scope)
-            if activation == 'call_windows' and scope == 'ordinary' and is_kan_request(row['public_request']):
-                key = 'ordinary_kan'
+            key = parity_route(row,activation)
             if checked[key] >= 2: continue
             head = (ordinary.runtime.model.head if key == 'ordinary_nonkan'
                 or (activation == 'call_windows' and scope == 'ordinary') else heads[scope])
             with torch.no_grad():
                 expected = head(row['decide'].cuda(), row['options'].cuda()).softmax(-1).cpu()
-            if context is not None and key == ('ordinary' if activation == 'kan_windows' else 'calling'):
+            if context is not None and key == ('calling' if activation == 'call_windows' else 'ordinary'):
                 expected = torch.tensor(context_probabilities(row['public_request'],expected.tolist(),context))
             p = router.system_one(**row['public_request'])['answers']['action']['probabilities']
             if not torch.allclose(expected, torch.tensor(list(p.values())), atol=2e-5, rtol=2e-4):
@@ -156,7 +186,8 @@ def main():
         write(out/'status.json',{'status':'native_parity_complete','native_routes':checked,
             'complete_matches_simulated':0,'independent_strength_proven':False})
         return
-    agents = {'reference': PolicyAgent(HybridPolicy(ordinary, calling)), 'candidate': PolicyAgent(router)}
+    candidate_agent=DefensePolicyAgent(router) if activation=='defense_windows' else PolicyAgent(router)
+    agents = {'reference': PolicyAgent(HybridPolicy(ordinary, calling)), 'candidate': candidate_agent}
     strong = PolicyAgent(ordinary); raw = out / 'games-private.jsonl'
     if not raw.exists() and cached:
         with raw.open('w') as stream:
@@ -172,13 +203,17 @@ def main():
                 for seat in range(4):
                     for name in POLICIES:
                         if (suite,seed,seat,name) in done: continue
+                        if activation=='defense_windows' and name=='candidate':candidate_agent.admissions.clear()
                         row = dict(policy=name, **play(agents[name], strong, seed, seat, suite, cfg['fast_gamma']))
+                        if activation=='defense_windows' and name=='candidate':row['defense_admissions']=dict(candidate_agent.admissions)
                         stream.write(json.dumps(row) + '\n'); stream.flush(); rows.append(row)
                         write(out / 'status.json', {'status': 'evaluating', 'games': len(rows),
                             'expected_games': cfg['seeds'] * 24, 'reused_reference_games': len(cached),
                             'new_games_simulated': len(rows) - len(cached)})
     result = summarize(rows, cfg)
     verify(protocol)
+    for path,h in protocol.get('parity_source_receipt',{}).items():
+        if digest(Path(path))!=h:raise ValueError('External parity source changed during evaluation')
     if digest(checkpoint) != protocol['checkpoint_sha256']: raise ValueError('Candidate changed during evaluation')
     raw = out / 'games-private.jsonl'
     if summarize([json.loads(l) for l in raw.read_text().splitlines()], cfg) != result:

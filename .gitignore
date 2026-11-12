@@ -2,7 +2,7 @@
 .desktop-venv/
 dist/
 /build/
-/models/
+/models
 /assets/
 /base-model/
 /release/

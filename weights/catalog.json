@@ -689,6 +689,28 @@
       "artifact_public": false,
       "independent_improvement_proven": false,
       "existing_states_not_new_full_matches": true
+    },
+    "jev-discard-defense-v1": {
+      "role": "ordinary-open-tenpai-push-or-fold-residual-policy",
+      "status": "native-state-data-collection-running",
+      "frozen_components": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ],
+      "activation": "defense_windows",
+      "feature_version": "public-discard-defense-context-v1",
+      "planned_features": 158,
+      "planned_parameters": 2560,
+      "reference_prior_strength": 0.05,
+      "policy_state_weighting": "uniform-public-states",
+      "planned_fresh_wall_groups": 96,
+      "planned_train_wall_groups": 72,
+      "planned_held_wall_groups": 24,
+      "paired_futures_per_state": 16,
+      "artifact_exists": false,
+      "artifact_public": false,
+      "independent_improvement_proven": false,
+      "deployed": false
     }
   },
   "legacy_aliases": {

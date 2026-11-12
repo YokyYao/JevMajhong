@@ -7,6 +7,8 @@ from jevmahjong.core.io import digest, request_hash
 from jevmahjong.core.scoring import settlement_ledger
 from jevmahjong.policy.kan import is_kan_request
 from jevmahjong.policy.routing import is_call_request
+from jevmahjong.policy.defense import is_defense_request
+from .native_states import METHOD as INPUT_METHOD,decision_records,validate as validate_inputs
 from jevmahjong.training.collector import derived_seed
 from jevmahjong.training.rewards import hand_outcomes
 from jevmahjong.training.utility import hand_utility
@@ -19,6 +21,7 @@ def future_scope(config):
     mode = config.get('decision_filter', 'kan_windows')
     if scopes == ['ordinary'] and mode == 'kan_windows': return 'ordinary', mode
     if scopes == ['calling'] and mode == 'all': return 'calling', mode
+    if scopes == ['ordinary'] and mode == 'open_tenpai_riichi': return 'ordinary', mode
     raise ValueError('Future data requires one declared kan or pure-call scope')
 
 
@@ -31,7 +34,7 @@ def mean_credit(worlds, row, config, reward):
 
 
 def validate_rows(payload, seed, config, protocol, reward=None):
-    scope, _ = future_scope(config)
+    scope, mode = future_scope(config)
     if payload['collection_method'] != METHOD or payload['seed'] != seed:
         raise ValueError('Wrong future-data method or origin wall')
     source = Path(config['source_root']).resolve() / 'walls-private' / f'{seed}.pt'
@@ -40,9 +43,12 @@ def validate_rows(payload, seed, config, protocol, reward=None):
             or digest(source) != payload['source_sha256']):
         raise ValueError('Original source shard changed')
     original = torch.load(source,map_location='cpu',weights_only=False)
+    if original.get('collection_method') == INPUT_METHOD:
+        if mode != 'open_tenpai_riichi':raise ValueError('Native defense inputs require their declared scope')
+        validate_inputs(original,seed,config)
     originals = {tuple(r['episode_key']):r for r in original['rows']}
     controls = {c['seat']:c for c in original['controls']}
-    games = {(g['seed'],g['seat'],g['replica']):g for g in original['games']}
+    games = {(g['seed'],g['seat'],g['replica']):g for g in decision_records(original)}
     expanded = bool(config.get('expand_from')); parents = {}
     if expanded:
         parent = Path(config['parent_source_root']).resolve()/'walls-private'/f'{seed}.pt'
@@ -70,7 +76,7 @@ def validate_rows(payload, seed, config, protocol, reward=None):
         if (len(origin)!=3 or (expanded and (len(key)!=4 or key[:3]!=origin or key[3]!=row['action']))
                 or (not expanded and key!=origin)):raise ValueError('Invalid expanded origin identity')
         old = originals[origin]; game = games[origin]
-        accepted = is_kan_request if scope == 'ordinary' else is_call_request
+        accepted = is_defense_request if mode == 'open_tenpai_riichi' else is_kan_request if scope == 'ordinary' else is_call_request
         if not accepted(row['public_request']) or row['scope'] != scope:
             raise ValueError('Future data differs from its declared decision scope')
         if (row['scope'] != old['scope'] or row['public_request'] != old['public_request'] or request_hash(row['public_request']) != row['request_sha256']
