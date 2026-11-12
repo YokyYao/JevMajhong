@@ -11,7 +11,7 @@
 | **Jev Discard v1** | 普通出牌及杠等决策 | 当前基础策略 |
 | **Jev Call v1** | 吃、碰、跳过 | 当前鸣牌策略 |
 | **Jev Play v1** | 上面两套策略的组合 | Windows 0.3.0 使用的组合 |
-| **Jev Kan Residual Data v1** | 定向新数据与原策略先验的小型残差组件 | 采集新数据中，尚未证明改善 |
+| **Jev Kan Residual Data v1** | 定向新数据与原策略先验的小型残差组件 | 16组未来标签生成中，尚未证明改善 |
 
 Jev Play v1 在固定东风模拟中，相对仅使用 Jev Discard v1 提高 **1045.83 点／场**，95%配对区间为 **[321.68，1769.99]**。这项结果属于组合策略；真人对局和截图使用效果仍需验证。[完整记录](docs/experiments/results/2026-11-11-feature-continuation-confirmation/README.md)
 

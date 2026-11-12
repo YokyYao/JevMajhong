@@ -355,7 +355,7 @@
     },
     "jev-kan-residual-data-v1": {
       "role": "fresh-kan-menu-and-threat-data-residual-policy-component",
-      "status": "fresh-data-collection-running-fit-dependent",
+      "status": "fresh-native-source-audited-paired-futures-running-fit-dependent",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -370,7 +370,15 @@
       "planned_paired_futures_per_new_state": 16,
       "artifact_exists": false,
       "artifact_public": false,
-      "independent_improvement_proven": false
+      "independent_improvement_proven": false,
+      "new_wall_groups": 48,
+      "new_native_branch_rows": 217,
+      "new_unique_train_states": 91,
+      "new_unique_held_states": 25,
+      "new_original_pairs_for_future_revaluation": 184,
+      "new_paired_futures_per_pair": 16,
+      "native_source_audit": "passed-complete-grid-ledgers-frozen-inputs",
+      "native_cached_head_probability_max_error": 4.172325134277344e-07
     }
   },
   "legacy_aliases": {
