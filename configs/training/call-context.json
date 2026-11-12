@@ -2,6 +2,8 @@
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
   "data": [
+    "runs/call-coverage-a-v1-options/source_0",
+    "runs/call-coverage-b-v1-options/source_0",
     "runs/call-options-v1/source_0"
   ],
   "reward": {
@@ -26,8 +28,8 @@
   ],
   "decision_filter": "all",
   "selection_validation": "all_sources",
-  "model_id": "jev-call-risk-v1",
-  "out": "runs/jev-call-risk-v1",
+  "model_id": "jev-call-coverage-v1",
+  "out": "runs/jev-call-coverage-v1",
   "fit_model": "residual_policy",
   "hidden": 16,
   "epochs": 32,

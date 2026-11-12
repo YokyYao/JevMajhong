@@ -610,7 +610,7 @@
     },
     "jev-call-risk-v1": {
       "role": "pure-call-progress-residual-policy-with-stronger-dealin-penalty",
-      "status": "native-development-running",
+      "status": "not-adopted-negative-development",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -647,7 +647,48 @@
       "artifact_exists": true,
       "artifact_public": false,
       "independent_confirmation_run": false,
-      "independent_improvement_proven": false
+      "independent_improvement_proven": false,
+      "development_net_gain_vs_play_v1": -628.125,
+      "development_ci95": [
+        -3080.000426023385,
+        1823.750426023385
+      ],
+      "development_games": 192,
+      "development_candidate_games": 96,
+      "development_changed_event_log_pairs": 60
+    },
+    "jev-call-coverage-v1": {
+      "role": "pure-call-residual-policy-with-three-source-state-coverage",
+      "status": "additional-paired-future-data-generation-running",
+      "frozen_components": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ],
+      "activation": "call_windows",
+      "comparison": "same reward0.4dealin penalty, features, prior, initialization and stopping as Call Risk v1; expands distinct state coverage using two additional existing sources",
+      "source_wall_groups": 240,
+      "planned_train_states": 1329,
+      "planned_held_states": 448,
+      "planned_distinct_state_instances": 1777,
+      "additional_state_instances": 1130,
+      "additional_parent_hand_rollouts": 36160,
+      "paired_futures_per_state": 16,
+      "feature_version": "public-kan-context-v2",
+      "feature_count": 158,
+      "planned_trainable_parameters": 2560,
+      "reference_prior_strength": 0.05,
+      "reward": {
+        "mode": "net_points_with_fast_support_v1",
+        "net_weight": 1.0,
+        "fast_weight": 0.1,
+        "dealin_penalty": 0.4,
+        "point_scale": 8000.0
+      },
+      "selection_validation": "all_sources",
+      "artifact_exists": false,
+      "artifact_public": false,
+      "independent_improvement_proven": false,
+      "existing_states_not_new_full_matches": true
     }
   },
   "legacy_aliases": {

@@ -1,8 +1,8 @@
 {
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
-  "candidate_run": "runs/jev-call-risk-v1",
-  "out": "runs/call-risk-v1-development",
+  "candidate_run": "runs/jev-call-coverage-v1",
+  "out": "runs/call-coverage-v1-development",
   "stage": "development",
   "seed_start": 10920000,
   "seeds": 8,

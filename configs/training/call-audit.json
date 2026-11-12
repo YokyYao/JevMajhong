@@ -1,18 +1,18 @@
 {
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
-  "collection": "runs/call-futures-v1",
-  "out": "runs/call-futures-v1-audit",
+  "collection": "runs/call-coverage-a-v1-futures",
+  "out": "runs/call-coverage-a-v1-audit",
   "expected": {
-    "pairs": 647,
-    "states": 647,
-    "train_pairs": 484,
-    "held_pairs": 163,
-    "train_states": 484,
-    "held_states": 163,
+    "pairs": 384,
+    "states": 384,
+    "train_pairs": 288,
+    "held_pairs": 96,
+    "train_states": 288,
+    "held_states": 96,
     "worlds_per_state": 16,
-    "prefixes_replayed": 647,
-    "future_walls_rederived": 10352,
-    "arm_records_audited": 20704
+    "prefixes_replayed": 384,
+    "future_walls_rederived": 6144,
+    "arm_records_audited": 12288
   }
 }
