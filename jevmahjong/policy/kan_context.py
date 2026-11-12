@@ -111,11 +111,16 @@ def context_scores(request, context):
 
 def probabilities(request, reference, context):
     scores = context_scores(request,context)
+    prior = context.get('reference_prior_strength')
+    if prior is not None and (not math.isfinite(prior) or prior <= 0):
+        raise ValueError('Finite positive reference prior strength required')
     q = torch.as_tensor(reference, dtype=torch.float64)
     if q.ndim != 1 or len(q) != len(request['questions']['action']['criteria']) or not torch.isfinite(q).all() or (q < 0).any() or q.sum() <= 0:
         raise ValueError('Invalid reference distribution')
     q = q / q.sum()
     if not torch.count_nonzero(scores): return q.tolist()
+    if prior is not None:
+        return (scores / prior + q.clamp_min(1e-30).log()).softmax(-1).tolist()
     # The tiny prior resolves value ties; it is not a fixed call bonus.
     return (scores + 1e-8 * q.clamp_min(1e-30).log()).softmax(-1).tolist()
 

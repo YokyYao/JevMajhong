@@ -65,6 +65,9 @@ def prepare(cfg):
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--config',type=Path,required=True)
     cfg=json.loads(parser.parse_args().config.read_text())
+    if cfg.get('fit_model') == 'residual_policy':
+        from .context_policy import fit
+        fit(cfg);return
     if cfg.get('fit_model','ridge') == 'mlp':
         from .context_network import fit
         fit(cfg);return

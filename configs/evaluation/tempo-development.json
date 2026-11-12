@@ -1,8 +1,8 @@
 {
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
-  "candidate_run": "runs/jev-kan-context-v3",
-  "out": "runs/kan-context-v3-development",
+  "candidate_run": "runs/jev-kan-residual-data-v1",
+  "out": "runs/kan-residual-data-v1-development",
   "stage": "development",
   "seed_start": 10920000,
   "seeds": 8,

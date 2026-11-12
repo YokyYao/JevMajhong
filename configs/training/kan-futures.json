@@ -2,13 +2,11 @@
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
   "data": [
-    "runs/tempo-native",
-    "runs/tempo-native-separated-actions-v1",
-    "runs/value-defense-native-v1"
+    "runs/kan-coverage-native-v2"
   ],
-  "out": "runs/kan-future-unseen-labels-v1",
-  "seed": 2026111201,
-  "worlds": 8,
+  "out": "runs/kan-coverage-futures-v2",
+  "seed": 2026111211,
+  "worlds": 16,
   "max_states": null,
   "fast_gamma": 0.995,
   "game_mode": "4p-red-east",

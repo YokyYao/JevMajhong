@@ -4,7 +4,8 @@
   "data": [
     "runs/kan-all-options-v1/source_0",
     "runs/kan-all-options-v1/source_1",
-    "runs/kan-all-options-v1/source_2"
+    "runs/kan-all-options-v1/source_2",
+    "runs/kan-coverage-options-v2/source_0"
   ],
   "reward": {
     "mode": "net_points_with_fast_support_v1",
@@ -32,9 +33,9 @@
   ],
   "decision_filter": "kan_windows",
   "selection_validation": "latest_source",
-  "model_id": "jev-kan-context-v3",
-  "out": "runs/jev-kan-context-v3",
-  "fit_model": "mlp",
+  "model_id": "jev-kan-residual-data-v1",
+  "out": "runs/jev-kan-residual-data-v1",
+  "fit_model": "residual_policy",
   "hidden": 16,
   "epochs": 32,
   "patience_epochs": 4,
@@ -43,5 +44,6 @@
   "weight_decay": 0.001,
   "seed": 2026111203,
   "state_balanced_training": true,
-  "state_balanced_validation": true
+  "state_balanced_validation": true,
+  "reference_prior_strength": 0.05
 }

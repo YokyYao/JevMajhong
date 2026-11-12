@@ -1,9 +1,9 @@
 {
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
-  "out": "runs/kan-all-options-v1",
-  "seed": 2026111201,
-  "worlds": 8,
+  "out": "runs/kan-coverage-options-v2",
+  "seed": 2026111211,
+  "worlds": 16,
   "max_states": null,
   "fast_gamma": 0.995,
   "game_mode": "4p-red-east",
@@ -16,5 +16,5 @@
     "point_scale": 8000.0
   },
   "wall_scope": "unseen",
-  "expand_from": "runs/kan-future-unseen-labels-v1"
+  "expand_from": "runs/kan-coverage-futures-v2"
 }

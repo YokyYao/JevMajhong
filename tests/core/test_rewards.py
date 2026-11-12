@@ -22,6 +22,19 @@ def request(types):
 
 
 class FastWinTest(unittest.TestCase):
+    def test_call_in_kan_sampling_requires_mixed_menu_and_keeps_requested_alternative(self):
+        row={'scope':'ordinary','eligible':[0,1,2],'teacher_action':0,
+            'public_request':request(['none','chi','daiminkan'])}
+        row['public_request']['state'].update(seat=0,riichi=[1],melds=[[],[],[],[]])
+        for category in ('chi_in_kan','chi_in_kan_threat','chi_threat_in_kan'):
+            self.assertTrue(opportunity(row,category))
+            self.assertEqual(alternate_indices(row,category),[1])
+        row['public_request']['questions']['action']['criteria']['a2']['type']='pon'
+        self.assertFalse(opportunity(row,'chi_in_kan'))
+        row['public_request']['questions']['action']['criteria']['a2']['type']='daiminkan'
+        row['public_request']['state']['riichi']=[]
+        self.assertFalse(opportunity(row,'chi_in_kan_threat'))
+
     def test_future_sampling_preserves_current_state_and_changes_only_draw_order(self):
         from collections import Counter
         from riichienv import RiichiEnv

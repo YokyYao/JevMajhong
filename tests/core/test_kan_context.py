@@ -22,6 +22,41 @@ def request(kind):
 
 
 class KanContextTests(unittest.TestCase):
+    def test_residual_prior_preserves_confident_reference_until_value_exceeds_log_odds(self):
+        context={'version':VERSION,'names':list(NAMES),'coefficients':torch.zeros(len(NAMES)),
+            'reference_prior_strength':.05}
+        req=request('ankan')
+        self.assertEqual(probabilities(req,[.9,.1],context),[.9,.1])
+        context['coefficients'][NAMES.index('ankan')]=.01
+        self.assertLess(probabilities(req,[.9,.1],context)[1],.5)
+        context['coefficients'][NAMES.index('ankan')]=.2
+        self.assertGreater(probabilities(req,[.9,.1],context)[1],.5)
+        context['reference_prior_strength']=0
+        with self.assertRaises(ValueError):probabilities(req,[.9,.1],context)
+
+    def test_residual_training_requires_every_eligible_option_and_uses_full_set_regret(self):
+        from jevmahjong.training.context_policy import pack_options,policy_profile,policy_logits
+        from jevmahjong.training.context_network import make_network
+        req=request('ankan');req['questions']['action']['criteria']['a2']={'type':'dahai','pai':'2m'}
+        row={'episode_key':(100,0,0,1),'request_sha256':'one','public_request':req,
+            'eligible':[0,1,2],'teacher_action':0,'action':1,'reference':torch.tensor([.8,.15,.05]),
+            'training_advantage':.1}
+        other=dict(row,episode_key=(100,0,0,2),action=2,training_advantage=-.2)
+        with self.assertRaisesRegex(ValueError,'Complete eligible'):pack_options([row])
+        with self.assertRaisesRegex(ValueError,'Conflicting'):pack_options([row,row,other])
+        group=pack_options([row,other])[0]
+        self.assertEqual(group['utility'].tolist(),[0.,.1,-.2])
+        net=make_network(3)
+        self.assertTrue(torch.allclose(policy_logits(net,group,.05).softmax(-1),row['reference'].double(),atol=1e-7))
+        sources=[{'path':'one','seed_start':100,'seeds':1}]
+        before=policy_profile(net,[group],sources,.05)[0]
+        self.assertAlmostEqual(before['label_regret'],.1);self.assertEqual(before['mean_label_utility_gain_vs_play'],0)
+        net=torch.nn.Linear(len(NAMES),1,bias=False).double()
+        with torch.no_grad():net.weight.zero_();net.weight[0,NAMES.index('ankan')]=.2
+        after=policy_profile(net,[group],sources,.05)[0]
+        self.assertEqual(after['label_regret'],0);self.assertAlmostEqual(after['mean_label_utility_gain_vs_play'],.1)
+        self.assertEqual(after['changed_argmax_states'],1)
+
     def test_validation_averages_public_states_instead_of_counting_more_options_as_more_states(self):
         from jevmahjong.training.context_fit import prediction_profile
         rows=[{'episode_key':(100,0,0,1),'request_sha256':'same'},

@@ -1,27 +1,22 @@
 {
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
-  "out": "runs/value-defense-native-v1",
-  "seed": 2026111119,
+  "out": "runs/kan-coverage-native-v2",
+  "seed": 2026111211,
   "game_mode": "4p-red-east",
   "seed_scheme": "spaced-v1",
-  "training_seed_start": 10910000,
+  "training_seed_start": 11110000,
   "training_seeds_per_stage": 48,
-  "training_replicas": 9,
+  "training_replicas": 8,
   "intervention_categories": [
-    "ordinary",
-    "chi",
-    "pon",
     "ankan",
     "daiminkan",
     "kakan",
-    "ordinary_open_threat",
-    "chi_threat",
-    "pon_threat"
+    "chi_in_kan",
+    "pon_in_kan",
+    "ankan_threat",
+    "daiminkan_threat",
+    "kakan_threat"
   ],
-  "fast_gamma": 0.995,
-  "behavior_heads": {
-    "checkpoint": "runs/jev-value-v1/jev-value-v1-e03.pt",
-    "sha256": "1ef026fc8e4586812701db5039d0a75e9953fdf745a82c6fdea759213ccb53cf"
-  }
+  "fast_gamma": 0.995
 }

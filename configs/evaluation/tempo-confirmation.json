@@ -1,13 +1,13 @@
 {
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
-  "candidate_run": "runs/jev-kan-context-v3",
-  "out": "runs/kan-context-v3-confirmation",
+  "candidate_run": "runs/jev-kan-residual-data-v1",
+  "out": "runs/kan-residual-data-v1-confirmation",
   "stage": "independent_confirmation",
-  "seed_start": 11030000,
+  "seed_start": 11040000,
   "seeds": 32,
   "fast_gamma": 0.995,
-  "development_out": "runs/kan-context-v3-development",
+  "development_out": "runs/kan-residual-data-v1-development",
   "confirmation_objective": "net_points",
   "updated_scopes": [
     "ordinary"

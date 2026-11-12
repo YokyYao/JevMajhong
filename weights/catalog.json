@@ -274,7 +274,7 @@
     },
     "jev-kan-context-v3": {
       "role": "all-eligible-option-supported-nonlinear-kan-context-component",
-      "status": "positive-development-fixed-independent-confirmation-running",
+      "status": "not-adopted-no-independent-improvement",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -313,8 +313,64 @@
         -622.4344225000472,
         1334.9344225000473
       ],
-      "independent_confirmation_status": "running",
-      "independent_confirmation_walls": 32
+      "independent_confirmation_status": "completed-audited",
+      "independent_confirmation_walls": 32,
+      "confirmation_net_gain_vs_play_v1": -291.40625,
+      "confirmation_ci95": [
+        -1348.2945041251191,
+        765.4820041251191
+      ]
+    },
+    "jev-kan-residual-v1": {
+      "role": "complete-option-reference-prior-residual-policy-component",
+      "status": "not-advanced-no-latest-held-label-policy-gain",
+      "frozen_components": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ],
+      "unchanged_nonkan_policy": "jev-play-v1",
+      "activation": "kan_windows",
+      "feature_version": "public-kan-context-v1",
+      "feature_count": 152,
+      "model_kind": "mlp",
+      "hidden_width": 16,
+      "planned_trainable_parameters": 2464,
+      "reference_prior_strength": 0.05,
+      "fit_method": "complete-option-prior-regularized-policy-distillation",
+      "selection": "latest-source state-mean label regret, policy KL breaks ties",
+      "train_pairs": 1011,
+      "held_pairs": 366,
+      "train_states": 379,
+      "held_states": 132,
+      "artifact_public": false,
+      "independent_improvement_proven": false,
+      "artifact_exists": true,
+      "selected_epoch": 8,
+      "epochs_run": 12,
+      "optimizer_updates": 144,
+      "checkpoint_sha256": "dfed8ad4ea62ec6c30f519ab2cd21667bed3fe83e3911f8e53d07ff43e22e822",
+      "latest_held_changed_argmax_states": 0,
+      "latest_held_label_utility_gain_vs_play": 0,
+      "full_development_run": false
+    },
+    "jev-kan-residual-data-v1": {
+      "role": "fresh-kan-menu-and-threat-data-residual-policy-component",
+      "status": "fresh-data-collection-running-fit-dependent",
+      "frozen_components": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ],
+      "activation": "kan_windows",
+      "feature_version": "public-kan-context-v1",
+      "model_kind": "mlp",
+      "hidden_width": 16,
+      "planned_trainable_parameters": 2464,
+      "reference_prior_strength": 0.05,
+      "planned_new_wall_groups": 48,
+      "planned_paired_futures_per_new_state": 16,
+      "artifact_exists": false,
+      "artifact_public": false,
+      "independent_improvement_proven": false
     }
   },
   "legacy_aliases": {

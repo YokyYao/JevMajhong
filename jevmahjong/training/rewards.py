@@ -105,6 +105,9 @@ def validate_credit(row, game, control_log, gamma):
 
 
 def opportunity(row, category):
+    if category.endswith('_in_kan'):
+        from jevmahjong.policy.kan import is_kan_request
+        return is_kan_request(row['public_request']) and opportunity(row,category[:-len('_in_kan')])
     for suffix in ('_open_threat', '_threat'):
         if category.endswith(suffix):
             state = row['public_request']['state']; seat = state['seat']
@@ -120,9 +123,10 @@ def opportunity(row, category):
 
 
 def alternate_indices(row, category):
-    for suffix in ('_open_threat', '_threat'):
-        if category.endswith(suffix):
-            category = category[:-len(suffix)]; break
+    while True:
+        suffix=next((s for s in ('_open_threat','_threat','_in_kan') if category.endswith(s)),None)
+        if suffix is None:break
+        category=category[:-len(suffix)]
     eligible = [i for i in row['eligible'] if i != row['teacher_action']]
     kinds = [v['type'] for v in row['public_request']['questions']['action']['criteria'].values()]
     if category in ('chi', 'pon', 'ankan', 'daiminkan', 'kakan') and kinds[row['teacher_action']] != category:
