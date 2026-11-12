@@ -73,7 +73,44 @@
       "new_simulations": 0,
       "independent_strength_proven": false
     },
-    "full_options_expansion": "running",
+    "full_options_expansion": "completed_and_audited",
     "not_model_strength_evidence": true
+  },
+  "full_options": {
+    "generation": {
+      "status": "collection_complete",
+      "method": "paired_future_ev_v1",
+      "original_unique_states": 384,
+      "pairs": 446,
+      "worlds_per_state": 16,
+      "new_native_hand_rollouts": 992,
+      "reused_control_rollouts": 6144,
+      "reused_branch_rollouts": 6144,
+      "fresh_matches": 0,
+      "rows_by_category": {
+        "chi": 276,
+        "pon": 170
+      },
+      "optimizer_updates": 0,
+      "human_test_opened": false
+    },
+    "audit": {
+      "status": "passed_complete",
+      "role": "data consistency audit, not policy strength",
+      "pairs": 446,
+      "states": 384,
+      "train_pairs": 337,
+      "held_pairs": 109,
+      "train_states": 288,
+      "held_states": 96,
+      "worlds_per_state": 16,
+      "prefixes_replayed": 384,
+      "future_walls_rederived": 6144,
+      "arm_records_audited": 14272,
+      "whole_wall_disjoint": true,
+      "cached_head_probability_max_error": 0.0,
+      "new_simulations": 0,
+      "independent_strength_proven": false
+    }
   }
 }

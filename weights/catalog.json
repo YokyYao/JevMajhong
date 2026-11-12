@@ -996,6 +996,39 @@
         "manual_audit_passed": true,
         "eligible_for_confirmation": false
       }
+    },
+    "jev-call-win-v4": {
+      "role": "fresh-call-data-own-win-first-calling-head",
+      "status": "development-running-not-adopted",
+      "frozen_components": [
+        "jev-call-v1-encoder-and-LoRA",
+        "jev-discard-v1"
+      ],
+      "trainable_parameters": 524800,
+      "train_states": 444,
+      "held_states": 146,
+      "train_pairs": 520,
+      "held_pairs": 177,
+      "train_only_reference_anchor_states": 256,
+      "selected_epoch": 2,
+      "epochs_run": 6,
+      "optimizer_updates": 168,
+      "checkpoint_sha256": "36f1bf7a7e719eb8f9df53e0532e2dfdeb071b314bdc388d36115444683133a4",
+      "held_sampled_own_win_probability_gain": 0.013270547945205479,
+      "held_sampled_dealin_probability_gain": 0.0021404109589041095,
+      "held_sampled_point_gain_per_state": 75.85616438356165,
+      "not_full_match_metrics": true,
+      "artifact_exists": true,
+      "artifact_public": false,
+      "deployed": false,
+      "independent_improvement_proven": false,
+      "held_chi_recovered_sample_positive": 0,
+      "held_chi_sample_positive": 6,
+      "live_reconstruction_actions": {
+        "none": 25,
+        "chi": 0,
+        "pon": 2
+      }
     }
   },
   "legacy_aliases": {
