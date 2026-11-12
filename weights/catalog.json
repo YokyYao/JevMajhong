@@ -659,7 +659,7 @@
     },
     "jev-call-coverage-v1": {
       "role": "pure-call-residual-policy-with-three-source-state-coverage",
-      "status": "additional-paired-future-data-generation-running",
+      "status": "parent-labels-audited-complete-option-generation-running",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -692,7 +692,7 @@
     },
     "jev-discard-defense-v1": {
       "role": "ordinary-open-tenpai-push-or-fold-residual-policy",
-      "status": "native-state-data-collection-running",
+      "status": "paired-future-label-generation-running",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -710,7 +710,13 @@
       "artifact_exists": false,
       "artifact_public": false,
       "independent_improvement_proven": false,
-      "deployed": false
+      "deployed": false,
+      "native_wall_groups": 96,
+      "native_control_matches": 384,
+      "native_states": 319,
+      "native_train_states": 243,
+      "native_held_states": 76,
+      "native_input_audit": "passed_complete_319_replayed_prefixes"
     }
   },
   "legacy_aliases": {
