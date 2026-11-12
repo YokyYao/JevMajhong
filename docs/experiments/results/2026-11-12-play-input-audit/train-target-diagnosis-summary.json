@@ -92,5 +92,71 @@
     "This points to fitting, shared representation, or regularization constraints as hypotheses; it does not distinguish their causal roles.",
     "Future-rollout estimates use 16 sampled worlds and are not expert optimal-action labels or a match-strength estimate."
   ],
-  "deployed": false
+  "deployed": false,
+  "local_gradient_check": {
+    "model_id": "jev-call-win-v4",
+    "checkpoint_sha256": "36f1bf7a7e719eb8f9df53e0532e2dfdeb071b314bdc388d36115444683133a4",
+    "train_states": 444,
+    "chi_route_states": 37,
+    "positive_chi_route_states": 21,
+    "anchor_states": 256,
+    "anchor_beta": 0.2,
+    "held_states_summarized": 0,
+    "confirmation_records_opened": 0,
+    "optimizer_steps": 0,
+    "losses": {
+      "all_train": 0.5212190977157409,
+      "chi_route": 0.8214691385452402,
+      "positive_chi_route": 1.13340656271675,
+      "anchor_raw": 0.041829099152861295
+    },
+    "gradient_norms": {
+      "all_train": 0.32732811788454563,
+      "chi_route": 2.465436100040134,
+      "positive_chi_route": 6.643413362786637,
+      "anchor_raw": 1.4479321660344244,
+      "anchor_weighted": 0.28958643320688593,
+      "combined_train": 0.18543494866560672
+    },
+    "comparisons": {
+      "all_train__anchor_weighted": {
+        "dot_product": -0.07830893943435391,
+        "cosine": -0.826132708199691,
+        "descent_along_second_reduces_first_loss_locally": false
+      },
+      "chi_route__all_train": {
+        "dot_product": 0.6639829399168816,
+        "cosine": 0.8227726689618575,
+        "descent_along_second_reduces_first_loss_locally": true
+      },
+      "chi_route__anchor_weighted": {
+        "dot_product": -0.5950923852215013,
+        "cosine": -0.8335131011494098,
+        "descent_along_second_reduces_first_loss_locally": false
+      },
+      "chi_route__combined_train": {
+        "dot_product": 0.06889055469537939,
+        "cosine": 0.1506864988834946,
+        "descent_along_second_reduces_first_loss_locally": true
+      },
+      "positive_chi_route__all_train": {
+        "dot_product": 1.7981478875057704,
+        "cosine": 0.8268958609931287,
+        "descent_along_second_reduces_first_loss_locally": true
+      },
+      "positive_chi_route__anchor_weighted": {
+        "dot_product": -1.6924549711905335,
+        "cosine": -0.8797264208037678,
+        "descent_along_second_reduces_first_loss_locally": false
+      },
+      "positive_chi_route__combined_train": {
+        "dot_product": 0.10569291631523936,
+        "cosine": 0.08579520517283006,
+        "descent_along_second_reduces_first_loss_locally": true
+      }
+    },
+    "caveat": "Local Euclidean full-batch gradients at one fixed checkpoint. Not AdamW trajectory, a causal ablation, optimal-action truth, or strength evidence.",
+    "script_sha256": "6d1c5363af091c4fdf8c5f801ba2a4fc42075dd8406c77aeafcd08b347704614",
+    "interpretation": "At the selected checkpoint, the reference anchor gradient opposes both full-training and chi-group distillation gradients. Combined descent still aligns weakly with the positive-chi group. This motivates a controlled anchor-strength ablation, without proving a causal training effect or a strength improvement."
+  }
 }
