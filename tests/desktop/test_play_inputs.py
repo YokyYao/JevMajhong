@@ -90,7 +90,7 @@ class PlayInputTests(unittest.TestCase):
             recorder.prediction('same-image', first, .1)
             recorder.prediction('same-image', first, .1)
             recorder.prediction('same-image', second, .1)
-            rows = [json.loads(s) for s in (Path(tmp) / 'samples.jsonl').read_text().splitlines()]
+            rows = [json.loads(s) for s in (Path(tmp) / 'samples.jsonl').read_text(encoding='utf-8').splitlines()]
         self.assertEqual(len(rows), 2)
         self.assertEqual(rows[1]['result']['model_input']['model_request']['state']['riichi'], [1, 2])
         self.assertNotIn('label', rows[1]['result']['model_input']['model_request']['questions']['action'])

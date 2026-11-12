@@ -26,10 +26,10 @@ def prepare(args):
     from jevmahjong.policy.call_features import enrich_request
     from jevany.data import api_request
     source = Path(args.samples)
-    records = [json.loads(s) for s in source.read_text().splitlines()]
+    records = [json.loads(s) for s in source.read_text(encoding='utf-8').splitlines()]
     samples = {r['id']: r for r in records if r['event'] == 'sample'}
     predictions = {r['id']: r for r in records if r['event'] == 'prediction'}
-    verified = json.loads(Path(args.contexts).read_text()) if args.contexts else {}
+    verified = json.loads(Path(args.contexts).read_text(encoding='utf-8')) if args.contexts else {}
     output = []
     for ident, prediction in predictions.items():
         result = prediction['result']
@@ -92,7 +92,7 @@ def prepare(args):
                 if count >= args.controls: break
             if count >= args.controls: break
     target = Path(args.out); target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(''.join(json.dumps(r) + '\n' for r in output))
+    target.write_text(''.join(json.dumps(r) + '\n' for r in output), encoding='utf-8')
     print(json.dumps(dict(inputs=len(output), live_cases=sum(r['view']=='screen_unknown' and r['group']=='live_reconstruction' for r in output),
         native_controls=sum(r['view']=='native' for r in output), sha256=sha(target))))
 
@@ -103,12 +103,12 @@ def probe(args):
     from desktop.jev_sidecar.call_policy import validate_call_checkpoint
     import torch
     identity = validate_call_checkpoint(args.checkpoint)
-    rows = [json.loads(s) for s in Path(args.inputs).read_text().splitlines()]
+    rows = [json.loads(s) for s in Path(args.inputs).read_text(encoding='utf-8').splitlines()]
     model = load_model(args.checkpoint)
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
     results = []; summary = dict(model=identity, inputs_sha256=sha(args.inputs),
         inference_only=True, expert_labels_created=0, not_strength_evaluation=True, groups={})
-    with (out / 'predictions-private.jsonl').open('w') as stream, torch.inference_mode():
+    with (out / 'predictions-private.jsonl').open('w', encoding='utf-8') as stream, torch.inference_mode():
         for row in rows:
             output = model.system_one(**row['payload'])
             keys = list(row['payload']['questions']['action']['criteria'])
@@ -132,7 +132,7 @@ def probe(args):
     native = [r for r in results if r['view']=='native']
     summary['native_cached_parity_passed'] = bool(native) and all(r['preference_max_difference'] < .005 for r in native)
     summary['predictions_sha256'] = sha(out / 'predictions-private.jsonl')
-    (out / 'summary.json').write_text(json.dumps(summary, indent=2)+'\n')
+    (out / 'summary.json').write_text(json.dumps(summary, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(summary), flush=True)
 
 
@@ -142,11 +142,11 @@ def inventory(args):
     from jevmahjong.policy.call_features import option_features
     counters = defaultdict(Counter); states = defaultdict(set); sources = {}; cache = {}
     for directory in args.data:
-        root = Path(directory); marker = json.loads((root/'collection-result.json').read_text())
+        root = Path(directory); marker = json.loads((root/'collection-result.json').read_text(encoding='utf-8'))
         if marker['status'] != 'collection_complete': raise ValueError('Complete audited sources required')
         for path in sorted(root.glob('walls-private/*.pt')):
             checksum = sha(path)
-            if checksum != json.loads(path.with_suffix('.audit.json').read_text())['sha256']:
+            if checksum != json.loads(path.with_suffix('.audit.json').read_text(encoding='utf-8'))['sha256']:
                 raise ValueError('Source shard changed')
             sources[str(path)] = checksum
             for row in torch.load(path, map_location='cpu', weights_only=False)['rows']:
@@ -181,7 +181,7 @@ def inventory(args):
     result = dict(strata={key:dict(value) for key,value in sorted(counters.items())},
         sampled_future_return_signs_not_expert_labels=True, training_and_held_separate=True,
         source_shards=len(sources), source_sha256=sources)
-    Path(args.out).write_text(json.dumps(result, indent=2)+'\n')
+    Path(args.out).write_text(json.dumps(result, indent=2)+'\n', encoding='utf-8')
     print(json.dumps({'strata':len(counters),'source_shards':len(sources)}), flush=True)
 
 
