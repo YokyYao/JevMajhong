@@ -1,0 +1,18 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "fit_config": "configs/training/call-uniform-context.json",
+  "fit_config_sha256": "4c0de90c75c2add77cf862d015a2d23c540e0b1ce69a448bd000b012a4007d66",
+  "data_audits": [
+    "runs/call-coverage-a-v1-audit",
+    "runs/call-coverage-b-v1-audit",
+    "runs/call-futures-v1-audit"
+  ],
+  "expected": {
+    "wall_groups": 240,
+    "features": 158,
+    "parameters": 2560,
+    "policy_state_weighting": "uniform"
+  },
+  "out": "runs/call-uniform-v1-fit-audit"
+}

@@ -659,7 +659,7 @@
     },
     "jev-call-coverage-v1": {
       "role": "pure-call-residual-policy-with-three-source-state-coverage",
-      "status": "parent-labels-audited-complete-option-generation-running",
+      "status": "not-advanced-no-held-policy-gain-selected-zero",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -685,14 +685,26 @@
         "point_scale": 8000.0
       },
       "selection_validation": "all_sources",
-      "artifact_exists": false,
+      "artifact_exists": true,
       "artifact_public": false,
       "independent_improvement_proven": false,
-      "existing_states_not_new_full_matches": true
+      "existing_states_not_new_full_matches": true,
+      "selected_epoch": 0,
+      "epochs_run": 4,
+      "optimizer_updates": 168,
+      "selected_is_starting_model": true,
+      "train_pairs": 1619,
+      "held_pairs": 535,
+      "train_states": 1329,
+      "held_states": 448,
+      "held_label_policy_gain_improved": false,
+      "full_development_run": false,
+      "checkpoint_sha256": "165794098dfceb3d687e744900560039eef583538115e3e2503e31187c4a12db",
+      "fit_audit": "passed-all-five-checkpoints"
     },
     "jev-discard-defense-v1": {
       "role": "ordinary-open-tenpai-push-or-fold-residual-policy",
-      "status": "paired-future-label-generation-running",
+      "status": "not-advanced-no-held-policy-gain-selected-zero",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -707,7 +719,7 @@
       "planned_train_wall_groups": 72,
       "planned_held_wall_groups": 24,
       "paired_futures_per_state": 16,
-      "artifact_exists": false,
+      "artifact_exists": true,
       "artifact_public": false,
       "independent_improvement_proven": false,
       "deployed": false,
@@ -716,7 +728,70 @@
       "native_states": 319,
       "native_train_states": 243,
       "native_held_states": 76,
-      "native_input_audit": "passed_complete_319_replayed_prefixes"
+      "native_input_audit": "passed_complete_319_replayed_prefixes",
+      "parent_future_states": 319,
+      "parent_future_arm_records": 10208,
+      "parent_future_audit": "passed319prefixes5104futurewalls10208arms",
+      "train_pairs": 494,
+      "held_pairs": 140,
+      "train_states": 243,
+      "held_states": 76,
+      "complete_option_pairs": 634,
+      "selected_epoch": 0,
+      "epochs_run": 4,
+      "optimizer_updates": 32,
+      "selected_is_starting_model": true,
+      "checkpoint_sha256": "ab52933768624c98d3d11f09ece21fa5a436c3e0bd4a0783ebc3711cb53890a6",
+      "fit_audit": "passed-all-five-checkpoints",
+      "full_development_run": false
+    },
+    "jev-call-uniform-v1": {
+      "role": "pure-call-residual-policy-with-uniform-public-state-training",
+      "status": "independent-confirmation-running",
+      "activation": "call_windows",
+      "frozen_components": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ],
+      "comparison": "same data, architecture, initialization, reward and stopping as Call Coverage v1; only stratified state weights replaced by uniform weights",
+      "feature_version": "public-kan-context-v2",
+      "features": 158,
+      "parameters": 2560,
+      "reference_prior_strength": 0.05,
+      "policy_state_weighting": "uniform",
+      "source_wall_groups": 240,
+      "train_states": 1329,
+      "held_states": 448,
+      "train_pairs": 1619,
+      "held_pairs": 535,
+      "selected_epoch": 5,
+      "epochs_run": 9,
+      "optimizer_updates": 378,
+      "checkpoint_sha256": "79436b781516f6975c5e75b30c365c4e212f5dc17bb896f963d024d30e8e7cfe",
+      "held_sampled_net_point_gain_per_state": 17.08984375,
+      "held_sampled_utility_gain_per_state": 0.0019473701170323466,
+      "held_changed_states": 16,
+      "held_sampled_point_gains_by_source": [
+        -7.877604166666667,
+        -13.756613756613756,
+        67.56134969325153
+      ],
+      "sampled_state_points_not_full_match_points": true,
+      "artifact_exists": true,
+      "artifact_public": false,
+      "independent_improvement_proven": false,
+      "deployed": false,
+      "development_net_gain_vs_play_v1": 1331.25,
+      "development_ci95": [
+        -987.5070051528696,
+        3650.0070051528696
+      ],
+      "development_games": 192,
+      "development_candidate_games": 96,
+      "development_manual_reaggregation": "passed192four-seat-ledgers-and96exact-reference",
+      "independent_confirmation_walls": 32,
+      "independent_confirmation_games": 768,
+      "independent_confirmation_status": "running"
     }
   },
   "legacy_aliases": {

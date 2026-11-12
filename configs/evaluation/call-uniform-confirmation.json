@@ -1,0 +1,17 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "candidate_run": "runs/jev-call-uniform-v1",
+  "fast_gamma": 0.995,
+  "confirmation_objective": "net_points",
+  "updated_scopes": [
+    "calling"
+  ],
+  "candidate_activation": "call_windows",
+  "required_fit_audit_config": "configs/training/call-uniform-fit-audit.json",
+  "out": "runs/call-uniform-v1-confirmation",
+  "stage": "independent_confirmation",
+  "seed_start": 11040000,
+  "seeds": 32,
+  "development_out": "runs/call-uniform-v1-development"
+}

@@ -11,11 +11,11 @@
 | **Jev Discard v1** | 普通出牌及杠等决策 | 当前基础策略 |
 | **Jev Call v1** | 吃、碰、跳过 | 当前鸣牌策略 |
 | **Jev Play v1** | 上面两套策略的组合 | Windows 0.3.0 使用的组合 |
-| **Jev Discard Defense v1** | 副露听牌面对立直时的进攻／防守组件 | 319状态收益标签生成中，尚未产生训练权重 |
+| **Jev Call Uniform v1** | 局面等权的普通吃碰残差组件 | 开发+1331.25点／场、区间跨零；独立确认中 |
 
 Jev Play v1 在固定东风模拟中，相对仅使用 Jev Discard v1 提高 **1045.83 点／场**，95%配对区间为 **[321.68，1769.99]**。这项结果属于组合策略；真人对局和截图使用效果仍需验证。[完整记录](docs/experiments/results/2026-11-11-feature-continuation-confirmation/README.md)
 
-当前定向训练计划见[副露防守训练](docs/experiments/plans/discard-defense-20261112.md)。Call Coverage v1 的已注册鸣牌数据实验并行继续。
+实验方案与停止规则见[副露防守训练](docs/experiments/plans/discard-defense-20261112.md)。Call Coverage v1 未显示内部收益改善，已早停；同数据的 Call Uniform v1 只改为局面等权，开发+1331.25点／场但区间跨零，已固定权重进入32新牌山确认，尚未确认提升。
 
 最新[Windows真人实测与截图证据](docs/experiments/results/2026-11-12-windows-live-test/README.md)：21300分第三名，31次吃碰推荐均跳过；优先复查鸣牌输入与判断，并新增“对手立直后重新比较有役吃碰加速、门清和防守路线”的修复／训练要求，尚未训练部署。
 

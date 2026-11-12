@@ -282,13 +282,16 @@ class VisionTests(unittest.TestCase):
             with patch.object(reader, 'buttons', return_value=[]):
                 reader.read(image, regions, detector, found(hand))
             remaining = hand[2:]
-            result = reader.read(image, regions, detector, found(remaining))
+            with patch.object(reader, 'buttons', return_value=[]):
+                result = reader.read(image, regions, detector, found(remaining))
             self.assertEqual(result['melds'], parse_melds('111m'))
             self.assertEqual(result['forbidden'], ['1m'])
             detector.detect.return_value = [Detection('4m', .9, (i * 20, 0, i * 20 + 18, 20)) for i in range(3)]
-            self.assertEqual(reader.read(image, regions, detector, found(remaining))['melds'], parse_melds('111m'))
+            with patch.object(reader, 'buttons', return_value=[]):
+                self.assertEqual(reader.read(image, regions, detector, found(remaining))['melds'], parse_melds('111m'))
             restored = ScreenStateReader(state_path)
-            self.assertEqual(restored.read(image, regions, detector, found(remaining))['melds'], parse_melds('111m'))
+            with patch.object(restored, 'buttons', return_value=[]):
+                self.assertEqual(restored.read(image, regions, detector, found(remaining))['melds'], parse_melds('111m'))
 
     def test_complete_hand_keeps_raised_and_separated_drawn_tiles(self):
         hand = parse('11379m3667p1s237z5m')

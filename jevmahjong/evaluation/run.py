@@ -105,7 +105,7 @@ def main():
         if not previous['eligible_for_confirmation']:
             write(out / 'status.json', {'status': 'skipped', 'reason': 'no_joint_speed_and_point_gain'}); return
     protocol = snapshot(cfg); protocol['checkpoint_sha256'] = digest(checkpoint)
-    if activation=='defense_windows':
+    if activation=='defense_windows' or cfg.get('required_fit_audit_config'):
         from .context_audit import checked_receipt
         checked,receipt=checked_receipt(cfg['required_fit_audit_config'],fit_run,fit,protocol['model_files'])
         protocol['fit_audit_receipt']=receipt
