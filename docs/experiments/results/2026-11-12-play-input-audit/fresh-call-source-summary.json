@@ -40,5 +40,40 @@
     "no_future_outcomes_used": true
   },
   "raw_records_public": false,
-  "optimizer_updates": 0
+  "optimizer_updates": 0,
+  "paired_future_labels": {
+    "generation": {
+      "status": "collection_complete",
+      "method": "paired_future_ev_v1",
+      "states": 384,
+      "worlds_per_state": 16,
+      "native_hand_rollouts": 12288,
+      "fresh_matches": 0,
+      "rows_by_original_category": {
+        "calling": 384
+      },
+      "human_test_opened": false,
+      "optimizer_updates": 0
+    },
+    "audit": {
+      "status": "passed_complete",
+      "role": "data consistency audit, not policy strength",
+      "pairs": 384,
+      "states": 384,
+      "train_pairs": 288,
+      "held_pairs": 96,
+      "train_states": 288,
+      "held_states": 96,
+      "worlds_per_state": 16,
+      "prefixes_replayed": 384,
+      "future_walls_rederived": 6144,
+      "arm_records_audited": 12288,
+      "whole_wall_disjoint": true,
+      "cached_head_probability_max_error": 0.0,
+      "new_simulations": 0,
+      "independent_strength_proven": false
+    },
+    "full_options_expansion": "running",
+    "not_model_strength_evidence": true
+  }
 }
