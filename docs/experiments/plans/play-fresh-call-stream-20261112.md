@@ -49,3 +49,10 @@ python tools/run_experiment.py collect-call-states --config configs/training/cal
 新的开发牌山为11440000—11440007。仅内部和牌收益为正、放铳受控且权重核验通过才允许192场开发，否则跳过；有信号后还需新的32牌山独立确认。现在只可确认来源覆盖已扩大，不能称和牌率已经提高。
 
 [全量聚合摘要](../results/2026-11-12-play-input-audit/fresh-call-source-summary.json) · [未来采样配置](../../../configs/training/call-stream-futures.json) · [新数据拟合](../../../configs/training/call-win-fresh-fit.json) · [权重检查](../../../configs/training/call-win-fresh-fit-audit.json) · [开发](../../../configs/evaluation/call-win-fresh-development.json)。原始记录、选择明细与实验权重保持私有。
+
+
+## 新权重的实战输入检查
+
+权重核验完成后，已接续登记固定的68份历史实战／原生输入视图回放，其中27份是未知场况的实战输入重建。新权重使用同一原始Call编码器、同一合法菜单及已冻结的截图重建代码；只替换预定v4动作头，不依据回放结果重新选权重。该回放在另一张GPU与完整开发并行，分别报告吃、碰、跳过及补充已核准场况后的变化。
+
+历史场况不完整且没有专家最优标签，回放仅用于定位原先反复跳过和输入稳健性的问题，不能以多吃碰宣称胜率提升。内部拟合无提升、完整开发被跳过时，仍如实报告未达标，不把这类输入回放当作独立比赛。完整开发末端的赢家、放铳、支付、名次独立复算也已自动接续；它核对同一批比赛，不冒充新增独立测试。
