@@ -7,6 +7,7 @@ from riichienv import MeldType
 from jevmahjong.core.state import shanten
 from .call_helpers import tile_ids, dora_type, call_discards
 from .kan import is_kan_request
+from .kan_progress import VERSION as PROGRESS_VERSION, NAMES as PROGRESS_NAMES, visible_bounds, option_progress
 
 VERSION = 'public-kan-context-v1'
 KINDS = ('none', 'dahai', 'reach', 'chi', 'pon', 'ankan', 'daiminkan', 'kakan')
@@ -20,7 +21,14 @@ AFTER_NAMES = ('after_shanten', 'shanten_gain', 'closed_after', 'loses_closed',
 NAMES = (*KINDS, *AFTER_NAMES, *(f'{kind}/{name}' for kind in KINDS for name in STATE_NAMES))
 
 
-def feature_vectors(request):
+def feature_names(version=VERSION):
+    if version == VERSION: return NAMES
+    if version == PROGRESS_VERSION: return (*NAMES, *PROGRESS_NAMES)
+    raise ValueError('Context feature schema differs')
+
+
+def feature_vectors(request, version=VERSION):
+    names = feature_names(version)
     if not is_kan_request(request): raise ValueError('Legal kan window required')
     s = request['state']; pid = s['seat']; hand = tile_ids(s['hand'])
     own = [(m['type'], tile_ids(m['tiles'])) for m in s['melds'][pid]]
@@ -41,6 +49,7 @@ def feature_vectors(request):
         pairs(hand) / 7, sum(m['type'] in kans for ms in s['melds'] for m in ms) / 4,
         len(indicators) / 5]
     result = []
+    bounds = visible_bounds(s) if version == PROGRESS_VERSION else None
     for c in request['questions']['action']['criteria'].values():
         kind = c['type']
         if kind not in KINDS: raise ValueError('Unsupported action in kan context: ' + kind)
@@ -87,25 +96,29 @@ def feature_vectors(request):
             float(bool(threats) and not pre_draw and kind != 'none' and not safe),
             doras(consumed) / 4, float(red(consumed)), float(call_tile is not None and call_tile // 4 >= 27)]
         vector = [float(kind == k) for k in KINDS] + after + [v if kind == k else 0. for k in KINDS for v in state]
-        if len(vector) != len(NAMES) or not all(math.isfinite(v) for v in vector): raise ValueError('Invalid context features')
+        if bounds is not None:
+            known = ({tile_ids(c['pai'])[0]: c['ukeire']} if kind == 'dahai' and 'ukeire' in c else None)
+            vector += option_progress(best_choices, bounds, dora, known)
+        if len(vector) != len(names) or not all(math.isfinite(v) for v in vector): raise ValueError('Invalid context features')
         result.append(vector)
     return result
 
 
 def context_scores(request, context):
-    if context['version'] != VERSION or tuple(context['names']) != NAMES: raise ValueError('Context feature schema differs')
-    x = torch.tensor(feature_vectors(request),dtype=torch.float64)
+    names = feature_names(context['version'])
+    if tuple(context['names']) != names: raise ValueError('Context feature schema differs')
+    x = torch.tensor(feature_vectors(request,context['version']),dtype=torch.float64)
     if context.get('model_kind','ridge') == 'mlp':
         h = context['hidden']; weights = context['state_dict']
         if not isinstance(h,int) or not 1 <= h <= 128:raise ValueError('Invalid context hidden width')
-        shapes = {'0.weight':(h,len(NAMES)),'0.bias':(h,),'2.weight':(1,h)}
+        shapes = {'0.weight':(h,len(names)),'0.bias':(h,),'2.weight':(1,h)}
         if set(weights) != set(shapes) or any(v.shape != shapes[k] or not torch.isfinite(v).all() for k,v in weights.items()):
             raise ValueError('Invalid context network parameters')
         hidden = torch.tanh(x @ weights['0.weight'].double().cpu().T + weights['0.bias'].double().cpu())
         return (hidden @ weights['2.weight'].double().cpu().T).flatten()
     if context.get('model_kind','ridge') != 'ridge': raise ValueError('Unknown context model kind')
     coef = context['coefficients'].double().cpu()
-    if coef.shape != (len(NAMES),) or not torch.isfinite(coef).all(): raise ValueError('Invalid context coefficients')
+    if coef.shape != (len(names),) or not torch.isfinite(coef).all(): raise ValueError('Invalid context coefficients')
     return x @ coef
 
 

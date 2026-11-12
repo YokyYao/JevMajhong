@@ -10,9 +10,10 @@ from .sampling import weights
 from .provenance import verify
 
 
-def make_network(hidden):
+def make_network(hidden, input_features=len(NAMES)):
     if not isinstance(hidden,int) or not 1 <= hidden <= 128:raise ValueError('Invalid hidden width')
-    net=torch.nn.Sequential(torch.nn.Linear(len(NAMES),hidden),torch.nn.Tanh(),torch.nn.Linear(hidden,1,bias=False)).double()
+    if not isinstance(input_features,int) or input_features < 1:raise ValueError('Invalid feature count')
+    net=torch.nn.Sequential(torch.nn.Linear(input_features,hidden),torch.nn.Tanh(),torch.nn.Linear(hidden,1,bias=False)).double()
     torch.nn.init.zeros_(net[2].weight)
     return net
 

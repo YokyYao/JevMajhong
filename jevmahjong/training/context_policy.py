@@ -6,14 +6,14 @@ from collections import defaultdict
 from pathlib import Path
 import torch
 from jevmahjong.core.io import digest, write
-from jevmahjong.policy.kan_context import VERSION, NAMES, feature_vectors
+from jevmahjong.policy.kan_context import VERSION, feature_names, feature_vectors
 from .context_fit import prepare
 from .context_network import make_network
 from .provenance import verify
 from .sampling import state_key, weights
 
 
-def pack_options(rows, pair_weights=None):
+def pack_options(rows, pair_weights=None, feature_version=VERSION):
     """Require every eligible alternative, rather than treating missing Q as zero."""
     grouped=defaultdict(list)
     for index,row in enumerate(rows):grouped[state_key(row)].append((index,row))
@@ -34,7 +34,7 @@ def pack_options(rows, pair_weights=None):
         y=torch.tensor([utility[a] for a in eligible],dtype=torch.float64)
         if (not torch.isfinite(q).all() or (q<0).any() or not torch.isfinite(y).all()
                 or eligible[int(q.argmax())]!=teacher):raise ValueError('Invalid reference or utilities')
-        features=torch.tensor(feature_vectors(first['public_request']),dtype=torch.float64)[eligible]
+        features=torch.tensor(feature_vectors(first['public_request'],feature_version),dtype=torch.float64)[eligible]
         result.append({'key':key,'features':features,'utility':y,'log_prior':q.clamp_min(1e-30).log(),
             'teacher':eligible.index(teacher),'weight':sum(pair_weights[i] for i,_ in items) if pair_weights is not None else 1.})
     return result
@@ -69,21 +69,22 @@ def policy_profile(net,groups,sources,strength):
 
 def fit(cfg):
     strength=cfg['reference_prior_strength']
+    version=cfg.get('feature_version',VERSION);names=feature_names(version)
     if not math.isfinite(strength) or strength<=0:raise ValueError('Positive prior strength required')
     out,protocol,parts,hashes,sources,heads=prepare(cfg);torch.manual_seed(cfg['seed'])
     w,coverage=weights(parts['train'],cfg['action_mix'],cfg['max_example_weight'],cfg.get('context_mix'),True)
-    train=pack_options(parts['train'],w);held=pack_options(parts['held'])
+    train=pack_options(parts['train'],w,version);held=pack_options(parts['held'],feature_version=version)
     mean=sum(g['weight'] for g in train)/len(train)
     for g in train:g['weight']=min(cfg['max_example_weight'],g['weight']/mean)
     coverage.update(policy_loss_unit='one complete eligible action set per state',
         policy_state_weight_cap=cfg['max_example_weight'],policy_training_states=len(train))
     write(out/'data-coverage.json',coverage)
-    net=make_network(cfg['hidden']);optimizer=torch.optim.AdamW(net.parameters(),lr=cfg['lr'],weight_decay=cfg['weight_decay'])
+    net=make_network(cfg['hidden'],len(names));optimizer=torch.optim.AdamW(net.parameters(),lr=cfg['lr'],weight_decay=cfg['weight_decay'])
     curve=[];updates=0;stale=0;reason='epoch_limit'
     @torch.no_grad()
     def save(epoch):
         prof=policy_profile(net,held,sources,strength);checkpoint=out/f'{cfg["model_id"]}-e{epoch:02d}.pt'
-        context={'version':VERSION,'names':list(NAMES),'model_kind':'mlp','hidden':cfg['hidden'],
+        context={'version':version,'names':list(names),'model_kind':'mlp','hidden':cfg['hidden'],
             'reference_prior_strength':strength,'state_dict':{k:v.detach().clone() for k,v in net.state_dict().items()}}
         torch.save({'model_id':cfg['model_id'],'model_files':protocol['model_files'],'base_and_LoRA_frozen':True,
             'heads':{s:copy.deepcopy(h.state_dict()) for s,h in heads.items()},'trained_scopes':['ordinary'],

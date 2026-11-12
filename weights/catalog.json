@@ -436,6 +436,49 @@
       "training_audit": "passed-inputs-frozen-heads-all-checkpoints-direct-inference",
       "native_development_run": false,
       "independent_confirmation_run": false
+    },
+    "jev-kan-progress-v1": {
+      "role": "public-ukeire-bounds-and-retained-dora-residual-policy-component",
+      "status": "trained-audited-full-match-development-running",
+      "frozen_components": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ],
+      "activation": "kan_windows",
+      "feature_version": "public-kan-context-v2",
+      "feature_count": 158,
+      "model_kind": "mlp",
+      "hidden_width": 16,
+      "trainable_parameters": 2560,
+      "reference_prior_strength": 0.05,
+      "initialization": "zero-output reset, not continuing previous candidate parameters",
+      "comparison": "same four sources, reward, hidden width, seed and stopping as residual-data-v1; adds six public progress/retention inputs",
+      "train_rows": 1237,
+      "held_rows": 424,
+      "train_states": 470,
+      "held_states": 157,
+      "artifact_public": false,
+      "independent_improvement_proven": false,
+      "artifact_exists": true,
+      "selected_epoch": 1,
+      "epochs_run": 5,
+      "optimizer_updates": 75,
+      "checkpoint_sha256": "9bd3b1e8fe7b69e4308702944fca9fe04c750e82664f19f5c0f77f2cf782e7a5",
+      "held_label_policy_gain_improved": true,
+      "native_public_feature_probe": {
+        "observations_checked": 4369,
+        "kan_requests_checked": 48,
+        "discard_ukeire_enclosures_checked": 175,
+        "status": "passed",
+        "not_strength_evidence": true
+      },
+      "training_audit": "passed-inputs-frozen-heads-all-checkpoints-and-direct-inference",
+      "zero_start_verified_held_states": 157,
+      "feature_aliasing_pairs_distinguished": {
+        "train": 500,
+        "held": 290
+      },
+      "legacy_feature_prefix_unchanged": true
     }
   },
   "legacy_aliases": {

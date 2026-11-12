@@ -68,6 +68,8 @@ def main():
     if cfg.get('fit_model') == 'residual_policy':
         from .context_policy import fit
         fit(cfg);return
+    if cfg.get('feature_version', VERSION) != VERSION:
+        raise ValueError('Progress feature schema requires residual_policy fitting')
     if cfg.get('fit_model','ridge') == 'mlp':
         from .context_network import fit
         fit(cfg);return

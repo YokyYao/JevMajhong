@@ -22,6 +22,75 @@ def request(kind):
 
 
 class KanContextTests(unittest.TestCase):
+    def test_progress_distinguishes_equal_legacy_features_with_different_public_ukeire(self):
+        from jevmahjong.policy.kan_context import feature_names
+        from jevmahjong.policy.kan_progress import VERSION as v2
+        req=request('ankan')
+        req['questions']['action']['criteria'].update(
+            a2={'type':'dahai','pai':'2m','ukeire':12},
+            a3={'type':'dahai','pai':'3m','ukeire':28})
+        old=feature_vectors(req);new=feature_vectors(req,v2);names=feature_names(v2)
+        self.assertEqual(old[2],old[3])
+        self.assertEqual(new[2][:len(NAMES)],old[2])
+        self.assertEqual(new[3][:len(NAMES)],old[3])
+        self.assertEqual(new[2][names.index('ukeire_lower')],12/136)
+        self.assertEqual(new[3][names.index('ukeire_upper')],28/136)
+
+    def test_progress_retains_concealed_dora_and_distinguishes_red_discard(self):
+        from jevmahjong.policy.kan_context import feature_names
+        from jevmahjong.policy.kan_progress import VERSION as v2
+        req=request('ankan');req['state']['dora_indicators']='4p'
+        req['state']['hand']='1m 1m 1m 1m 2m 3m 4m 0p 5p 6p 7p 1s 2s 3s'
+        req['questions']['action']['criteria']['a0']={'type':'dahai','pai':'5pr'}
+        req['questions']['action']['criteria']['a2']={'type':'dahai','pai':'5p'}
+        old=feature_vectors(req);new=feature_vectors(req,v2);names=feature_names(v2)
+        self.assertEqual(old[0],old[2])
+        self.assertEqual(new[0][names.index('concealed_red_after')],0)
+        self.assertEqual(new[2][names.index('concealed_red_after')],1/3)
+        self.assertEqual(new[0][names.index('concealed_dora_after')],1/12)
+
+    def test_visible_progress_bounds_deduplicate_calls_without_guessing_chi_tile(self):
+        from jevmahjong.policy.kan_progress import visible_bounds
+        s={'hand':'9p','dora_indicators':'9s','rivers':['E','','',''],
+            'melds':[[{'type':int(MeldType.Pon),'tiles':'E E E'}],[],[],[]]}
+        lo,hi=visible_bounds(s);self.assertEqual((lo[27],hi[27]),(3,3))
+        s['rivers']=['1m 2m 3m','','','']
+        s['melds'][0]=[{'type':int(MeldType.Chi),'tiles':'1m 2m 3m'}]
+        lo,hi=visible_bounds(s)
+        self.assertEqual(lo[:3],[1,1,1]);self.assertEqual(hi[:3],[2,2,2])
+        s['rivers']=['2m','','','']
+        lo,hi=visible_bounds(s)
+        self.assertEqual(lo[:3],[1,1,1]);self.assertEqual(hi[:3],[1,1,1])
+
+    def test_progress_counts_only_unseen_copies_of_an_actual_wait(self):
+        from collections import Counter
+        from jevmahjong.policy.call_helpers import tile_ids
+        from jevmahjong.policy.kan_progress import visible_bounds, option_progress
+        s={'hand':'1m 2m 3m 4m 5m 6m 7p 8p 9p 2s 3s 4s E',
+            'dora_indicators':'N','rivers':['','','',''],'melds':[[],[],[],[]]}
+        choices=[(None,tile_ids(s['hand']))]
+        before=option_progress(choices,visible_bounds(s),Counter())
+        self.assertEqual(before[:4],[3/136,3/136,1/34,1/34])
+        s['rivers'][1]='E E E'
+        self.assertEqual(option_progress(choices,visible_bounds(s),Counter())[:4],[0,0,0,0])
+
+    def test_progress_schema_zero_start_native_inference_and_hidden_isolation(self):
+        from jevmahjong.policy.kan_context import feature_names
+        from jevmahjong.policy.kan_progress import VERSION as v2
+        from jevmahjong.training.context_network import make_network
+        req=request('ankan');names=feature_names(v2);net=make_network(3,len(names))
+        context={'version':v2,'names':list(names),'model_kind':'mlp','hidden':3,
+            'state_dict':net.state_dict(),'reference_prior_strength':.05}
+        self.assertEqual(probabilities(req,[.8,.2],context),[.8,.2])
+        expected=feature_vectors(req,v2)
+        req['state'].update(wall=['1m']*70,other_hands=[['1m']*13]*3,future_points=48000)
+        self.assertEqual(feature_vectors(req,v2),expected)
+        with torch.no_grad():net[2].weight.fill_(.1)
+        self.assertTrue(torch.allclose(context_scores(req,context),
+            net(torch.tensor(expected,dtype=torch.float64)).flatten(),atol=1e-12,rtol=0))
+        context['version']=VERSION
+        with self.assertRaises(ValueError):context_scores(req,context)
+
     def test_residual_prior_preserves_confident_reference_until_value_exceeds_log_odds(self):
         context={'version':VERSION,'names':list(NAMES),'coefficients':torch.zeros(len(NAMES)),
             'reference_prior_strength':.05}
