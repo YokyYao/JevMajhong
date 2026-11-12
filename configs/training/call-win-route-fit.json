@@ -1,0 +1,47 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "model_id": "jev-call-win-v3",
+  "out": "runs/jev-call-win-v3",
+  "fit_model": "complete_option_call_head",
+  "train_scopes": [
+    "calling"
+  ],
+  "decision_filter": "all",
+  "data": [
+    "runs/play-call-routes-options-v1/source_0"
+  ],
+  "required_data_audits": [
+    "runs/play-call-routes-future-audit-v1",
+    "runs/play-call-routes-option-audit-v1"
+  ],
+  "reward": {
+    "mode": "own_win_first_v1",
+    "win_weight": 1.0,
+    "fast_weight": 0.25,
+    "dealin_penalty": 2.0,
+    "net_weight": 0.0,
+    "point_scale": 8000.0,
+    "speed_gamma": 0.98
+  },
+  "reference_anchor_data": [
+    "runs/call-options-v1/source_0"
+  ],
+  "reference_anchor_states": 256,
+  "anchor_batch": 16,
+  "anchor_beta": 0.2,
+  "anchor_kl_limit": 0.05,
+  "reference_prior_strength": 0.05,
+  "seed": 2026111233,
+  "epochs": 24,
+  "patience_epochs": 4,
+  "batch": 16,
+  "lr": 1e-05,
+  "weight_decay": 0.001,
+  "selection_objective": "hand_win",
+  "max_held_dealin_increase": 0.01,
+  "route_loss_weights": {
+    "closed_chi_tanyao_gain": 4.0,
+    "opponent_riichi": 2.0
+  }
+}

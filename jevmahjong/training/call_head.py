@@ -115,6 +115,25 @@ def route_groups(groups):
     return dict(result)
 
 
+def training_weights(groups, configured):
+    """Weight public routes, including their negative examples; never use outcomes."""
+    allowed={'closed','open','opponent_riichi','closed_chi_tanyao_gain','closed_pon_yakuhai'}
+    if (not isinstance(configured,dict) or set(configured)-allowed
+            or any(isinstance(v,bool) or not isinstance(v,(int,float)) or not math.isfinite(v)
+                   or not 1<=v<=8 for v in configured.values())):
+        raise ValueError('Known public routes with finite weights from 1 to 8 required')
+    if not groups:raise ValueError('Nonempty training groups required')
+    raw={g['key']:1. for g in groups}
+    routes=route_groups(groups) if configured else {}
+    for name,value in configured.items():
+        for g in routes.get(name,[]):raw[g['key']]=max(raw[g['key']],float(value))
+    normalizer=sum(raw.values())/len(groups)
+    weights=[raw[g['key']]/normalizer for g in groups]
+    return weights,dict(routes=configured,overlap_rule='maximum',normalizer=normalizer,
+        states=len(groups),upweighted_states=sum(v>1 for v in raw.values()),
+        outcome_based_selection=False,held_weighted=False)
+
+
 @torch.no_grad()
 def route_profile(head, groups):
     result=profile(head,groups);positive=recovers=negative=skipped=0
@@ -193,6 +212,7 @@ def fit(cfg):
     protocol = snapshot(cfg); write(out/'protocol.json',protocol)
     parts, groups, hashes, sources, anchors, anchor_meta, audit_hashes = load_inputs(cfg, protocol)
     routed={split:route_groups(gs) for split,gs in groups.items()}
+    weights,weighting=training_weights(groups['train'],cfg.get('route_loss_weights',{}))
     write(out/'anchor-inputs-private.json', anchor_meta)
     heads = {s: make_head(torch.load(Path(cfg[role+'_checkpoint'])/'head.pt', map_location='cpu', weights_only=True),'cpu')
         for s, role in [('ordinary','discard'),('calling','call')]}
@@ -218,10 +238,12 @@ def fit(cfg):
         order = list(range(len(groups['train']))); rng = random.Random(cfg['seed']+epoch); rng.shuffle(order)
         anchor_order = list(range(len(anchors))); rng.shuffle(anchor_order)
         for start in range(0,len(order),cfg['batch']):
-            batch = [groups['train'][i] for i in order[start:start+cfg['batch']]]
+            indices=order[start:start+cfg['batch']]
+            batch = [groups['train'][i] for i in indices]
             begin = updates*cfg['anchor_batch']
             ar = [anchors[anchor_order[(begin+i)%len(anchors)]] for i in range(cfg['anchor_batch'])]
-            loss = torch.stack([distillation_loss(head,g,cfg['reference_prior_strength']) for g in batch]).mean()
+            loss = torch.stack([weights[i]*distillation_loss(head,g,cfg['reference_prior_strength'])
+                for i,g in zip(indices,batch)]).mean()
             loss = loss + cfg['anchor_beta']*torch.stack([anchor_kl(head,r) for r in ar]).mean()
             if not torch.isfinite(loss): raise ValueError('Nonfinite loss')
             optimizer.zero_grad(); loss.backward(); norm = torch.nn.utils.clip_grad_norm_(head.parameters(),.5)
@@ -241,6 +263,7 @@ def fit(cfg):
         train_states=len(groups['train']),held_states=len(groups['held']),train_rows=len(parts['train']),held_rows=len(parts['held']),
         data=cfg['data'],data_sources=sources,data_sha256=hashes,anchor_metadata=anchor_meta,data_audit_sha256=audit_hashes,
         selected_is_starting_model=best['epoch']==0,held_policy_gain_improved=best['epoch']!=0,
+        training_route_weighting=weighting,
         human_test_opened=False,deployed=False,strength_improvement_proven=False)
     write(out/'result.json',result); write(out/'status.json',result)
 

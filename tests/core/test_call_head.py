@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 import torch
-from jevmahjong.training.call_head import complete_groups, anchor_kl, distillation_loss, profile, route_profile, policy_improved, fit
+from jevmahjong.training.call_head import complete_groups, anchor_kl, distillation_loss, profile, route_profile, policy_improved, fit, training_weights
 from jevmahjong.evaluation.call_head_audit import manual_profile, manual_route_profile, check_close, checked_receipt
 from jevmahjong.core.io import digest
 
@@ -26,6 +26,23 @@ class Head(torch.nn.Module):
 
 
 class CallHeadTests(unittest.TestCase):
+    def test_route_weighting_includes_negative_examples_and_keeps_validation_equal(self):
+        positive=complete_groups([row(1,.5,4000.),row(2,-.2,-1600.)])[0]
+        negative=copy.deepcopy(positive);negative['key']=('negative',)
+        negative['utility']=-positive['utility']
+        other=copy.deepcopy(positive);other['key']=('other',)
+        gs=[positive,negative,other]
+        routes={'closed_chi_tanyao_gain':[positive,negative],'opponent_riichi':[negative,other]}
+        with patch('jevmahjong.training.call_head.route_groups',return_value=routes):
+            weights,meta=training_weights(gs,{'closed_chi_tanyao_gain':4,'opponent_riichi':2})
+        self.assertEqual(weights,[1.2,1.2,.6])
+        self.assertAlmostEqual(sum(weights)/len(weights),1.)
+        self.assertEqual(meta['overlap_rule'],'maximum')
+        self.assertFalse(meta['held_weighted']);self.assertFalse(meta['outcome_based_selection'])
+        self.assertEqual(training_weights(gs,{})[0],[1.,1.,1.])
+        for bad in [{'unknown':2},{'open':float('nan')},{'open':0},{'open':True},{'open':9}]:
+            with self.assertRaises(ValueError):training_weights(gs,bad)
+
     def test_audit_receipt_rechecks_real_files_and_binds_the_saved_fit(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);run=root/'fit';run.mkdir();aud=root/'audit';aud.mkdir()

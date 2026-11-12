@@ -134,6 +134,15 @@ def audit(cfg):
     if len(anchors)!=expected['anchor_states'] or anchor_meta['held_states_used']!=0 or anchor_meta['labels_used']:
         raise ValueError('Train-only anchor coverage differs')
     routed={split:route_groups(gs) for split,gs in groups.items()}
+    if training.get('route_loss_weights'):
+        raw={g['key']:1. for g in groups['train']}
+        for name,value in training['route_loss_weights'].items():
+            for g in routed['train'].get(name,[]):raw[g['key']]=max(raw[g['key']],float(value))
+        expected_weighting=dict(routes=training['route_loss_weights'],overlap_rule='maximum',
+            normalizer=sum(raw.values())/len(raw),states=len(raw),upweighted_states=sum(v>1 for v in raw.values()),
+            outcome_based_selection=False,held_weighted=False)
+        if fit.get('training_route_weighting')!=expected_weighting:
+            raise ValueError('Registered train-only route weighting differs')
     heads={s:make_head(torch.load(Path(training[role+'_checkpoint'])/'head.pt',map_location='cpu',weights_only=True),'cpu').eval()
         for s,role in [('ordinary','discard'),('calling','call')]}
     original={s:{k:v.clone() for k,v in h.state_dict().items()} for s,h in heads.items()}
