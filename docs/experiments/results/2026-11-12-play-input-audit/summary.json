@@ -58,6 +58,12 @@
     "seats": 4,
     "categories": 6,
     "optimizer_updates": 0,
-    "status": "started-native-collection"
+    "status": "native-collection-complete-source-checks-passed",
+    "native_records": 229,
+    "call_records": 224,
+    "unique_call_states": 206,
+    "train_states": 156,
+    "held_states": 50,
+    "future_label_status": "running"
   }
 }

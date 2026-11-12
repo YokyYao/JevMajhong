@@ -1,0 +1,27 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "data": [
+    "runs/play-call-routes-native-v1"
+  ],
+  "out": "runs/play-call-routes-futures-v1",
+  "seed": 2026111232,
+  "worlds": 16,
+  "max_states": null,
+  "fast_gamma": 0.995,
+  "game_mode": "4p-red-east",
+  "seed_scheme": "spaced-v1",
+  "reward": {
+    "mode": "net_points_with_fast_support_v1",
+    "net_weight": 1.0,
+    "fast_weight": 0.1,
+    "dealin_penalty": 0.4,
+    "point_scale": 8000.0
+  },
+  "wall_scope": "unseen",
+  "train_scopes": [
+    "calling"
+  ],
+  "decision_filter": "all",
+  "canonical_state_only": true
+}

@@ -1,0 +1,18 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "collection": "runs/play-call-routes-options-v1",
+  "out": "runs/play-call-routes-option-audit-v1",
+  "expected": {
+    "pairs": 251,
+    "states": 206,
+    "train_pairs": 183,
+    "held_pairs": 68,
+    "train_states": 156,
+    "held_states": 50,
+    "worlds_per_state": 16,
+    "prefixes_replayed": 206,
+    "future_walls_rederived": 3296,
+    "arm_records_audited": 8032
+  }
+}
