@@ -32,27 +32,40 @@ def validate_call_checkpoint(directory):
         'adapter_sha256': identity['files']['adapter_model.safetensors']}
 
 
+def prepare_request(request):
+    """Return exactly the payload submitted to the selected frozen model."""
+    request = copy.deepcopy(request)
+    if not is_call_request(request):
+        return 'ordinary', request
+    from .call_features import enrich_request
+    identity = json.loads(IDENTITY_PATH.read_text(encoding='utf-8'))
+    screen = request['state'].get('screen_observation', {})
+    if screen and not screen.get('metadata_confirmed', False):
+        confirmed = set(screen.get('confirmed_metadata', []))
+        for field in METADATA:
+            if field not in confirmed:
+                request['state'][field] = None
+    request['questions']['action']['instructions'] = identity['policy_instruction']
+    enriched = enrich_request(request)
+    payload = {'state': enriched['state'], 'questions': {
+        key: {name: value for name, value in question.items()
+            if name in ('type', 'instructions', 'criteria')}
+        for key, question in enriched['questions'].items()}}
+    if enriched.get('media'): payload['media'] = enriched['media']
+    return 'calling', payload
+
+
 class CallPolicyClient:
     def __init__(self, ordinary, calling):
         self.ordinary, self.calling = ordinary, calling
 
+    def system_one_with_trace(self, **request):
+        role, payload = prepare_request(request)
+        trace = {'version': 'play-model-input-v1', 'route': role,
+                 'source_request': copy.deepcopy(request), 'model_request': copy.deepcopy(payload)}
+        client = self.calling if role == 'calling' else self.ordinary
+        return client.system_one(**payload), trace
+
     def system_one(self, **request):
-        if not is_call_request(request):
-            return self.ordinary.system_one(**request)
-        from .call_features import enrich_request
-        identity = json.loads(IDENTITY_PATH.read_text(encoding='utf-8'))
-        request = copy.deepcopy(request)
-        screen = request['state'].get('screen_observation', {})
-        if screen and not screen.get('metadata_confirmed', False):
-            confirmed = set(screen.get('confirmed_metadata', []))
-            for field in METADATA:
-                if field not in confirmed:
-                    request['state'][field] = None
-        request['questions']['action']['instructions'] = identity['policy_instruction']
-        enriched = enrich_request(request)
-        payload = {'state': enriched['state'], 'questions': {
-            key: {name: value for name, value in question.items()
-                if name in ('type', 'instructions', 'criteria')}
-            for key, question in enriched['questions'].items()}}
-        if enriched.get('media'): payload['media'] = enriched['media']
-        return self.calling.system_one(**payload)
+        answer, _ = self.system_one_with_trace(**request)
+        return answer

@@ -1,0 +1,63 @@
+{
+  "model": {
+    "model_id": "jev-call-v1",
+    "head_sha256": "8f3421dca9a700c63d2a7b1694a81c80a0ef9f29c263a13a75fb13e426452a04",
+    "adapter_sha256": "7788cff96a921f1358f0e68fa6ee16f69782174c106e98c6a11008acdff0becb"
+  },
+  "inputs_sha256": "b4c63a7d90b9d366eec010a49f91708bc3dc2d13d336a3669dc63abffeab98cd",
+  "inference_only": true,
+  "expert_labels_created": 0,
+  "not_strength_evaluation": true,
+  "groups": {
+    "live_reconstruction": {
+      "screen_unknown": {
+        "cases": 27,
+        "calls": 0,
+        "changes_from_baseline": 0,
+        "max_preference_difference": 0.05041166066806413
+      },
+      "verified_context": {
+        "cases": 3,
+        "calls": 0,
+        "changes_from_baseline": 0,
+        "max_preference_difference": 0.029278455419632476
+      }
+    },
+    "native_training_control": {
+      "native": {
+        "cases": 12,
+        "calls": 6,
+        "changes_from_baseline": 0,
+        "max_preference_difference": 2.6365267813410753e-07
+      },
+      "screen_confirmed": {
+        "cases": 12,
+        "calls": 6,
+        "changes_from_baseline": 0,
+        "max_preference_difference": 0.06921690702438354
+      },
+      "screen_unknown": {
+        "cases": 12,
+        "calls": 6,
+        "changes_from_baseline": 0,
+        "max_preference_difference": 0.21849009968932423
+      }
+    }
+  },
+  "native_cached_parity_passed": true,
+  "predictions_sha256": "610a5c7a482e322b93c5fd42e0ac0e57a255d9d5c045d1f84bd6ea162ec4bf3e",
+  "native_controls_selection": "purposive: six cached calls and six cached passes, train walls only; not representative call-rate estimate",
+  "live_replay_limitation": "historical complete model requests absent; reconstructed candidates verified; three partially verified contexts; no optimal-action labels",
+  "desktop_regressions_passed": 55,
+  "weights_changed": false,
+  "installer_rebuilt": false,
+  "core_regressions_passed": 81,
+  "total_regressions_passed": 136,
+  "route_data_pilot": {
+    "logical_walls": 12,
+    "seats": 4,
+    "categories": 6,
+    "optimizer_updates": 0,
+    "status": "started-native-collection"
+  }
+}

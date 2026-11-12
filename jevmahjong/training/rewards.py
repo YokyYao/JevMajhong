@@ -104,7 +104,29 @@ def validate_credit(row, game, control_log, gamma):
         raise ValueError('Trace representation has wrong policy scope')
 
 
+def profile_call_indices(row, category):
+    """Public shape filters select opportunities, never the winning action label."""
+    profile = next((s for s in ('_tanyao_gain', '_yakuhai') if category.endswith(s)), None)
+    if profile is None: return None
+    if row['scope'] != 'calling': return []
+    from jevmahjong.policy.call_features import option_features
+    kind = category.split('_', 1)[0]
+    features = option_features(row['public_request'])
+    return [i for i, (key, criterion) in enumerate(row['public_request']['questions']['action']['criteria'].items())
+            if criterion['type'] == kind and (
+                (features[key]['shanten_gain'] > 0 and features[key]['all_simples_material_after'])
+                if profile == '_tanyao_gain' else
+                bool(features[key]['secured_dragon_han'] or features[key]['secured_wind_han']))]
+
+
 def opportunity(row, category):
+    for suffix in ('_tanyao_gain', '_yakuhai'):
+        if category.endswith(suffix):
+            return row['scope'] == 'calling' and opportunity(row, category[:-len(suffix)]) and bool(profile_call_indices(row, category))
+    if category.endswith('_closed'):
+        state = row['public_request']['state']; seat = state['seat']
+        if any(m['type'] != 3 for m in state['melds'][seat]): return False
+        return opportunity(row, category[:-len('_closed')])
     if category.endswith('_in_kan'):
         from jevmahjong.policy.kan import is_kan_request
         return is_kan_request(row['public_request']) and opportunity(row,category[:-len('_in_kan')])
@@ -123,14 +145,17 @@ def opportunity(row, category):
 
 
 def alternate_indices(row, category):
+    profiled = profile_call_indices(row, category)
     while True:
-        suffix=next((s for s in ('_open_threat','_threat','_in_kan') if category.endswith(s)),None)
+        suffix=next((s for s in ('_open_threat','_threat','_in_kan','_closed','_tanyao_gain','_yakuhai') if category.endswith(s)),None)
         if suffix is None:break
         category=category[:-len(suffix)]
     eligible = [i for i in row['eligible'] if i != row['teacher_action']]
     kinds = [v['type'] for v in row['public_request']['questions']['action']['criteria'].values()]
     if category in ('chi', 'pon', 'ankan', 'daiminkan', 'kakan') and kinds[row['teacher_action']] != category:
         eligible = [i for i in eligible if kinds[i] == category]
+    if profiled is not None and row['teacher_action'] not in profiled:
+        eligible = [i for i in eligible if i in profiled]
     if not eligible:
         raise ValueError('Missing registered non-teacher alternative')
     return eligible

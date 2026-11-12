@@ -1,6 +1,6 @@
 # 训练与评测
 
-目标是提高完整东风净得点，当前安装包仍使用 **Jev Play v1**。副露防守组件 **Jev Discard Defense v1** 已完成数据与拟合，验证保留零输出起点并停止；当前候选 **Jev Call Uniform v1** 的正向开发已审计，32新牌山确认正在运行。**Jev Call Coverage v1** 的扩容拟合已早停并保留零输出起点；**Jev Call Uniform v1** 复用相同数据只改局面等权，正在进行完整开发。当前候选均未确认优于Play v1；[模型身份](../weights/README.md)及[完整结果](experiments/results/2026-11-11-tempo-action-learning/README.md)保留。
+目标是提高完整东风净得点，当前安装包使用 **Jev Play v1**。**Jev Call Uniform v1** 的32新牌山768场独立确认已完成并通过支付／顺位／配对区间审计：相对Play v1为−377.34点／场，95%区间[−1229.63，474.94]，未采用。**Jev Discard Defense v1** 与 **Jev Call Coverage v1** 已早停。现在优先[Play 真人实测问题复查](experiments/results/2026-11-12-play-input-audit/README.md)；下面的开发与确认启动描述为阶段记录，最终结果以上述结论为准。
 
 ## 已完成的副露防守训练
 

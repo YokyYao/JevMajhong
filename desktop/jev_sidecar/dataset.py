@@ -48,8 +48,13 @@ class DecisionRecorder:
         return key
 
     def prediction(self, sample_id, result, latency):
+        # One image can be reused after public state/manual metadata changes.
+        # Deduplicate actual inference inputs, rather than losing the new trace.
+        model_input = result.get('model_input')
+        identity = hashlib.sha256(json.dumps(model_input, sort_keys=True).encode()).hexdigest() if model_input else None
+        key = (sample_id, identity)
         with self.lock:
-            if sample_id in self.predicted:
+            if key in self.predicted:
                 return
-            self.predicted.add(sample_id)
+            self.predicted.add(key)
         self.append({'event': 'prediction', 'id': sample_id, 'latency': latency, 'result': result})

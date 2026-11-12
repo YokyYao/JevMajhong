@@ -1,0 +1,20 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "out": "runs/play-call-routes-native-v1",
+  "seed": 2026111231,
+  "game_mode": "4p-red-east",
+  "seed_scheme": "spaced-v1",
+  "training_seed_start": 11310000,
+  "training_seeds_per_stage": 12,
+  "training_replicas": 6,
+  "intervention_categories": [
+    "chi_closed_tanyao_gain",
+    "chi_closed_threat",
+    "pon_closed_yakuhai",
+    "pon_closed_threat",
+    "chi",
+    "pon"
+  ],
+  "fast_gamma": 0.995
+}

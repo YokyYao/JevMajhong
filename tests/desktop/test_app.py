@@ -325,6 +325,20 @@ class VisionTests(unittest.TestCase):
 
 
 class InterfaceTests(unittest.TestCase):
+    def test_known_opponent_riichi_is_retained_without_global_confirmation(self):
+        from desktop.jev_sidecar.app import Sidecar
+        with tempfile.TemporaryDirectory() as temporary, patch('desktop.jev_sidecar.app.CONFIG', Path(temporary) / 'settings.json'):
+            panel = Sidecar()
+            panel.timer.stop()
+            panel.hand.setText('123456m345p67s11z')
+            panel.confirmed.setChecked(False)
+            panel.reach[2].setChecked(True)
+            board = panel.board()
+            self.assertFalse(board.metadata_confirmed)
+            self.assertEqual(board.riichi, [2])
+            self.assertEqual(board.confirmed_metadata, ['riichi'])
+            panel.close()
+
     def test_overall_strategy_survives_waiting_and_resets_for_new_hand(self):
         from desktop.jev_sidecar.app import Sidecar
         with tempfile.TemporaryDirectory() as temporary, patch('desktop.jev_sidecar.app.CONFIG', Path(temporary) / 'settings.json'):

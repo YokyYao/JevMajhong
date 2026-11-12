@@ -1,0 +1,576 @@
+{
+  "strata": {
+    "held/closed/chi/no_threat/other_material/accelerates": {
+      "options": 67,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 49,
+      "sum_sampled_call_point_advantage": -58031.25,
+      "sampled_call_better": 18
+    },
+    "held/closed/chi/no_threat/other_material/no_shanten_gain": {
+      "options": 65,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 48,
+      "sum_sampled_call_point_advantage": -66156.25,
+      "sampled_call_better": 17
+    },
+    "held/closed/chi/no_threat/tanyao_material/accelerates": {
+      "options": 15,
+      "reference_selected_this_call": 1,
+      "sampled_pass_better": 7,
+      "sum_sampled_call_point_advantage": 8462.5,
+      "sampled_call_better": 8
+    },
+    "held/closed/chi/no_threat/tanyao_material/no_shanten_gain": {
+      "options": 15,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 11,
+      "sum_sampled_call_point_advantage": -9450.0,
+      "sampled_call_better": 4
+    },
+    "held/closed/chi/threat/other_material/accelerates": {
+      "options": 34,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 9,
+      "sum_sampled_call_point_advantage": -16243.75,
+      "sampled_pass_better": 24,
+      "sampled_tie": 1
+    },
+    "held/closed/chi/threat/other_material/no_shanten_gain": {
+      "options": 57,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 34,
+      "sum_sampled_call_point_advantage": -1868.75,
+      "sampled_call_better": 20,
+      "sampled_tie": 3
+    },
+    "held/closed/chi/threat/tanyao_material/accelerates": {
+      "options": 4,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 1,
+      "sum_sampled_call_point_advantage": 887.5,
+      "sampled_call_better": 3
+    },
+    "held/closed/chi/threat/tanyao_material/no_shanten_gain": {
+      "options": 18,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 10,
+      "sum_sampled_call_point_advantage": -14193.75,
+      "sampled_call_better": 8
+    },
+    "held/closed/pon/no_threat/other_material/accelerates": {
+      "options": 41,
+      "reference_selected_this_call": 4,
+      "sampled_call_better": 9,
+      "sum_sampled_call_point_advantage": -29556.25,
+      "sampled_pass_better": 32
+    },
+    "held/closed/pon/no_threat/other_material/no_shanten_gain": {
+      "options": 35,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 10,
+      "sum_sampled_call_point_advantage": -26337.5,
+      "sampled_pass_better": 25
+    },
+    "held/closed/pon/no_threat/secured_yakuhai/accelerates": {
+      "options": 16,
+      "reference_selected_this_call": 16,
+      "sampled_call_better": 14,
+      "sum_sampled_call_point_advantage": 24868.75,
+      "sampled_pass_better": 2
+    },
+    "held/closed/pon/no_threat/secured_yakuhai/no_shanten_gain": {
+      "options": 8,
+      "reference_selected_this_call": 2,
+      "sampled_pass_better": 4,
+      "sum_sampled_call_point_advantage": 8250.0,
+      "sampled_call_better": 4
+    },
+    "held/closed/pon/no_threat/tanyao_material/accelerates": {
+      "options": 4,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 1,
+      "sum_sampled_call_point_advantage": 5306.25,
+      "sampled_call_better": 3
+    },
+    "held/closed/pon/no_threat/tanyao_material/no_shanten_gain": {
+      "options": 11,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 6,
+      "sum_sampled_call_point_advantage": -2300.0,
+      "sampled_call_better": 5
+    },
+    "held/closed/pon/threat/other_material/accelerates": {
+      "options": 23,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 7,
+      "sum_sampled_call_point_advantage": 4318.75,
+      "sampled_pass_better": 15,
+      "sampled_tie": 1
+    },
+    "held/closed/pon/threat/other_material/no_shanten_gain": {
+      "options": 25,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 9,
+      "sum_sampled_call_point_advantage": 718.75,
+      "sampled_pass_better": 15,
+      "sampled_tie": 1
+    },
+    "held/closed/pon/threat/secured_yakuhai/accelerates": {
+      "options": 3,
+      "reference_selected_this_call": 1,
+      "sampled_call_better": 3,
+      "sum_sampled_call_point_advantage": 3381.25
+    },
+    "held/closed/pon/threat/secured_yakuhai/no_shanten_gain": {
+      "options": 5,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 2,
+      "sum_sampled_call_point_advantage": 1012.5,
+      "sampled_call_better": 3
+    },
+    "held/closed/pon/threat/tanyao_material/accelerates": {
+      "options": 9,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 5,
+      "sum_sampled_call_point_advantage": 9625.0,
+      "sampled_pass_better": 3,
+      "sampled_tie": 1
+    },
+    "held/closed/pon/threat/tanyao_material/no_shanten_gain": {
+      "options": 11,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 5,
+      "sum_sampled_call_point_advantage": 1250.0,
+      "sampled_call_better": 4,
+      "sampled_tie": 2
+    },
+    "held/open/chi/no_threat/other_material/accelerates": {
+      "options": 2,
+      "reference_selected_this_call": 1,
+      "sampled_pass_better": 1,
+      "sum_sampled_call_point_advantage": -1012.5
+    },
+    "held/open/chi/no_threat/other_material/no_shanten_gain": {
+      "options": 7,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 4,
+      "sum_sampled_call_point_advantage": -1493.75,
+      "sampled_call_better": 3
+    },
+    "held/open/chi/no_threat/secured_yakuhai/accelerates": {
+      "options": 4,
+      "reference_selected_this_call": 3,
+      "sampled_pass_better": 2,
+      "sum_sampled_call_point_advantage": 1612.5,
+      "sampled_call_better": 1
+    },
+    "held/open/chi/no_threat/secured_yakuhai/no_shanten_gain": {
+      "options": 5,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 4,
+      "sum_sampled_call_point_advantage": -7050.0,
+      "sampled_call_better": 1
+    },
+    "held/open/chi/threat/other_material/accelerates": {
+      "options": 1,
+      "reference_selected_this_call": 1,
+      "sampled_call_better": 1,
+      "sum_sampled_call_point_advantage": 956.25
+    },
+    "held/open/chi/threat/other_material/no_shanten_gain": {
+      "options": 10,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 5,
+      "sum_sampled_call_point_advantage": -3618.75,
+      "sampled_pass_better": 3,
+      "sampled_tie": 2
+    },
+    "held/open/chi/threat/secured_yakuhai/accelerates": {
+      "options": 2,
+      "reference_selected_this_call": 1,
+      "sampled_pass_better": 1,
+      "sum_sampled_call_point_advantage": 950.0,
+      "sampled_call_better": 1
+    },
+    "held/open/chi/threat/secured_yakuhai/no_shanten_gain": {
+      "options": 7,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 4,
+      "sum_sampled_call_point_advantage": -4300.0,
+      "sampled_call_better": 3
+    },
+    "held/open/chi/threat/tanyao_material/accelerates": {
+      "options": 2,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 2,
+      "sum_sampled_call_point_advantage": 3343.75
+    },
+    "held/open/chi/threat/tanyao_material/no_shanten_gain": {
+      "options": 8,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 2,
+      "sum_sampled_call_point_advantage": -36100.0,
+      "sampled_pass_better": 6
+    },
+    "held/open/pon/no_threat/other_material/accelerates": {
+      "options": 2,
+      "reference_selected_this_call": 2,
+      "sampled_call_better": 1,
+      "sum_sampled_call_point_advantage": 1093.75,
+      "sampled_pass_better": 1
+    },
+    "held/open/pon/no_threat/other_material/no_shanten_gain": {
+      "options": 2,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 2,
+      "sum_sampled_call_point_advantage": 2575.0
+    },
+    "held/open/pon/no_threat/secured_yakuhai/accelerates": {
+      "options": 2,
+      "reference_selected_this_call": 2,
+      "sampled_call_better": 2,
+      "sum_sampled_call_point_advantage": 4506.25
+    },
+    "held/open/pon/no_threat/secured_yakuhai/no_shanten_gain": {
+      "options": 6,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 3,
+      "sum_sampled_call_point_advantage": -2256.25,
+      "sampled_call_better": 3
+    },
+    "held/open/pon/no_threat/tanyao_material/no_shanten_gain": {
+      "options": 1,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 1,
+      "sum_sampled_call_point_advantage": 2206.25
+    },
+    "held/open/pon/threat/other_material/no_shanten_gain": {
+      "options": 1,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 1,
+      "sum_sampled_call_point_advantage": 650.0
+    },
+    "held/open/pon/threat/secured_yakuhai/accelerates": {
+      "options": 3,
+      "reference_selected_this_call": 1,
+      "sampled_call_better": 3,
+      "sum_sampled_call_point_advantage": 3487.5
+    },
+    "held/open/pon/threat/secured_yakuhai/no_shanten_gain": {
+      "options": 3,
+      "reference_selected_this_call": 2,
+      "sampled_call_better": 3,
+      "sum_sampled_call_point_advantage": 6706.25
+    },
+    "held/open/pon/threat/tanyao_material/no_shanten_gain": {
+      "options": 1,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 1,
+      "sum_sampled_call_point_advantage": -3450.0
+    },
+    "train/closed/chi/no_threat/other_material/accelerates": {
+      "options": 193,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 140,
+      "sum_sampled_call_point_advantage": -198643.75,
+      "sampled_call_better": 53
+    },
+    "train/closed/chi/no_threat/other_material/no_shanten_gain": {
+      "options": 216,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 159,
+      "sum_sampled_call_point_advantage": -278100.0,
+      "sampled_call_better": 57
+    },
+    "train/closed/chi/no_threat/tanyao_material/accelerates": {
+      "options": 34,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 25,
+      "sum_sampled_call_point_advantage": -26181.25,
+      "sampled_call_better": 9
+    },
+    "train/closed/chi/no_threat/tanyao_material/no_shanten_gain": {
+      "options": 45,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 22,
+      "sum_sampled_call_point_advantage": -23831.25,
+      "sampled_call_better": 23
+    },
+    "train/closed/chi/threat/other_material/accelerates": {
+      "options": 154,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 72,
+      "sum_sampled_call_point_advantage": 4125.0,
+      "sampled_call_better": 76,
+      "sampled_tie": 6
+    },
+    "train/closed/chi/threat/other_material/no_shanten_gain": {
+      "options": 157,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 104,
+      "sum_sampled_call_point_advantage": -61612.5,
+      "sampled_call_better": 48,
+      "sampled_tie": 5
+    },
+    "train/closed/chi/threat/secured_yakuhai/no_shanten_gain": {
+      "options": 1,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 1,
+      "sum_sampled_call_point_advantage": -256.25
+    },
+    "train/closed/chi/threat/tanyao_material/accelerates": {
+      "options": 31,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 15,
+      "sum_sampled_call_point_advantage": -812.5,
+      "sampled_pass_better": 13,
+      "sampled_tie": 3
+    },
+    "train/closed/chi/threat/tanyao_material/no_shanten_gain": {
+      "options": 67,
+      "reference_selected_this_call": 0,
+      "sampled_tie": 5,
+      "sum_sampled_call_point_advantage": -562.5,
+      "sampled_pass_better": 36,
+      "sampled_call_better": 26
+    },
+    "train/closed/pon/no_threat/other_material/accelerates": {
+      "options": 131,
+      "reference_selected_this_call": 7,
+      "sampled_call_better": 32,
+      "sum_sampled_call_point_advantage": -154793.75,
+      "sampled_pass_better": 99
+    },
+    "train/closed/pon/no_threat/other_material/no_shanten_gain": {
+      "options": 104,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 74,
+      "sum_sampled_call_point_advantage": -94937.5,
+      "sampled_call_better": 30
+    },
+    "train/closed/pon/no_threat/secured_yakuhai/accelerates": {
+      "options": 51,
+      "reference_selected_this_call": 51,
+      "sampled_call_better": 36,
+      "sum_sampled_call_point_advantage": 44006.25,
+      "sampled_pass_better": 15
+    },
+    "train/closed/pon/no_threat/secured_yakuhai/no_shanten_gain": {
+      "options": 29,
+      "reference_selected_this_call": 3,
+      "sampled_pass_better": 13,
+      "sum_sampled_call_point_advantage": 6087.5,
+      "sampled_call_better": 16
+    },
+    "train/closed/pon/no_threat/tanyao_material/accelerates": {
+      "options": 20,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 15,
+      "sum_sampled_call_point_advantage": 20800.0,
+      "sampled_pass_better": 5
+    },
+    "train/closed/pon/no_threat/tanyao_material/no_shanten_gain": {
+      "options": 24,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 9,
+      "sum_sampled_call_point_advantage": -24550.0,
+      "sampled_pass_better": 15
+    },
+    "train/closed/pon/threat/other_material/accelerates": {
+      "options": 83,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 38,
+      "sum_sampled_call_point_advantage": 987.5,
+      "sampled_call_better": 42,
+      "sampled_tie": 3
+    },
+    "train/closed/pon/threat/other_material/no_shanten_gain": {
+      "options": 70,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 41,
+      "sum_sampled_call_point_advantage": -25112.5,
+      "sampled_call_better": 25,
+      "sampled_tie": 4
+    },
+    "train/closed/pon/threat/secured_yakuhai/accelerates": {
+      "options": 12,
+      "reference_selected_this_call": 2,
+      "sampled_pass_better": 6,
+      "sum_sampled_call_point_advantage": 87.5,
+      "sampled_call_better": 6
+    },
+    "train/closed/pon/threat/secured_yakuhai/no_shanten_gain": {
+      "options": 8,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 6,
+      "sum_sampled_call_point_advantage": -5918.75,
+      "sampled_call_better": 2
+    },
+    "train/closed/pon/threat/tanyao_material/accelerates": {
+      "options": 30,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 11,
+      "sum_sampled_call_point_advantage": 4043.75,
+      "sampled_call_better": 17,
+      "sampled_tie": 2
+    },
+    "train/closed/pon/threat/tanyao_material/no_shanten_gain": {
+      "options": 22,
+      "reference_selected_this_call": 0,
+      "sampled_tie": 1,
+      "sum_sampled_call_point_advantage": -9418.75,
+      "sampled_pass_better": 14,
+      "sampled_call_better": 7
+    },
+    "train/open/chi/no_threat/other_material/accelerates": {
+      "options": 3,
+      "reference_selected_this_call": 1,
+      "sampled_pass_better": 1,
+      "sum_sampled_call_point_advantage": -443.75
+    },
+    "train/open/chi/no_threat/other_material/no_shanten_gain": {
+      "options": 6,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 3,
+      "sum_sampled_call_point_advantage": 781.25,
+      "sampled_pass_better": 3
+    },
+    "train/open/chi/no_threat/secured_yakuhai/accelerates": {
+      "options": 9,
+      "reference_selected_this_call": 9,
+      "sampled_call_better": 7,
+      "sum_sampled_call_point_advantage": -1318.75,
+      "sampled_pass_better": 2
+    },
+    "train/open/chi/no_threat/secured_yakuhai/no_shanten_gain": {
+      "options": 19,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 4,
+      "sum_sampled_call_point_advantage": -11393.75,
+      "sampled_pass_better": 14
+    },
+    "train/open/chi/no_threat/tanyao_material/no_shanten_gain": {
+      "options": 1,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 1,
+      "sum_sampled_call_point_advantage": 743.75
+    },
+    "train/open/chi/threat/other_material/accelerates": {
+      "options": 5,
+      "reference_selected_this_call": 4,
+      "sampled_pass_better": 1,
+      "sum_sampled_call_point_advantage": 1425.0,
+      "sampled_call_better": 3
+    },
+    "train/open/chi/threat/other_material/no_shanten_gain": {
+      "options": 20,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 10,
+      "sum_sampled_call_point_advantage": -6168.75,
+      "sampled_call_better": 10
+    },
+    "train/open/chi/threat/secured_yakuhai/accelerates": {
+      "options": 5,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 4,
+      "sum_sampled_call_point_advantage": 8618.75,
+      "sampled_tie": 1
+    },
+    "train/open/chi/threat/secured_yakuhai/no_shanten_gain": {
+      "options": 19,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 13,
+      "sum_sampled_call_point_advantage": -16425.0,
+      "sampled_call_better": 3,
+      "sampled_tie": 3
+    },
+    "train/open/chi/threat/tanyao_material/accelerates": {
+      "options": 1,
+      "reference_selected_this_call": 1,
+      "sampled_call_better": 1,
+      "sum_sampled_call_point_advantage": 2343.75
+    },
+    "train/open/chi/threat/tanyao_material/no_shanten_gain": {
+      "options": 4,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 2,
+      "sum_sampled_call_point_advantage": -5975.0,
+      "sampled_call_better": 2
+    },
+    "train/open/pon/no_threat/other_material/accelerates": {
+      "options": 1,
+      "reference_selected_this_call": 1,
+      "sampled_call_better": 1,
+      "sum_sampled_call_point_advantage": 356.25
+    },
+    "train/open/pon/no_threat/other_material/no_shanten_gain": {
+      "options": 3,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 1,
+      "sum_sampled_call_point_advantage": 168.75,
+      "sampled_pass_better": 2
+    },
+    "train/open/pon/no_threat/secured_yakuhai/accelerates": {
+      "options": 9,
+      "reference_selected_this_call": 9,
+      "sampled_call_better": 7,
+      "sum_sampled_call_point_advantage": 7706.25,
+      "sampled_pass_better": 2
+    },
+    "train/open/pon/no_threat/secured_yakuhai/no_shanten_gain": {
+      "options": 7,
+      "reference_selected_this_call": 1,
+      "sampled_pass_better": 3,
+      "sum_sampled_call_point_advantage": 337.5,
+      "sampled_call_better": 3
+    },
+    "train/open/pon/no_threat/tanyao_material/accelerates": {
+      "options": 1,
+      "reference_selected_this_call": 1,
+      "sampled_call_better": 1,
+      "sum_sampled_call_point_advantage": 5937.5
+    },
+    "train/open/pon/no_threat/tanyao_material/no_shanten_gain": {
+      "options": 1,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 1,
+      "sum_sampled_call_point_advantage": 1193.75
+    },
+    "train/open/pon/threat/other_material/accelerates": {
+      "options": 5,
+      "reference_selected_this_call": 4,
+      "sampled_call_better": 4,
+      "sum_sampled_call_point_advantage": 1343.75,
+      "sampled_pass_better": 1
+    },
+    "train/open/pon/threat/other_material/no_shanten_gain": {
+      "options": 5,
+      "reference_selected_this_call": 0,
+      "sampled_call_better": 2,
+      "sum_sampled_call_point_advantage": 5481.25,
+      "sampled_tie": 2,
+      "sampled_pass_better": 1
+    },
+    "train/open/pon/threat/secured_yakuhai/accelerates": {
+      "options": 6,
+      "reference_selected_this_call": 4,
+      "sampled_call_better": 4,
+      "sum_sampled_call_point_advantage": 2831.25,
+      "sampled_pass_better": 2
+    },
+    "train/open/pon/threat/secured_yakuhai/no_shanten_gain": {
+      "options": 7,
+      "reference_selected_this_call": 0,
+      "sampled_pass_better": 5,
+      "sum_sampled_call_point_advantage": -10637.5,
+      "sampled_call_better": 2
+    }
+  },
+  "sampled_future_return_signs_not_expert_labels": true,
+  "training_and_held_separate": true,
+  "source_shards": 240,
+  "reference_policy": "Jev Play v1",
+  "raw_shards_public": false,
+  "note": "Counts describe unique action options and sampled 16-future utility signs, not expert correctness or match strength."
+}

@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog, QFil
     QLineEdit, QMainWindow, QMessageBox, QPushButton, QScrollArea, QSpinBox, QTabWidget,
     QTableWidget, QTableWidgetItem, QTextEdit, QVBoxLayout, QWidget, QHeaderView, QSizePolicy)
 
-from .engine import Adviser, Board, parse_melds
+from .engine import Adviser, Board, parse_melds, decision_identity
 from .tiles import name, parse
 from .vision import Templates, TileDetector, hand_boxes
 from .screen_state import ScreenStateReader
@@ -842,11 +842,12 @@ class Sidecar(QMainWindow):
         melds = [parse_melds(edit.text()) for edit in self.meld_edits]
         if self.live.isChecked() and self.auto_melds is not None:
             melds[0] = self.auto_melds
+        known_riichi = sorted(set([i for i, c in enumerate(self.reach) if c.isChecked()] +
+                                 ([0] if self.live.isChecked() and self.screen_riichi.get('own_riichi') else [])))
         return Board(hand=hand, rivers=[parse(e.text()) if e.text().strip() or i in self.river_known or self.confirmed.isChecked() else None
                                       for i, e in enumerate(self.rivers)],
                      indicators=parse(self.dora.text()), melds=melds,
-                     riichi=sorted(set([i for i, c in enumerate(self.reach) if c.isChecked()] +
-                                       ([0] if self.live.isChecked() and self.screen_riichi.get('own_riichi') else []))),
+                     riichi=known_riichi, confirmed_metadata=['riichi'] if known_riichi else [],
                      scores=[int(x) for x in self.scores.text().split()], dealer=self.dealer.currentIndex(),
                      round_wind=self.wind.currentIndex(), honba=self.honba.value(), sticks=self.sticks.value(),
                      drawn=hand[-1] if hand else None, metadata_confirmed=self.confirmed.isChecked(), hand_number=self.hand_number.value(),
@@ -870,12 +871,7 @@ class Sidecar(QMainWindow):
                 board.melds[1:] = [[], [], []]
                 board.metadata_confirmed = False
                 board.visible()
-            # Public river OCR can jitter while nothing about our legal decision
-            # changes. Calculate once per decision, not once per screenshot.
-            signature = (repr((board.hand, board.reaction, board.melds[0], board.riichi,
-                               board.riichi_available, board.riichi_selecting, board.self_kan_available, board.forbidden_discards,
-                               board.honba, board.sticks))
-                         if automatic else repr(board)) + str(self.mode.currentIndex())
+            signature = decision_identity(board, self.mode.currentIndex())
             if signature == self.last_analyzed:
                 return
             same_advice = signature == self.last_analyzed and self.results.rowCount() > 0

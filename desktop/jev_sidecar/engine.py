@@ -1,6 +1,7 @@
 """Discard features and the trained Jev interface for screenshot-derived state."""
 from collections import Counter
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
+import copy
 from functools import lru_cache
 import hashlib
 import json
@@ -71,6 +72,7 @@ class Board:
     riichi_available: bool = False
     riichi_selecting: bool = False
     self_kan_available: bool = False
+    confirmed_metadata: list[str] = field(default_factory=list)
 
     def visible(self):
         if len(self.rivers) != 4 or len(self.melds) != 4 or len(self.scores) != 4:
@@ -260,6 +262,13 @@ def self_kan_candidates(board):
             for action in actions]
 
 
+def decision_identity(board, mode):
+    """Every public decision input can invalidate cached advice."""
+    state = asdict(board)
+    state['confirmed_metadata'] = sorted(set(state['confirmed_metadata']))
+    return hashlib.sha256(json.dumps([mode, state], sort_keys=True).encode()).hexdigest()
+
+
 def request(board, values):
     state = {'seat': board.seat, 'dealer': board.dealer, 'round_wind': board.round_wind,
              'honba': board.honba, 'sticks': board.sticks, 'scores': board.scores,
@@ -269,7 +278,8 @@ def request(board, values):
              'discards_count': sum(len(r or []) for r in board.rivers),
              'hand_number': board.hand_number if board.hand_number is not None else board.dealer + 1,
              'tsumogiri_flags': None, 'riichi_sutehais': None, 'last_tedashis': None, 'last_discard': None,
-             'screen_observation': {'temporal_information': 'unknown', 'metadata_confirmed': board.metadata_confirmed}}
+             'screen_observation': {'temporal_information': 'unknown', 'metadata_confirmed': board.metadata_confirmed,
+                                    'confirmed_metadata': sorted(set(board.confirmed_metadata))}}
     criteria = {f'a{i}': {**v.get('action', {'type': 'dahai', 'pai': mjai(v['tile'])}),
                          **{key: v[key] for key in ['sh', 'ukeire', 'safe', 'red']}} for i, v in enumerate(values)}
     return {'state': state, 'questions': {'action': {'type': 'choice', 'instructions': INSTRUCTION, 'criteria': criteria}}}
@@ -285,6 +295,8 @@ def reaction_candidates(board):
     tile, offered = event['tile'], set(event['offered'])
     values = [{'action': {'type': 'none'}, 'name': '跳过', 'tile': None, 'sh': None, 'ukeire': None, 'safe': [], 'eligible': True}]
     for kind, count in [('chi', 2), ('pon', 2), ('daiminkan', 3)]:
+        if board.seat in board.riichi:
+            continue
         if kind not in offered:
             continue
         seen = set()
@@ -372,11 +384,12 @@ class Adviser:
             return self.recommend_reaction(board, use_model)
         values = candidates(board)
         threats = set(board.riichi) - {board.seat}
+        trace = None
         if use_model:
             if self.model is None:
                 raise RuntimeError('Jev尚未加载，请先在设置中加载模型')
             from jevany.api import validate_distribution
-            result = self.model.system_one(**request(board, values))
+            result, trace = self._infer(request(board, values))
             keys = [f'a{i}' for i in range(len(values))]
             probabilities, _ = validate_distribution(result['answers']['action']['probabilities'], keys)
             for value, probability in zip(values, probabilities):
@@ -390,26 +403,38 @@ class Adviser:
                 'notes': board.notes(), 'winning_shape': shanten(tuple(sorted(index(t) for t in board.hand))) == -1,
                 'riichi_selecting': board.riichi_selecting, 'strategy': hand_strategy(board, ranked[0]),
                 'direction': hand_strategy(board, ranked[0], direction_only=True),
-                'decision': decision_description(board, ranked[0])}
+                'decision': decision_description(board, ranked[0]), 'model_input': trace}
+
+    def _infer(self, payload):
+        traced = getattr(self.model, 'system_one_with_trace', None)
+        if traced is not None:
+            return traced(**payload)
+        snapshot = copy.deepcopy(payload)
+        return self.model.system_one(**payload), {'version': 'play-model-input-v1', 'route': 'ordinary',
+            'source_request': snapshot, 'model_request': copy.deepcopy(snapshot)}
 
     def recommend_reaction(self, board, use_model=False):
         values = reaction_candidates(board)
-        if len(values) < 2:
+        locked_pass = len(values) == 1 and board.seat in board.riichi
+        if len(values) < 2 and not locked_pass:
             raise ValueError('正在读取吃碰对应牌面')
         payload = request(board, [])
         payload['state']['screen_observation']['reaction'] = board.reaction
-        payload['state']['screen_observation']['confirmed_metadata'] = ['honba', 'sticks']
+        payload['state']['screen_observation']['confirmed_metadata'] = sorted(
+            set(board.confirmed_metadata) | {'honba', 'sticks'})
         payload['questions']['action']['criteria'] = {f'a{i}': v['action'] for i, v in enumerate(values)}
         wins = [v for v in values if v['action']['type'] == 'hora']
-        if wins:
+        trace = None
+        if wins or locked_pass:
+            forced = wins[0] if wins else values[0]
             for value in values:
-                value['preference'] = float(value is wins[0])
+                value['preference'] = float(value is forced)
             ranked = sorted(values, key=lambda v: -v['preference'])
         elif use_model:
             if self.model is None:
                 raise RuntimeError('Jev尚未加载')
             from jevany.api import validate_distribution
-            output = self.model.system_one(**payload)
+            output, trace = self._infer(payload)
             probabilities, _ = validate_distribution(output['answers']['action']['probabilities'], list(payload['questions']['action']['criteria']))
             for value, probability in zip(values, probabilities):
                 value['preference'] = float(probability)
@@ -420,4 +445,4 @@ class Adviser:
                 'notes': board.notes(), 'winning_shape': False, 'reaction': True,
                 'strategy': hand_strategy(board, ranked[0]),
                 'direction': hand_strategy(board, ranked[0], direction_only=True),
-                'decision': decision_description(board, ranked[0])}
+                'decision': decision_description(board, ranked[0]), 'model_input': trace}

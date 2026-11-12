@@ -747,7 +747,7 @@
     },
     "jev-call-uniform-v1": {
       "role": "pure-call-residual-policy-with-uniform-public-state-training",
-      "status": "independent-confirmation-running",
+      "status": "not-adopted-negative-independent-confirmation",
       "activation": "call_windows",
       "frozen_components": [
         "jev-discard-v1",
@@ -791,7 +791,13 @@
       "development_manual_reaggregation": "passed192four-seat-ledgers-and96exact-reference",
       "independent_confirmation_walls": 32,
       "independent_confirmation_games": 768,
-      "independent_confirmation_status": "running"
+      "independent_confirmation_status": "completed-negative",
+      "independent_confirmation_net_gain_vs_play_v1": -377.34375,
+      "independent_confirmation_ci95": [
+        -1229.6272316799666,
+        474.9397316799666
+      ],
+      "independent_confirmation_audit": "passed-all768four-seat-ledgers-ranks-and32whole-wall-CIs"
     }
   },
   "legacy_aliases": {
