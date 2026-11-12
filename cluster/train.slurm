@@ -7,4 +7,4 @@
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:?Submit from the repository root}"
 export OMP_NUM_THREADS=4 PYTHONUNBUFFERED=1
-.venv/bin/python tools/run_experiment.py "${2:-train}" --config "${1:?configuration JSON}"
+.venv/bin/python tools/run_experiment.py "${2:-train}" --config "${1:?configuration JSON}" "${@:3}"

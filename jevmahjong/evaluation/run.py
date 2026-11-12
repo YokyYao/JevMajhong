@@ -105,6 +105,14 @@ def main():
         if not previous['eligible_for_confirmation']:
             write(out / 'status.json', {'status': 'skipped', 'reason': 'no_joint_speed_and_point_gain'}); return
     protocol = snapshot(cfg); protocol['checkpoint_sha256'] = digest(checkpoint)
+    if cfg.get('required_call_head_audit_config'):
+        from .call_head_audit import checked_receipt
+        checked,receipt=checked_receipt(cfg['required_call_head_audit_config'],fit_run,fit,protocol['model_files'])
+        protocol['fit_audit_receipt']=receipt
+        if not cfg.get('preflight_only',False) and not checked['eligible_for_development']:
+            write(out/'protocol.json',protocol)
+            write(out/'status.json',{'status':'skipped','reason':'no_audited_held_choice_point_gain',
+                'complete_matches_simulated':0,'independent_strength_proven':False});return
     if activation=='defense_windows' or cfg.get('required_fit_audit_config'):
         from .context_audit import checked_receipt
         checked,receipt=checked_receipt(cfg['required_fit_audit_config'],fit_run,fit,protocol['model_files'])

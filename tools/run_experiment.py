@@ -37,9 +37,11 @@ def freeze_source(root):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=('collect', 'collect-defense-states', 'collect-ev', 'audit-defense-states', 'audit-futures', 'audit-context-fit', 'train', 'train-context', 'evaluate'))
+    parser.add_argument('command', choices=('collect', 'collect-defense-states', 'collect-ev', 'audit-defense-states', 'audit-futures', 'audit-context-fit', 'audit-call-head', 'train', 'train-context', 'train-call-head', 'evaluate'))
     parser.add_argument('--config', type=Path, required=True)
     parser.add_argument('--resume', action='store_true')
+    parser.add_argument('--prepare-only', action='store_true', help='Pin source/configuration without starting work')
+    parser.add_argument('--registered', action='store_true', help='Use a previously pinned launch; do not resume module state')
     parser.add_argument('--max-walls',type=int)
     args = parser.parse_args(); config = json.loads(args.config.read_text())
     if args.max_walls is not None and args.command!='collect-defense-states':
@@ -48,9 +50,11 @@ def main():
     key = hashlib.sha256(str(out).encode()).hexdigest()
     launches = ROOT / 'runs/launches'; launches.mkdir(parents=True, exist_ok=True)
     record = launches / (key + '.json')
+    if args.registered and not record.exists():
+        raise ValueError('Register this exact command/configuration with --prepare-only before submitting')
     if record.exists():
         saved = json.loads(record.read_text())
-        if not args.resume or saved['config'] != config or saved['command'] != args.command:
+        if not (args.resume or args.registered or args.prepare_only) or saved['config'] != config or saved['command'] != args.command:
             raise ValueError('Use --resume with the same configuration, or choose a new output directory')
         source = Path(saved['source'])
         if tree_digest(source / 'jevmahjong') != saved['source_sha256']:
@@ -63,6 +67,10 @@ def main():
     if frozen_config.exists() and json.loads(frozen_config.read_text()) != config:
         raise ValueError('Saved launch configuration changed')
     frozen_config.write_text(json.dumps(config, indent=2) + '\n')
+    if args.prepare_only:
+        print(json.dumps({'status':'registered_not_started','source_sha256':saved['source_sha256'],
+            'launch':str(record),'config':str(frozen_config)}))
+        return
     bootstrap = ('import sys;sys.path.insert(0,sys.argv[1]);'
         'from jevmahjong.__main__ import main;sys.argv=[sys.argv[0],*sys.argv[2:]];main()')
     command = [sys.executable, '-c', bootstrap, str(source), args.command, '--config', str(frozen_config)]

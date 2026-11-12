@@ -798,6 +798,25 @@
         474.9397316799666
       ],
       "independent_confirmation_audit": "passed-all768four-seat-ledgers-ranks-and32whole-wall-CIs"
+    },
+    "jev-call-routes-v1": {
+      "role": "chi-pon-pass-pointer-head-repair",
+      "status": "registered-fit-awaiting-complete-input-audits",
+      "frozen_components": [
+        "jev-call-v1-encoder-and-LoRA",
+        "jev-discard-v1"
+      ],
+      "trainable_parameters": 524800,
+      "new_train_states": 156,
+      "new_held_states": 50,
+      "new_train_pairs": 183,
+      "new_held_pairs": 68,
+      "train_only_reference_anchor_states": 256,
+      "anchor_labels_used": false,
+      "artifact_exists": false,
+      "artifact_public": false,
+      "deployed": false,
+      "independent_improvement_proven": false
     }
   },
   "legacy_aliases": {

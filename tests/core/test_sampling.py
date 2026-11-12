@@ -4,6 +4,7 @@ import json
 import torch
 from pathlib import Path
 import tempfile
+from unittest.mock import patch
 from tools.run_experiment import freeze_source
 from jevmahjong.training.sampling import stratum, weights
 from jevmahjong.data.native_pairs import ENCODER_FILES, load_sources, select_decisions
@@ -44,6 +45,25 @@ def native_collection(root, start, gamma=.995):
 
 
 class SamplingTests(unittest.TestCase):
+    def test_queued_launch_uses_registered_source_without_resuming_model_state(self):
+        from tools import run_experiment
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);(root/'jevmahjong').mkdir()
+            source=root/'jevmahjong/__init__.py';source.write_text('version = 1\n')
+            cfg=root/'config.json';cfg.write_text(json.dumps({'out':'runs/fit'}))
+            with patch.object(run_experiment,'ROOT',root),patch.object(run_experiment.subprocess,'run') as invoke:
+                with patch('sys.argv',['run_experiment','train-call-head','--config',str(cfg),'--registered']):
+                    with self.assertRaises(ValueError):run_experiment.main()
+                with patch('sys.argv',['run_experiment','train-call-head','--config',str(cfg),'--prepare-only']):
+                    run_experiment.main()
+                invoke.assert_not_called()
+                source.write_text('version = 2\n')
+                with patch('sys.argv',['run_experiment','train-call-head','--config',str(cfg),'--registered']):
+                    run_experiment.main()
+                args=invoke.call_args.args[0]
+                self.assertNotIn('--resume',args)
+                self.assertEqual((Path(args[3])/'jevmahjong/__init__.py').read_text(),'version = 1\n')
+
     def test_future_scope_is_explicit_and_preserves_legacy_kan_default(self):
         from jevmahjong.data.future_pairs import future_scope
         self.assertEqual(future_scope({}),('ordinary','kan_windows'))
