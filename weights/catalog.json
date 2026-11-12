@@ -355,7 +355,7 @@
     },
     "jev-kan-residual-data-v1": {
       "role": "fresh-kan-menu-and-threat-data-residual-policy-component",
-      "status": "trained-audited-full-match-development-running",
+      "status": "not-adopted-zero-development-gain",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -393,7 +393,49 @@
       "latest_held_states": 25,
       "latest_held_changed_states": 2,
       "latest_held_sampled_current_hand_point_gain_per_state": 4.75,
-      "sampled_state_points_not_full_match_points": true
+      "sampled_state_points_not_full_match_points": true,
+      "development_net_gain_vs_play_v1": 0,
+      "development_ci95": [
+        0.0,
+        0.0
+      ],
+      "development_games": 192,
+      "development_candidate_games": 96,
+      "development_pairs_with_log_differences": 2,
+      "development_all_four_terminal_scores_equal_in_all_pairs": true,
+      "independent_confirmation_run": false
+    },
+    "jev-kan-residual-data-v2": {
+      "role": "weaker-prior-complete-option-residual-policy-component",
+      "status": "not-adopted-no-held-label-policy-gain",
+      "frozen_components": [
+        "jev-discard-v1",
+        "jev-call-v1"
+      ],
+      "activation": "kan_windows",
+      "feature_version": "public-kan-context-v1",
+      "model_kind": "mlp",
+      "hidden_width": 16,
+      "trainable_parameters": 2464,
+      "reference_prior_strength": 0.01,
+      "comparison": "same data, network, initialization, reward and early stopping as residual-data-v1; prior strength reduced from0.05 to0.01",
+      "initialization": "zero-output reset, not continuing residual-data-v1 weights",
+      "train_rows": 1237,
+      "held_rows": 424,
+      "train_states": 470,
+      "held_states": 157,
+      "artifact_public": false,
+      "independent_improvement_proven": false,
+      "artifact_exists": true,
+      "selected_epoch": 0,
+      "selected_is_starting_model": true,
+      "epochs_run": 4,
+      "optimizer_updates": 60,
+      "checkpoint_sha256": "0e69ee522cd356ed5012c96540ae770a26968772cea3e05374b77a5790c58e09",
+      "held_label_policy_gain_improved": false,
+      "training_audit": "passed-inputs-frozen-heads-all-checkpoints-direct-inference",
+      "native_development_run": false,
+      "independent_confirmation_run": false
     }
   },
   "legacy_aliases": {
