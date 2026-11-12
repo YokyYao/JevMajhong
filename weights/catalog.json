@@ -547,7 +547,7 @@
     },
     "jev-call-progress-v1": {
       "role": "pure-chi-pon-pass-public-progress-residual-policy-component",
-      "status": "paired-future-training-data-generation-running",
+      "status": "native-development-running",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -570,9 +570,35 @@
       "original_source": "value-defense-native-v1",
       "source_states_not_new_matches": true,
       "pilot_status": "passed12states4futures17complete-option-pairs-and-native-three-route-preflight",
-      "artifact_exists": false,
+      "artifact_exists": true,
       "artifact_public": false,
-      "independent_improvement_proven": false
+      "independent_improvement_proven": false,
+      "trainable_parameters": 2560,
+      "train_rows": 581,
+      "held_rows": 193,
+      "train_states": 484,
+      "held_states": 163,
+      "selected_epoch": 2,
+      "epochs_run": 6,
+      "optimizer_updates": 96,
+      "checkpoint_sha256": "631ff7498617f786415403de7d9a1170b2b04d347ef2387ca99c75fa79dfaaa7",
+      "held_label_policy_gain_improved": true,
+      "held_changed_states": 8,
+      "held_sampled_utility_gain_per_state": 0.011038359070108996,
+      "held_sampled_net_point_gain_per_state": 82.32361963190183,
+      "sampled_state_points_not_full_match_points": true,
+      "training_audit": "passed-seven-checkpoints-frozen-original-heads-zero-and-actual-inference",
+      "parent_data_audit": {
+        "states": 647,
+        "native_prefixes": 647,
+        "future_walls": 10352,
+        "arm_records": 20704,
+        "new_simulations": 0,
+        "status": "passed_complete"
+      },
+      "complete_option_pairs": 774,
+      "extra_hand_rollouts": 2032,
+      "independent_confirmation_run": false
     }
   },
   "legacy_aliases": {
