@@ -42,6 +42,51 @@ def example():
     return rows, cfg
 
 
+class OpenTenpaiAdmissionTest(unittest.TestCase):
+    @staticmethod
+    def case(threats=(1,), own_riichi=False, opened=True):
+        from types import SimpleNamespace
+        class Observation:
+            player_id=0
+            def to_dict(self):
+                return {'riichi_declared':[own_riichi,1 in threats,2 in threats,3 in threats],
+                    'melds':[[SimpleNamespace(opened=opened)],[],[],[]]}
+        actions=[SimpleNamespace(action_type=None),SimpleNamespace(action_type=None)]
+        features=[{'sh':0,'safe':[],'ukeire':8,'red':False},
+            {'sh':1,'safe':[1],'ukeire':2,'red':False}]
+        return Observation(),actions,features
+
+    def test_open_tenpai_can_consider_safe_discard_that_breaks_tenpai(self):
+        from jevmahjong.evaluation.agents import guarded_indices
+        from tools.open_tenpai_admission import eligible_indices
+        obs,actions,features=self.case()
+        self.assertEqual(guarded_indices(obs,actions,features),[0])
+        self.assertEqual(eligible_indices(obs,actions,features),[0,1])
+        # A tile safe against one riichi must not be treated as safe against two.
+        obs,actions,features=self.case(threats=(1,2))
+        self.assertEqual(eligible_indices(obs,actions,features),[0])
+        features[1]['safe']=[1,2]
+        self.assertEqual(eligible_indices(obs,actions,features),[0,1])
+
+    def test_other_hand_states_keep_the_existing_guard(self):
+        from jevmahjong.evaluation.agents import guarded_indices
+        from tools.open_tenpai_admission import eligible_indices
+        for kwargs in [{'threats':()},{'own_riichi':True},{'opened':False}]:
+            with self.subTest(**kwargs):
+                obs,actions,features=self.case(**kwargs)
+                self.assertEqual(eligible_indices(obs,actions,features),guarded_indices(obs,actions,features))
+        obs,actions,features=self.case()
+        features[0]['sh']=1;features[1]['sh']=2
+        self.assertEqual(eligible_indices(obs,actions,features),guarded_indices(obs,actions,features))
+
+    def test_adding_safe_discard_keeps_existing_non_discard_options(self):
+        from types import SimpleNamespace
+        from tools.open_tenpai_admission import eligible_indices
+        obs,actions,features=self.case()
+        actions.append(SimpleNamespace(action_type=None));features.append(None)
+        self.assertEqual(eligible_indices(obs,actions,features),[0,1,2])
+
+
 class FastEvaluationTest(unittest.TestCase):
     def test_kan_only_ev_data_keeps_pinned_inputs_for_unchanged_route_parity(self):
         with tempfile.TemporaryDirectory() as directory:

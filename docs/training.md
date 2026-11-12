@@ -33,7 +33,7 @@ python tools/run_experiment.py evaluate --config configs/evaluation/tempo-develo
 
 ## 新发现的副露防守动作限制
 
-Risk开发7次首次改选当局放铳的原生前缀重放中，6次有合法现物，但需要退听；当前最小向听为0的筛选排除了这些弃牌。候选侧补入现物的原型已通过7局面动作准入核对，仍需固定权重的完整对局评测，不属于已部署模型。现有Coverage数据实验保留其注册协议；后续将先检验准入修正，再判断是否调整续打标签及弃牌训练。详细范围与限制见[实验记录](experiments/results/2026-11-11-tempo-action-learning/README.md)。
+Risk开发7次首次改选当局放铳的原生前缀重放中，6次有合法现物，但需要退听；当前最小向听为0的筛选排除了这些弃牌。候选侧补入现物的原型已通过7局面动作准入核对，可复用Agent见`tools/open_tenpai_admission.py`，需显式用于候选评测。固定Call Risk v1第2轮权重的完整对局作业已提交，等待前置权重审计与资源；逐场记录新增现物和实际选中次数。68项核心回归通过，尚未完成完整对局评测，不属于已部署模型。现有Coverage数据实验保留其注册协议；后续将先检验准入修正，再判断是否调整续打标签及弃牌训练。详细范围与限制见[实验记录](experiments/results/2026-11-11-tempo-action-learning/README.md)。
 
 ## 历史杠窗口数据流程
 
