@@ -999,7 +999,7 @@
     },
     "jev-call-win-v4": {
       "role": "fresh-call-data-own-win-first-calling-head",
-      "status": "positive-own-win-development-independent-confirmation-submitted",
+      "status": "independent-confirmation-not-improved-not-adopted",
       "frozen_components": [
         "jev-call-v1-encoder-and-LoRA",
         "jev-discard-v1"
@@ -1063,8 +1063,79 @@
         "stage": "independent_confirmation",
         "logical_walls": 32,
         "expected_games": 768,
-        "status": "submitted",
-        "candidate_unchanged": true
+        "status": "completed_and_independently_audited",
+        "candidate_unchanged": true,
+        "games": 768,
+        "hand_win_paired": {
+          "gain": -0.001111937830687831,
+          "ci95": [
+            -0.015312517318252025,
+            0.013088641656876362
+          ],
+          "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+        },
+        "dealin_rate_paired": {
+          "gain": 0.010352877735690236,
+          "ci95": [
+            -0.0027262223073751587,
+            0.02343197777875563
+          ],
+          "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+        },
+        "net_points_paired": {
+          "gain": -720.8333333333334,
+          "ci95": [
+            -1806.768555345097,
+            365.1018886784301
+          ],
+          "independent_wall_streams": 32
+        },
+        "manual_audit_passed": true,
+        "improvement_verified": false
+      }
+    },
+    "jev-call-win-v5": {
+      "role": "lower-reference-anchor-own-win-first-calling-head",
+      "status": "fit-complete-no-additional-held-gain-development-skipped",
+      "frozen_components": [
+        "jev-call-v1-encoder-and-LoRA",
+        "jev-discard-v1"
+      ],
+      "selected_sha256": "9bf3e833c75c542f3d97693b75885595d616d4fc5e7f4c2e2096d4655a30136e",
+      "selected_epoch": 5,
+      "epochs_run": 9,
+      "optimizer_updates": 252,
+      "anchor_beta": 0.05,
+      "anchor_kl_limit": 0.05,
+      "anchor_kl": 0.0421237503776286,
+      "held_states": 146,
+      "held_policy": {
+        "states": 146,
+        "label_regret": 0.09917636680905687,
+        "mean_label_utility_gain": 0.010861460885714547,
+        "mean_sampled_net_point_gain": 75.85616438356165,
+        "mean_sampled_fast_gain": 0.00748693943326914,
+        "mean_sampled_dealin_change": 0.0021404109589041095,
+        "changed_argmax_states": 10,
+        "mean_sampled_hand_win_gain": 0.013270547945205479
+      },
+      "held_positive_chi_route_recovered": 0,
+      "held_sample_positive_chi_route_states": 6,
+      "manual_fit_audit_passed": true,
+      "full_development_games": 0,
+      "adopted": false,
+      "deployed": false,
+      "strength_improvement_proven": false,
+      "experimental_weights_public": false,
+      "fixed_choice_comparison_v4_v5": {
+        "train": {
+          "states": 444,
+          "selected_argmax_differences": 1
+        },
+        "held": {
+          "states": 146,
+          "selected_argmax_differences": 0
+        }
       }
     }
   },

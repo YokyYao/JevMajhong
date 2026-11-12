@@ -161,7 +161,7 @@
   },
   "conditional_control": {
     "model_id": "jev-call-win-v5",
-    "status": "registered_and_dependency_queued_not_started",
+    "status": "completed_fit_no_additional_held_gain_development_skipped",
     "single_factor": {
       "anchor_beta": {
         "reference": 0.2,
@@ -171,11 +171,98 @@
     "trigger": "Only after complete independently audited v4 confirmation that does not verify improvement; verified v4 causes skip; missing or mismatched audit causes stop.",
     "pure_decision_cases_passed": 10,
     "missing_real_audit_rejected_before_output_creation": true,
-    "training_started": false,
+    "training_started": true,
     "confirmation_outcomes_used_for_recipe_selection": false,
     "confirmation_seeds_used_for_fitting": false,
     "source_sha256": "f161ea4dadeec3223395ed6ac7a17da472ff9d65e94f495194f18ceb9ad6e42d",
     "control_fit_config": "../../../../configs/training/call-win-anchor-fit.json",
-    "experimental_weights_public": false
+    "experimental_weights_public": false,
+    "selected_epoch": 5,
+    "checkpoint_sha256": "9bf3e833c75c542f3d97693b75885595d616d4fc5e7f4c2e2096d4655a30136e",
+    "selected_held_policy_matches_v4_estimates": true,
+    "held_positive_chi_route_recovered": 0,
+    "held_sample_positive_chi_route_states": 6,
+    "full_development_games": 0
+  },
+  "capacity_probe": {
+    "status": "completed",
+    "train_states": 444,
+    "max_updates": 400,
+    "lr": 5e-05,
+    "anchor_beta": 0,
+    "saved_weights": false,
+    "held_fitting_or_selection": false,
+    "new_match_simulations": 0,
+    "purpose": "training-only frozen-encoder fitting-capacity probe",
+    "optimizer_updates": 400,
+    "choice_comparison_v4_v5": {
+      "train": {
+        "states": 444,
+        "selected_argmax_differences": 1
+      },
+      "held": {
+        "states": 146,
+        "selected_argmax_differences": 0
+      }
+    },
+    "curve": [
+      {
+        "updates": 0,
+        "train_loss": 0.5147666545158852,
+        "train_target_argmax_matches": 357,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 6
+      },
+      {
+        "updates": 25,
+        "train_loss": 0.5137603247261752,
+        "train_target_argmax_matches": 357,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 6
+      },
+      {
+        "updates": 50,
+        "train_loss": 0.5034544092137652,
+        "train_target_argmax_matches": 357,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 4
+      },
+      {
+        "updates": 100,
+        "train_loss": 0.511856377359937,
+        "train_target_argmax_matches": 354,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 1
+      },
+      {
+        "updates": 200,
+        "train_loss": 0.4805596166062484,
+        "train_target_argmax_matches": 354,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 7
+      },
+      {
+        "updates": 400,
+        "train_loss": 0.46083332968094853,
+        "train_target_argmax_matches": 366,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 7
+      }
+    ],
+    "training_states": 444,
+    "held_states_used_for_probe_fitting": 0,
+    "held_states_used_for_probe_selection": 0,
+    "confirmation_records_opened": 0,
+    "saved_policy_checkpoints": 0,
+    "no_strength_or_causal_component_claim": true,
+    "manifest_sha256": "04afe7890098f94dab90de215fd7c9f2014a1d4bc0c1208458f65172bb1812c7",
+    "script_sha256": "71882309ef1c5f28d4a14fc90f353ba964e4ddb1958c3db9c7bd20d4bbddb188",
+    "interpretation": "No strong fitting improvement from this particular unanchored, faster, 400-update probe: 21 sampled positive training chi-route opportunities recovered 6 to 7. This does not prove an intrinsic representation limit; optimization and sampled-target conflict remain possible. Fixed v4-v5 held choices are identical on these 146 cached inputs only."
   }
 }

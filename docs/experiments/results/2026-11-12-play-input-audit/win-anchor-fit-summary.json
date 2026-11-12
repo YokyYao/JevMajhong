@@ -1,0 +1,200 @@
+{
+  "model_id": "jev-call-win-v5",
+  "stage": "internal_fit_only",
+  "selected_epoch": 5,
+  "epochs_run": 9,
+  "optimizer_updates": 252,
+  "checkpoint_sha256": "9bf3e833c75c542f3d97693b75885595d616d4fc5e7f4c2e2096d4655a30136e",
+  "single_changed_factor": {
+    "anchor_beta": {
+      "v4": 0.2,
+      "v5": 0.05
+    }
+  },
+  "train_states": 444,
+  "held_states": 146,
+  "held_policy": {
+    "states": 146,
+    "label_regret": 0.09917636680905687,
+    "mean_label_utility_gain": 0.010861460885714547,
+    "mean_sampled_net_point_gain": 75.85616438356165,
+    "mean_sampled_fast_gain": 0.00748693943326914,
+    "mean_sampled_dealin_change": 0.0021404109589041095,
+    "changed_argmax_states": 10,
+    "mean_sampled_hand_win_gain": 0.013270547945205479
+  },
+  "train_policy": {
+    "states": 444,
+    "label_regret": 0.0817789803865911,
+    "mean_label_utility_gain": 0.010944049119390004,
+    "mean_sampled_net_point_gain": 24.38063063063063,
+    "mean_sampled_fast_gain": 0.009429349630713168,
+    "mean_sampled_dealin_change": 0.002533783783783784,
+    "changed_argmax_states": 27,
+    "mean_sampled_hand_win_gain": 0.013654279279279279
+  },
+  "held_routes": {
+    "closed": {
+      "states": 131,
+      "label_regret": 0.1009465459489676,
+      "mean_label_utility_gain": 0.01210513961308644,
+      "mean_sampled_net_point_gain": 84.54198473282443,
+      "mean_sampled_fast_gain": 0.008344222574483163,
+      "mean_sampled_dealin_change": 0.002385496183206107,
+      "changed_argmax_states": 10,
+      "mean_sampled_hand_win_gain": 0.014790076335877863,
+      "missed_positive_call_states": 29,
+      "recovered_sample_positive_call_states": 4,
+      "all_sample_negative_call_states": 60,
+      "negative_states_still_skipped": 58
+    },
+    "closed_chi_tanyao_gain": {
+      "states": 13,
+      "label_regret": 0.31305741783693275,
+      "mean_label_utility_gain": -0.018173078700160723,
+      "mean_sampled_net_point_gain": -63.94230769230769,
+      "mean_sampled_fast_gain": 0.004230762122434017,
+      "mean_sampled_dealin_change": 0.014423076923076924,
+      "changed_argmax_states": 1,
+      "mean_sampled_hand_win_gain": 0.009615384615384616,
+      "missed_positive_call_states": 6,
+      "recovered_sample_positive_call_states": 0,
+      "all_sample_negative_call_states": 4,
+      "negative_states_still_skipped": 4
+    },
+    "opponent_riichi": {
+      "states": 64,
+      "label_regret": 0.11588228301435682,
+      "mean_label_utility_gain": -0.0008033882406785534,
+      "mean_sampled_net_point_gain": 0.87890625,
+      "mean_sampled_fast_gain": 0.0006926970372857868,
+      "mean_sampled_dealin_change": 0.0009765625,
+      "changed_argmax_states": 1,
+      "mean_sampled_hand_win_gain": 0.0009765625,
+      "missed_positive_call_states": 12,
+      "recovered_sample_positive_call_states": 0,
+      "all_sample_negative_call_states": 29,
+      "negative_states_still_skipped": 29
+    },
+    "open": {
+      "states": 15,
+      "label_regret": 0.08371680232050303,
+      "mean_label_utility_gain": 0.0,
+      "mean_sampled_net_point_gain": 0.0,
+      "mean_sampled_fast_gain": 0.0,
+      "mean_sampled_dealin_change": 0.0,
+      "changed_argmax_states": 0,
+      "mean_sampled_hand_win_gain": 0.0,
+      "missed_positive_call_states": 0,
+      "recovered_sample_positive_call_states": 0,
+      "all_sample_negative_call_states": 5,
+      "negative_states_still_skipped": 5
+    },
+    "closed_pon_yakuhai": {
+      "states": 12,
+      "label_regret": 0.09131562279461557,
+      "mean_label_utility_gain": 0.1856675810562135,
+      "mean_sampled_net_point_gain": 837.5,
+      "mean_sampled_fast_gain": 0.0760036575581873,
+      "mean_sampled_dealin_change": -0.015625,
+      "changed_argmax_states": 7,
+      "mean_sampled_hand_win_gain": 0.13541666666666666,
+      "missed_positive_call_states": 4,
+      "recovered_sample_positive_call_states": 4,
+      "all_sample_negative_call_states": 2,
+      "negative_states_still_skipped": 1
+    }
+  },
+  "train_routes": {
+    "closed": {
+      "states": 413,
+      "label_regret": 0.07525594602177146,
+      "mean_label_utility_gain": 0.014372333680578959,
+      "mean_sampled_net_point_gain": 23.380750605326877,
+      "mean_sampled_fast_gain": 0.010273838354277087,
+      "mean_sampled_dealin_change": 0.001513317191283293,
+      "changed_argmax_states": 24,
+      "mean_sampled_hand_win_gain": 0.014830508474576272,
+      "missed_positive_call_states": 86,
+      "recovered_sample_positive_call_states": 18,
+      "all_sample_negative_call_states": 225,
+      "negative_states_still_skipped": 221
+    },
+    "closed_pon_yakuhai": {
+      "states": 39,
+      "label_regret": 0.018115632096082718,
+      "mean_label_utility_gain": 0.12284171929381625,
+      "mean_sampled_net_point_gain": 394.71153846153845,
+      "mean_sampled_fast_gain": 0.061879697688085517,
+      "mean_sampled_dealin_change": -0.0016025641025641025,
+      "changed_argmax_states": 11,
+      "mean_sampled_hand_win_gain": 0.10416666666666667,
+      "missed_positive_call_states": 12,
+      "recovered_sample_positive_call_states": 11,
+      "all_sample_negative_call_states": 4,
+      "negative_states_still_skipped": 4
+    },
+    "closed_chi_tanyao_gain": {
+      "states": 37,
+      "label_regret": 0.18507238897379322,
+      "mean_label_utility_gain": 0.05002689552844557,
+      "mean_sampled_net_point_gain": -30.405405405405407,
+      "mean_sampled_fast_gain": 0.05145893346513361,
+      "mean_sampled_dealin_change": 0.011824324324324325,
+      "changed_argmax_states": 8,
+      "mean_sampled_hand_win_gain": 0.060810810810810814,
+      "missed_positive_call_states": 21,
+      "recovered_sample_positive_call_states": 6,
+      "all_sample_negative_call_states": 11,
+      "negative_states_still_skipped": 10
+    },
+    "opponent_riichi": {
+      "states": 200,
+      "label_regret": 0.06788097673864368,
+      "mean_label_utility_gain": -0.0027798720355159405,
+      "mean_sampled_net_point_gain": 5.28125,
+      "mean_sampled_fast_gain": 0.0013805118579362347,
+      "mean_sampled_dealin_change": 0.0028125,
+      "changed_argmax_states": 4,
+      "mean_sampled_hand_win_gain": 0.0025,
+      "missed_positive_call_states": 24,
+      "recovered_sample_positive_call_states": 2,
+      "all_sample_negative_call_states": 133,
+      "negative_states_still_skipped": 131
+    },
+    "open": {
+      "states": 31,
+      "label_regret": 0.16868263176305923,
+      "mean_label_utility_gain": -0.03472954842161122,
+      "mean_sampled_net_point_gain": 37.70161290322581,
+      "mean_sampled_fast_gain": -0.0018214194928964785,
+      "mean_sampled_dealin_change": 0.016129032258064516,
+      "changed_argmax_states": 3,
+      "mean_sampled_hand_win_gain": -0.0020161290322580645,
+      "missed_positive_call_states": 5,
+      "recovered_sample_positive_call_states": 1,
+      "all_sample_negative_call_states": 9,
+      "negative_states_still_skipped": 8
+    }
+  },
+  "anchor_kl": 0.0421237503776286,
+  "manual_fit_audit": "passed_complete",
+  "win_reward_arms_recomputed": 22304,
+  "audit_eligible_relative_to_original_play": true,
+  "additional_held_gain_over_v4": false,
+  "full_development_games": 0,
+  "development_decision": "Skipped: selected held outcome estimates match v4, with no recovery in the 6 sampled positive held chi-route opportunities. This does not prove global policy equivalence.",
+  "deployed": false,
+  "strength_improvement_proven": false,
+  "experimental_weights_public": false,
+  "fixed_choice_comparison_v4_v5": {
+    "train": {
+      "states": 444,
+      "selected_argmax_differences": 1
+    },
+    "held": {
+      "states": 146,
+      "selected_argmax_differences": 0
+    }
+  }
+}

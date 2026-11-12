@@ -254,5 +254,6 @@
   "weights_public": false,
   "deployed": false,
   "development_summary": "win-fresh-development-summary.json",
-  "independent_confirmation": "registered_and_submitted_32_new_walls"
+  "independent_confirmation": "completed_not_improved",
+  "confirmation_summary": "win-fresh-confirmation-summary.json"
 }
