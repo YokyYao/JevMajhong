@@ -274,7 +274,7 @@
     },
     "jev-kan-context-v3": {
       "role": "all-eligible-option-supported-nonlinear-kan-context-component",
-      "status": "trained-audited-full-east-development-running",
+      "status": "positive-development-fixed-independent-confirmation-running",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1"
@@ -307,7 +307,14 @@
       "checkpoint_sha256": "5f80a0442bc18b0008be660c4ccdfea3cc630e698dabfb92f7e2681347852c92",
       "trained_parameter_count": 2464,
       "training_audit": "passed-all10checkpoints-original-heads-and-whole-wall-split",
-      "independent_confirmation_run": false
+      "independent_confirmation_run": true,
+      "development_net_gain_vs_play_v1": 356.25,
+      "development_ci95": [
+        -622.4344225000472,
+        1334.9344225000473
+      ],
+      "independent_confirmation_status": "running",
+      "independent_confirmation_walls": 32
     }
   },
   "legacy_aliases": {
