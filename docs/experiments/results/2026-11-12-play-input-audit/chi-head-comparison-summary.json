@@ -1,5 +1,5 @@
 {
-  "stage": "matched_head_fit_registered_not_trained",
+  "stage": "matched_fits_audited_head_development_registered",
   "initialization_preflight": {
     "status": "passed_real_head_continuation_start",
     "states": 237,
@@ -41,8 +41,8 @@
   "head_trainable_parameters": 524800,
   "context_trainable_parameters": 38528,
   "extra_anchor_data_used": false,
-  "parameter_training_started": false,
-  "new_weights_exist": false,
+  "parameter_training_started": true,
+  "new_weights_exist": true,
   "LoRA_trained": false,
   "raw_records_public": false,
   "weights_public": false,
@@ -50,11 +50,184 @@
   "limitations": [
     "Comparison concerns which decision component is updated; the backbone and LoRAs remain frozen.",
     "Trainable parameter counts and compute differ; shared step budgets do not imply matched FLOPs.",
-    "No new fitted candidate or architecture superiority result exists yet.",
-    "The audit will bind exact complete-option pair counts before fitting, once the immutable dataset is available."
+    "Both candidates have been fitted; architecture superiority and complete-match improvement remain unproven.",
+    "The exact607train/179heldpair audit was bound before either optimizer started and both fits passed independent recomputation."
   ],
   "active_recipe_revision": "whole-wall-balanced-v3",
   "active_fit_config": "configs/training/chi-head-win-fit-v3.json",
   "active_matched_context_recipe_sha256": "b2ccbfc8dd08ceb7bf7bdd70ede6dc37e2e69b8b4e19dccc858c477fabec1704",
-  "initialization_preflight_unchanged": true
+  "initialization_preflight_unchanged": true,
+  "matched_fit_results": {
+    "data_states": {
+      "train": 384,
+      "held": 128
+    },
+    "data_pairs": {
+      "train": 607,
+      "held": 179
+    },
+    "held_whole_walls": 32,
+    "metric_unit": "equal sampled-state means, each with16shared futures; not complete-match win rates or points per match",
+    "reference": "fixed Call Tile Win v1 checkpoint82b8843c\u2026",
+    "context": {
+      "epochs": 3,
+      "updates": 72,
+      "selected_epoch": 0,
+      "selected_is_starting_policy": true,
+      "eligible_for_development": false,
+      "stop_reason": "held_actual_hand_wins_stalled",
+      "held_curve": [
+        {
+          "epoch": 0,
+          "mean_sampled_hand_win_gain": 0.0,
+          "mean_sampled_dealin_change": 0.0,
+          "mean_sampled_fast_gain": 0.0,
+          "mean_sampled_net_point_gain": 0.0,
+          "mean_label_utility_gain": 0.0,
+          "changed_argmax_states": 0,
+          "policy_kl": 0.5722401879910869
+        },
+        {
+          "epoch": 1,
+          "mean_sampled_hand_win_gain": 0.00439453125,
+          "mean_sampled_dealin_change": 0.00537109375,
+          "mean_sampled_fast_gain": 0.0026740114391835723,
+          "mean_sampled_net_point_gain": -16.796875,
+          "mean_label_utility_gain": -0.005679153390204107,
+          "changed_argmax_states": 4,
+          "policy_kl": 0.5679624796049484
+        },
+        {
+          "epoch": 2,
+          "mean_sampled_hand_win_gain": 0.00341796875,
+          "mean_sampled_dealin_change": 0.0078125,
+          "mean_sampled_fast_gain": 0.0018425098826642622,
+          "mean_sampled_net_point_gain": -19.53125,
+          "mean_label_utility_gain": -0.011746403779333935,
+          "changed_argmax_states": 6,
+          "policy_kl": 0.5649937680641581
+        },
+        {
+          "epoch": 3,
+          "mean_sampled_hand_win_gain": 0.00341796875,
+          "mean_sampled_dealin_change": 0.009765625,
+          "mean_sampled_fast_gain": 0.0018425098826642622,
+          "mean_sampled_net_point_gain": -25.439453125,
+          "mean_label_utility_gain": -0.015652653779333933,
+          "changed_argmax_states": 7,
+          "policy_kl": 0.563105871792216
+        }
+      ],
+      "interpretation": "Own-win estimates rise in later snapshots, but deal-in growth makes the configured utility negative; no snapshot meets all predeclared selection conditions."
+    },
+    "head": {
+      "epochs": 4,
+      "updates": 96,
+      "selected_epoch": 1,
+      "selected_sha256": "18ede9f3313256857796e7a75541e6e21a005cb8a115566354ecd80039faa6f2",
+      "eligible_for_development": true,
+      "stop_reason": "held_actual_choices_stalled",
+      "selected_held": {
+        "states": 128,
+        "label_regret": 0.10919287138760152,
+        "mean_label_utility_gain": 0.0019390316737599531,
+        "mean_sampled_net_point_gain": -20.1171875,
+        "mean_sampled_fast_gain": -5.637330496018869e-05,
+        "mean_sampled_dealin_change": -0.00048828125,
+        "changed_argmax_states": 6,
+        "mean_sampled_hand_win_gain": 0.0009765625
+      },
+      "held_curve": [
+        {
+          "epoch": 0,
+          "states": 128,
+          "label_regret": 0.11113190306136148,
+          "mean_label_utility_gain": 0.0,
+          "mean_sampled_net_point_gain": 0.0,
+          "mean_sampled_fast_gain": 0.0,
+          "mean_sampled_dealin_change": 0.0,
+          "changed_argmax_states": 0,
+          "mean_sampled_hand_win_gain": 0.0
+        },
+        {
+          "epoch": 1,
+          "states": 128,
+          "label_regret": 0.10919287138760152,
+          "mean_label_utility_gain": 0.0019390316737599531,
+          "mean_sampled_net_point_gain": -20.1171875,
+          "mean_sampled_fast_gain": -5.637330496018869e-05,
+          "mean_sampled_dealin_change": -0.00048828125,
+          "changed_argmax_states": 6,
+          "mean_sampled_hand_win_gain": 0.0009765625
+        },
+        {
+          "epoch": 2,
+          "states": 128,
+          "label_regret": 0.11799549434069541,
+          "mean_label_utility_gain": -0.006863591279333934,
+          "mean_sampled_net_point_gain": -11.42578125,
+          "mean_sampled_fast_gain": 0.0018425098826642622,
+          "mean_sampled_dealin_change": 0.00537109375,
+          "changed_argmax_states": 5,
+          "mean_sampled_hand_win_gain": 0.00341796875
+        },
+        {
+          "epoch": 3,
+          "states": 128,
+          "label_regret": 0.13051088226353416,
+          "mean_label_utility_gain": -0.01937897920217269,
+          "mean_sampled_net_point_gain": -35.595703125,
+          "mean_sampled_fast_gain": 0.0025622081913092504,
+          "mean_sampled_dealin_change": 0.01220703125,
+          "changed_argmax_states": 18,
+          "mean_sampled_hand_win_gain": 0.00439453125
+        },
+        {
+          "epoch": 4,
+          "states": 128,
+          "label_regret": 0.13082302332426574,
+          "mean_label_utility_gain": -0.01969112026290426,
+          "mean_sampled_net_point_gain": -45.60546875,
+          "mean_sampled_fast_gain": 0.007173018948382966,
+          "mean_sampled_dealin_change": 0.01513671875,
+          "changed_argmax_states": 20,
+          "mean_sampled_hand_win_gain": 0.0087890625
+        }
+      ],
+      "new_held_chi_route": {
+        "states": 32,
+        "label_regret": 0.0954493283604489,
+        "mean_label_utility_gain": 0.0055742255997786715,
+        "mean_sampled_net_point_gain": -8.7890625,
+        "mean_sampled_fast_gain": 0.006671902399114687,
+        "mean_sampled_dealin_change": 0.00390625,
+        "changed_argmax_states": 1,
+        "mean_sampled_hand_win_gain": 0.01171875,
+        "missed_positive_call_states": 9,
+        "recovered_sample_positive_call_states": 1,
+        "all_sample_negative_call_states": 15,
+        "negative_states_still_skipped": 15
+      },
+      "old_held_nine_used_for_training": false,
+      "old_held_nine_retested_this_round": false
+    },
+    "both_fit_audits_passed": true,
+    "head_reward_arm_records_recounted": 25152,
+    "matched_recipe_not_architecture_superiority_proof": true,
+    "independent_match_improvement_proven": false
+  },
+  "development": {
+    "status": "submitted_corrected_config",
+    "expected_games": 192,
+    "new_whole_wall_groups": 8,
+    "candidate": "calling_pointer_head",
+    "reference": "fixed stronger Call Tile Win v1",
+    "reference_games_reused": 0,
+    "current_config": "configs/evaluation/chi-head-win-development-v3-r2.json",
+    "first_attempt_matches": 0,
+    "first_attempt_failure": "Missing explicit calling-workflow declaration; rejected while loading baseline before native parity or matches.",
+    "corrected_actual_baseline_load_verified_on_cpu": true,
+    "weights_and_data_unchanged": true
+  },
+  "snapshot_at": "2026-11-13T12:48:50.097267+00:00"
 }

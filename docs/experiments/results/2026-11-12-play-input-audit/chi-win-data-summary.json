@@ -1,6 +1,6 @@
 {
   "model_target": "jev-chi-win-v1",
-  "stage": "balanced_first_labels_audited_expanding_complete_options",
+  "stage": "complete_data_audited_matched_fits_completed",
   "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
   "source_sha256": "9c2d72262cc7fea037a9dda35cd5fa8add1b8ab7545903031a37a24bd53d2d6a",
   "planned_whole_wall_groups": 128,
@@ -67,15 +67,15 @@
     "strength_evidence": false
   },
   "core_tests_passed": 128,
-  "parameter_training_started": false,
+  "parameter_training_started": true,
   "weights_public": false,
   "raw_records_public": false,
   "deployed": false,
   "limitations": [
     "Opportunity coverage is not correct-action or reward-sign coverage.",
-    "Initial paired labels are complete and audited; full legal alternatives and fitted candidates are pending.",
+    "Full legal alternatives and both fits are complete and audited; independent match improvement remains unproven.",
     "No matched residual versus decision-head/LoRA superiority result exists.",
-    "Same-component continuation is implemented and preflighted; no actual new fit has started before labels complete."
+    "Both candidate fits used audited completed labels; actual complete-match improvement remains unproven."
   ],
   "continuation_source_sha256": "bbbdaf7c2dd127b0b5845aa9e4d267501bf3c063e8916abf90fee89ca7218e53",
   "continuation_core_tests_passed": 123,
@@ -232,7 +232,7 @@
     "expand complete legal alternatives using the same futures/control",
     "audit complete alternatives"
   ],
-  "snapshot_at": "2026-11-13T12:04:28.552794+00:00",
+  "snapshot_at": "2026-11-13T12:48:50.110360+00:00",
   "initial_future_collection": {
     "status": "collection_complete",
     "method": "paired_future_ev_v1",
@@ -348,6 +348,58 @@
     "worlds_per_state": 16,
     "expected_additional_hand_rollouts": 4384,
     "reuses_initial_control_and_branch": true,
-    "status": "running_at_snapshot"
+    "status": "complete_and_audited"
+  },
+  "complete_option_collection": {
+    "status": "collection_complete",
+    "method": "paired_future_ev_v1",
+    "original_unique_states": 512,
+    "pairs": 786,
+    "worlds_per_state": 16,
+    "new_native_hand_rollouts": 4384,
+    "reused_control_rollouts": 8192,
+    "reused_branch_rollouts": 8192,
+    "fresh_matches": 0,
+    "rows_by_category": {
+      "chi": 435,
+      "pon": 351
+    },
+    "optimizer_updates": 0,
+    "human_test_opened": false
+  },
+  "complete_option_full_audit": {
+    "status": "passed_complete",
+    "role": "data consistency audit, not policy strength",
+    "pairs": 786,
+    "states": 512,
+    "train_pairs": 607,
+    "held_pairs": 179,
+    "train_states": 384,
+    "held_states": 128,
+    "worlds_per_state": 16,
+    "prefixes_replayed": 512,
+    "future_walls_rederived": 8192,
+    "arm_records_audited": 25152,
+    "whole_wall_disjoint": true,
+    "cached_head_probability_max_error": 0.0,
+    "new_simulations": 0,
+    "independent_strength_proven": false
+  },
+  "exact_counts_bound_before_optimizers": {
+    "train_states": 384,
+    "held_states": 128,
+    "train_pairs": 607,
+    "held_pairs": 179,
+    "anchor_states": 0,
+    "status": "passed"
+  },
+  "matched_fit_summary": {
+    "context_selected_epoch": 0,
+    "context_updates": 72,
+    "context_eligible_for_development": false,
+    "head_selected_epoch": 1,
+    "head_updates": 96,
+    "head_eligible_for_development": true,
+    "independent_match_improvement_proven": false
   }
 }

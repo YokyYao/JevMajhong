@@ -1,5 +1,5 @@
 {
-  "stage": "same_component_continuation_registered_not_trained",
+  "stage": "fit_audited_starting_policy_retained",
   "initialization_preflight": {
     "status": "passed_real_context_continuation_start",
     "states": 237,
@@ -76,9 +76,9 @@
     }
   },
   "parameters": 38528,
-  "parameter_training_started": false,
+  "parameter_training_started": true,
   "new_labels_started": true,
-  "new_weights_exist": false,
+  "new_weights_exist": true,
   "matched_head_or_LoRA_comparison_proven": false,
   "raw_records_public": false,
   "weights_public": false,
@@ -91,5 +91,58 @@
   "active_recipe_revision": "whole-wall-balanced-v3",
   "active_fit_config": "configs/training/chi-win-fit-v3.json",
   "initialization_preflight_unchanged": true,
-  "active_label_plan_sha256": "ca19358d57c079d2412549229aaee1891045480abbec1b098e8ad2a4e721e291"
+  "active_label_plan_sha256": "ca19358d57c079d2412549229aaee1891045480abbec1b098e8ad2a4e721e291",
+  "fit_result": {
+    "epochs": 3,
+    "updates": 72,
+    "selected_epoch": 0,
+    "selected_is_starting_policy": true,
+    "eligible_for_development": false,
+    "stop_reason": "held_actual_hand_wins_stalled",
+    "held_curve": [
+      {
+        "epoch": 0,
+        "mean_sampled_hand_win_gain": 0.0,
+        "mean_sampled_dealin_change": 0.0,
+        "mean_sampled_fast_gain": 0.0,
+        "mean_sampled_net_point_gain": 0.0,
+        "mean_label_utility_gain": 0.0,
+        "changed_argmax_states": 0,
+        "policy_kl": 0.5722401879910869
+      },
+      {
+        "epoch": 1,
+        "mean_sampled_hand_win_gain": 0.00439453125,
+        "mean_sampled_dealin_change": 0.00537109375,
+        "mean_sampled_fast_gain": 0.0026740114391835723,
+        "mean_sampled_net_point_gain": -16.796875,
+        "mean_label_utility_gain": -0.005679153390204107,
+        "changed_argmax_states": 4,
+        "policy_kl": 0.5679624796049484
+      },
+      {
+        "epoch": 2,
+        "mean_sampled_hand_win_gain": 0.00341796875,
+        "mean_sampled_dealin_change": 0.0078125,
+        "mean_sampled_fast_gain": 0.0018425098826642622,
+        "mean_sampled_net_point_gain": -19.53125,
+        "mean_label_utility_gain": -0.011746403779333935,
+        "changed_argmax_states": 6,
+        "policy_kl": 0.5649937680641581
+      },
+      {
+        "epoch": 3,
+        "mean_sampled_hand_win_gain": 0.00341796875,
+        "mean_sampled_dealin_change": 0.009765625,
+        "mean_sampled_fast_gain": 0.0018425098826642622,
+        "mean_sampled_net_point_gain": -25.439453125,
+        "mean_label_utility_gain": -0.015652653779333933,
+        "changed_argmax_states": 7,
+        "policy_kl": 0.563105871792216
+      }
+    ],
+    "interpretation": "Own-win estimates rise in later snapshots, but deal-in growth makes the configured utility negative; no snapshot meets all predeclared selection conditions."
+  },
+  "independent_strength_improvement_proven": false,
+  "snapshot_at": "2026-11-13T12:48:50.100373+00:00"
 }
