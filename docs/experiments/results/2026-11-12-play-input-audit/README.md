@@ -273,3 +273,6 @@ v3实际将46／828个训练局面所在的公开门清断幺加速吃牌路线�
 
 
 参考约束短训 v1/v2 均保留起点，无新比赛提升证据。已停止同数据的学习率搜索，启动128个新牌山的吃碰来源采集和457个杠牌局面的完整选项扩展；详情见 [短训聚合](chi-head-anchor-training-summary.json)、[扩充计划](fresh-call-data-expansion-summary.json) 与 [训练方案](../../plans/play-fresh-call-stream-20261112.md)。
+
+
+杠牌完整比赛评测已登记，包含独立的作用域与固定鸣牌基线检查；132项核心检查通过，目前尚无已训练杠牌候选或新比赛。[评测准备聚合](kan-match-evaluation-preparation-summary.json)。
