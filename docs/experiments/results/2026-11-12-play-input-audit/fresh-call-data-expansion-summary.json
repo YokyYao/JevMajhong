@@ -1,6 +1,6 @@
 {
-  "stage": "native_audit_and_public_balanced_plan_passed_labels_waiting_for_gpu",
-  "snapshot_at": "2026-11-13T14:34:55.235987+00:00",
+  "stage": "first_labels_audited_corrected_full_menu_expansion_running",
+  "snapshot_at": "2026-11-13T18:12:08.872862+00:00",
   "baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
   "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
   "new_native_walls": 128,
@@ -14,38 +14,13 @@
   },
   "planned_states_per_wall": 8,
   "label_sample_not_finalized": false,
-  "next": "Use the already registered GPU job when resources are available; continue kan collection. Then independently audit futures and complete options before any optimizer. Do not resample based on outcomes or restart because of resource waits.",
+  "next": "Complete1426pair full-menu expansion/audit, then exact count and anchor start binding, anchored head fit and independent audit.",
   "seed_freshness_configs_checked": 301,
   "seed_freshness_conflicts": 0,
   "old_validation_used_for_training": false,
   "new_optimizer_started": false,
   "new_strength_evidence": false,
-  "kan_track": {
-    "states": 457,
-    "train_states": 366,
-    "held_states": 91,
-    "train_routes": {
-      "ankan": 172,
-      "daiminkan": 146,
-      "kakan": 48
-    },
-    "held_routes": {
-      "ankan": 42,
-      "daiminkan": 43,
-      "kakan": 6
-    },
-    "parent_future_audit": "passed_complete",
-    "complete_options": "complete_and_audited",
-    "fit": "complete_and_independently_audited",
-    "selected_epoch": 7,
-    "eligible_for_development": true,
-    "model_id": "jev-kan-win-v1",
-    "v1_development": "complete_no_own_win_gain",
-    "v1_adopted": false,
-    "v2_fit": "complete_retained_epoch0",
-    "new_native_walls": 128,
-    "new_native_stage": "submitted"
-  },
+  "kan_track": "Independent429state kan source fullyaudited;32future labelsrunning under existing immutable pipeline.",
   "raw_records_public": false,
   "weights_public": false,
   "deployed": false,
@@ -79,34 +54,23 @@
     "outcome_based_selection": false
   },
   "training_recipe": {
-    "model_id": "jev-chi-head-anchor-win-v3",
-    "start": "original verified reference, not either rejected fitted head",
-    "trainable": "existing calling decision head",
-    "fixed": "LLM, LoRAs, ordinary head and single calling context",
-    "data": "new complete-option labels only; old validation remains excluded",
+    "model_id": "jev-chi-head-anchor-win-v4",
+    "fit_config": "configs/training/chi-head-anchor-win-fit-v4.json",
+    "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
+    "same_previous_hyperparameters_reward_anchors_baseline": true,
+    "train_states": 768,
+    "held_states": 256,
     "anchor_states": 1024,
-    "anchor_train_only": true,
-    "lr": 0.0001,
-    "epochs_max": 12,
-    "patience_epochs": 3,
-    "batch": 16,
-    "reward_unchanged": true,
-    "reference_kl_limit": 0.01,
-    "max_mean_dealin_increase": 0.01,
-    "exact_audit_counts": "generated from complete option audit before optimizer",
-    "actual_starting_policy_check": "required before optimizer",
-    "parameter_updates_started": false
+    "actual_new_optimizer_updates": 0,
+    "calling_pointer_updated_fixed_MLP_applied_once": true,
+    "model_id_revision_does_not_mean_weights_exist": true
   },
   "automatic_sequence": [
-    "native audit",
-    "outcome-independent public capacity and balanced sample",
-    "paired future labels",
-    "future audit",
-    "complete legal options",
-    "complete option audit",
-    "exact fit audit registration and actual starting-policy check",
-    "short fit",
-    "independent fit audit"
+    "correctedGPUfullmenu",
+    "CPUoptionaudit",
+    "CPUexactcount_and_anchor_start_binding",
+    "CPUcached_calling_head_fit",
+    "CPUindependentfit_audit"
   ],
   "actual_native_collection": {
     "status": "collection_complete",
@@ -209,9 +173,58 @@
     "limitation": "Counts are public opportunities, not positive/negative reward coverage or expert labels."
   },
   "future_labels": {
-    "status": "pending_gpu_resources",
-    "dependencies_satisfied": true,
-    "started": false,
-    "new_reward_labels": 0
+    "status": "collection_complete_and_independently_audited",
+    "states": 1024,
+    "train_states": 768,
+    "held_states": 256,
+    "worlds_per_state": 16,
+    "native_hand_rollouts": 32768,
+    "fresh_matches": 0,
+    "audit": {
+      "status": "passed_complete",
+      "role": "data consistency audit, not policy strength",
+      "pairs": 1024,
+      "states": 1024,
+      "train_pairs": 768,
+      "held_pairs": 256,
+      "train_states": 768,
+      "held_states": 256,
+      "worlds_per_state": 16,
+      "prefixes_replayed": 1024,
+      "future_walls_rederived": 16384,
+      "arm_records_audited": 32768,
+      "whole_wall_disjoint": true,
+      "cached_head_probability_max_error": 0.0,
+      "new_simulations": 0,
+      "independent_strength_proven": false
+    },
+    "actual_case_keys_match_prelabel_plan": true
+  },
+  "full_menu_revision": {
+    "stage": "corrected_expansion_actually_running",
+    "reason": "Original expansion retained seed2026111318; actual parent seed2026111322. Guard rejected it after3seconds before any new rollout or protocol.",
+    "old_failed_run_preserved_private": true,
+    "old_output_contains_only_lock": true,
+    "corrected_config": "configs/training/chi-win-options-v4-r2.json",
+    "corrected_audit_config": "configs/training/chi-win-option-audit-v4-r2.json",
+    "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
+    "parent_labels_reused_not_regenerated": true,
+    "all_future_reward_scope_baseline_fields_match_actual_parent": true,
+    "actual_startup": {
+      "status": "passed_actual_corrected_full_menu_start_binding",
+      "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
+      "original_states": 1024,
+      "pairs": 1426,
+      "pairs_by_split": {
+        "train": 1083,
+        "held": 343
+      },
+      "all_origin_keys_match_prelabel_plan": true,
+      "actual_future_seed": 2026111322,
+      "actual_parent_future_protocol_fields_match": true,
+      "reward_and_reference_unchanged": true,
+      "new_simulations_in_check": 0,
+      "checked_at": "2026-11-13T18:12:08.872862+00:00"
+    }
   }
 }

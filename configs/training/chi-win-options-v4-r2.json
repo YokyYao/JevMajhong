@@ -9,8 +9,8 @@
     "calling"
   ],
   "decision_filter": "all",
-  "out": "runs/chi-win-options-v4",
-  "seed": 2026111318,
+  "out": "runs/chi-win-options-v4-r2",
+  "seed": 2026111322,
   "worlds": 16,
   "max_states": null,
   "fast_gamma": 0.98,

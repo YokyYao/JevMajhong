@@ -164,7 +164,7 @@
   "interpretation": "v1 epoch1 has positive internal sampled hand-win gain but exceeds the predeclared KL limit; v2 halves learning rate but no snapshot meets all hand-win, utility, deal-in and KL conditions. Neither enters development. No architecture superiority or improvement established.",
   "next": "Stop learning-rate-only search on these512states. Add128fresh native walls, inspect public route capacities, register balanced sampling and complete-option labels before another fit; preserve old validation and consumed development walls.",
   "latest_v3_evaluation_registration": {
-    "stage": "registered_not_started",
+    "stage": "superseded_unexecuted_after_full_menu_protocol_fix",
     "model_id": "jev-chi-head-anchor-win-v3",
     "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
     "configs": [
@@ -192,6 +192,36 @@
     "matches_simulated": 0,
     "weight_identity_and_fit_eligibility_not_yet_proven": true,
     "fit_audit_and_actual_CPU_GPU_contract_required": true,
-    "ordinary_kan_reference_unchanged": true
+    "ordinary_kan_reference_unchanged": true,
+    "superseded_by": "jev-chi-head-anchor-win-v4"
+  },
+  "latest_v4_recipe": {
+    "stage": "full_menu_running_fit_and_audit_queued",
+    "model_id": "jev-chi-head-anchor-win-v4",
+    "fit_config": "configs/training/chi-head-anchor-win-fit-v4.json",
+    "fit_audit_generated_before_optimizer": "runs/configs/chi-head-anchor-win-fit-audit-v4.json",
+    "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
+    "same_reward_risk_anchors_and_optimizer_budget": true,
+    "reason": "Correct full-menu seed protocol and downstream paths; previous v3 never trained.",
+    "no_additional_inference_network": true,
+    "new_weights_exist": false,
+    "evaluation": {
+      "status": "passed_recipe_links",
+      "candidate_run": "runs/jev-chi-head-anchor-win-v4",
+      "development_out": "runs/chi-head-anchor-win-v4-development",
+      "confirmation_out": "runs/chi-head-anchor-win-v4-confirmation",
+      "development_wall_range": [
+        11730000,
+        11730008
+      ],
+      "confirmation_wall_range": [
+        11740000,
+        11740032
+      ],
+      "actual_weights_or_fit_eligibility_verified": false,
+      "independent_strength_proven": false
+    },
+    "actual_runtime_freshness_protocols_checked": 298,
+    "match_jobs_submitted": false
   }
 }
