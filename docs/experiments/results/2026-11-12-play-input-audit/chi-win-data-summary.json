@@ -1,6 +1,6 @@
 {
   "model_target": "jev-chi-win-v1",
-  "stage": "full_native_audited_balanced_future_labels_running",
+  "stage": "balanced_first_labels_audited_expanding_complete_options",
   "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
   "source_sha256": "9c2d72262cc7fea037a9dda35cd5fa8add1b8ab7545903031a37a24bd53d2d6a",
   "planned_whole_wall_groups": 128,
@@ -73,7 +73,7 @@
   "deployed": false,
   "limitations": [
     "Opportunity coverage is not correct-action or reward-sign coverage.",
-    "The active future labels are incomplete; no new fitted chi weights exist yet.",
+    "Initial paired labels are complete and audited; full legal alternatives and fitted candidates are pending.",
     "No matched residual versus decision-head/LoRA superiority result exists.",
     "Same-component continuation is implemented and preflighted; no actual new fit has started before labels complete."
   ],
@@ -231,5 +231,123 @@
     "verify selected case identities and96/32walls x4states; summarize train-only pair directions",
     "expand complete legal alternatives using the same futures/control",
     "audit complete alternatives"
-  ]
+  ],
+  "snapshot_at": "2026-11-13T12:04:28.552794+00:00",
+  "initial_future_collection": {
+    "status": "collection_complete",
+    "method": "paired_future_ev_v1",
+    "states": 512,
+    "worlds_per_state": 16,
+    "native_hand_rollouts": 16384,
+    "fresh_matches": 0,
+    "rows_by_original_category": {
+      "calling": 512
+    },
+    "human_test_opened": false,
+    "optimizer_updates": 0
+  },
+  "initial_future_full_audit": {
+    "status": "passed_complete",
+    "role": "data consistency audit, not policy strength",
+    "pairs": 512,
+    "states": 512,
+    "train_pairs": 384,
+    "held_pairs": 128,
+    "train_states": 384,
+    "held_states": 128,
+    "worlds_per_state": 16,
+    "prefixes_replayed": 512,
+    "future_walls_rederived": 8192,
+    "arm_records_audited": 16384,
+    "whole_wall_disjoint": true,
+    "cached_head_probability_max_error": 0.0,
+    "new_simulations": 0,
+    "independent_strength_proven": false
+  },
+  "initial_future_full_audit_sha256": "e65036ca82190210620b03588943840abea9e3029b27148a670deb0e50c358ad",
+  "balanced_label_inspection": {
+    "status": "passed_complete",
+    "states": 512,
+    "states_by_split": {
+      "train": 384,
+      "held": 128
+    },
+    "nonempty_walls_by_split": {
+      "train": 96,
+      "held": 32
+    },
+    "states_per_wall": 4,
+    "worlds_per_state": 16,
+    "training_pair_direction_counts": {
+      "own_win_positive": 110,
+      "fast_reward_positive": 122,
+      "dealin_positive": 156,
+      "utility_negative": 202,
+      "own_win_zero": 123,
+      "fast_reward_zero": 97,
+      "own_win_negative": 151,
+      "fast_reward_negative": 165,
+      "dealin_zero": 126,
+      "utility_positive": 138,
+      "dealin_negative": 102,
+      "utility_zero": 44
+    },
+    "training_pair_directions_by_branch_kind": {
+      "chi": {
+        "own_win_positive": 73,
+        "fast_reward_positive": 80,
+        "dealin_positive": 94,
+        "utility_negative": 104,
+        "own_win_zero": 67,
+        "fast_reward_zero": 54,
+        "own_win_negative": 66,
+        "fast_reward_negative": 72,
+        "dealin_zero": 62,
+        "utility_positive": 77,
+        "dealin_negative": 50,
+        "utility_zero": 25
+      },
+      "none": {
+        "own_win_negative": 55,
+        "fast_reward_negative": 60,
+        "dealin_negative": 34,
+        "utility_positive": 32,
+        "own_win_zero": 23,
+        "fast_reward_zero": 16,
+        "own_win_positive": 12,
+        "fast_reward_positive": 14,
+        "dealin_positive": 22,
+        "utility_negative": 51,
+        "dealin_zero": 34,
+        "utility_zero": 7
+      },
+      "pon": {
+        "own_win_zero": 33,
+        "fast_reward_zero": 27,
+        "dealin_zero": 30,
+        "utility_zero": 12,
+        "fast_reward_positive": 28,
+        "dealin_positive": 40,
+        "utility_negative": 47,
+        "own_win_negative": 30,
+        "fast_reward_negative": 33,
+        "own_win_positive": 25,
+        "dealin_negative": 18,
+        "utility_positive": 29
+      }
+    },
+    "held_outcomes_used_for_gate": false,
+    "outcome_based_case_selection": false,
+    "new_simulations": 0,
+    "optimizer_updates": 0,
+    "limitation": "Initial pair directions are conditional Monte Carlo comparisons, not expert should-call labels; full legal alternatives are still required."
+  },
+  "complete_option_plan": {
+    "original_unique_states": 512,
+    "pairs": 786,
+    "worlds_per_state": 16,
+    "expected_additional_hand_rollouts": 4384,
+    "reuses_initial_control_and_branch": true,
+    "status": "running_at_snapshot"
+  }
 }
