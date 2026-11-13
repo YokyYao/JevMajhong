@@ -1,6 +1,6 @@
 {
   "model_id": "jev-chi-win-compatible-v1",
-  "stage": "independent_fit_and_actual_GPU_parity_passed_fresh_development_running",
+  "stage": "development_complete_independently_audited_positive_point_estimate_unconfirmed",
   "source_sha256": "d015abdbf940b808afd935859f57a93c9b8745241205b1face7ad0b22e23befc",
   "distillation_target": "win_compatible_v1",
   "only_training_change_from_anchor_beta2": "withhold positive utility boosts unless sampled own wins increase or tied wins become faster",
@@ -281,13 +281,46 @@
     "started": true,
     "actual_startup_checkpoint_verified": true,
     "reference_games_reused": 0,
-    "independent_event_audit_queued": true
+    "independent_event_audit_queued": true,
+    "completed": true,
+    "independent_event_audit": "passed_complete",
+    "hand_win_paired": {
+      "gain": 0.0066220238095238085,
+      "ci95": [
+        -0.03363084012699733,
+        0.046874887746044945
+      ]
+    },
+    "dealin_rate_paired": {
+      "gain": -0.001661706349206349,
+      "ci95": [
+        -0.014208343195096193,
+        0.010884930496683496
+      ]
+    },
+    "fast_reward_paired": {
+      "gain": 0.001375965845840453,
+      "ci95": [
+        -0.013760585660622443,
+        0.01651251735230335
+      ]
+    },
+    "net_points_paired": {
+      "gain": 659.375,
+      "ci95": [
+        -1565.5135977010755,
+        2884.2635977010755
+      ],
+      "independent_wall_streams": 8
+    },
+    "eligible_for_confirmation": true
   },
   "conditional_confirmation": {
     "seed_start": 11880000,
     "walls": 32,
     "matches": 768,
-    "started": false
+    "started": false,
+    "deferred_reason": "User prioritized cataloguing existing data and fresh-base balanced LoRA training"
   },
   "raw_records_public": false,
   "weights_public": false,

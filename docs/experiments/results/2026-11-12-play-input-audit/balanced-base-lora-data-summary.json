@@ -1,5 +1,5 @@
 {
-  "stage": "metadata_inventory_complete_deep_index_queued",
+  "stage": "private_per_record_catalog_running",
   "datasets": 71,
   "replay_jsonl_datasets": 22,
   "native_collection_datasets": 49,
@@ -20,5 +20,7 @@
   "core_tests_passed": 156,
   "raw_records_public": false,
   "test_payloads_opened": false,
-  "weights_public": false
+  "weights_public": false,
+  "previous_evaluation_completed": true,
+  "previous_candidate_confirmation_deferred_for_user_LoRA_priority": true
 }
