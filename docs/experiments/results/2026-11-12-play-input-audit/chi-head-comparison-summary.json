@@ -1,0 +1,56 @@
+{
+  "stage": "matched_head_fit_registered_not_trained",
+  "initialization_preflight": {
+    "status": "passed_real_head_continuation_start",
+    "states": 237,
+    "trainable_head_parameters": 524800,
+    "frozen_context_parameters": 38528,
+    "max_cached_reference_error": 6.935315139955378e-07,
+    "max_fixed_context_inference_error": 1.9019937014252974e-08,
+    "changed_starting_actions": 0,
+    "context_networks_per_decision": 1,
+    "source_sha256": "976ce3520afe39a9e1a08441b99a89a5c68eeb4a0aa214e91b46c5c962b2b8b1",
+    "baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+    "matched_context_config_sha256": "7d91095ad92000ab648cb966ce5a94d58a5861c714ea50d5a91729b160b32427",
+    "optimizer_updates": 0,
+    "new_simulations": 0,
+    "weights_saved": false,
+    "limitations": [
+      "Cached native encoder/head initialization check, not a new GPU encoder pass or strength evidence."
+    ]
+  },
+  "initialization_preflight_sha256": "9c0237047558c73bf1cf23e790bf7fd9d0b7297d913d9d64645de4d90cf055b3",
+  "core_tests_passed": 125,
+  "matched_context_recipe_sha256": "7d91095ad92000ab648cb966ce5a94d58a5861c714ea50d5a91729b160b32427",
+  "shared_conditions": [
+    "data",
+    "reward",
+    "baseline",
+    "train_and_validation_splits",
+    "seed",
+    "learning_rate",
+    "weight_decay",
+    "batch",
+    "epoch_limit",
+    "patience",
+    "prior_strength",
+    "hand_win_selection",
+    "dealin_guard",
+    "uniform_state_weighting"
+  ],
+  "head_trainable_parameters": 524800,
+  "context_trainable_parameters": 38528,
+  "extra_anchor_data_used": false,
+  "parameter_training_started": false,
+  "new_weights_exist": false,
+  "LoRA_trained": false,
+  "raw_records_public": false,
+  "weights_public": false,
+  "deployed": false,
+  "limitations": [
+    "Comparison concerns which decision component is updated; the backbone and LoRAs remain frozen.",
+    "Trainable parameter counts and compute differ; shared step budgets do not imply matched FLOPs.",
+    "No new fitted candidate or architecture superiority result exists yet.",
+    "The audit will bind exact complete-option pair counts before fitting, once the immutable dataset is available."
+  ]
+}

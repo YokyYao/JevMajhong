@@ -5,7 +5,7 @@ from jevmahjong.training.sampling import OPERATIONS, stratum
 
 
 @torch.no_grad()
-def evaluate(heads, rows, per_direction=8, context=None, replaces_baseline=False):
+def evaluate(heads, rows, per_direction=8, context=None, replaces_baseline=False,fixed_context=None):
     buckets = defaultdict(list)
     for row in rows:
         category, direction = stratum(row)
@@ -35,6 +35,9 @@ def evaluate(heads, rows, per_direction=8, context=None, replaces_baseline=False
                 else:
                     head = heads[row['scope']]
                     z = head(row['decide'], row['options'])
+                    if fixed_context is not None:
+                        from jevmahjong.policy.call_baseline import transform
+                        z=transform(row['public_request'],z.softmax(-1),fixed_context).double().clamp_min(1e-300).log()
                 margin = float(z[row['action']] - z[row['teacher_action']])
                 correct += int(margin * delta > 0)
                 selected_index = max(row['eligible'], key=lambda i: float(z[i]))
@@ -83,6 +86,8 @@ def main():
     saved = torch.load(checkpoint, map_location='cpu', weights_only=True)
     from jevmahjong.policy.call_baseline import replaces_calling_baseline
     replaces_baseline=replaces_calling_baseline(saved)
+    from jevmahjong.policy.call_baseline import load as load_baseline
+    fixed_context=load_baseline(fit['config'],saved['model_files']) if saved.get('kan_context') is None else None
     heads = {}
     for scope, role in [('ordinary', 'discard'), ('calling', 'call')]:
         meta = torch.load(Path(fit['config'][role + '_checkpoint']) / 'head.pt',
@@ -99,7 +104,8 @@ def main():
     result = {'model_id': fit['model_id'], 'checkpoint_sha256': digest(checkpoint),
         'strength_improvement_proven': False, 'human_test_opened': False}
     for key, rows in partitions.items():
-        result[key] = evaluate(heads, rows, context=saved.get('kan_context'),replaces_baseline=replaces_baseline)
+        result[key] = evaluate(heads, rows, context=saved.get('kan_context'),replaces_baseline=replaces_baseline,
+            fixed_context=fixed_context)
         result[key]['label_target'] = fit['config'].get('reward', {'mode': 'fast_win'})
         result[key]['role'] = key + '-wall action diagnostic; not independent full-game strength'
     write(args.out, result)

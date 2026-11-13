@@ -54,7 +54,42 @@ def complete_groups(rows):
 
 
 def logits(head, row):
-    return head(row['decide'], row['options'])[row['eligible']].double()
+    z=head(row['decide'],row['options']).double()
+    if 'fixed_call_context_logits' in row:z=z+row['fixed_call_context_logits']
+    return z[row['eligible']]
+
+
+def anchor_policy(config):
+    mode=config.get('anchor_policy','reference_kl')
+    if mode not in ('reference_kl','same_data_no_anchors'):
+        raise ValueError('Unknown call-head anchor policy')
+    if mode=='same_data_no_anchors':
+        if (not config.get('call_context_baseline') or config.get('selection_objective')!='hand_win'
+                or config.get('anchor_beta')!=0 or config.get('anchor_kl_limit')!=0
+                or config.get('reference_anchor_states')!=0 or config.get('anchor_batch')!=0
+                or config.get('reference_anchor_data') or config.get('route_loss_weights')
+                or config.get('initial_heads')):
+            raise ValueError('Same-data comparison requires a pinned calling context, no extra anchors or route weights')
+    elif config.get('call_context_baseline'):
+        raise ValueError('Pinned calling-context comparison requires explicit same_data_no_anchors')
+    return mode
+
+
+def check_matched_context(config):
+    if anchor_policy(config)!='same_data_no_anchors':return
+    spec=config.get('matched_context_fit')
+    if not isinstance(spec,dict) or set(spec)!={'config','sha256'}:
+        raise ValueError('Explicit matched context configuration and checksum required')
+    path=Path(spec['config'])
+    if digest(path)!=spec['sha256']:raise ValueError('Matched context configuration changed')
+    other=json.loads(path.read_text())
+    shared=('data','reward','call_context_baseline','train_scopes','decision_filter','epochs','batch',
+        'patience_epochs','lr','weight_decay','seed','reference_prior_strength',
+        'max_held_dealin_increase','selection_objective')
+    if (other.get('fit_model')!='residual_policy' or other.get('context_initialization')!='calling_baseline'
+            or other.get('policy_state_weighting')!='uniform'
+            or any(other.get(k)!=config.get(k) for k in shared)):
+        raise ValueError('Head and context comparison data, reward or fitting budget differ')
 
 
 def anchor_kl(head, row):
@@ -154,6 +189,8 @@ def route_profile(head, groups):
 
 
 def load_inputs(cfg, protocol):
+    mode=anchor_policy(cfg)
+    check_matched_context(cfg)
     audits = set(); audit_hashes = {}
     for name in cfg['required_data_audits']:
         root = Path(name).resolve(); registered = json.loads((root/'protocol.json').read_text())
@@ -166,12 +203,24 @@ def load_inputs(cfg, protocol):
         audits.add(Path(registered['config']['collection']).resolve())
     for path in cfg['data']:
         if Path(path).resolve().parent not in audits: raise ValueError('Every fit source needs its complete-option audit')
-    parts, hashes, sources = load_sources(cfg['data'], protocol['model_files'], cfg['reward'])
+    parts, hashes, sources = load_sources(cfg['data'], protocol['model_files'], cfg['reward'],
+        expected_call_baseline=cfg.get('call_context_baseline'))
     parts = select_decisions(parts, 'all', ['calling'])
+    if cfg.get('call_context_baseline'):
+        from jevmahjong.policy.call_baseline import load
+        from jevmahjong.policy.kan_context import context_scores
+        context=load(cfg,protocol['model_files'])
+        if context.get('model_kind')!='mlp':raise ValueError('Matched fixed calling MLP required')
+        for rows in parts.values():
+            for row in rows:
+                row['fixed_call_context_logits']=context_scores(row['public_request'],context)/context['reference_prior_strength']
     groups = {split: complete_groups(rows) for split, rows in parts.items()}
     if not all(groups.values()): raise ValueError('Whole-wall train/held groups required')
     if {g['key'][0] for g in groups['train']} & {g['key'][0] for g in groups['held']}:
         raise ValueError('Whole wall crosses training and validation')
+    if mode=='same_data_no_anchors':
+        meta=dict(sources=[],source_sha256={},keys=[],held_states_used=0,labels_used=False,mode=mode)
+        return parts,groups,hashes,sources,[],meta,audit_hashes
     old, anchor_hashes, anchor_sources = load_sources(cfg['reference_anchor_data'], protocol['model_files'])
     anchors = {}
     for row in old['train']:
@@ -193,6 +242,7 @@ def load_inputs(cfg, protocol):
 
 def fit(cfg):
     torch.set_num_threads(4); torch.manual_seed(cfg['seed'])
+    mode=anchor_policy(cfg);anchored=mode=='reference_kl'
     objective=cfg.get('selection_objective','net_points')
     if objective not in ('net_points','hand_win') or ((objective=='hand_win') != (cfg.get('reward',{}).get('mode')=='own_win_first_v1')):
         raise ValueError('Reward and checkpoint selection must share the registered objective')
@@ -200,12 +250,12 @@ def fit(cfg):
         raise ValueError('Valid hand-win risk constraint required')
     if (cfg['train_scopes'] != ['calling'] or cfg['decision_filter'] != 'all'
             or cfg['fit_model'] != 'complete_option_call_head'
-            or cfg['anchor_beta'] <= 0 or cfg['anchor_kl_limit'] <= 0
+            or (anchored and (cfg['anchor_beta'] <= 0 or cfg['anchor_kl_limit'] <= 0))
             or cfg['patience_epochs'] < 1): raise ValueError('Explicit anchored call-head fit required')
     if (any(not math.isfinite(cfg[k]) or cfg[k]<=0 for k in
-            ('lr','anchor_beta','anchor_kl_limit','reference_prior_strength'))
+            ('lr','reference_prior_strength',*(['anchor_beta','anchor_kl_limit'] if anchored else [])))
             or any(not isinstance(cfg[k],int) or cfg[k]<1 for k in
-                ('epochs','batch','anchor_batch','reference_anchor_states','patience_epochs'))
+                ('epochs','batch','patience_epochs',*(['anchor_batch','reference_anchor_states'] if anchored else [])))
             or not math.isfinite(cfg['weight_decay']) or cfg['weight_decay']<0):
         raise ValueError('Finite positive fitting parameters required')
     out = Path(cfg['out']); out.mkdir(parents=True, exist_ok=False)
@@ -219,14 +269,18 @@ def fit(cfg):
     heads['ordinary'].requires_grad_(False); head = heads['calling']
     with torch.no_grad():
         for row in [g['row'] for gs in groups.values() for g in gs] + anchors:
-            actual = head(row['decide'],row['options']).softmax(-1)
-            if not torch.allclose(actual,row['reference'],atol=2e-5,rtol=2e-4): raise ValueError('Cached call encoder/head differs')
+            z=head(row['decide'],row['options']).double()
+            if 'fixed_call_context_logits' in row:z=z+row['fixed_call_context_logits']
+            actual=z.softmax(-1)
+            if not torch.allclose(actual,row['reference'].double(),atol=2e-5,rtol=2e-4): raise ValueError('Cached call encoder/head differs')
+            if max(row['eligible'],key=lambda i:float(actual[i]))!=row.get('teacher_action',max(row['eligible'],key=lambda i:float(row['reference'][i]))):
+                raise ValueError('Starting call-head policy differs from registered baseline')
     optimizer = torch.optim.AdamW(head.parameters(), lr=cfg['lr'], weight_decay=cfg['weight_decay'])
     curve = []; updates = stale = 0; reason = 'epoch_limit'
     def save(epoch):
         held = profile(head, groups['held']); train = profile(head, groups['train'])
         with torch.no_grad():
-            drift = sum(float(anchor_kl(head,r)) for r in anchors) / len(anchors)
+            drift = sum(float(anchor_kl(head,r)) for r in anchors) / len(anchors) if anchors else 0.
             loss = sum(float(distillation_loss(head,g,cfg['reference_prior_strength'])) for g in groups['held'])/len(groups['held'])
         item = save_head_checkpoint(out, cfg['model_id'], heads, protocol, epoch, loss)
         item.update(held_policy=held, train_policy=train, anchor_kl=drift)
@@ -241,12 +295,12 @@ def fit(cfg):
             indices=order[start:start+cfg['batch']]
             batch = [groups['train'][i] for i in indices]
             begin = updates*cfg['anchor_batch']
-            ar = [anchors[anchor_order[(begin+i)%len(anchors)]] for i in range(cfg['anchor_batch'])]
+            ar = [anchors[anchor_order[(begin+i)%len(anchors)]] for i in range(cfg['anchor_batch'])] if anchors else []
             loss = torch.stack([weights[i]*distillation_loss(head,g,cfg['reference_prior_strength'])
                 for i,g in zip(indices,batch)]).mean()
-            loss = loss + cfg['anchor_beta']*torch.stack([anchor_kl(head,r) for r in ar]).mean()
+            if ar:loss = loss + cfg['anchor_beta']*torch.stack([anchor_kl(head,r) for r in ar]).mean()
             if not torch.isfinite(loss): raise ValueError('Nonfinite loss')
-            optimizer.zero_grad(); loss.backward(); norm = torch.nn.utils.clip_grad_norm_(head.parameters(),.5)
+            optimizer.zero_grad(); loss.backward(); norm = torch.nn.utils.clip_grad_norm_(head.parameters(),.5 if anchored else 1.)
             if not torch.isfinite(norm): raise ValueError('Nonfinite gradient')
             optimizer.step(); updates += 1
         item = save(epoch)
@@ -258,12 +312,14 @@ def fit(cfg):
     verify(protocol)
     for path, sha in {**hashes, **anchor_meta['source_sha256'], **audit_hashes}.items():
         if digest(Path(path)) != sha: raise ValueError('Fit or anchor input changed')
-    result = dict(status='trained',model_id=cfg['model_id'],fit_method='complete-option-call-pointer-head-with-train-only-reference-KL',
+    result = dict(status='trained',model_id=cfg['model_id'],fit_method=('complete-option-call-pointer-head-with-train-only-reference-KL'
+        if anchored else 'complete-option-call-pointer-head-with-fixed-calling-context'),
         config=cfg,selected=best,curve=curve,optimizer_updates=updates,stop_reason=reason,trained_scopes=['calling'],decision_filter='all',
         train_states=len(groups['train']),held_states=len(groups['held']),train_rows=len(parts['train']),held_rows=len(parts['held']),
         data=cfg['data'],data_sources=sources,data_sha256=hashes,anchor_metadata=anchor_meta,data_audit_sha256=audit_hashes,
         selected_is_starting_model=best['epoch']==0,held_policy_gain_improved=best['epoch']!=0,
         training_route_weighting=weighting,
+        trainable_parameter_count=sum(p.numel() for p in head.parameters()),anchor_policy=mode,
         human_test_opened=False,deployed=False,strength_improvement_proven=False)
     write(out/'result.json',result); write(out/'status.json',result)
 

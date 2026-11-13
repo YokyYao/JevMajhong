@@ -1,6 +1,6 @@
 {
   "model_target": "jev-chi-win-v1",
-  "stage": "prefix_audited_full_native_collection_submitted",
+  "stage": "full_native_collection_complete_audit_running",
   "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
   "source_sha256": "9c2d72262cc7fea037a9dda35cd5fa8add1b8ab7545903031a37a24bd53d2d6a",
   "planned_whole_wall_groups": 128,
@@ -79,5 +79,20 @@
   ],
   "continuation_source_sha256": "bbbdaf7c2dd127b0b5845aa9e4d267501bf3c063e8916abf90fee89ca7218e53",
   "continuation_core_tests_passed": 123,
-  "same_component_fitter_implemented": true
+  "same_component_fitter_implemented": true,
+  "native_collection_result": {
+    "status": "collection_complete",
+    "method": "native_call_states_v1",
+    "walls": 128,
+    "rows": 9451,
+    "state_splits": {
+      "train": 7189,
+      "held": 2262
+    },
+    "fresh_control_matches": 512,
+    "counterfactual_rollouts": 0,
+    "optimizer_updates": 0,
+    "human_test_opened": false,
+    "inputs_only_not_reward_labels": true
+  }
 }

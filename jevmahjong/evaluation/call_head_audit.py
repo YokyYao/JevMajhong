@@ -10,10 +10,15 @@ import torch
 from jevmahjong.core.io import digest, write
 from jevmahjong.policy.routing import make_head
 from jevmahjong.training.provenance import snapshot, verify
-from jevmahjong.training.call_head import load_inputs, route_groups
+from jevmahjong.training.call_head import load_inputs, route_groups, anchor_policy
 
 
 def read(path): return json.loads(Path(path).read_text(encoding='utf-8'))
+
+
+def manual_logits(head,row):
+    z=head(row['decide'],row['options']).double()
+    return z+row['fixed_call_context_logits'] if 'fixed_call_context_logits' in row else z
 
 
 def native_win_credit(log, hand_index, seat, draws_before, reward):
@@ -62,7 +67,7 @@ def manual_profile(head, groups):
     win_first='own_win' in groups[0]['credit'][groups[0]['teacher']]
     if win_first:totals['mean_sampled_hand_win_gain']=0.
     for group in groups:
-        row = group['row']; z = head(row['decide'],row['options'])
+        row = group['row']; z = manual_logits(head,row)
         choice = max(row['eligible'],key=lambda i:float(z[i]))
         matches = [r for r in group['records'] if r['action']==choice]
         if choice == row['teacher_action']:
@@ -92,7 +97,7 @@ def manual_route_profile(head, groups):
     for g in groups:
         row=g['row'];criteria=list(row['public_request']['questions']['action']['criteria'].values())
         if criteria[row['teacher_action']]['type']!='none':continue
-        z=head(row['decide'],row['options']);choice=max(row['eligible'],key=lambda i:float(z[i]))
+        z=manual_logits(head,row);choice=max(row['eligible'],key=lambda i:float(z[i]))
         records=[r for r in g['records'] if criteria[r['action']]['type'] in ('chi','pon')]
         win_first='own_win' in g['credit'][g['teacher']]
         deltas={}
@@ -118,7 +123,18 @@ def audit(cfg):
         raise ValueError('Complete matching call-head fit required')
     if training['fit_model']!='complete_option_call_head' or training['train_scopes']!=['calling']:
         raise ValueError('Only calling pointer-head repair is supported')
+    mode=anchor_policy(training)
     parts,groups,hashes,sources,anchors,anchor_meta,data_audits=load_inputs(training,registered)
+    if training.get('call_context_baseline'):
+        from jevmahjong.policy.call_baseline import load
+        from jevmahjong.policy.kan_context import feature_vectors
+        context=load(training,registered['model_files']);w=context['state_dict']
+        for rows in parts.values():
+            for row in rows:
+                x=torch.tensor(feature_vectors(row['public_request'],context['version']),dtype=torch.float64)
+                bias=(torch.tanh(x@w['0.weight'].T+w['0.bias'])@w['2.weight'].T).flatten()/context['reference_prior_strength']
+                if not torch.allclose(bias,row['fixed_call_context_logits'],atol=1e-12,rtol=0):
+                    raise ValueError('Fixed calling context arithmetic differs')
     win_arms=check_win_targets(training,parts) if training['reward']['mode']=='own_win_first_v1' else 0
     if hashes!=fit['data_sha256'] or sources!=fit['data_sources'] or anchor_meta!=fit['anchor_metadata'] or data_audits!=fit['data_audit_sha256']:
         raise ValueError('Fit or anchor inputs differ')
@@ -159,6 +175,8 @@ def audit(cfg):
                 or saved['trained_scopes']!=['calling'] or saved['decision_filter']!='all'
                 or saved['epoch']!=item['epoch'] or saved['model_id']!=training['model_id']):
             raise ValueError('Checkpoint identity differs')
+        if saved.get('call_context_baseline')!=registered.get('call_context_baseline'):
+            raise ValueError('Checkpoint fixed calling context differs')
         for scope,head in heads.items():
             if set(saved['heads'][scope])!=set(original[scope]): raise ValueError('Head architecture changed')
             for name,value in saved['heads'][scope].items():
@@ -175,16 +193,16 @@ def audit(cfg):
             for name,actual in route_results[split].items():check_close(actual,item[split+'_routes'][name])
         divergences=[]
         for row in anchors:
-            z=heads['calling'](row['decide'],row['options'])[row['eligible']].double()
+            z=manual_logits(heads['calling'],row)[row['eligible']]
             q=row['reference'][row['eligible']].double();q=q/q.sum()
             divergences.append(float((q*(q.clamp_min(1e-30).log()-z.log_softmax(-1))).sum()))
-        drift=sum(divergences)/len(divergences)
+        drift=sum(divergences)/len(divergences) if divergences else 0.
         if abs(drift-item['anchor_kl'])>1e-8: raise ValueError('Anchor KL differs')
         curve.append(dict(epoch=item['epoch'],train_policy=train,held_policy=held,anchor_kl=drift,
             held_routes=route_results['held'],train_routes=route_results['train']))
         if best is None:
             if held['changed_argmax_states'] or abs(held['mean_sampled_net_point_gain'])>1e-10:
-                raise ValueError('Starting policy differs from Play v1')
+                raise ValueError('Starting policy differs from registered baseline')
             best=item;continue
         if training.get('selection_objective','net_points')=='hand_win':
             priority=lambda p:(p['mean_sampled_hand_win_gain'],p['mean_sampled_fast_gain'])
@@ -199,6 +217,8 @@ def audit(cfg):
         if improved:best=item;stale=0
         else:stale+=1
     if best!=fit['selected'] or fit['selected_is_starting_model']!=(best['epoch']==0): raise ValueError('Checkpoint selection differs')
+    if mode=='same_data_no_anchors' and fit.get('trainable_parameter_count')!=sum(p.numel() for p in heads['calling'].parameters()):
+        raise ValueError('Matched comparison parameter count differs')
     if len(curve)>training['epochs']+1 or fit['optimizer_updates']!=(len(curve)-1)*math.ceil(len(groups['train'])/training['batch']):
         raise ValueError('Epoch or optimizer update count differs')
     eligible=(best['epoch']>0 and best['held_policy']['mean_sampled_net_point_gain']>0
@@ -221,6 +241,7 @@ def audit(cfg):
         train_states=len(groups['train']),held_states=len(groups['held']),anchor_states=len(anchors),
         selection_objective=training.get('selection_objective','net_points'),
         win_reward_arms_recomputed=win_arms,
+        anchor_policy=mode,trainable_parameter_count=sum(p.numel() for p in heads['calling'].parameters()),
         route_recovery_verified=route_verified,route_is_diagnostic_only=not require_route,
         eligible_for_development=eligible,strength_improvement_proven=False)
     write(out/'protocol.json',protocol);write(out/'result.json',result);write(out/'status.json',result)
