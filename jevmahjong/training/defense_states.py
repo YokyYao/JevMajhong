@@ -7,7 +7,7 @@ from pathlib import Path
 import torch
 from jevmahjong.core.io import digest,request_hash,write
 from jevmahjong.core.state import build_request
-from jevmahjong.data.native_states import METHOD,validate
+from jevmahjong.data.native_states import METHOD,KAN_METHOD,validate
 from jevmahjong.policy.defense import DefensePolicyAgent,is_defense_request,eligible_indices,request_eligible
 from .collector import NativeCollector,action_key
 from .provenance import snapshot,verify
@@ -50,7 +50,8 @@ def collect_native_inputs(cfg,resume=False,max_walls=None,*,collector=DefenseSta
     out=Path(cfg['out'])
     total=cfg['training_seeds_per_stage']
     if max_walls is not None and not 1<=max_walls<=total:raise ValueError('Bounded wall prefix required')
-    if cfg['train_scopes']!=[scope] or cfg['decision_filter']!=('all' if scope=='calling' else 'open_tenpai_riichi'):
+    expected_filter='kan_windows' if method==KAN_METHOD else 'all' if scope=='calling' else 'open_tenpai_riichi'
+    if cfg['train_scopes']!=[scope] or cfg['decision_filter']!=expected_filter:
         raise ValueError('Explicit native-state capture scope required')
     out.mkdir(parents=True,exist_ok=resume);lock=(out/'collection.lock').open('w');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     protocol=snapshot(cfg);protocol['collection_method']=method
@@ -58,7 +59,8 @@ def collect_native_inputs(cfg,resume=False,max_walls=None,*,collector=DefenseSta
         raise ValueError('Resume requires unchanged registered source, models and configuration')
     write(out/'protocol.json',protocol);shards=out/'walls-private';shards.mkdir(exist_ok=True)
     policy=collector(cfg);counts={'train':0,'held':0};rows_count=0
-    collecting='collecting_native_call_states' if scope=='calling' else 'collecting_native_defense_states'
+    collecting=('collecting_native_kan_states' if method==KAN_METHOD else
+        'collecting_native_call_states' if scope=='calling' else 'collecting_native_defense_states')
     try:
         for completed,seed in enumerate(range(cfg['training_seed_start'],cfg['training_seed_start']+total),1):
             path=shards/f'{seed}.pt';receipt=path.with_suffix('.audit.json')

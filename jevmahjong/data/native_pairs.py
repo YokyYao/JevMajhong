@@ -29,7 +29,7 @@ def encoder_identity(protocol):
     return {role: {name: normalized[role][name] for name in ENCODER_FILES} for role in normalized}
 
 
-def load_sources(roots, model_files=None, reward=None, *, allow_unlabeled=False):
+def load_sources(roots, model_files=None, reward=None, *, allow_unlabeled=False, expected_call_baseline=None):
     if reward is not None: validate_config(reward)
     if isinstance(roots, (str, Path)):
         roots = [roots]
@@ -43,6 +43,9 @@ def load_sources(roots, model_files=None, reward=None, *, allow_unlabeled=False)
         marker = root / 'collection-result.json'; protocol_file = root / 'protocol.json'
         collection = json.loads(marker.read_text()); protocol = json.loads(protocol_file.read_text())
         config = protocol['config']
+        from jevmahjong.policy.call_baseline import identity as baseline_identity
+        if baseline_identity(config)!=baseline_identity({'call_context_baseline':expected_call_baseline}):
+            raise ValueError('Source calling continuation baseline differs')
         from .native_states import INPUT_METHODS, validate as validate_inputs
         unlabeled = protocol.get('collection_method') in INPUT_METHODS
         if unlabeled and not allow_unlabeled:

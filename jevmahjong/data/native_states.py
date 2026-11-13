@@ -6,10 +6,14 @@ from jevmahjong.policy.defense import is_defense_request,request_eligible
 
 METHOD='native_defense_states_v1'
 CALL_METHOD='native_call_states_v1'
-INPUT_METHODS=(METHOD,CALL_METHOD)
+KAN_METHOD='native_kan_states_v1'
+INPUT_METHODS=(METHOD,CALL_METHOD,KAN_METHOD)
 
 
 def input_eligible(request,method):
+    if method==KAN_METHOD:
+        from jevmahjong.policy.kan import request_eligible as kan_eligible
+        return kan_eligible(request)
     if method==METHOD:
         if not is_defense_request(request):raise ValueError('Defense input required')
         return request_eligible(request)
@@ -43,7 +47,7 @@ def validate(payload,seed,config):
         seen.add(key);public.add(identity);meta=decisions[key]
         if (len(key)!=3 or key[2]<0 or (meta['seed'],meta['seat'],meta['replica'])!=key
                 or row['public_request']['state']['seat']!=key[1]):raise ValueError('Native decision identity differs')
-        if (row['scope']!=('ordinary' if method==METHOD else 'calling')
+        if (row['scope']!=('calling' if method==CALL_METHOD else 'ordinary')
                 or request_hash(row['public_request'])!=row['request_sha256']
                 or row['eligible']!=input_eligible(row['public_request'],method)):raise ValueError('Native input or action set differs')
         q=row['reference'];eligible=row['eligible']

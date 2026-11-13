@@ -95,9 +95,11 @@ def audit(cfg):
     require(objective in ('utility','hand_win') and fit.get('selection_objective','utility')==objective,
         'Registered selection objective differs')
     if objective=='hand_win':
-        require(training['train_scopes']==['calling'] and training['reward']['mode']=='own_win_first_v1'
+        win_scope=(training['train_scopes']==['calling'] and training['decision_filter']=='all') or (
+            training['train_scopes']==['ordinary'] and training['decision_filter']=='kan_windows')
+        require(win_scope and training['reward']['mode']=='own_win_first_v1'
             and math.isfinite(training.get('max_held_dealin_increase',float('nan')))
-            and 0<=training['max_held_dealin_increase']<=1,'Explicit call hand-win objective and risk cap required')
+            and 0<=training['max_held_dealin_increase']<=1,'Explicit call or kan hand-win objective and risk cap required')
     mode=training['decision_filter'];activation=('defense_windows' if mode=='open_tenpai_riichi' else
         'call_windows' if training['train_scopes']==['calling'] else 'kan_windows')
     require(fit['decision_filter']==activation and fit['trained_scopes']==training['train_scopes'],'Registered model activation differs')
@@ -116,7 +118,8 @@ def audit(cfg):
             require(path not in hashes or hashes[path]==h,'Conflicting audit input identity');hashes[path]=h
         for name in ('result.json','protocol.json'):hashes[str(directory/name)]=digest(directory/name)
         audit_collections.add(resolve(registered['config']['collection']))
-    parts,data_hashes,sources=load_sources([resolve(p) for p in training['data']],original['model_files'],training['reward'])
+    parts,data_hashes,sources=load_sources([resolve(p) for p in training['data']],original['model_files'],training['reward'],
+        expected_call_baseline=training.get('call_context_baseline'))
     parts=select_decisions(parts,mode,training['train_scopes'])
     if objective=='hand_win':
         require(all(Path(s['path']).parent in audit_collections for s in sources),
@@ -162,6 +165,8 @@ def audit(cfg):
         require(model['epoch']==item['epoch'] and model['model_id']==training['model_id']
             and model['model_files']==original['model_files'] and model['base_and_LoRA_frozen'] is True
             and model['trained_scopes']==training['train_scopes'] and model['decision_filter']==activation,'Checkpoint identity differs')
+        require(model.get('call_context_baseline')==original.get('call_context_baseline'),
+            'Checkpoint calling continuation baseline differs')
         for scope,head in heads.items():
             expected=head.state_dict();saved=model['heads'][scope]
             require(set(saved)==set(expected) and all(torch.equal(saved[k],v) for k,v in expected.items()),'Original pointer head changed')
@@ -238,7 +243,7 @@ def audit(cfg):
             and chosen['mean_sampled_dealin_change_per_state']<=training['max_held_dealin_increase']+1e-12
             if objective=='hand_win' else improved and chosen['mean_sampled_net_point_gain_per_state']>0),
         'independent_strength_proven':False,'new_full_matches':0}
-    if objective=='hand_win':
+    if objective=='hand_win' and activation=='call_windows':
         from jevmahjong.training.call_head import route_groups
         require(len(selected_records)==len(groups),'Selected route diagnostics incomplete')
         routes=route_groups([{'row':g[0],'index':i} for i,g in enumerate(groups)])
@@ -248,6 +253,13 @@ def audit(cfg):
             result['held_routes'][name]={**aggregate(records),
                 'sampled_positive_call_states':sum(r['sampled_positive_call_state'] for r in records),
                 'recovered_sample_positive_calls':sum(r['recovered_sample_positive_call'] for r in records)}
+    elif objective=='hand_win' and activation=='kan_windows':
+        require(len(selected_records)==len(groups),'Selected kan diagnostics incomplete')
+        result['held_kan_routes']={}
+        for kind in ('ankan','daiminkan','kakan','chi','pon'):
+            indexes=[i for i,g in enumerate(groups) if any(c['type']==kind
+                for c in g[0]['public_request']['questions']['action']['criteria'].values())]
+            if indexes:result['held_kan_routes'][kind]=aggregate([selected_records[i] for i in indexes])
     write(out/'result.json',result);write(out/'status.json',result);return result
 
 

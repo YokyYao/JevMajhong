@@ -143,8 +143,9 @@ class WinContextTests(unittest.TestCase):
         from jevmahjong.policy.call_tile_context import VERSION as TILE_VERSION
         for version in (VERSION,TILE_VERSION):
             with self.subTest(version=version):self._real_fit_and_audit(version)
+        self._real_fit_and_audit(VERSION,kan=True)
 
-    def _real_fit_and_audit(self,version):
+    def _real_fit_and_audit(self,version,kan=False):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             roles = {}
@@ -153,6 +154,9 @@ class WinContextTests(unittest.TestCase):
                 roles[role + '_checkpoint'] = str(directory)
             source = dict(path=str(root / 'collection/source_0'), seed_start=100, seeds=4, walls=4)
             parts = dict(train=[pair(100)], held=[pair(103)])
+            if kan:
+                for rows in parts.values():
+                    for row in rows:row.update(scope='ordinary',public_request=request('daiminkan'))
             cfg = dict(**roles, out=str(root / 'fit'), model_id='toy-win-context',
                        fit_model='residual_policy', train_scopes=['calling'], decision_filter='all',
                        data=[source['path']], reward=dict(mode='own_win_first_v1'),
@@ -162,6 +166,7 @@ class WinContextTests(unittest.TestCase):
                        route_loss_weights={'closed_pon_yakuhai':4},
                        max_example_weight=4., hidden=4, seed=17, lr=.02, weight_decay=.001,
                        batch=1, epochs=12, patience_epochs=3)
+            if kan:cfg.update(train_scopes=['ordinary'],decision_filter='kan_windows',policy_state_weighting='uniform')
             fitfile = root / 'fit-config.json'; fitfile.write_text(json.dumps(cfg))
 
             def prepare(_):
@@ -184,7 +189,7 @@ class WinContextTests(unittest.TestCase):
                             fit_config_sha256=digest(fitfile), data_audits=[str(data_audit)],
                             expected=dict(wall_groups=4, features=len(feature_names(version)),
                                           parameters=4*(len(feature_names(version))+2),
-                                          policy_state_weighting='public_routes'))
+                                          policy_state_weighting=cfg['policy_state_weighting']))
             snapshot = lambda c: dict(config=c, model_files={}, code_sha256={})
             with patch('jevmahjong.evaluation.context_audit.load_sources', return_value=(parts, {}, [source])), \
                  patch('jevmahjong.evaluation.context_audit.make_head', side_effect=lambda *a: FrozenHead()), \
@@ -193,8 +198,12 @@ class WinContextTests(unittest.TestCase):
                 self.assertTrue(checked['eligible_for_development'])
                 self.assertEqual(checked['selection_objective'], 'hand_win')
                 self.assertLess(checked['selected']['mean_sampled_net_point_gain_per_state'], 0)
-                self.assertEqual(checked['held_routes']['closed_pon_yakuhai']['sampled_positive_call_states'], 1)
-                self.assertEqual(checked['held_routes']['closed_pon_yakuhai']['recovered_sample_positive_calls'], 1)
+                if kan:
+                    self.assertEqual(checked['activation'],'kan_windows')
+                    self.assertEqual(checked['held_kan_routes']['daiminkan'][WIN_METRIC],.125)
+                else:
+                    self.assertEqual(checked['held_routes']['closed_pon_yakuhai']['sampled_positive_call_states'], 1)
+                    self.assertEqual(checked['held_routes']['closed_pon_yakuhai']['recovered_sample_positive_calls'], 1)
                 missing = dict(checkcfg, out=str(root / 'missing-data-audit'), data_audits=[])
                 with self.assertRaisesRegex(ValueError, 'Every win-call'):
                     audit(missing)

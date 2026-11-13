@@ -80,6 +80,13 @@ class NativeCollector:
             protocol = snapshot(config)
             self.policy_heads = self.load_behavior_heads(protocol, device)
             self.router = HeadPolicyClient(self.ordinary, self.client, self.policy_heads)
+        from jevmahjong.policy.call_baseline import load, wrap
+        self.call_baseline_context = None
+        if config.get('call_context_baseline'):
+            if config.get('behavior_heads'):
+                raise ValueError('Calling baseline cannot be combined with behavior-head exploration')
+            self.call_baseline_context = load(config, snapshot(config)['model_files'])
+            self.router = wrap(self.router, self.call_baseline_context)
         self.logged = CaptureClient(self.router)
         self.agent = PolicyAgent(self.logged)
         self.strong = PolicyAgent(self.ordinary)
@@ -124,6 +131,8 @@ class NativeCollector:
             decide, options = self.fast_inputs[0][1]
             head = self.policy_heads[scope]
             p = head(decide, options).softmax(-1).detach().cpu()
+            from jevmahjong.policy.call_baseline import transform
+            p = transform(request, p, self.call_baseline_context)
             keys = list(request['questions']['action']['criteria'])
             native, _ = validate_distribution(self.logged.response['answers']['action']['probabilities'], keys)
             if not torch.allclose(p, torch.tensor(native), atol=2e-5, rtol=2e-4):

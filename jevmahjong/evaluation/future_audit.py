@@ -33,7 +33,10 @@ def audit(cfg, resume=False):
     protocol = snapshot(cfg)
     if protocol['model_files'] != collection_protocol['model_files']:
         raise ValueError('Audit and collection baseline models differ')
-    parts, hashes, sources = load_sources(marker['source_outputs'], protocol['model_files'])
+    from jevmahjong.policy.call_baseline import identity
+    if identity(cfg)!=identity(collection_protocol['config']):raise ValueError('Audit calling baseline differs')
+    parts, hashes, sources = load_sources(marker['source_outputs'], protocol['model_files'],
+        expected_call_baseline=cfg.get('call_context_baseline'))
     for path in (root/'protocol.json', root/'collection-result.json'):
         hashes[str(path)] = digest(path)
     for source in sources:

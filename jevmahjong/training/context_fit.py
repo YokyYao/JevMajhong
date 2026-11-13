@@ -61,7 +61,8 @@ def prepare(cfg):
     if selection != 'latest_source' and not (selection == 'all_sources' and cfg.get('fit_model') == 'residual_policy'):
         raise ValueError('Unsupported validation selection for fit model')
     torch.set_num_threads(4);protocol=snapshot(cfg);write(out/'protocol.json',protocol)
-    parts,hashes,sources=load_sources(cfg['data'],protocol['model_files'],cfg['reward'])
+    parts,hashes,sources=load_sources(cfg['data'],protocol['model_files'],cfg['reward'],
+        expected_call_baseline=cfg.get('call_context_baseline'))
     parts=select_decisions(parts,cfg['decision_filter'],cfg['train_scopes']);train,held=parts['train'],parts['held']
     if not train or not held:raise ValueError('Whole-wall train and validation required')
     heads={s:make_head(torch.load(Path(cfg[k])/'head.pt',map_location='cpu',weights_only=True),'cpu').eval()

@@ -146,6 +146,12 @@ def main():
         if not previous['eligible_for_confirmation']:
             write(out / 'status.json', {'status': 'skipped', 'reason': 'no_joint_speed_and_point_gain'}); return
     protocol = snapshot(cfg); protocol['checkpoint_sha256'] = digest(checkpoint)
+    fit_protocol=json.loads((fit_run/'protocol.json').read_text())
+    if protocol.get('call_context_baseline')!=fit_protocol.get('call_context_baseline'):
+        raise ValueError('Evaluation must preserve the fit calling continuation baseline')
+    if cfg['stage']=='independent_confirmation' and (
+            protocol.get('call_context_baseline')!=development_protocol.get('call_context_baseline')):
+        raise ValueError('Confirmation must preserve the development calling baseline')
     if cfg.get('required_call_head_audit_config'):
         from .call_head_audit import checked_receipt
         checked,receipt=checked_receipt(cfg['required_call_head_audit_config'],fit_run,fit,protocol['model_files'])
@@ -182,6 +188,10 @@ def main():
     model = torch.load(checkpoint, map_location='cpu', weights_only=True)
     if model.get('base_and_LoRA_frozen') is not True or model['model_files'] != protocol['model_files']:
         raise ValueError('Candidate and reference frozen encoders differ')
+    if model.get('call_context_baseline')!=protocol.get('call_context_baseline'):
+        raise ValueError('Candidate calling baseline differs')
+    from jevmahjong.policy.call_baseline import load as load_baseline,wrap as wrap_baseline,transform as baseline_transform
+    calling_baseline=load_baseline(cfg,protocol['model_files'])
     heads = {}
     for scope, role in [('ordinary', 'discard'), ('calling', 'call')]:
         expected = model['model_files'][role]
@@ -208,6 +218,7 @@ def main():
         if activation in ('call_windows','defense_windows'): raise ValueError('Scoped activation requires a context component')
         router = (KanPolicyClient(ordinary, calling, heads) if activation == 'kan_windows'
             else HeadPolicyClient(ordinary, calling, heads))
+    router=wrap_baseline(router,calling_baseline)
     checked = {'ordinary': 0, 'calling': 0}
     if activation == 'kan_windows': checked['ordinary_nonkan'] = 0
     if activation == 'call_windows': checked['ordinary_kan'] = 0
@@ -230,6 +241,7 @@ def main():
                 expected = head(row['decide'].cuda(), row['options'].cuda()).softmax(-1).cpu()
             if context is not None and key == ('calling' if activation == 'call_windows' else 'ordinary'):
                 expected = torch.tensor(context_probabilities(row['public_request'],expected.tolist(),context))
+            expected=baseline_transform(row['public_request'],expected,calling_baseline)
             p = router.system_one(**row['public_request'])['answers']['action']['probabilities']
             if not torch.allclose(expected, torch.tensor(list(p.values())), atol=2e-5, rtol=2e-4):
                 raise ValueError('Updated head and native probabilities disagree')
@@ -242,7 +254,7 @@ def main():
             'complete_matches_simulated':0,'independent_strength_proven':False})
         return
     candidate_agent=DefensePolicyAgent(router) if activation=='defense_windows' else PolicyAgent(router)
-    agents = {'reference': PolicyAgent(HybridPolicy(ordinary, calling)), 'candidate': candidate_agent}
+    agents = {'reference': PolicyAgent(wrap_baseline(HybridPolicy(ordinary, calling),calling_baseline)), 'candidate': candidate_agent}
     strong = PolicyAgent(ordinary); raw = out / 'games-private.jsonl'
     if not raw.exists() and cached:
         with raw.open('w') as stream:

@@ -148,11 +148,13 @@ def fit(cfg):
     selection=cfg.get('selection_validation','latest_source')
     objective=cfg.get('selection_objective','utility')
     if objective not in ('utility','hand_win'):raise ValueError('Unknown residual selection objective')
-    if objective=='hand_win' and (cfg['train_scopes']!=['calling'] or selection!='all_sources'
+    win_scope=(cfg['train_scopes']==['calling'] and cfg['decision_filter']=='all') or (
+        cfg['train_scopes']==['ordinary'] and cfg['decision_filter']=='kan_windows')
+    if objective=='hand_win' and (not win_scope or selection!='all_sources'
             or cfg.get('reward',{}).get('mode')!='own_win_first_v1'
             or not math.isfinite(cfg.get('max_held_dealin_increase',float('nan')))
             or not 0<=cfg['max_held_dealin_increase']<=1):
-        raise ValueError('Explicit pure-call win reward, pooled validation and risk cap required')
+        raise ValueError('Explicit call or kan win reward, pooled validation and risk cap required')
     activation=('defense_windows' if cfg['decision_filter']=='open_tenpai_riichi' else
         'call_windows' if cfg['train_scopes'] == ['calling'] else 'kan_windows')
     if not math.isfinite(strength) or strength<=0:raise ValueError('Positive prior strength required')
@@ -170,6 +172,7 @@ def fit(cfg):
         context={'version':version,'names':list(names),'model_kind':'mlp','hidden':cfg['hidden'],
             'reference_prior_strength':strength,'state_dict':{k:v.detach().clone() for k,v in net.state_dict().items()}}
         torch.save({'model_id':cfg['model_id'],'model_files':protocol['model_files'],'base_and_LoRA_frozen':True,
+            **({'call_context_baseline':protocol['call_context_baseline']} if protocol.get('call_context_baseline') else {}),
             'heads':{s:copy.deepcopy(h.state_dict()) for s,h in heads.items()},'trained_scopes':cfg['train_scopes'],
             'decision_filter':activation,'kan_context':context,'epoch':epoch},checkpoint)
         item={'epoch':epoch,'held_loss':selected_profile['label_regret'],'validation_sources':prof,

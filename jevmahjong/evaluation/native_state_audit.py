@@ -8,7 +8,7 @@ from riichienv import GameRule,RiichiEnv
 from jevmahjong.core.io import digest,request_hash,write
 from jevmahjong.core.seeds import engine_seed
 from jevmahjong.core.state import build_request
-from jevmahjong.data.native_states import METHOD,CALL_METHOD,INPUT_METHODS,validate
+from jevmahjong.data.native_states import METHOD,CALL_METHOD,KAN_METHOD,INPUT_METHODS,validate
 from jevmahjong.evaluation.agents import guarded_indices
 from jevmahjong.policy.defense import eligible_indices
 from jevmahjong.policy.routing import make_head
@@ -36,6 +36,8 @@ def audit(cfg):
             raise ValueError('Complete source collection required')
     protocol=snapshot(cfg)
     if protocol['model_files']!=original['model_files']:raise ValueError('Audit frozen models differ')
+    from jevmahjong.policy.call_baseline import identity
+    if identity(cfg)!=identity(source_cfg):raise ValueError('Audit calling baseline differs')
     role='call' if method==CALL_METHOD else 'discard'
     behavior_heads=load_collection_heads(source_cfg,original) if method==CALL_METHOD else None
     if method!=CALL_METHOD and original.get('behavior_heads'):
@@ -62,6 +64,9 @@ def audit(cfg):
                 coverage['open' if opened else 'closed']+=1
                 coverage['opponent_riichi']+=bool(set(state['riichi'])-{seat})
                 for name in ('chi','pon'):coverage[name]+=name in kinds
+            elif method==KAN_METHOD:
+                kinds={v['type'] for v in row['public_request']['questions']['action']['criteria'].values()}
+                for name in ('ankan','daiminkan','kakan','pon','chi'):coverage[name]+=name in kinds
             with torch.no_grad():q=head(row['decide'],row['options']).softmax(-1)
             max_error=max(max_error,float((q-row['reference']).abs().max()))
             if not torch.allclose(q,row['reference'],atol=2e-5,rtol=2e-4):raise ValueError('Frozen cached model probabilities differ')
@@ -70,7 +75,7 @@ def audit(cfg):
             obs=replay_prefix(env,controls[seat]['mjai_log'],decision['intervention_step'])
             request,actions,features=build_request(obs[seat]);hands=hand_outcomes(env.mjai_log)
             eligible=(sorted(set(guarded_indices(obs[seat],actions,features)) |
-                {i for i,f in enumerate(features) if not f}) if method==CALL_METHOD
+                {i for i,f in enumerate(features) if not f}) if method in (CALL_METHOD,KAN_METHOD)
                 else eligible_indices(obs[seat],actions,features))
             if (call_observation_digest(obs)!=row['source_state_digest']
                     or request_hash(request)!=row['request_sha256']
@@ -95,6 +100,9 @@ def audit(cfg):
         result['call_state_coverage']=dict(coverage)
         result['collection_policy']=collection_mode(source_cfg)
         if behavior_heads is not None:result['behavior_checkpoint_sha256']=original['behavior_heads']['sha256']
+    elif method==KAN_METHOD:
+        result['kan_state_coverage']=dict(coverage)
+        result['calling_baseline_sha256']=identity(source_cfg)
     write(out/'result.json',result);write(out/'status.json',result);return result
 
 

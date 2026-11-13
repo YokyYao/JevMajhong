@@ -134,7 +134,8 @@ def main():
     out=Path(cfg['out']);out.mkdir(parents=True,exist_ok=args.resume)
     lock=(out/'collector.lock').open('w');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     protocol=snapshot(cfg);protocol['collection_method']=METHOD
-    parts,hashes,sources=load_sources(cfg['data'],protocol['model_files'],cfg['reward'],allow_unlabeled=True)
+    parts,hashes,sources=load_sources(cfg['data'],protocol['model_files'],cfg['reward'],allow_unlabeled=True,
+        expected_call_baseline=cfg.get('call_context_baseline'))
     if any(json.loads((Path(s['path'])/'protocol.json').read_text()).get('collection_method') == METHOD for s in sources):
         raise ValueError('Revalue original native states, not an already revalued dataset')
     from jevmahjong.data.future_pairs import future_scope

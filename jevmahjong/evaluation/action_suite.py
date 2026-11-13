@@ -85,7 +85,8 @@ def main():
             map_location='cpu', weights_only=True)
         heads[scope] = make_head(meta, 'cpu').eval().requires_grad_(False)
         heads[scope].load_state_dict(saved['heads'][scope])
-    partitions, hashes, _ = load_sources(fit.get('data',fit['config']['data']), saved['model_files'], fit['config'].get('reward'))
+    partitions, hashes, _ = load_sources(fit.get('data',fit['config']['data']), saved['model_files'], fit['config'].get('reward'),
+        expected_call_baseline=fit['config'].get('call_context_baseline'))
     partitions = select_decisions(partitions, fit['config'].get('decision_filter', 'all'), fit['config'].get('train_scopes'))
     if hashes != fit['data_sha256']:
         raise ValueError('Source shard manifest differs')
