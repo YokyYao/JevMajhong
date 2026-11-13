@@ -1,0 +1,81 @@
+{
+  "model_target": "jev-kan-win-v1",
+  "stage": "native_inputs_audited_future_labels_submitted",
+  "calling_baseline_model": "jev-call-tile-win-v1",
+  "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+  "source_sha256": "1baa982d80c1d7367a7eee66a3b1d03b29636fecac6390a12b6a69ab29d2ae26",
+  "fresh_whole_wall_groups": 128,
+  "training_control_matches": 512,
+  "train_wall_groups": 96,
+  "held_wall_groups": 32,
+  "distinct_states": 457,
+  "train_states": 366,
+  "held_states": 91,
+  "native_audit": {
+    "status": "passed_complete",
+    "walls": 128,
+    "control_matches_audited": 512,
+    "states": 457,
+    "state_splits": {
+      "train": 366,
+      "held": 91
+    },
+    "prefixes_replayed": 457,
+    "cached_head_probability_max_error": 2.980232238769531e-07,
+    "whole_wall_disjoint": true,
+    "new_simulations": 0,
+    "reward_labels_available": false,
+    "independent_strength_proven": false,
+    "kan_state_coverage": {
+      "ankan": 214,
+      "daiminkan": 189,
+      "kakan": 54,
+      "pon": 189,
+      "chi": 11
+    },
+    "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+  },
+  "native_audit_sha256": "2f6b20fb3c6b9a2cc53b6d93979a9fd68c18152fa43dc8855c0a6a90a90e8961",
+  "coverage": {
+    "train": {
+      "ankan": 172,
+      "daiminkan": 146,
+      "kakan": 48,
+      "distinct_states": 366,
+      "opponent_riichi": 157
+    },
+    "held": {
+      "ankan": 42,
+      "daiminkan": 43,
+      "kakan": 6,
+      "distinct_states": 91,
+      "opponent_riichi": 29
+    }
+  },
+  "label_plan_sha256": "39469a0825fc350a0f6d3d55896454108b3548d17e98f421e93f4adbe316dab8",
+  "all_captured_states_selected": true,
+  "worlds_per_state": 16,
+  "initial_paired_hand_rollout_budget": 14624,
+  "planned_reward": {
+    "mode": "own_win_first_v1",
+    "win_weight": 1.0,
+    "fast_weight": 0.25,
+    "dealin_penalty": 2.0,
+    "net_weight": 0.0,
+    "point_scale": 8000.0,
+    "speed_gamma": 0.98
+  },
+  "parameter_training_started": false,
+  "new_kan_weights_exist": false,
+  "deployed": false,
+  "raw_records_public": false,
+  "weights_public": false,
+  "limitations": [
+    "These are training controls, not independent strength tests.",
+    "Operation counts are opportunities, not expert labels or correct kan selections.",
+    "Kakan has only6 internal-validation opportunities; reward-sign coverage remains unknown.",
+    "Mixed chi/kan menus occur only11 times in the full source; no claim of complete coverage.",
+    "Future wall samples retain opponent concealed hands; not a calibrated public-information belief model.",
+    "Futures share source states and are not independent training examples."
+  ]
+}
