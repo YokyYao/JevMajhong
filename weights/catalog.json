@@ -1520,6 +1520,83 @@
       "deployed": false,
       "strength_improvement_proven": false,
       "experimental_weights_public": false
+    },
+    "jev-call-tile-win-v1": {
+      "role": "public-tile-nonlinear-own-win-first-call-component",
+      "status": "fit-audited-fresh-development-submitted-not-deployed",
+      "frozen_components": [
+        "jev-discard-v1",
+        "jev-call-v1-encoder-and-LoRA",
+        "jev-call-v1-pointer-head"
+      ],
+      "selected_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+      "selected_epoch": 1,
+      "epochs_run": 5,
+      "optimizer_updates": 260,
+      "feature_version": "public-call-tile-context-v1",
+      "public_features": 600,
+      "hidden": 64,
+      "trainable_parameters": 38528,
+      "train_states": 828,
+      "held_states": 274,
+      "selected_held_policy": {
+        "epoch": 1,
+        "states": 274,
+        "label_regret": 0.07999441218117458,
+        "policy_kl": 0.3934112268724482,
+        "mean_label_utility_gain_vs_play": 0.004693437643714344,
+        "mean_sampled_net_point_gain_per_state": 48.98494525547445,
+        "mean_sampled_dealin_change_per_state": 0.0028512773722627737,
+        "mean_sampled_fast_reward_change_per_state": 0.005543823567558107,
+        "mean_sampled_hand_win_gain_per_state": 0.009010036496350364,
+        "changed_argmax_states": 23,
+        "validation_sources": [
+          {
+            "source": "original-routes",
+            "states": 50,
+            "label_regret": 0.12027923906098018,
+            "policy_kl": 0.4452266177818558,
+            "mean_label_utility_gain_vs_play": 0.00406264688681921,
+            "mean_sampled_net_point_gain_per_state": 139.875,
+            "mean_sampled_dealin_change_per_state": 0.01,
+            "mean_sampled_fast_reward_change_per_state": 0.011250587547276838,
+            "mean_sampled_hand_win_gain_per_state": 0.02125,
+            "changed_argmax_states": 8
+          },
+          {
+            "source": "fresh-call-stream",
+            "states": 96,
+            "label_regret": 0.0902606706895827,
+            "policy_kl": 0.45445811815796966,
+            "mean_label_utility_gain_vs_play": 0.012327126665069974,
+            "mean_sampled_net_point_gain_per_state": 39.0625,
+            "mean_sampled_dealin_change_per_state": -0.0013020833333333333,
+            "mean_sampled_fast_reward_change_per_state": 0.00503767332694657,
+            "mean_sampled_hand_win_gain_per_state": 0.008463541666666666,
+            "changed_argmax_states": 3
+          },
+          {
+            "source": "exploration-open-stream",
+            "states": 128,
+            "label_regret": 0.056558457799944416,
+            "policy_kl": 0.3273856713343198,
+            "mean_label_utility_gain_vs_play": -0.0007854264828902184,
+            "mean_sampled_net_point_gain_per_state": 20.9228515625,
+            "mean_sampled_dealin_change_per_state": 0.003173828125,
+            "mean_sampled_fast_reward_change_per_state": 0.0036942315684391296,
+            "mean_sampled_hand_win_gain_per_state": 0.004638671875,
+            "changed_argmax_states": 12
+          }
+        ]
+      },
+      "held_positive_chi_route_recovered": 0,
+      "held_sample_positive_chi_route_states": 9,
+      "manual_fit_audit_passed": true,
+      "development_expected_games": 192,
+      "adopted": false,
+      "deployed": false,
+      "strength_improvement_proven": false,
+      "experimental_weights_public": false
     }
   },
   "legacy_aliases": {
