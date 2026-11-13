@@ -1,0 +1,22 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "fit_config": "runs/configs/call-feature-win-fit-v4.json",
+  "fit_config_sha256": "f81f8113393ea5656778c4a1bee05b940aa539f90e562a7ccc3453ed7a36e71d",
+  "data_audits": [
+    "runs/play-call-routes-future-audit-v1",
+    "runs/play-call-routes-option-audit-v1",
+    "runs/play-call-stream-future-audit-v1",
+    "runs/play-call-stream-option-audit-v1",
+    "runs/play-call-exploration-source-audit-v2",
+    "runs/play-call-exploration-future-audit-v2",
+    "runs/play-call-exploration-option-audit-v2"
+  ],
+  "expected": {
+    "wall_groups": 36,
+    "features": 158,
+    "parameters": 40960,
+    "policy_state_weighting": "public_routes"
+  },
+  "out": "runs/call-feature-win-fit-audit-v4"
+}
