@@ -162,5 +162,36 @@
     }
   ],
   "interpretation": "v1 epoch1 has positive internal sampled hand-win gain but exceeds the predeclared KL limit; v2 halves learning rate but no snapshot meets all hand-win, utility, deal-in and KL conditions. Neither enters development. No architecture superiority or improvement established.",
-  "next": "Stop learning-rate-only search on these512states. Add128fresh native walls, inspect public route capacities, register balanced sampling and complete-option labels before another fit; preserve old validation and consumed development walls."
+  "next": "Stop learning-rate-only search on these512states. Add128fresh native walls, inspect public route capacities, register balanced sampling and complete-option labels before another fit; preserve old validation and consumed development walls.",
+  "latest_v3_evaluation_registration": {
+    "stage": "registered_not_started",
+    "model_id": "jev-chi-head-anchor-win-v3",
+    "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
+    "configs": [
+      "configs/training/chi-head-anchor-win-native-preflight-v3.json",
+      "configs/training/chi-head-anchor-win-development-v3.json",
+      "configs/training/chi-head-anchor-win-confirmation-v3.json"
+    ],
+    "recipe_link_check": {
+      "status": "passed_recipe_links",
+      "candidate_run": "runs/jev-chi-head-anchor-win-v3",
+      "development_out": "runs/chi-head-anchor-win-v3-development",
+      "confirmation_out": "runs/chi-head-anchor-win-v3-confirmation",
+      "development_wall_range": [
+        11730000,
+        11730008
+      ],
+      "confirmation_wall_range": [
+        11740000,
+        11740032
+      ],
+      "actual_weights_or_fit_eligibility_verified": false,
+      "independent_strength_proven": false
+    },
+    "freshness_config_and_runtime_records_checked": 620,
+    "matches_simulated": 0,
+    "weight_identity_and_fit_eligibility_not_yet_proven": true,
+    "fit_audit_and_actual_CPU_GPU_contract_required": true,
+    "ordinary_kan_reference_unchanged": true
+  }
 }

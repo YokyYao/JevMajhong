@@ -1,6 +1,6 @@
 {
   "stage": "v1_no_match_gain_v2_prior_only_fit_rejected_new_native_data_started",
-  "snapshot_at": "2026-11-13T17:38:48.473977+00:00",
+  "snapshot_at": "2026-11-13T17:49:12.871563+00:00",
   "v1_development": {
     "games": 192,
     "new_walls": 8,
@@ -531,5 +531,33 @@
     "current_new_data_optimizer_updates": 0,
     "complete_matches_started": false,
     "raw_records_and_weights_public": false
+  },
+  "confirmation_recipe_revision": {
+    "status": "corrected_registered_unexecuted_recipe",
+    "previous_config": "kan-expanded-win-confirmation-v1.json",
+    "active_config": "configs/training/kan-expanded-win-confirmation-v1-r2.json",
+    "reason": "Copied development_out still pointed to earlier tile candidate; fixed to expanded candidate development in a new immutable revision.",
+    "original_config_executed": false,
+    "old_registration_preserved_private": true,
+    "old_public_recipe_removed": true,
+    "data_fit_reward_scope_seed_ranges_and_checkpoint_unchanged": true,
+    "recipe_link_check": {
+      "status": "passed_recipe_links",
+      "candidate_run": "runs/jev-kan-expanded-win-v1",
+      "development_out": "runs/kan-expanded-win-v1-development",
+      "confirmation_out": "runs/kan-expanded-win-v1-confirmation-r2",
+      "development_wall_range": [
+        11830000,
+        11830008
+      ],
+      "confirmation_wall_range": [
+        11840000,
+        11840032
+      ],
+      "actual_weights_or_fit_eligibility_verified": false,
+      "independent_strength_proven": false
+    },
+    "new_match_jobs": 0,
+    "core_tests_passed": 147
   }
 }
