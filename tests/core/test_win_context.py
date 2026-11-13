@@ -140,6 +140,11 @@ class WinContextTests(unittest.TestCase):
                 check_profiles(actual, wrong)
 
     def test_real_optimizer_and_independent_audit_allow_win_gain_with_lower_points(self):
+        from jevmahjong.policy.call_tile_context import VERSION as TILE_VERSION
+        for version in (VERSION,TILE_VERSION):
+            with self.subTest(version=version):self._real_fit_and_audit(version)
+
+    def _real_fit_and_audit(self,version):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             roles = {}
@@ -151,7 +156,7 @@ class WinContextTests(unittest.TestCase):
             cfg = dict(**roles, out=str(root / 'fit'), model_id='toy-win-context',
                        fit_model='residual_policy', train_scopes=['calling'], decision_filter='all',
                        data=[source['path']], reward=dict(mode='own_win_first_v1'),
-                       feature_version=VERSION, selection_validation='all_sources',
+                       feature_version=version, selection_validation='all_sources',
                        selection_objective='hand_win', max_held_dealin_increase=.01,
                        reference_prior_strength=.05, policy_state_weighting='public_routes',
                        route_loss_weights={'closed_pon_yakuhai':4},
@@ -177,7 +182,8 @@ class WinContextTests(unittest.TestCase):
                 config=dict(collection=str(root / 'collection')), model_files={}, code_sha256={}, source_files={})))
             checkcfg = dict(**roles, out=str(root / 'audit'), fit_config=str(fitfile),
                             fit_config_sha256=digest(fitfile), data_audits=[str(data_audit)],
-                            expected=dict(wall_groups=4, features=158, parameters=640,
+                            expected=dict(wall_groups=4, features=len(feature_names(version)),
+                                          parameters=4*(len(feature_names(version))+2),
                                           policy_state_weighting='public_routes'))
             snapshot = lambda c: dict(config=c, model_files={}, code_sha256={})
             with patch('jevmahjong.evaluation.context_audit.load_sources', return_value=(parts, {}, [source])), \

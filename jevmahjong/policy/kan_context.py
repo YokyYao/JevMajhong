@@ -10,6 +10,7 @@ from .kan import is_kan_request
 from .routing import is_call_request
 from .defense import VERSION as DEFENSE_VERSION,is_defense_request
 from .kan_progress import VERSION as PROGRESS_VERSION, NAMES as PROGRESS_NAMES, visible_bounds, option_progress
+from .call_tile_context import VERSION as CALL_TILE_VERSION, NAMES as CALL_TILE_NAMES, vectors as call_tile_vectors
 
 VERSION = 'public-kan-context-v1'
 MAX_HIDDEN = 256
@@ -27,10 +28,15 @@ NAMES = (*KINDS, *AFTER_NAMES, *(f'{kind}/{name}' for kind in KINDS for name in 
 def feature_names(version=VERSION):
     if version == VERSION: return NAMES
     if version in (PROGRESS_VERSION,DEFENSE_VERSION): return (*NAMES, *PROGRESS_NAMES)
+    if version == CALL_TILE_VERSION: return (*NAMES,*PROGRESS_NAMES,*CALL_TILE_NAMES)
     raise ValueError('Context feature schema differs')
 
 
 def feature_vectors(request, version=VERSION):
+    if version == CALL_TILE_VERSION:
+        if not is_call_request(request):raise ValueError('Pure-call tile context required')
+        base=feature_vectors(request,PROGRESS_VERSION);tiles=call_tile_vectors(request)
+        return [original+extra for original,extra in zip(base,tiles)]
     names = feature_names(version)
     accepted = (is_defense_request(request) if version == DEFENSE_VERSION else
         is_kan_request(request) or (version == PROGRESS_VERSION and is_call_request(request)))

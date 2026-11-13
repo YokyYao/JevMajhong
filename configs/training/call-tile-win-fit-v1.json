@@ -1,0 +1,42 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "data": [
+    "runs/play-call-routes-options-v1/source_0",
+    "runs/play-call-stream-options-v1/source_0",
+    "runs/play-call-exploration-options-v2/source_0"
+  ],
+  "reward": {
+    "mode": "own_win_first_v1",
+    "win_weight": 1.0,
+    "fast_weight": 0.25,
+    "dealin_penalty": 2.0,
+    "net_weight": 0.0,
+    "point_scale": 8000.0,
+    "speed_gamma": 0.98
+  },
+  "model_id": "jev-call-tile-win-v1",
+  "out": "runs/jev-call-tile-win-v1",
+  "fit_model": "residual_policy",
+  "train_scopes": [
+    "calling"
+  ],
+  "decision_filter": "all",
+  "selection_validation": "all_sources",
+  "selection_objective": "hand_win",
+  "max_held_dealin_increase": 0.01,
+  "reference_prior_strength": 0.05,
+  "feature_version": "public-call-tile-context-v1",
+  "policy_state_weighting": "public_routes",
+  "max_example_weight": 4.0,
+  "hidden": 64,
+  "epochs": 24,
+  "patience_epochs": 4,
+  "batch": 16,
+  "lr": 0.0003,
+  "weight_decay": 0.001,
+  "seed": 2026111303,
+  "route_loss_weights": {
+    "closed_chi_tanyao_gain": 4.0
+  }
+}

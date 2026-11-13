@@ -8,6 +8,7 @@ from jevmahjong.core.io import digest, write
 from jevmahjong.data.native_pairs import load_sources, select_decisions
 from jevmahjong.policy.routing import make_head
 from jevmahjong.policy.kan_context import VERSION, NAMES, feature_vectors
+from jevmahjong.policy.call_tile_context import VERSION as CALL_TILE_VERSION
 from .provenance import snapshot, verify
 from .sampling import weights,state_key
 
@@ -50,7 +51,7 @@ def prepare(cfg):
     kan = cfg['train_scopes'] == ['ordinary'] and cfg['decision_filter'] == 'kan_windows'
     call = (cfg['train_scopes'] == ['calling'] and cfg['decision_filter'] == 'all'
         and cfg.get('fit_model') == 'residual_policy'
-        and cfg.get('feature_version') == 'public-kan-context-v2')
+        and cfg.get('feature_version') in ('public-kan-context-v2',CALL_TILE_VERSION))
     defense = (cfg['train_scopes'] == ['ordinary'] and cfg['decision_filter'] == 'open_tenpai_riichi'
         and cfg.get('fit_model') == 'residual_policy'
         and cfg.get('feature_version') == 'public-discard-defense-context-v1'
