@@ -1,0 +1,87 @@
+{
+  "stage": "registered_fits_queued_not_started",
+  "snapshot_at": "2026-11-13T17:12:49.016239+00:00",
+  "source_sha256": "092381a25e6e2cedb3af9bdd34d7d723d61f706a85b0c6cc2b1e2846916c971d",
+  "reason": "Prior kan candidate changed only3/96paired logs and had no observed own-win gain; weaker prior was rejected. Test additional public tile inputs before expanded-data fitting.",
+  "feature_version": "public-kan-tile-context-v1",
+  "legacy_features": 158,
+  "added_tile_channels": 13,
+  "tile_types_per_channel": 34,
+  "features": 600,
+  "tile_channels": [
+    "own_hand_tiles",
+    "remaining_owned_tiles",
+    "consumed_tiles",
+    "incoming_discard",
+    "dora_indicator_tiles",
+    "river_relative_0",
+    "river_relative_1",
+    "river_relative_2",
+    "river_relative_3",
+    "meld_relative_0",
+    "meld_relative_1",
+    "meld_relative_2",
+    "meld_relative_3"
+  ],
+  "semantics": {
+    "ankan_owned_consumption": 4,
+    "daiminkan_owned_consumption": 3,
+    "kakan_owned_consumption": 1,
+    "kakan_existing_public_pon_preserved": true,
+    "reach_no_owned_consumption_before_discard": true,
+    "river_and_meld_channels_not_deduplicated_remaining_counts": true,
+    "hidden_hands_wall_seeds_future_labels_as_inputs": false
+  },
+  "core_tests_passed": 143,
+  "new_meaningful_tests": 9,
+  "data": {
+    "same_as_kan_win_v1": true,
+    "states": 457,
+    "train_states": 366,
+    "held_states": 91,
+    "pairs": 1396,
+    "train_pairs": 1094,
+    "held_pairs": 302,
+    "new_simulations_for_this_comparison": 0,
+    "old_validation_never_train": true
+  },
+  "comparison": {
+    "control": {
+      "model_id": "jev-kan-aggregate-control-v1",
+      "features": 158,
+      "parameters": 10240
+    },
+    "candidate": {
+      "model_id": "jev-kan-tile-win-v1",
+      "features": 600,
+      "parameters": 38528
+    },
+    "same_initial_policy": "verified Call Tile Win v1 with zero kan correction",
+    "reference_prior_strength": 0.05,
+    "same_reward_risk_weighting_seed_lr_batch_epochs_patience": true,
+    "comparison_limit": "Both representation and parameter count increase; not matched capacity or FLOPs. No architecture superiority claim."
+  },
+  "frozen": [
+    "LLM",
+    "LoRA",
+    "original pointer heads",
+    "verified calling context"
+  ],
+  "replaces_the_same_kan_network_no_stacking": true,
+  "schedule": "Four sequential CPU fit/audit jobs queued after fresh-native audit; max2running jobs across chi/kan pipelines.",
+  "admission": "Control must reproduce original selected v1 tensors within1e-8. Only independently eligible tile candidate with improved own-win-first validation over control can enter new games under unchanged utility/risk rules.",
+  "evaluation": {
+    "actual_matches_started": false,
+    "control_matches_repeated": false,
+    "candidate_development_games": 192,
+    "conditional_confirmation_games": 768,
+    "candidate_requires_selected_weight_contract_and_actual_GPU_native_parity": true
+  },
+  "if_no_candidate": "Do not repeat matches; continue independently collected native data, inspect public capacities and preregister32shared-future labels.",
+  "chi_source_protection": "Pending audit-config binder replaced by a new source-pinned revision before package edits; training source/data/config unchanged.",
+  "strength_improvement_proven": false,
+  "candidate_adopted": false,
+  "raw_records_public": false,
+  "weights_public": false,
+  "deployed": false
+}

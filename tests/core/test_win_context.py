@@ -149,6 +149,10 @@ class WinContextTests(unittest.TestCase):
         from jevmahjong.policy.call_tile_context import VERSION as TILE_VERSION
         self._real_fit_and_audit(TILE_VERSION,warm=True)
 
+    def test_kan_tile_optimizer_and_independent_audit_preserve_the_win_objective(self):
+        from jevmahjong.policy.kan_tile_context import VERSION as KAN_TILE_VERSION
+        self._real_fit_and_audit(KAN_TILE_VERSION,kan=True)
+
     def _real_fit_and_audit(self,version,kan=False,warm=False):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

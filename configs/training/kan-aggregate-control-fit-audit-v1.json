@@ -1,0 +1,26 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "call_context_baseline": {
+    "checkpoint": "runs/jev-call-tile-win-v1/jev-call-tile-win-v1-e01.pt",
+    "sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+  },
+  "train_scopes": [
+    "ordinary"
+  ],
+  "decision_filter": "kan_windows",
+  "fit_config": "runs/configs/kan-aggregate-control-fit-v1.json",
+  "fit_config_sha256": "3dfd25f08be99bc090d473f416b2a3c484528a9c91d451856e8b7d5dc1914f13",
+  "data_audits": [
+    "runs/kan-win-native-audit-v1",
+    "runs/kan-win-future-audit-v1",
+    "runs/kan-win-option-audit-v1"
+  ],
+  "expected": {
+    "wall_groups": 128,
+    "features": 158,
+    "parameters": 10240,
+    "policy_state_weighting": "uniform"
+  },
+  "out": "runs/kan-aggregate-control-fit-audit-v1"
+}
