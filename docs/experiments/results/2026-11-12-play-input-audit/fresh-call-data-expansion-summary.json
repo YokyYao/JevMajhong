@@ -1,6 +1,6 @@
 {
-  "stage": "native_collection_running_downstream_training_chain_registered",
-  "snapshot_at": "2026-11-13T13:45:17.374290+00:00",
+  "stage": "native_audit_and_public_balanced_plan_passed_labels_waiting_for_gpu",
+  "snapshot_at": "2026-11-13T14:34:55.235987+00:00",
   "baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
   "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
   "new_native_walls": 128,
@@ -13,8 +13,8 @@
     "held": 256
   },
   "planned_states_per_wall": 8,
-  "label_sample_not_finalized": true,
-  "next": "Each registered downstream stage starts only after its predecessor succeeds. No new matched architecture or strength result; if a positive eligible policy emerges, bind one fresh development candidate before any confirmation.",
+  "label_sample_not_finalized": false,
+  "next": "Use the already registered GPU job when resources are available; continue kan collection. Then independently audit futures and complete options before any optimizer. Do not resample based on outcomes or restart because of resource waits.",
   "seed_freshness_configs_checked": 301,
   "seed_freshness_conflicts": 0,
   "old_validation_used_for_training": false,
@@ -42,7 +42,7 @@
   "weights_public": false,
   "deployed": false,
   "label_recipe_registered_before_outcomes": true,
-  "public_route_feasibility_pending": true,
+  "public_route_feasibility_pending": false,
   "label_plan": {
     "states": 1024,
     "split": {
@@ -99,5 +99,111 @@
     "exact fit audit registration and actual starting-policy check",
     "short fit",
     "independent fit audit"
-  ]
+  ],
+  "actual_native_collection": {
+    "status": "collection_complete",
+    "method": "native_call_states_v1",
+    "walls": 128,
+    "rows": 9278,
+    "state_splits": {
+      "train": 7034,
+      "held": 2244
+    },
+    "fresh_control_matches": 512,
+    "counterfactual_rollouts": 0,
+    "optimizer_updates": 0,
+    "human_test_opened": false,
+    "inputs_only_not_reward_labels": true
+  },
+  "actual_native_audit": {
+    "status": "passed_complete",
+    "walls": 128,
+    "control_matches_audited": 512,
+    "states": 9278,
+    "state_splits": {
+      "train": 7034,
+      "held": 2244
+    },
+    "prefixes_replayed": 9278,
+    "cached_head_probability_max_error": 9.5367431640625e-07,
+    "whole_wall_disjoint": true,
+    "new_simulations": 0,
+    "reward_labels_available": false,
+    "independent_strength_proven": false,
+    "call_state_coverage": {
+      "closed": 7947,
+      "opponent_riichi": 3154,
+      "chi": 6121,
+      "pon": 3376,
+      "open": 1331
+    },
+    "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+  },
+  "actual_public_sample": {
+    "status": "label_plan_ready",
+    "states": 1024,
+    "states_by_split": {
+      "train": 768,
+      "held": 256
+    },
+    "native_route_coverage": {
+      "train": {
+        "closed": 6027,
+        "opponent_riichi": 2449,
+        "closed_chi_tanyao_gain": 263,
+        "closed_pon_yakuhai": 373,
+        "open": 1007
+      },
+      "held": {
+        "closed": 1920,
+        "closed_pon_yakuhai": 122,
+        "open": 324,
+        "opponent_riichi": 705,
+        "closed_chi_tanyao_gain": 84
+      }
+    },
+    "selected_route_coverage": {
+      "train": {
+        "closed": 416,
+        "opponent_riichi": 343,
+        "closed_chi_tanyao_gain": 192,
+        "closed_pon_yakuhai": 64,
+        "open": 352
+      },
+      "held": {
+        "closed": 145,
+        "closed_chi_tanyao_gain": 64,
+        "opponent_riichi": 92,
+        "closed_pon_yakuhai": 32,
+        "open": 111
+      }
+    },
+    "wall_coverage": {
+      "train": {
+        "nonempty_walls": 96,
+        "minimum_states": 8,
+        "maximum_states": 8,
+        "largest_share": 0.010416666666666666
+      },
+      "held": {
+        "nonempty_walls": 32,
+        "minimum_states": 8,
+        "maximum_states": 8,
+        "largest_share": 0.03125
+      }
+    },
+    "worlds_per_state": 16,
+    "initial_hand_arm_budget": 32768,
+    "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
+    "optimizer_updates": 0,
+    "new_simulations": 0,
+    "outcome_labels_read": false,
+    "limitation": "Counts are public opportunities, not positive/negative reward coverage or expert labels."
+  },
+  "future_labels": {
+    "status": "pending_gpu_resources",
+    "dependencies_satisfied": true,
+    "started": false,
+    "new_reward_labels": 0
+  }
 }
