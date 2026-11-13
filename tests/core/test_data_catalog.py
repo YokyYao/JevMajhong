@@ -54,5 +54,29 @@ class DataCatalogTests(unittest.TestCase):
             ('paired_future_branch_not_gold','chi','native:100'))
         db.close()
 
+    def test_kakan_uses_existing_pon_in_serialized_menu_and_added_tile_in_pai(self):
+        r=example('g');r['questions']['action']['criteria']['call']=dict(type='kakan',pai='F',consumed=['F']*3)
+        phase,kinds,valid,reason=catalog.classify(r)
+        self.assertEqual(phase,'kan_window');self.assertTrue(valid);self.assertEqual(reason,'')
+        r['questions']['action']['criteria']['call']['consumed']=['F']
+        self.assertFalse(catalog.classify(r)[2])
+
+    def test_reclassification_copies_completed_index_and_preserves_holdout_block(self):
+        with tempfile.TemporaryDirectory() as t:
+            root=Path(t);d=root/'data/source';d.mkdir(parents=True)
+            row=example('g');row['questions']['action']['criteria']['call']=dict(type='kakan',pai='F',consumed=['F']*3)
+            f=d/'train.jsonl';f.write_text(json.dumps(row)+'\n')
+            (d/'provenance.json').write_text(json.dumps(dict(complete=True,matches={'train':['g'],'test':['g']},files={'train':catalog.sha(f)})))
+            original=root/'first';catalog.run(dict(roots=[str(root)],out=str(original)))
+            # Reproduce the old classifier's flag, as if it came from v1.
+            db=sqlite3.connect(original/'index-private.sqlite');db.execute("UPDATE entries SET schema_valid=0,reason='consumed_count_requires_review'");db.commit();db.close()
+            result=catalog.read(original/'result.json');result['private_index_sha256']=catalog.sha(original/'index-private.sqlite');catalog.write(original/'result.json',result)
+            before=catalog.sha(original/'index-private.sqlite')
+            revised=catalog.reclassify(dict(input_catalog=str(original),out=str(root/'revised')))
+            self.assertEqual(revised['schema_records_corrected'],1)
+            self.assertEqual(revised['training_candidates_before_quality_selection']['rows'],0)
+            self.assertEqual(catalog.sha(original/'index-private.sqlite'),before)
+            self.assertFalse(revised['source_payloads_changed'])
+
 
 if __name__=='__main__':unittest.main()

@@ -66,8 +66,11 @@ def classify(request):
     valid=True;reason=''
     for c in criteria.values():
         typ=c.get('type');consumed=c.get('consumed',[])
-        needed={'chi':2,'pon':2,'ankan':4,'daiminkan':3,'kakan':1}.get(typ)
+        # MJAI kakan.consumed is the existing three-tile pon. The added
+        # owned tile is kakan.pai, unlike the owned-consumption feature vector.
+        needed={'chi':2,'pon':2,'ankan':4,'daiminkan':3,'kakan':3}.get(typ)
         if needed is not None and len(consumed)!=needed:valid=False;reason='consumed_count_requires_review'
+        if typ=='kakan' and not isinstance(c.get('pai'),str):valid=False;reason='missing_added_kan_tile'
     if set(kinds)&{'ankan','daiminkan','kakan'}:phase='kan_window'
     elif set(kinds)&{'chi','pon'}:phase='call_window'
     elif 'dahai' in kinds:
@@ -230,12 +233,66 @@ def run(config):
     return summary
 
 
+def reclassify(config):
+    """Repair classification in a copied completed index, without full rescans."""
+    original=Path(config['input_catalog']);previous=read(original/'result.json')
+    index=original/'index-private.sqlite';before=sha(index)
+    if before!=previous['private_index_sha256']:raise ValueError('Completed input catalog changed')
+    out=Path(config['out']);out.mkdir(parents=True,exist_ok=False)
+    source=sqlite3.connect('file:'+str(index.resolve())+'?mode=ro',uri=True)
+    db=sqlite3.connect(out/'index-private.sqlite');source.backup(db);source.close()
+    datasets=read(original/'sources-private.json');expected={}
+    for d in datasets:
+        expected.update(d.get('shard_sha256',{}))
+        if d.get('train_sha256'):expected[str(Path(d['path'])/'train.jsonl')]=d['train_sha256']
+    records={}
+    for rowid,locator in db.execute("SELECT rowid,locator FROM entries WHERE reason='consumed_count_requires_review'"):
+        loc=json.loads(locator);records.setdefault(loc['file'],[]).append((rowid,loc))
+    checked=corrected=0;input_files={}
+    for file,items in records.items():
+        checksum=sha(file)
+        if expected.get(file)!=checksum:raise ValueError('Reclassification source differs: '+file)
+        payload=None
+        if items[0][1]['format']=='native_pt':
+            import torch
+            payload=torch.load(file,map_location='cpu',weights_only=False)
+        with Path(file).open('rb') as stream:
+            for rowid,loc in items:
+                if loc['format']=='native_pt':request=payload['rows'][loc['row']]['public_request']
+                else:stream.seek(loc['byte_offset']);request=json.loads(stream.readline())
+                phase,kinds,valid,reason=classify(request);checked+=1
+                if valid:
+                    db.execute('UPDATE entries SET phase=?,kinds=?,schema_valid=1,reason=? WHERE rowid=?',
+                        (phase,json.dumps(kinds),'',rowid));corrected+=1
+        del payload
+        if sha(file)!=checksum:raise ValueError('Reclassification input changed')
+        input_files[file]=checksum;db.commit()
+    summary={k:v for k,v in previous.items() if k not in ('private_index_sha256','training_phases','training_candidates_before_quality_selection')}
+    summary.update(status='reclassified_private_catalog_not_training_admission',
+        classification_revision='mjai-kakan-existing-pon-v2',schema_flagged_records_rechecked=checked,
+        schema_records_corrected=corrected,original_catalog_result_sha256=sha(original/'result.json'),
+        original_catalog_index_sha256=before,source_payloads_changed=False,
+        training_candidates_before_quality_selection=dict(
+            rows=db.execute('SELECT count(*) FROM training_candidates').fetchone()[0],
+            public_requests=db.execute('SELECT count(DISTINCT request_hash) FROM training_candidates').fetchone()[0],
+            known_positions=db.execute('SELECT count(DISTINCT position_key) FROM training_candidates').fetchone()[0]),
+        training_phases=[dict(phase=p,rows=n,requests=k) for p,n,k in db.execute(
+            'SELECT phase,count(*),count(DISTINCT request_hash) FROM training_candidates GROUP BY phase')])
+    db.close()
+    if sha(index)!=before:raise ValueError('Original catalog changed during repair')
+    summary['private_index_sha256']=sha(out/'index-private.sqlite')
+    write(out/'sources-private.json',datasets)
+    write(out/'reclassification-inputs-private.json',input_files)
+    write(out/'result.json',summary);write(out/'status.json',summary)
+    return summary
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--config',type=Path,required=True);p.add_argument('--metadata-only',action='store_true');a=p.parse_args();cfg=read(a.config)
     if a.metadata_only:
         result=discover(cfg['roots']);write(cfg['metadata_out'],result)
         print(json.dumps(dict(datasets=len(result),kinds=dict(Counter(d['kind'] for d in result)),complete=sum(d['complete'] for d in result))))
-    else:print(json.dumps(run(cfg),ensure_ascii=False))
+    else:print(json.dumps(reclassify(cfg) if cfg.get('input_catalog') else run(cfg),ensure_ascii=False))
 
 
 if __name__=='__main__':main()

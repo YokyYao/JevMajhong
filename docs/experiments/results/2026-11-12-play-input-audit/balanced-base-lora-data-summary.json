@@ -1,5 +1,5 @@
 {
-  "stage": "private_per_record_catalog_running",
+  "stage": "catalog_complete_balanced_raw_data_ready_fresh_base_LoRA_running",
   "datasets": 71,
   "replay_jsonl_datasets": 22,
   "native_collection_datasets": 49,
@@ -11,16 +11,302 @@
   "counts_are_not_unique_training_samples": true,
   "base": "Qwen/Qwen3.5-0.8B",
   "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
-  "initialization": "fresh LoRA and action pointer head on pinned pretrained base; no old Mahjong adapter or residual network",
-  "next": "Finish private per-record catalog, quarantine invalid/duplicate/held groups, then freeze balanced raw-request training manifest before actual LoRA training",
-  "phase_mix_not_finalized": true,
-  "LoRA_training_started": false,
+  "initialization": {
+    "fresh_lora_B_zero": true,
+    "fresh_lora_A_nonzero": true,
+    "pretrained_base_requires_grad": false,
+    "old_adapters_loaded": false,
+    "external_residual_networks": 0,
+    "trainable_parameters": 11347456,
+    "adapter_tensors": 372
+  },
+  "next": "Monitor exact fresh-LoRA job; inspect periodic phase validation and actual updates, then bind selected unified checkpoint to fresh full-match comparison. Do not treat supervised learning as a win-rate gain.",
+  "phase_mix_not_finalized": false,
+  "LoRA_training_started": true,
   "old_pending_kan_fit_chain_cancelled": true,
   "running_evaluation_preserved": true,
-  "core_tests_passed": 156,
+  "core_tests_passed": 167,
   "raw_records_public": false,
   "test_payloads_opened": false,
   "weights_public": false,
   "previous_evaluation_completed": true,
-  "previous_candidate_confirmation_deferred_for_user_LoRA_priority": true
+  "previous_candidate_confirmation_deferred_for_user_LoRA_priority": true,
+  "source_sha256": "2bdf1af9ef97e8b24f5df6acf1c843d27da2d54c27d857093699892672d72d24",
+  "model_id": "jev-balanced-base-lora-v1",
+  "catalog": {
+    "datasets": 71,
+    "indexed_rows": 550272,
+    "unique_public_requests": 336615,
+    "source_statuses": {
+      "quarantined_incomplete": 3,
+      "indexed_not_training_admission": 68
+    },
+    "schema_flagged_records_rechecked": 6586,
+    "kakan_records_corrected": 900,
+    "remaining_schema_flagged_records": 5686,
+    "test_payloads_opened": false
+  },
+  "quality_pool": {
+    "train_positions": 77697,
+    "validation_positions": 1499,
+    "expert_sources": 5,
+    "independently_audited_simulated_sources": 7,
+    "duplicate_position_rows_merged": 24590,
+    "conflicting_expert_positions_quarantined": 14,
+    "source_pool_negative_utility_options": 2516,
+    "future_cases_with_unknown_legal_option_labels": 471
+  },
+  "balanced_data": {
+    "files": {
+      "train": {
+        "sha256": "e91f42b8f6a8e99f9b8b52b20b8f1e2ec2bad1434d0f848a2ed402e44a9ae29d",
+        "records": 16384,
+        "groups": 2117,
+        "unique_positions": 15931
+      },
+      "validation": {
+        "sha256": "c09895f0bebeb4e14102d44cec00bfeae8026ad40c87764cb3b213c163df49d7",
+        "records": 256,
+        "groups": 98,
+        "unique_positions": 256
+      }
+    },
+    "strata": [
+      {
+        "split": "train",
+        "phase": "closed_discard",
+        "label_type": "expert_replay",
+        "count": 7373,
+        "max_repeats": 1,
+        "available_unique_positions": 17510,
+        "selected_unique_positions": 7373,
+        "effective_max_repetition": 1
+      },
+      {
+        "split": "train",
+        "phase": "open_discard",
+        "label_type": "expert_replay",
+        "count": 3077,
+        "max_repeats": 1,
+        "available_unique_positions": 8958,
+        "selected_unique_positions": 3077,
+        "effective_max_repetition": 1
+      },
+      {
+        "split": "train",
+        "phase": "open_discard",
+        "label_type": "paired_future_masked",
+        "count": 200,
+        "max_repeats": 1,
+        "available_unique_positions": 243,
+        "selected_unique_positions": 200,
+        "effective_max_repetition": 1
+      },
+      {
+        "split": "train",
+        "phase": "call_window",
+        "label_type": "expert_replay",
+        "count": 983,
+        "max_repeats": 1,
+        "choice": "chi",
+        "available_unique_positions": 3148,
+        "selected_unique_positions": 983,
+        "effective_max_repetition": 1
+      },
+      {
+        "split": "train",
+        "phase": "call_window",
+        "label_type": "expert_replay",
+        "count": 983,
+        "max_repeats": 1,
+        "choice": "pon",
+        "available_unique_positions": 5092,
+        "selected_unique_positions": 983,
+        "effective_max_repetition": 1
+      },
+      {
+        "split": "train",
+        "phase": "call_window",
+        "label_type": "expert_replay",
+        "count": 1966,
+        "max_repeats": 1,
+        "choice": "none",
+        "available_unique_positions": 40400,
+        "selected_unique_positions": 1966,
+        "effective_max_repetition": 1
+      },
+      {
+        "split": "train",
+        "phase": "call_window",
+        "label_type": "paired_future_masked",
+        "count": 983,
+        "max_repeats": 1,
+        "available_unique_positions": 1980,
+        "selected_unique_positions": 983,
+        "effective_max_repetition": 1
+      },
+      {
+        "split": "train",
+        "phase": "kan_window",
+        "label_type": "paired_future_masked",
+        "count": 328,
+        "max_repeats": 4,
+        "kan_kind": "ankan",
+        "available_unique_positions": 172,
+        "selected_unique_positions": 172,
+        "effective_max_repetition": 2
+      },
+      {
+        "split": "train",
+        "phase": "kan_window",
+        "label_type": "paired_future_masked",
+        "count": 328,
+        "max_repeats": 4,
+        "kan_kind": "daiminkan",
+        "available_unique_positions": 146,
+        "selected_unique_positions": 146,
+        "effective_max_repetition": 3
+      },
+      {
+        "split": "train",
+        "phase": "kan_window",
+        "label_type": "paired_future_masked",
+        "count": 163,
+        "max_repeats": 4,
+        "kan_kind": "kakan",
+        "available_unique_positions": 48,
+        "selected_unique_positions": 48,
+        "effective_max_repetition": 4
+      },
+      {
+        "split": "validation",
+        "phase": "closed_discard",
+        "label_type": "expert_replay",
+        "count": 96,
+        "max_repeats": 1,
+        "available_unique_positions": 196,
+        "selected_unique_positions": 96,
+        "effective_max_repetition": 1
+      },
+      {
+        "split": "validation",
+        "phase": "open_discard",
+        "label_type": "expert_replay",
+        "count": 48,
+        "max_repeats": 1,
+        "available_unique_positions": 188,
+        "selected_unique_positions": 48,
+        "effective_max_repetition": 1
+      },
+      {
+        "split": "validation",
+        "phase": "call_window",
+        "label_type": "expert_replay",
+        "count": 20,
+        "max_repeats": 1,
+        "choice": "chi",
+        "available_unique_positions": 74,
+        "selected_unique_positions": 20,
+        "effective_max_repetition": 1
+      },
+      {
+        "split": "validation",
+        "phase": "call_window",
+        "label_type": "expert_replay",
+        "count": 20,
+        "max_repeats": 1,
+        "choice": "pon",
+        "available_unique_positions": 114,
+        "selected_unique_positions": 20,
+        "effective_max_repetition": 1
+      },
+      {
+        "split": "validation",
+        "phase": "call_window",
+        "label_type": "expert_replay",
+        "count": 40,
+        "max_repeats": 1,
+        "choice": "none",
+        "available_unique_positions": 836,
+        "selected_unique_positions": 40,
+        "effective_max_repetition": 1
+      },
+      {
+        "split": "validation",
+        "phase": "kan_window",
+        "label_type": "paired_future_masked",
+        "count": 12,
+        "max_repeats": 1,
+        "kan_kind": "ankan",
+        "available_unique_positions": 42,
+        "selected_unique_positions": 12,
+        "effective_max_repetition": 1
+      },
+      {
+        "split": "validation",
+        "phase": "kan_window",
+        "label_type": "paired_future_masked",
+        "count": 14,
+        "max_repeats": 1,
+        "kan_kind": "daiminkan",
+        "available_unique_positions": 43,
+        "selected_unique_positions": 14,
+        "effective_max_repetition": 1
+      },
+      {
+        "split": "validation",
+        "phase": "kan_window",
+        "label_type": "paired_future_masked",
+        "count": 6,
+        "max_repeats": 1,
+        "kan_kind": "kakan",
+        "available_unique_positions": 6,
+        "selected_unique_positions": 6,
+        "effective_max_repetition": 1
+      }
+    ],
+    "group_overlap": 0,
+    "position_overlap": 0,
+    "expert_records": 14382,
+    "masked_simulated_records": 2002
+  },
+  "training": {
+    "rank": 16,
+    "LoRA_lr": 2e-05,
+    "head_lr": 0.0001,
+    "epochs": 1,
+    "max_optimizer_steps": 1024,
+    "effective_batch": 16,
+    "validation_every_steps": 128,
+    "patience": 3,
+    "selection_metric": "phase-weighted hard-label/masked-soft-target cross entropy",
+    "validation_phase_weights": {
+      "closed_discard": 0.45,
+      "open_discard": 0.2,
+      "call_window": 0.3,
+      "kan_window": 0.05
+    }
+  },
+  "token_admission": {
+    "requested_records": 16384,
+    "admitted_records": 16384,
+    "rejected_records": 0,
+    "rejected": []
+  },
+  "actual_update_proof": {
+    "completed_optimizer_steps_at_least": 8,
+    "fresh_LoRA_B_now_nonzero": true,
+    "head_parameters_changed": true,
+    "cached_encoder_features_used": false
+  },
+  "independent_full_match_improvement_proven": false,
+  "deployed": false,
+  "limitations": [
+    "Physical-position identities use recorded groups and observed tile positions; dataset directories and future rollouts are not independent examples.",
+    "Kan training still has366unique positions (172ankan/146daiminkan/48kakan); bounded repetition cannot create new evidence.",
+    "Historical PolicyAgent guards restricted simulated menus; zero soft-target entries mark unknown labels and are excluded from the masked loss denominator.",
+    "Expert calls are deliberately balanced; training mixture is not natural match action frequency.",
+    "LoRA, data mixture and target construction change together; this is not a controlled architecture-superiority comparison.",
+    "Fresh simulated matches and independent outcome verification are still required; retained reference and Windows installer are unchanged."
+  ]
 }
