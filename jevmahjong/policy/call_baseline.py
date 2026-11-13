@@ -1,4 +1,4 @@
-"""Pin an unchanged calling residual used by kan collection and continuation."""
+"""Pin an unchanged calling residual used by native collection and continuation."""
 from pathlib import Path
 import torch
 from jevmahjong.core.io import digest
@@ -22,8 +22,10 @@ def load(config, model_files):
     checksum = identity(config)
     if checksum is None:
         return None
-    if config.get('train_scopes') != ['ordinary'] or config.get('decision_filter') != 'kan_windows':
-        raise ValueError('Calling baseline currently requires a declared ordinary kan workflow')
+    kan = config.get('train_scopes') == ['ordinary'] and config.get('decision_filter') == 'kan_windows'
+    calling = config.get('train_scopes') == ['calling'] and config.get('decision_filter') == 'all'
+    if not (kan or calling):
+        raise ValueError('Calling baseline requires a declared kan or pure-call workflow')
     path = Path(config['call_context_baseline']['checkpoint'])
     if digest(path) != checksum:
         raise ValueError('Calling baseline checkpoint changed')

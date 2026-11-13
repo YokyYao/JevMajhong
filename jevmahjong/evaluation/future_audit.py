@@ -33,8 +33,9 @@ def audit(cfg, resume=False):
     protocol = snapshot(cfg)
     if protocol['model_files'] != collection_protocol['model_files']:
         raise ValueError('Audit and collection baseline models differ')
-    from jevmahjong.policy.call_baseline import identity
+    from jevmahjong.policy.call_baseline import identity,load as load_baseline,transform
     if identity(cfg)!=identity(collection_protocol['config']):raise ValueError('Audit calling baseline differs')
+    calling_baseline=load_baseline(collection_protocol['config'],protocol['model_files'])
     parts, hashes, sources = load_sources(marker['source_outputs'], protocol['model_files'],
         expected_call_baseline=cfg.get('call_context_baseline'))
     for path in (root/'protocol.json', root/'collection-result.json'):
@@ -57,9 +58,10 @@ def audit(cfg, resume=False):
         for rows in parts.values():
             for row in rows:
                 p = heads[row['scope']](row['decide'],row['options']).softmax(-1)
+                p = transform(row['public_request'],p,calling_baseline)
                 max_error = max(max_error,float((p-row['reference']).abs().max()))
                 if not torch.allclose(p,row['reference'],atol=2e-5,rtol=2e-4):
-                    raise ValueError('Cached reference differs from original head')
+                    raise ValueError('Cached reference differs from registered policy')
     split_pairs = {split:len(rows) for split,rows in parts.items()}
     split_states = {split:{state_key(r) for r in rows} for split,rows in parts.items()}
     if split_states['train'] & split_states['held']: raise ValueError('State crosses data split')

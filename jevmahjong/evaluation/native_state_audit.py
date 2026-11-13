@@ -36,8 +36,9 @@ def audit(cfg):
             raise ValueError('Complete source collection required')
     protocol=snapshot(cfg)
     if protocol['model_files']!=original['model_files']:raise ValueError('Audit frozen models differ')
-    from jevmahjong.policy.call_baseline import identity
+    from jevmahjong.policy.call_baseline import identity,load as load_baseline,transform
     if identity(cfg)!=identity(source_cfg):raise ValueError('Audit calling baseline differs')
+    calling_baseline=load_baseline(source_cfg,original['model_files'])
     role='call' if method==CALL_METHOD else 'discard'
     behavior_heads=load_collection_heads(source_cfg,original) if method==CALL_METHOD else None
     if method!=CALL_METHOD and original.get('behavior_heads'):
@@ -68,6 +69,7 @@ def audit(cfg):
                 kinds={v['type'] for v in row['public_request']['questions']['action']['criteria'].values()}
                 for name in ('ankan','daiminkan','kakan','pon','chi'):coverage[name]+=name in kinds
             with torch.no_grad():q=head(row['decide'],row['options']).softmax(-1)
+            q=transform(row['public_request'],q,calling_baseline)
             max_error=max(max_error,float((q-row['reference']).abs().max()))
             if not torch.allclose(q,row['reference'],atol=2e-5,rtol=2e-4):raise ValueError('Frozen cached model probabilities differ')
             env=RiichiEnv(game_mode=source_cfg['game_mode'],rule=GameRule.default_mjsoul(),
@@ -99,6 +101,7 @@ def audit(cfg):
     if method==CALL_METHOD:
         result['call_state_coverage']=dict(coverage)
         result['collection_policy']=collection_mode(source_cfg)
+        if calling_baseline is not None:result['calling_baseline_sha256']=identity(source_cfg)
         if behavior_heads is not None:result['behavior_checkpoint_sha256']=original['behavior_heads']['sha256']
     elif method==KAN_METHOD:
         result['kan_state_coverage']=dict(coverage)

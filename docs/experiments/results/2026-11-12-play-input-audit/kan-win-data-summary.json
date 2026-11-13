@@ -1,6 +1,6 @@
 {
   "model_target": "jev-kan-win-v1",
-  "stage": "native_inputs_audited_future_labels_submitted",
+  "stage": "initial_future_labels_complete_audited_options_not_started",
   "calling_baseline_model": "jev-call-tile-win-v1",
   "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
   "source_sha256": "1baa982d80c1d7367a7eee66a3b1d03b29636fecac6390a12b6a69ab29d2ae26",
@@ -77,5 +77,38 @@
     "Mixed chi/kan menus occur only11 times in the full source; no claim of complete coverage.",
     "Future wall samples retain opponent concealed hands; not a calibrated public-information belief model.",
     "Futures share source states and are not independent training examples."
-  ]
+  ],
+  "initial_future_labels": {
+    "status": "collection_complete",
+    "method": "paired_future_ev_v1",
+    "states": 457,
+    "worlds_per_state": 16,
+    "native_hand_rollouts": 14624,
+    "fresh_matches": 0,
+    "rows_by_original_category": {
+      "ordinary": 457
+    },
+    "human_test_opened": false,
+    "optimizer_updates": 0
+  },
+  "initial_future_audit": {
+    "status": "passed_complete",
+    "role": "data consistency audit, not policy strength",
+    "pairs": 457,
+    "states": 457,
+    "train_pairs": 366,
+    "held_pairs": 91,
+    "train_states": 366,
+    "held_states": 91,
+    "worlds_per_state": 16,
+    "prefixes_replayed": 457,
+    "future_walls_rederived": 7312,
+    "arm_records_audited": 14624,
+    "whole_wall_disjoint": true,
+    "cached_head_probability_max_error": 0.0,
+    "new_simulations": 0,
+    "independent_strength_proven": false
+  },
+  "initial_future_audit_sha256": "5db6400c09cb1edae98ecd38519216699ab9d0ba52c45a85028068bf90351c22",
+  "next_priority": "Unresolved chi specialist data preparation; preserve these completed kan labels for later full-option expansion."
 }

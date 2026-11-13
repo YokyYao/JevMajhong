@@ -10,6 +10,8 @@ def collection_mode(config):
     expected = 'calling_only_pointer' if config.get('behavior_heads') else 'frozen_play'
     if mode != expected:
         raise ValueError('Explicit calling-only collection policy required for behavior heads')
+    if config.get('call_context_baseline') and config.get('behavior_heads'):
+        raise ValueError('A calling baseline cannot also use behavior-head exploration')
     if expected == 'calling_only_pointer' and (
             config.get('train_scopes') != ['calling'] or config.get('decision_filter') != 'all'):
         raise ValueError('Exploration collection must capture only pure calling windows')

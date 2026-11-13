@@ -57,6 +57,8 @@ def prepare(cfg):
         and cfg.get('feature_version') == 'public-discard-defense-context-v1'
         and cfg.get('policy_state_weighting') == 'uniform')
     if not (kan or call or defense): raise ValueError('One declared kan, pure-call or defense context component required')
+    if call and cfg.get('call_context_baseline'):
+        raise ValueError('Pure-call baseline data requires an explicit replacement-context fitter')
     selection=cfg.get('selection_validation','latest_source')
     if selection != 'latest_source' and not (selection == 'all_sources' and cfg.get('fit_model') == 'residual_policy'):
         raise ValueError('Unsupported validation selection for fit model')

@@ -1,0 +1,80 @@
+{
+  "model_target": "jev-chi-win-v1",
+  "stage": "prefix_audited_full_native_collection_submitted",
+  "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+  "source_sha256": "9c2d72262cc7fea037a9dda35cd5fa8add1b8ab7545903031a37a24bd53d2d6a",
+  "planned_whole_wall_groups": 128,
+  "planned_control_matches": 512,
+  "planned_train_wall_groups": 96,
+  "planned_held_wall_groups": 32,
+  "prefix_walls": 4,
+  "prefix_states": 237,
+  "prefix_route_coverage": {
+    "train": {
+      "closed": 138,
+      "closed_pon_yakuhai": 6,
+      "opponent_riichi": 41,
+      "open": 19,
+      "closed_chi_tanyao_gain": 5
+    },
+    "held": {
+      "closed": 60,
+      "opponent_riichi": 21,
+      "open": 20,
+      "closed_pon_yakuhai": 7,
+      "closed_chi_tanyao_gain": 6
+    }
+  },
+  "prefix_audit": {
+    "status": "passed_registered_prefix",
+    "walls": 4,
+    "control_matches_audited": 16,
+    "states": 237,
+    "state_splits": {
+      "train": 157,
+      "held": 80
+    },
+    "prefixes_replayed": 237,
+    "cached_head_probability_max_error": 7.152557373046875e-07,
+    "whole_wall_disjoint": true,
+    "new_simulations": 0,
+    "reward_labels_available": false,
+    "independent_strength_proven": false,
+    "call_state_coverage": {
+      "closed": 198,
+      "opponent_riichi": 62,
+      "chi": 152,
+      "pon": 90,
+      "open": 39
+    },
+    "collection_policy": "frozen_play",
+    "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+  },
+  "preflight": {
+    "status": "passed_actual_native_gpu_parity",
+    "routes": {
+      "ordinary": 2,
+      "calling": 2,
+      "ankan": 1,
+      "daiminkan": 1,
+      "kakan": 1
+    },
+    "max_probability_error": 0.0,
+    "checkpoint_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+    "source_sha256": "9c2d72262cc7fea037a9dda35cd5fa8add1b8ab7545903031a37a24bd53d2d6a",
+    "optimizer_updates": 0,
+    "new_simulations": 0,
+    "strength_evidence": false
+  },
+  "core_tests_passed": 119,
+  "parameter_training_started": false,
+  "weights_public": false,
+  "raw_records_public": false,
+  "deployed": false,
+  "limitations": [
+    "Opportunity coverage is not correct-action or reward-sign coverage.",
+    "No future labels or new fitted chi weights exist yet.",
+    "Current captured pure-call baseline probabilities require a replacement-context fitter before fitting; original fitter rejects them.",
+    "No matched residual versus decision-head/LoRA superiority result exists."
+  ]
+}

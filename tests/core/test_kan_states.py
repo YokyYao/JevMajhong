@@ -74,6 +74,11 @@ class KanStatesTests(unittest.TestCase):
             path=root/'calling.pt';torch.save(saved,path)
             cfg=dict(train_scopes=['ordinary'],decision_filter='kan_windows',call_context_baseline=dict(checkpoint=str(path),sha256=digest(path)))
             loaded=load(cfg,files);req=request('daiminkan');req['questions']['action']['criteria']['a1']=dict(type='pon',pai='E',consumed=['E','E'])
+            pure=dict(cfg,train_scopes=['calling'],decision_filter='all')
+            self.assertEqual(load(pure,files)['names'],loaded['names'])
+            for scopes,filter_name in ((['ordinary'],'all'),(['calling'],'kan_windows'),(['ordinary','calling'],'all')):
+                with self.subTest(scopes=scopes,filter=filter_name),self.assertRaisesRegex(ValueError,'declared'):
+                    load(dict(cfg,train_scopes=scopes,decision_filter=filter_name),files)
             answer={'answers':{'action':{'probabilities':{'a0':.9,'a1':.1}}}}
             client=wrap(SimpleNamespace(system_one=lambda **kw:answer),loaded)
             self.assertGreater(client.system_one(**req)['answers']['action']['probabilities']['a1'],.99)
