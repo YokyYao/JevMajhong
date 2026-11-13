@@ -1002,6 +1002,158 @@
       "external_residual_networks": 0,
       "trainable_parameters": 11347456,
       "adapter_tensors": 372
-    }
+    },
+    "validation_curve_snapshot": [
+      {
+        "weighted_target_ce": 2.1024764550563737,
+        "phase_target_ce": {
+          "call_window": 0.9603380905250617,
+          "closed_discard": 2.7774403634150846,
+          "kan_window": 1.8772508807626778,
+          "open_discard": 2.353321601619665
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.5,
+          "closed_discard": 0.09375,
+          "open_discard": 0.14583333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 0,
+        "upstream_hard_label_nll": 2.1322531078222875
+      },
+      {
+        "weighted_target_ce": 1.6800137429960034,
+        "phase_target_ce": {
+          "call_window": 1.0551294973859675,
+          "closed_discard": 1.999112437318234,
+          "kan_window": 1.5288339334012093,
+          "open_discard": 1.937163001584736
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.45,
+          "closed_discard": 0.3541666666666667,
+          "open_discard": 0.25
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 128,
+        "upstream_hard_label_nll": 1.6595352021575485
+      },
+      {
+        "weighted_target_ce": 1.3251623518078466,
+        "phase_target_ce": {
+          "call_window": 0.7847150427255911,
+          "closed_discard": 1.5598452073865323,
+          "kan_window": 1.9657027498175483,
+          "open_discard": 1.4476617908767608
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.525,
+          "closed_discard": 0.4166666666666667,
+          "open_discard": 0.4166666666666667
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 256,
+        "upstream_hard_label_nll": 1.3792140245314188
+      }
+    ],
+    "initial_adapter_tensors_equal_v1": true,
+    "initial_head_tensors_equal_v1": true,
+    "new_training_positions_not_in_v1": 15739,
+    "training_positions_shared_with_v1": 15931,
+    "learning_rate_schedule_comparison": {
+      "type": "OneCycleLR",
+      "pct_start": 0.1,
+      "v1_total_steps": 1024,
+      "v2_total_steps": 2048,
+      "peak_lrs_unchanged": true,
+      "per_step_learning_rates_identical": false,
+      "reason": "planned schedule length doubled, warmup and decay stretch; not a data-only controlled experiment"
+    },
+    "checkpoint128_route_diagnostic": {
+      "step": 128,
+      "kan_choices": {
+        "daiminkan": {
+          "daiminkan": 14
+        },
+        "ankan": {
+          "dahai": 7,
+          "reach": 1,
+          "ankan": 4
+        },
+        "kakan": {
+          "kakan": 1,
+          "dahai": 5
+        }
+      },
+      "expert_call_confusion": {
+        "none->chi": 27,
+        "none->pon": 13,
+        "pon->pon": 20,
+        "chi->chi": 20
+      },
+      "strength_improvement_proven": false
+    },
+    "checkpoint256_route_diagnostic": {
+      "step": 256,
+      "kan_choices": {
+        "daiminkan": {
+          "none": 14
+        },
+        "ankan": {
+          "dahai": 11,
+          "reach": 1
+        },
+        "kakan": {
+          "dahai": 6
+        }
+      },
+      "expert_call_confusion": {
+        "none->none": 23,
+        "none->pon": 8,
+        "pon->none": 11,
+        "chi->none": 8,
+        "pon->pon": 9,
+        "chi->chi": 12,
+        "none->chi": 9
+      },
+      "match_improvement_proven": false
+    },
+    "legacy_replay_repair_probe": {
+      "status": "replay_prefix_shadow_probe_only",
+      "checked_decisions": 12602,
+      "completed_native_games": 32,
+      "action_opportunities": {
+        "pon": 995,
+        "chi": 1670,
+        "reach": 442,
+        "daiminkan": 35,
+        "hora": 109,
+        "ankan": 18,
+        "kakan": 3
+      },
+      "mismatches": [],
+      "training_records_admitted": 0,
+      "new_strength_matches": 0,
+      "uses_different_shadow_random_seed": true
+    },
+    "route_warning": "At128 all80expertcallwindows choosechi/pon and all14daiminkanwindows choosekan; at256 all14daiminkanwindows choosepass. LowerCE or morekan choices do not prove contextual skill."
   }
 }

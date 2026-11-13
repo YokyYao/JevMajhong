@@ -58,5 +58,14 @@
   "reward_unchanged": true,
   "training_seed": 2026111402,
   "mixture_seed": 2026111401,
-  "raw_pool_unchanged": true
+  "raw_pool_unchanged": true,
+  "optimizer": "AdamW",
+  "learning_rate_schedule": {
+    "type": "OneCycleLR",
+    "total_steps": 2048,
+    "pct_start": 0.1,
+    "listed_LoRA_and_head_lr_are_peak_values": true
+  },
+  "schedule_horizon_changed_from_v1": true,
+  "not_data_only_controlled_comparison": true
 }

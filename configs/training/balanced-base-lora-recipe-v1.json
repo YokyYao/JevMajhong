@@ -47,5 +47,12 @@
   "training_entrypoint": "jevmahjong train-base-lora --config GENERATED_PRIVATE_MANIFEST.json",
   "upstream_source_sha256": "84fe7f0201a8d9928aabe4770912bf25e76c4916c1eded3011cf8f02862b758d",
   "requires_masked_loss_wrapper": true,
-  "raw_data_and_weights_private": true
+  "raw_data_and_weights_private": true,
+  "optimizer": "AdamW",
+  "learning_rate_schedule": {
+    "type": "OneCycleLR",
+    "total_steps": 1024,
+    "pct_start": 0.1,
+    "listed_LoRA_and_head_lr_are_peak_values": true
+  }
 }
