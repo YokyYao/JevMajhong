@@ -1,6 +1,6 @@
 {
   "stage": "v1_no_match_gain_v2_prior_only_fit_rejected_new_native_data_started",
-  "snapshot_at": "2026-11-13T17:24:11.521359+00:00",
+  "snapshot_at": "2026-11-13T17:38:48.473977+00:00",
   "v1_development": {
     "games": 192,
     "new_walls": 8,
@@ -294,5 +294,242 @@
   "raw_records_public": false,
   "weights_public": false,
   "deployed": false,
-  "strength_improvement_proven": false
+  "strength_improvement_proven": false,
+  "expanded_data_training_plan": {
+    "stage": "registered_and_serially_queued_after_complete_option_audit",
+    "source_sha256": "092381a25e6e2cedb3af9bdd34d7d723d61f706a85b0c6cc2b1e2846916c971d",
+    "training_only_diagnostic": {
+      "status": "passed_training_only_archived_fit_diagnostic",
+      "train_states": 366,
+      "train_pairs": 1094,
+      "train_walls": 96,
+      "held_shards_opened": 0,
+      "optimizer_updates": 0,
+      "new_simulations": 0,
+      "models": [
+        {
+          "model_id": "jev-kan-aggregate-control-v1",
+          "feature_version": "public-kan-context-v2",
+          "prior_strength": 0.05,
+          "first_epoch": {
+            "epoch": 0,
+            "checkpoint_sha256": "e4bbf08bedc47e8e0c0a28ac5fee0f4302f924cacf32ab3d538e2b53002bb96c",
+            "mean_training_target_KL": 0.7802438399217915,
+            "training_target_argmax_matches": 235,
+            "changed_training_choices": 0,
+            "mean_training_utility_gain": 0.0,
+            "mean_training_own_win_gain": 0.0,
+            "mean_training_dealin_gain": 0.0,
+            "mean_training_fast_reward_gain": 0.0,
+            "choice_types": {
+              "none": 146,
+              "dahai": 159,
+              "ankan": 47,
+              "kakan": 11,
+              "reach": 3
+            }
+          },
+          "last_epoch": {
+            "epoch": 11,
+            "checkpoint_sha256": "6ab6168785d24c7c587eb123aa499ad729a52ff82762265ea8786c3fa46f395b",
+            "mean_training_target_KL": 0.5932370667111421,
+            "training_target_argmax_matches": 236,
+            "changed_training_choices": 55,
+            "mean_training_utility_gain": 0.02210336080737306,
+            "mean_training_own_win_gain": 0.005122950819672131,
+            "mean_training_dealin_gain": -0.008025956284153006,
+            "mean_training_fast_reward_gain": 0.003713989677579676,
+            "choice_types": {
+              "none": 141,
+              "dahai": 151,
+              "ankan": 54,
+              "daiminkan": 5,
+              "kakan": 13,
+              "reach": 2
+            }
+          },
+          "sampled_target_argmax_profile": {
+            "mean_training_utility_gain": 0.116580740650766,
+            "mean_training_own_win_gain": 0.034665300546448084,
+            "mean_training_dealin_gain": -0.03790983606557377,
+            "mean_training_fast_reward_gain": 0.02438307189268149,
+            "choice_types": {
+              "daiminkan": 23,
+              "dahai": 158,
+              "ankan": 46,
+              "none": 114,
+              "kakan": 14,
+              "pon": 7,
+              "reach": 2,
+              "chi": 2
+            }
+          }
+        },
+        {
+          "model_id": "jev-kan-tile-win-v1",
+          "feature_version": "public-kan-tile-context-v1",
+          "prior_strength": 0.05,
+          "first_epoch": {
+            "epoch": 0,
+            "checkpoint_sha256": "d5a65eba5379bf5fa4aaaa07667c3c8f1fcc3e0f4fd4319ff2b9444049439ef6",
+            "mean_training_target_KL": 0.7802438399217915,
+            "training_target_argmax_matches": 235,
+            "changed_training_choices": 0,
+            "mean_training_utility_gain": 0.0,
+            "mean_training_own_win_gain": 0.0,
+            "mean_training_dealin_gain": 0.0,
+            "mean_training_fast_reward_gain": 0.0,
+            "choice_types": {
+              "none": 146,
+              "dahai": 159,
+              "ankan": 47,
+              "kakan": 11,
+              "reach": 3
+            }
+          },
+          "last_epoch": {
+            "epoch": 4,
+            "checkpoint_sha256": "0559d0a781b1dae0921d95f3ad87b428856c118592d3b92e3bb4456fe758a1c8",
+            "mean_training_target_KL": 0.6623979272407494,
+            "training_target_argmax_matches": 230,
+            "changed_training_choices": 35,
+            "mean_training_utility_gain": 0.0027075223389644368,
+            "mean_training_own_win_gain": 0.0025614754098360654,
+            "mean_training_dealin_gain": 0.00017076502732240437,
+            "mean_training_fast_reward_gain": 0.0019503079350927214,
+            "choice_types": {
+              "none": 135,
+              "dahai": 155,
+              "ankan": 48,
+              "daiminkan": 11,
+              "kakan": 14,
+              "reach": 3
+            }
+          },
+          "sampled_target_argmax_profile": {
+            "mean_training_utility_gain": 0.116580740650766,
+            "mean_training_own_win_gain": 0.034665300546448084,
+            "mean_training_dealin_gain": -0.03790983606557377,
+            "mean_training_fast_reward_gain": 0.02438307189268149,
+            "choice_types": {
+              "daiminkan": 23,
+              "dahai": 158,
+              "ankan": 46,
+              "none": 114,
+              "kakan": 14,
+              "pon": 7,
+              "reach": 2,
+              "chi": 2
+            }
+          }
+        },
+        {
+          "model_id": "jev-kan-win-v2",
+          "feature_version": "public-kan-context-v2",
+          "prior_strength": 0.01,
+          "first_epoch": {
+            "epoch": 0,
+            "checkpoint_sha256": "268ffd6676bf2a49fa7213798d0e3d4191545947504e3ce14f067a10c21de8f8",
+            "mean_training_target_KL": 1.6233895239387266,
+            "training_target_argmax_matches": 192,
+            "changed_training_choices": 0,
+            "mean_training_utility_gain": 0.0,
+            "mean_training_own_win_gain": 0.0,
+            "mean_training_dealin_gain": 0.0,
+            "mean_training_fast_reward_gain": 0.0,
+            "choice_types": {
+              "none": 146,
+              "dahai": 159,
+              "ankan": 47,
+              "kakan": 11,
+              "reach": 3
+            }
+          },
+          "last_epoch": {
+            "epoch": 4,
+            "checkpoint_sha256": "0bb7c5c83fa1f6f85acdf8a29c87ad803e7e789796611f22eed874d7e0fe6bf9",
+            "mean_training_target_KL": 1.2260220445643615,
+            "training_target_argmax_matches": 178,
+            "changed_training_choices": 94,
+            "mean_training_utility_gain": 0.012078617872809921,
+            "mean_training_own_win_gain": 0.0006830601092896175,
+            "mean_training_dealin_gain": -0.0056352459016393444,
+            "mean_training_fast_reward_gain": 0.0005002638409664612,
+            "choice_types": {
+              "none": 122,
+              "ankan": 63,
+              "dahai": 148,
+              "pon": 10,
+              "kakan": 7,
+              "daiminkan": 14,
+              "reach": 2
+            }
+          },
+          "sampled_target_argmax_profile": {
+            "mean_training_utility_gain": 0.1339879888948233,
+            "mean_training_own_win_gain": 0.043886612021857924,
+            "mean_training_dealin_gain": -0.041325136612021855,
+            "mean_training_fast_reward_gain": 0.029804414595686668,
+            "choice_types": {
+              "daiminkan": 23,
+              "dahai": 157,
+              "ankan": 48,
+              "pon": 22,
+              "none": 98,
+              "kakan": 13,
+              "reach": 2,
+              "chi": 3
+            }
+          }
+        }
+      ],
+      "limitations": "Training-only sampled16-future fit diagnostic; no additional epochs, causal early-stop comparison or independent strength evidence."
+    },
+    "data": "old457states plus new429states; only original train partitions enter optimizer",
+    "expected_train_states": 702,
+    "expected_held_states": 184,
+    "whole_wall_groups": 256,
+    "future_samples": "old16,new32; state-equal weighting retained",
+    "prior_strength": 0.05,
+    "feature_count": 600,
+    "parameters": 38528,
+    "initialization": "same verified82bcalling baseline, original heads and zero kan MLP; no rejected checkpoint continuation",
+    "reward": {
+      "mode": "own_win_first_v1",
+      "win_weight": 1.0,
+      "fast_weight": 0.25,
+      "dealin_penalty": 2.0,
+      "net_weight": 0.0,
+      "point_scale": 8000.0,
+      "speed_gamma": 0.98
+    },
+    "selection": "unchanged all-source sampled own wins first, speed second, positive utility and deal-in increment<=.01; final new complete matches required",
+    "budget": {
+      "epochs": 24,
+      "patience_epochs": 12,
+      "batch": 16,
+      "lr": 0.0003,
+      "seed": 2026111326,
+      "maximum_expected_updates": 1056,
+      "reason": "Archived training targetKL is still decreasing at prior stop and target action agreement has not improved; more CPUfit is a bounded test, not proven solution."
+    },
+    "confounds": "Data quantity, label sampling and stopping budget change; not a causal isolation or architecture comparison. No guarantee that additional epochs improve strength.",
+    "before_optimizer": "Complete matching new optionaudit; verify source and exact702/184states, complete menus, all6dataaudits, actual frozen head probabilities and zero-output start; save exact pair-count receipt.",
+    "jobs": "Serial count/start preflight,CPUfit,independentaudit after297004; respect max2running across pipelines",
+    "evaluation": {
+      "development_seed_start": 11830000,
+      "development_walls": 8,
+      "development_matches": 192,
+      "conditional_confirmation_seed_start": 11840000,
+      "confirmation_walls": 32,
+      "confirmation_matches": 768,
+      "no_full_matches_if_fit_ineligible": true,
+      "selected_weight_contract_and_actual_GPU_native_parity_required": true
+    },
+    "old_validation_never_train": true,
+    "raw_records_and_weights_private": true,
+    "current_new_data_optimizer_updates": 0,
+    "complete_matches_started": false,
+    "raw_records_and_weights_public": false
+  }
 }

@@ -1,0 +1,29 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "call_context_baseline": {
+    "checkpoint": "runs/jev-call-tile-win-v1/jev-call-tile-win-v1-e01.pt",
+    "sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+  },
+  "train_scopes": [
+    "ordinary"
+  ],
+  "decision_filter": "kan_windows",
+  "fit_config": "runs/configs/kan-expanded-win-fit-v1.json",
+  "fit_config_sha256": "08c738b8f8c2b9652cc5a46d97d12b06ed9de5ebfbb8aaee09302c9d08afc296",
+  "data_audits": [
+    "runs/kan-win-native-audit-v1",
+    "runs/kan-win-future-audit-v1",
+    "runs/kan-win-option-audit-v1",
+    "runs/kan-win-native-audit-v2",
+    "runs/kan-win-future-audit-v2",
+    "runs/kan-win-option-audit-v2"
+  ],
+  "expected": {
+    "wall_groups": 256,
+    "features": 600,
+    "parameters": 38528,
+    "policy_state_weighting": "uniform"
+  },
+  "out": "runs/kan-expanded-win-fit-audit-v1"
+}
