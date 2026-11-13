@@ -15,7 +15,7 @@ from jevmahjong.evaluation.context_audit import (
 from jevmahjong.policy.kan_context import feature_names
 from jevmahjong.policy.kan_progress import VERSION
 from jevmahjong.training.context_policy import (
-    fit, pack_options, policy_profile, selection_profile, win_policy_improved,
+    fit, pack_options, policy_profile, selection_profile, training_groups, win_policy_improved,
 )
 from tests.core.test_kan_context import request
 
@@ -51,6 +51,32 @@ class FrozenHead(torch.nn.Module):
 
 
 class WinContextTests(unittest.TestCase):
+    def test_public_route_loss_keeps_negative_states_and_complete_menus(self):
+        rows=[pair(100),pair(104),pair(108)]
+        def reverse_credit(row):
+            credit=row['training_credit']
+            credit['control'],credit['branch']=credit['branch'],credit['control']
+            row['training_advantage']=-row['training_advantage']
+        reverse_credit(rows[1])
+        cfg=dict(policy_state_weighting='public_routes',train_scopes=['calling'],
+                 route_loss_weights={'closed_chi_tanyao_gain':4},max_example_weight=4.)
+        classify=lambda gs:{'closed_chi_tanyao_gain':gs[:2]}
+        with patch('jevmahjong.training.call_head.route_groups',side_effect=classify):
+            groups,report=training_groups(rows,cfg,VERSION)
+            flipped=copy.deepcopy(rows)
+            for row in flipped:reverse_credit(row)
+            other,_=training_groups(flipped,cfg,VERSION)
+            with self.assertRaisesRegex(ValueError,'state cap'):
+                training_groups(rows,dict(cfg,max_example_weight=1.),VERSION)
+        self.assertEqual([g['weight'] for g in groups],[4/3,4/3,1/3])
+        self.assertEqual([g['weight'] for g in other],[g['weight'] for g in groups])
+        self.assertEqual([len(g['utility']) for g in groups],[2,2,2])
+        self.assertEqual(len(groups),3)
+        self.assertGreater(float(groups[0]['utility'][1]),0)
+        self.assertLess(float(groups[1]['utility'][1]),0)
+        self.assertFalse(report['outcome_sign_reweighting'])
+        self.assertFalse(report['public_route_loss']['held_weighted'])
+
     def test_wins_select_even_with_lower_points_and_reject_risk_or_roundoff(self):
         base = selection()
         cases = [
@@ -107,7 +133,8 @@ class WinContextTests(unittest.TestCase):
                        data=[source['path']], reward=dict(mode='own_win_first_v1'),
                        feature_version=VERSION, selection_validation='all_sources',
                        selection_objective='hand_win', max_held_dealin_increase=.01,
-                       reference_prior_strength=.05, policy_state_weighting='uniform',
+                       reference_prior_strength=.05, policy_state_weighting='public_routes',
+                       route_loss_weights={'closed_pon_yakuhai':4},
                        max_example_weight=4., hidden=4, seed=17, lr=.02, weight_decay=.001,
                        batch=1, epochs=12, patience_epochs=3)
             fitfile = root / 'fit-config.json'; fitfile.write_text(json.dumps(cfg))
@@ -131,7 +158,7 @@ class WinContextTests(unittest.TestCase):
             checkcfg = dict(**roles, out=str(root / 'audit'), fit_config=str(fitfile),
                             fit_config_sha256=digest(fitfile), data_audits=[str(data_audit)],
                             expected=dict(wall_groups=4, features=158, parameters=640,
-                                          policy_state_weighting='uniform'))
+                                          policy_state_weighting='public_routes'))
             snapshot = lambda c: dict(config=c, model_files={}, code_sha256={})
             with patch('jevmahjong.evaluation.context_audit.load_sources', return_value=(parts, {}, [source])), \
                  patch('jevmahjong.evaluation.context_audit.make_head', side_effect=lambda *a: FrozenHead()), \

@@ -1,6 +1,6 @@
 {
   "model_id": "jev-call-feature-win-v2",
-  "stage": "internal_fit_audited_development_job_running",
+  "stage": "internal_fit_audited_development_complete_not_improved",
   "checkpoint_sha256": "25cbccb276e238c60e1ae33263c3711b91e3e99dc023c41a217fbfb925711731",
   "selected_epoch": 3,
   "epochs_run": 7,
@@ -289,5 +289,97 @@
     "Closed chi/tanyao sampled positive call recovery remains 0/9; open-hand own-win estimate is negative. No claim of repaired missed chi or kan.",
     "Future worlds keep opponents concealed hands fixed; frozen Play continues after the compared action.",
     "Consumed prior development and confirmation matches are not reused for fresh evidence."
-  ]
+  ],
+  "development_result": "feature-win-development-v2-summary.json",
+  "training_only_prior_diagnostic": {
+    "status": "passed_training_only_diagnostic",
+    "model_id": "jev-call-feature-win-v2",
+    "checkpoint_sha256": "25cbccb276e238c60e1ae33263c3711b91e3e99dc023c41a217fbfb925711731",
+    "states": 828,
+    "rows": 959,
+    "routes": {
+      "closed": {
+        "states": 693,
+        "sampled_positive_states": 207,
+        "fitted_positive_calls": 25,
+        "fitted_utility_best_on_positive": 24,
+        "target_positive_calls_by_prior_strength": {
+          "0.05": 124,
+          "0.02": 182,
+          "0.01": 199
+        },
+        "positive_best_suppressed_by_prior_margin": 83
+      },
+      "closed_pon_yakuhai": {
+        "states": 54,
+        "sampled_positive_states": 23,
+        "fitted_positive_calls": 16,
+        "fitted_utility_best_on_positive": 16,
+        "target_positive_calls_by_prior_strength": {
+          "0.05": 22,
+          "0.02": 23,
+          "0.01": 23
+        },
+        "positive_best_suppressed_by_prior_margin": 1
+      },
+      "closed_chi_tanyao_gain": {
+        "states": 46,
+        "sampled_positive_states": 28,
+        "fitted_positive_calls": 7,
+        "fitted_utility_best_on_positive": 6,
+        "target_positive_calls_by_prior_strength": {
+          "0.05": 25,
+          "0.02": 28,
+          "0.01": 28
+        },
+        "positive_best_suppressed_by_prior_margin": 3
+      },
+      "opponent_riichi": {
+        "states": 384,
+        "sampled_positive_states": 115,
+        "fitted_positive_calls": 8,
+        "fitted_utility_best_on_positive": 8,
+        "target_positive_calls_by_prior_strength": {
+          "0.05": 51,
+          "0.02": 97,
+          "0.01": 111
+        },
+        "positive_best_suppressed_by_prior_margin": 64
+      },
+      "open": {
+        "states": 135,
+        "sampled_positive_states": 59,
+        "fitted_positive_calls": 7,
+        "fitted_utility_best_on_positive": 7,
+        "target_positive_calls_by_prior_strength": {
+          "0.05": 49,
+          "0.02": 56,
+          "0.01": 58
+        },
+        "positive_best_suppressed_by_prior_margin": 10
+      },
+      "all_train": {
+        "states": 828,
+        "sampled_positive_states": 266,
+        "fitted_positive_calls": 32,
+        "fitted_utility_best_on_positive": 31,
+        "target_positive_calls_by_prior_strength": {
+          "0.05": 173,
+          "0.02": 238,
+          "0.01": 257
+        },
+        "positive_best_suppressed_by_prior_margin": 93
+      }
+    },
+    "optimizer_updates": 0,
+    "new_simulations": 0,
+    "weights_saved": false,
+    "held_used_for_fit_or_selection": false,
+    "development_or_confirmation_results_read": false,
+    "limitations": [
+      "Sampled utilities are noisy and conditional on frozen Play continuation.",
+      "Prior-strength sensitivity is algebraic, not a trained or evaluated policy.",
+      "This diagnostic does not prove that reducing the prior improves strength."
+    ]
+  }
 }

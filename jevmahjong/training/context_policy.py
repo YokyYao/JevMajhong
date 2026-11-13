@@ -115,6 +115,21 @@ def win_policy_improved(candidate,best,baseline,risk_limit):
 
 def training_groups(rows,cfg,version):
     mode=cfg.get('policy_state_weighting','stratified')
+    if mode=='public_routes':
+        from .call_head import training_weights
+        if cfg.get('train_scopes')!=['calling'] or not cfg.get('route_loss_weights'):
+            raise ValueError('Explicit public call-route loss weights required')
+        groups=pack_options(rows,feature_version=version)
+        first={}
+        for row in rows:first.setdefault(state_key(row),row)
+        routed=[{'key':g['key'],'row':first[g['key']]} for g in groups]
+        values,report=training_weights(routed,cfg['route_loss_weights'])
+        cap=cfg['max_example_weight']
+        if not math.isfinite(cap) or cap<1 or any(w>cap+1e-12 for w in values):
+            raise ValueError('Public route weights exceed the registered state cap')
+        for group,value in zip(groups,values):group['weight']=value
+        return groups,{'policy_state_weighting':mode,'unique_states':len(groups),
+            'outcome_sign_reweighting':False,'rows':len(rows),'public_route_loss':report}
     if mode=='uniform':
         groups=pack_options(rows,feature_version=version)
         return groups,{'policy_state_weighting':'uniform','unique_states':len(groups),
