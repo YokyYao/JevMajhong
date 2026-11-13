@@ -52,5 +52,9 @@
     "Trainable parameter counts and compute differ; shared step budgets do not imply matched FLOPs.",
     "No new fitted candidate or architecture superiority result exists yet.",
     "The audit will bind exact complete-option pair counts before fitting, once the immutable dataset is available."
-  ]
+  ],
+  "active_recipe_revision": "coverage-v2-preserve-pon",
+  "active_fit_config": "configs/training/chi-head-win-fit-v2.json",
+  "active_matched_context_recipe_sha256": "e21f6cfede52fee02dc995ca837875f370ba4c79e43f851bb39d5af4b8b37287",
+  "initialization_preflight_unchanged": true
 }

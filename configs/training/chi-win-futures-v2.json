@@ -9,10 +9,29 @@
     "calling"
   ],
   "decision_filter": "all",
-  "out": "runs/chi-win-options-v1",
+  "data": [
+    "runs/chi-win-native-v1"
+  ],
+  "out": "runs/chi-win-futures-v2",
   "seed": 2026111318,
   "worlds": 16,
-  "max_states": null,
+  "max_states": 512,
+  "max_states_by_split": {
+    "train": 384,
+    "held": 128
+  },
+  "canonical_state_only": true,
+  "stratify_call_openness": true,
+  "call_route_reserve_by_split": {
+    "train": {
+      "closed_chi_tanyao_gain": 96,
+      "closed_pon_yakuhai": 32
+    },
+    "held": {
+      "closed_chi_tanyao_gain": 32,
+      "closed_pon_yakuhai": 16
+    }
+  },
   "fast_gamma": 0.98,
   "game_mode": "4p-red-east",
   "seed_scheme": "spaced-v1",
@@ -26,5 +45,5 @@
     "speed_gamma": 0.98
   },
   "wall_scope": "unseen",
-  "expand_from": "runs/chi-win-futures-v1"
+  "required_native_audit": "runs/chi-win-native-audit-v1"
 }

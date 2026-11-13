@@ -56,10 +56,12 @@
     "stratify_call_openness": true,
     "call_route_reserve_by_split": {
       "train": {
-        "closed_chi_tanyao_gain": 96
+        "closed_chi_tanyao_gain": 96,
+        "closed_pon_yakuhai": 32
       },
       "held": {
-        "closed_chi_tanyao_gain": 32
+        "closed_chi_tanyao_gain": 32,
+        "closed_pon_yakuhai": 16
       }
     },
     "worlds": 16,
@@ -67,7 +69,7 @@
   },
   "parameters": 38528,
   "parameter_training_started": false,
-  "new_labels_started": false,
+  "new_labels_started": true,
   "new_weights_exist": false,
   "matched_head_or_LoRA_comparison_proven": false,
   "raw_records_public": false,
@@ -77,5 +79,9 @@
     "Reserved internal chi-route samples are a diagnostic distribution, not natural-match win-rate evidence.",
     "If public-route reserves are unavailable, inspect/supplement data before computing labels.",
     "No architecture superiority or new policy improvement has been established."
-  ]
+  ],
+  "active_recipe_revision": "coverage-v2-preserve-pon",
+  "active_fit_config": "configs/training/chi-win-fit-v2.json",
+  "initialization_preflight_unchanged": true,
+  "active_label_plan_sha256": "9b01b03d1b0dd1f9bfffda7e6bdbe24ff190dbe34de8bf9c04c48acebb0052f1"
 }

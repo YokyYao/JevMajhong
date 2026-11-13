@@ -1,6 +1,6 @@
 {
   "model_target": "jev-chi-win-v1",
-  "stage": "full_native_collection_complete_audit_running",
+  "stage": "full_native_audited_revised_future_labels_submitted",
   "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
   "source_sha256": "9c2d72262cc7fea037a9dda35cd5fa8add1b8ab7545903031a37a24bd53d2d6a",
   "planned_whole_wall_groups": 128,
@@ -94,5 +94,96 @@
     "optimizer_updates": 0,
     "human_test_opened": false,
     "inputs_only_not_reward_labels": true
-  }
+  },
+  "native_full_audit": {
+    "status": "passed_complete",
+    "walls": 128,
+    "control_matches_audited": 512,
+    "states": 9451,
+    "state_splits": {
+      "train": 7189,
+      "held": 2262
+    },
+    "prefixes_replayed": 9451,
+    "cached_head_probability_max_error": 9.5367431640625e-07,
+    "whole_wall_disjoint": true,
+    "new_simulations": 0,
+    "reward_labels_available": false,
+    "independent_strength_proven": false,
+    "call_state_coverage": {
+      "closed": 8283,
+      "opponent_riichi": 3051,
+      "chi": 6221,
+      "pon": 3418,
+      "open": 1168
+    },
+    "collection_policy": "frozen_play",
+    "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+  },
+  "native_full_audit_sha256": "a9c2d80f23740bc58a568a2ca7d4329722e5b91ef4f6b39e21c9cc8d876bf45d",
+  "active_recipe_revision": "coverage-v2-preserve-pon",
+  "active_source_sha256": "976ce3520afe39a9e1a08441b99a89a5c68eeb4a0aa214e91b46c5c962b2b8b1",
+  "active_route_reserves": {
+    "train": {
+      "closed_chi_tanyao_gain": 96,
+      "closed_pon_yakuhai": 32
+    },
+    "held": {
+      "closed_chi_tanyao_gain": 32,
+      "closed_pon_yakuhai": 16
+    }
+  },
+  "active_label_plan": {
+    "status": "label_plan_ready",
+    "states": 512,
+    "states_by_split": {
+      "train": 384,
+      "held": 128
+    },
+    "native_route_coverage": {
+      "train": {
+        "closed": 6347,
+        "closed_pon_yakuhai": 335,
+        "opponent_riichi": 2304,
+        "open": 842,
+        "closed_chi_tanyao_gain": 285
+      },
+      "held": {
+        "closed": 1936,
+        "opponent_riichi": 747,
+        "open": 326,
+        "closed_pon_yakuhai": 128,
+        "closed_chi_tanyao_gain": 64
+      }
+    },
+    "selected_route_coverage": {
+      "train": {
+        "closed": 268,
+        "opponent_riichi": 202,
+        "closed_chi_tanyao_gain": 96,
+        "closed_pon_yakuhai": 32,
+        "open": 116
+      },
+      "held": {
+        "closed": 91,
+        "opponent_riichi": 67,
+        "closed_chi_tanyao_gain": 32,
+        "closed_pon_yakuhai": 16,
+        "open": 37
+      }
+    },
+    "worlds_per_state": 16,
+    "initial_hand_arm_budget": 16384,
+    "source_sha256": "976ce3520afe39a9e1a08441b99a89a5c68eeb4a0aa214e91b46c5c962b2b8b1",
+    "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+    "config_sha256": "1645ed538bfcf03ecde0354db1469eca54fd01c41aca7b45394a0c0815707e6d",
+    "selected_case_keys_sha256": "60c474bfae1d3e94b70a84e84d6a35a434b95921d294b482500a1c46eaa26920",
+    "optimizer_updates": 0,
+    "new_simulations": 0,
+    "outcome_labels_read": false,
+    "limitation": "Counts are public opportunities, not positive/negative reward coverage or expert labels."
+  },
+  "active_label_plan_sha256": "9b01b03d1b0dd1f9bfffda7e6bdbe24ff190dbe34de8bf9c04c48acebb0052f1",
+  "initial_future_arm_budget": 16384,
+  "worlds_per_state": 16
 }
