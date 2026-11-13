@@ -1,6 +1,6 @@
 {
   "candidate_model_id": "jev-call-feature-win-v2",
-  "stage": "paired_labels_complete_audited_full_menu_expansion_running",
+  "stage": "complete_menu_audited_fit_audited_development_job_running",
   "native_source": {
     "fresh_logical_walls": 16,
     "control_matches": 64,
@@ -65,8 +65,8 @@
     "core": "success",
     "desktop": "success"
   },
-  "optimizer_updates": 0,
-  "weights_available": false,
+  "optimizer_updates": 364,
+  "weights_available": true,
   "strength_improvement_proven": false,
   "raw_records_public": false,
   "experimental_weights_public": false,
@@ -151,5 +151,32 @@
     "cached_head_probability_max_error": 0.0,
     "new_simulations": 0,
     "independent_strength_proven": false
-  }
+  },
+  "full_menu_collection": {
+    "states": 512,
+    "pairs": 585,
+    "worlds_per_state": 32,
+    "new_native_hand_rollouts": 2336,
+    "chi_pairs": 341,
+    "pon_pairs": 244
+  },
+  "full_menu_audit": {
+    "status": "passed_complete",
+    "role": "data consistency audit, not policy strength",
+    "pairs": 585,
+    "states": 512,
+    "train_pairs": 439,
+    "held_pairs": 146,
+    "train_states": 384,
+    "held_states": 128,
+    "worlds_per_state": 32,
+    "prefixes_replayed": 512,
+    "future_walls_rederived": 16384,
+    "arm_records_audited": 37440,
+    "whole_wall_disjoint": true,
+    "cached_head_probability_max_error": 0.0,
+    "new_simulations": 0,
+    "independent_strength_proven": false
+  },
+  "fit_summary": "feature-win-fit-v2-summary.json"
 }
