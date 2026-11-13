@@ -1,0 +1,41 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "call_context_baseline": {
+    "checkpoint": "runs/jev-call-tile-win-v1/jev-call-tile-win-v1-e01.pt",
+    "sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+  },
+  "train_scopes": [
+    "ordinary"
+  ],
+  "decision_filter": "kan_windows",
+  "data": [
+    "runs/kan-win-options-v1/source_0"
+  ],
+  "reward": {
+    "mode": "own_win_first_v1",
+    "win_weight": 1.0,
+    "fast_weight": 0.25,
+    "dealin_penalty": 2.0,
+    "net_weight": 0.0,
+    "point_scale": 8000.0,
+    "speed_gamma": 0.98
+  },
+  "model_id": "jev-kan-win-v1",
+  "out": "runs/jev-kan-win-v1",
+  "fit_model": "residual_policy",
+  "selection_validation": "all_sources",
+  "selection_objective": "hand_win",
+  "max_held_dealin_increase": 0.01,
+  "reference_prior_strength": 0.05,
+  "feature_version": "public-kan-context-v2",
+  "policy_state_weighting": "uniform",
+  "max_example_weight": 4.0,
+  "hidden": 64,
+  "epochs": 24,
+  "patience_epochs": 4,
+  "batch": 16,
+  "lr": 0.0003,
+  "weight_decay": 0.001,
+  "seed": 2026111308
+}

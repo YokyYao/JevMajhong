@@ -1,0 +1,30 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "call_context_baseline": {
+    "checkpoint": "runs/jev-call-tile-win-v1/jev-call-tile-win-v1-e01.pt",
+    "sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+  },
+  "train_scopes": [
+    "ordinary"
+  ],
+  "decision_filter": "kan_windows",
+  "out": "runs/kan-win-options-v1",
+  "seed": 2026111309,
+  "worlds": 16,
+  "max_states": null,
+  "fast_gamma": 0.98,
+  "game_mode": "4p-red-east",
+  "seed_scheme": "spaced-v1",
+  "reward": {
+    "mode": "own_win_first_v1",
+    "win_weight": 1.0,
+    "fast_weight": 0.25,
+    "dealin_penalty": 2.0,
+    "net_weight": 0.0,
+    "point_scale": 8000.0,
+    "speed_gamma": 0.98
+  },
+  "wall_scope": "unseen",
+  "expand_from": "runs/kan-win-futures-v1"
+}
