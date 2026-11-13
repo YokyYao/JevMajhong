@@ -1,5 +1,5 @@
 {
-  "stage": "catalog_complete_balanced_raw_data_ready_fresh_base_LoRA_running",
+  "stage": "fresh_base_LoRA_training_complete_native_passed_development_running",
   "datasets": 71,
   "replay_jsonl_datasets": 22,
   "native_collection_datasets": 49,
@@ -20,7 +20,7 @@
     "trainable_parameters": 11347456,
     "adapter_tensors": 372
   },
-  "next": "Monitor exact fresh-LoRA job; inspect periodic phase validation and actual updates, then bind selected unified checkpoint to fresh full-match comparison. Do not treat supervised learning as a win-rate gain.",
+  "next": "Complete fresh192-game development and independent event audit; admit unchanged candidate to768 independent confirmation only if frozen development rules pass.",
   "phase_mix_not_finalized": false,
   "LoRA_training_started": true,
   "old_pending_kan_fit_chain_cancelled": true,
@@ -447,10 +447,58 @@
         "pseudo_labels_are_not_expert_truth": true,
         "step": 768,
         "upstream_hard_label_nll": 1.2562506734385386
+      },
+      {
+        "weighted_target_ce": 1.1955331349301168,
+        "phase_target_ce": {
+          "call_window": 0.6720894084132117,
+          "closed_discard": 1.4229699544652747,
+          "kan_window": 1.8977562821841163,
+          "open_discard": 1.2934100939378685
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.6875,
+          "closed_discard": 0.5,
+          "open_discard": 0.6458333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 896,
+        "upstream_hard_label_nll": 1.254748743191529
+      },
+      {
+        "weighted_target_ce": 1.1918973499834278,
+        "phase_target_ce": {
+          "call_window": 0.6663505855819314,
+          "closed_discard": 1.419454917349925,
+          "kan_window": 1.865807414741207,
+          "open_discard": 1.2997354538216086
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.675,
+          "closed_discard": 0.5,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1024,
+        "upstream_hard_label_nll": 1.2470224737144826
       }
     ],
-    "selected_step_at_snapshot": 768,
-    "selected_target_ce_at_snapshot": 1.209129000653193
+    "selected_step_at_snapshot": 1024,
+    "selected_target_ce_at_snapshot": 1.1918973499834278,
+    "status": "fresh_base_LoRA_training_complete",
+    "optimizer_steps": 1024
   },
   "token_admission": {
     "requested_records": 16384,
@@ -475,7 +523,7 @@
     "Fresh simulated matches and independent outcome verification are still required; retained reference and Windows installer are unchanged."
   ],
   "unified_evaluation": {
-    "stage": "code_and_recipes_ready_native_job_queued_after_training",
+    "stage": "native_passed_fresh_development_running",
     "source_sha256": "ec7c2afde9e42bb3def2a1e11678a7bbd17e9945a98ae9c23ba7c394f41a5384",
     "candidate_identity": "six-file adapter+head+tokenizer manifest, plus pinned pretrained-byte training receipt",
     "reference": "unchanged old2encoders+82bcallingresidual applied only to reference",
@@ -489,22 +537,61 @@
       "kakan"
     ],
     "native_each_probability_tolerance": 2e-05,
-    "actual_GPU_native_passed": false,
+    "actual_GPU_native_passed": true,
     "complete_new_matches": 0,
     "development": {
       "seed_start": 11910000,
       "walls": 8,
-      "games": 192
+      "games": "192 planned, results pending independent audit",
+      "status": "running"
     },
     "conditional_confirmation": {
       "seed_start": 11920000,
       "walls": 32,
       "games": 768
     },
-    "freshness_actual_protocols_checked": 329,
+    "freshness_actual_protocols_checked": 330,
     "freshness_conflicts": 0,
     "old_head_only_evaluator_reused": false,
     "independent_audit": "raw MJAI winners/deal-in hands/speed,four payments,riichi pool,seat-tiebroken ranks,paired whole-wall intervals",
-    "independent_han_fu_recalculation": false
+    "independent_han_fu_recalculation": false,
+    "native_result": {
+      "status": "passed_selected_unified_native_validation",
+      "records": 256,
+      "routes": {
+        "closed_discard": 96,
+        "open_discard": 48,
+        "call_window": 80,
+        "ankan": 12,
+        "daiminkan": 14,
+        "kakan": 6
+      },
+      "candidate_identity_sha256": "401ddef4963157eb8baf294f408b9710d7ea60dea5083212cc9bb8bf74181376",
+      "selected_step": 1024,
+      "max_abs_probability_difference": 9.809566725582641e-08,
+      "actual_validation": {
+        "weighted_target_ce": 1.1918973525545247,
+        "phase_target_ce": {
+          "call_window": 0.6663505848834399,
+          "closed_discard": 1.4194549190418895,
+          "kan_window": 1.865807414741207,
+          "open_discard": 1.2997354639179102
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.675,
+          "closed_discard": 0.5,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true
+      },
+      "complete_matches_simulated": 0
+    },
+    "candidate_identity_sha256": "401ddef4963157eb8baf294f408b9710d7ea60dea5083212cc9bb8bf74181376"
   }
 }
