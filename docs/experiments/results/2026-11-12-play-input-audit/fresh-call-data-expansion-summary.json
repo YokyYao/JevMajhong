@@ -35,8 +35,11 @@
       "kakan": 6
     },
     "parent_future_audit": "passed_complete",
-    "complete_options": "started",
-    "fit": "not_started"
+    "complete_options": "complete_and_audited",
+    "fit": "complete_and_independently_audited",
+    "selected_epoch": 7,
+    "eligible_for_development": true,
+    "model_id": "jev-kan-win-v1"
   },
   "raw_records_public": false,
   "weights_public": false,

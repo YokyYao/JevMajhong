@@ -1,6 +1,6 @@
 {
-  "stage": "kan_match_evaluation_registered_before_fit",
-  "snapshot_at": "2026-11-13T13:52:44.709929+00:00",
+  "stage": "fit_audit_qualified_actual_model_contract_passed_gpu_preflight_running",
+  "snapshot_at": "2026-11-13T15:51:36.464517+00:00",
   "fit_model": "jev-kan-win-v1",
   "strong_reference_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
   "candidate_activation": "kan_windows",
@@ -27,8 +27,8 @@
     "changed reference checkpoint"
   ],
   "cpu_baseline_load": "passed_actual_stronger_baseline_load",
-  "actual_selected_model_contract": "pending completed fit",
-  "actual_gpu_native_parity": "pending completed fit",
+  "actual_selected_model_contract": "passed_actual_selected_model_and_reference_contract",
+  "actual_gpu_native_parity": "running_not_yet_verified",
   "development": {
     "whole_walls": 8,
     "games": 192,
@@ -43,10 +43,12 @@
   "freshness_conflicts": 0,
   "independent_event_audit_templates_registered": true,
   "new_games": 0,
-  "evaluation_jobs_submitted": false,
+  "evaluation_jobs_submitted": true,
   "strength_improvement_proven": false,
-  "limits": "No kan candidate is trained yet. Registration and negative checks do not demonstrate native inference correctness or policy strength. Actual fit receipt, selected model identity, GPU parity and independently audited new matches remain required.",
+  "limits": "Fit and CPU selected-model/reference checks passed. Native GPU parity is running, followed conditionally by the preregistered192match development and independent event audit. No whole-match strength result yet.",
   "raw_records_public": false,
   "weights_public": false,
-  "deployed": false
+  "deployed": false,
+  "selected_epoch": 7,
+  "selected_sha256": "9024d80501755c73669a0e3c3ae8db6e0ced69ab1f848db990f8a07c37308db4"
 }
