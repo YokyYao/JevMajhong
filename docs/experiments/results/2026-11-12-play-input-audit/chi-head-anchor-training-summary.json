@@ -162,7 +162,7 @@
     }
   ],
   "interpretation": "v1 epoch1 has positive internal sampled hand-win gain but exceeds the predeclared KL limit; v2 halves learning rate but no snapshot meets all hand-win, utility, deal-in and KL conditions. Neither enters development. No architecture superiority or improvement established.",
-  "next": "ActualGPUparity then192newdevelopment andindependent event/payment/rank audit for fixedv5e1 only; no confirmation unless development passes.",
+  "next": "Diagnose TRAIN-only objective conflict, then test a single target-distribution change; do not confirm or deploy v5.",
   "latest_v3_evaluation_registration": {
     "stage": "superseded_unexecuted_after_full_menu_protocol_fix",
     "model_id": "jev-chi-head-anchor-win-v3",
@@ -408,7 +408,7 @@
     "reason": "All trained snapshots exceeded unchanged anchor KL0.01; later positive held estimates were not promoted."
   },
   "latest_v5_fit_result": {
-    "status": "independent_fit_audit_and_actual_GPU_parity_passed_development_running",
+    "status": "development_completed_independently_audited_no_improvement_not_adopted",
     "model_id": "jev-chi-head-anchor-win-v5",
     "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
     "only_training_parameter_change": {
@@ -764,6 +764,43 @@
       "expected_games": 192,
       "reused_reference_games": 0
     },
-    "actual_development_startup_binding": "passed"
+    "actual_development_startup_binding": "passed",
+    "development_result": {
+      "games": 192,
+      "whole_wall_groups": 8,
+      "hand_win_paired": {
+        "gain": -0.004096395502645505,
+        "ci95": [
+          -0.035805619683899864,
+          0.027612828678608856
+        ]
+      },
+      "dealin_rate_paired": {
+        "gain": -0.019713128306878307,
+        "ci95": [
+          -0.04204438209807279,
+          0.00261812548431618
+        ]
+      },
+      "fast_reward_paired": {
+        "gain": -0.0032141518480201287,
+        "ci95": [
+          -0.015737693405051673,
+          0.009309389709011417
+        ]
+      },
+      "net_points_paired": {
+        "gain": 3.1249999999999902,
+        "ci95": [
+          -2442.0275998769034,
+          2448.2775998769034
+        ],
+        "independent_wall_streams": 8
+      },
+      "eligible_for_confirmation": false,
+      "independent_event_payment_rank_audit": "passed_complete",
+      "confirmation_run": false,
+      "adopted": false
+    }
   }
 }

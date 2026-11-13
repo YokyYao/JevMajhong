@@ -91,6 +91,27 @@ def check_close(a,b):
     if set(a)!=set(b) or any(abs(a[k]-b[k])>1e-8 for k in a): raise ValueError('Saved metric differs from recomputation')
 
 
+def manual_distillation_target(group,strength,mode='utility_v1'):
+    """Rebuild target from paired records, independently of fitter transforms."""
+    if mode not in ('utility_v1','win_compatible_v1') or not math.isfinite(strength) or strength<=0:
+        raise ValueError('Invalid distillation target or strength')
+    row=group['row'];values=[]
+    for action in row['eligible']:
+        value=0.
+        if action!=row['teacher_action']:
+            records=[r for r in group['records'] if r['action']==action]
+            if len(records)!=1:raise ValueError('Target alternative missing')
+            b,c=records[0]['training_credit']['branch'],records[0]['training_credit']['control']
+            value=b['utility']-c['utility']
+            if mode=='win_compatible_v1':
+                win=b['own_win']-c['own_win'];speed=b['fast_reward']-c['fast_reward']
+                if not math.isfinite(win) or not math.isfinite(speed):raise ValueError('Invalid win target credit')
+                if value>0 and not (win>1e-12 or (abs(win)<=1e-12 and speed>1e-12)):value=0.
+        values.append(value)
+    q=row['reference'][row['eligible']].double();q=q/q.sum()
+    return (q.clamp_min(1e-30).log()+torch.tensor(values,dtype=torch.float64)/strength).softmax(-1)
+
+
 @torch.no_grad()
 def manual_route_profile(head, groups):
     result=manual_profile(head,groups);positive=recovered=negative=skipped=0
@@ -124,6 +145,12 @@ def audit(cfg):
     if training['fit_model']!='complete_option_call_head' or training['train_scopes']!=['calling']:
         raise ValueError('Only calling pointer-head repair is supported')
     mode=anchor_policy(training)
+    target_mode=training.get('distillation_target','utility_v1')
+    if (target_mode not in ('utility_v1','win_compatible_v1')
+            or fit.get('distillation_target','utility_v1')!=target_mode
+            or (target_mode=='win_compatible_v1' and (training.get('selection_objective')!='hand_win'
+                or training.get('reward',{}).get('mode')!='own_win_first_v1' or mode!='calling_baseline_kl'))):
+        raise ValueError('Invalid registered distillation target')
     parts,groups,hashes,sources,anchors,anchor_meta,data_audits=load_inputs(training,registered)
     if training.get('call_context_baseline'):
         from jevmahjong.policy.call_baseline import load
@@ -195,6 +222,13 @@ def audit(cfg):
             head.load_state_dict(saved['heads'][scope])
         train=manual_profile(heads['calling'],groups['train']);held=manual_profile(heads['calling'],groups['held'])
         check_close(train,item['train_policy']);check_close(held,item['held_policy'])
+        losses=[]
+        for g in groups['held']:
+            probability=manual_distillation_target(g,training['reference_prior_strength'],target_mode)
+            z=manual_logits(heads['calling'],g['row'])[g['eligible']]
+            losses.append(float(-(probability*z.log_softmax(-1)).sum()))
+        if abs(sum(losses)/len(losses)-item['held_loss'])>1e-8:
+            raise ValueError('Distillation target loss differs')
         route_results={}
         for split in ('train','held'):
             route_results[split]={name:manual_route_profile(heads['calling'],gs) for name,gs in routed[split].items()}
@@ -249,6 +283,7 @@ def audit(cfg):
     result=dict(status='passed_complete',selected_sha256=best['sha256'],selected_epoch=best['epoch'],curves=curve,
         train_states=len(groups['train']),held_states=len(groups['held']),anchor_states=len(anchors),
         selection_objective=training.get('selection_objective','net_points'),
+        distillation_target=target_mode,target_losses_recomputed=len(curve)*len(groups['held']),
         win_reward_arms_recomputed=win_arms,
         anchor_policy=mode,trainable_parameter_count=sum(p.numel() for p in heads['calling'].parameters()),
         route_recovery_verified=route_verified,route_is_diagnostic_only=not require_route,

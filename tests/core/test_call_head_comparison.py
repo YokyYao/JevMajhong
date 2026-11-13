@@ -33,7 +33,10 @@ class CallHeadComparisonTests(unittest.TestCase):
     def test_native_train_anchors_keep_fixed_context_and_exclude_labelled_and_held_inputs(self):
         self._real_fit_and_audit('calling_baseline_kl')
 
-    def _real_fit_and_audit(self,mode):
+    def test_win_compatible_real_optimizer_and_independent_target_loss_audit(self):
+        self._real_fit_and_audit('calling_baseline_kl','win_compatible_v1')
+
+    def _real_fit_and_audit(self,mode,target_mode='utility_v1'):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);roles={}
             for role in ('discard','call'):
@@ -94,6 +97,7 @@ class CallHeadComparisonTests(unittest.TestCase):
                         dict(matched_context_fit={'config':'old-comparison'})):
                     with self.subTest(change=change),self.assertRaisesRegex(ValueError,'Calling-baseline KL'):
                         anchor_policy(dict(cfg,**change))
+            if target_mode!='utility_v1':cfg['distillation_target']=target_mode
             other=dict(cfg,fit_model='residual_policy',context_initialization='calling_baseline',policy_state_weighting='uniform')
             counterpart=root/'context-fit.json';counterpart.write_text(json.dumps(other))
             if mode=='same_data_no_anchors':cfg['matched_context_fit']=dict(config=str(counterpart),sha256=digest(counterpart))
@@ -130,6 +134,8 @@ class CallHeadComparisonTests(unittest.TestCase):
                     call_context_baseline=baseline)
                 checked=audit(checkcfg)
                 self.assertTrue(checked['eligible_for_development'])
+                self.assertEqual(checked['distillation_target'],target_mode)
+                self.assertEqual(checked['target_losses_recomputed'],len(result['curve']))
                 self.assertEqual(checked['win_reward_arms_recomputed'],16)
                 self.assertEqual(checked['anchor_policy'],mode)
                 self.assertEqual(checked['trainable_parameter_count'],2)
@@ -145,6 +151,12 @@ class CallHeadComparisonTests(unittest.TestCase):
                     (native/'protocol.json').write_text(json.dumps({'collection_method':'paired_future_ev_v1'}))
                     with self.assertRaisesRegex(ValueError,'audited native calling source'):load_inputs(cfg,snapshot(cfg))
                     (native/'protocol.json').write_text(json.dumps({'collection_method':'native_call_states_v1'}))
+                if target_mode=='win_compatible_v1':
+                    bad=copy.deepcopy(result);bad['curve'][1]['held_loss']+=.01
+                    (root/'fit/result.json').write_text(json.dumps(bad))
+                    with self.assertRaisesRegex(ValueError,'Distillation target loss differs'):
+                        audit(dict(checkcfg,out=str(root/'wrong-target-loss')))
+                    (root/'fit/result.json').write_text(json.dumps(result))
                 wrong=torch.load(result['curve'][0]['checkpoint'],weights_only=True)
                 wrong['heads']['calling']['offset'][0]+=.01
                 path=Path(result['curve'][0]['checkpoint']);torch.save(wrong,path)

@@ -103,9 +103,28 @@ def anchor_kl(head, row):
     return (q * (q.clamp_min(1e-30).log() - logits(head, row).log_softmax(-1))).sum()
 
 
-def distillation_loss(head, group, strength):
+def distillation_target(group, strength, mode='utility_v1'):
+    """Keep all options; withhold positive boosts that sacrifice sampled wins/speed.
+
+    This changes the fitting target only. Raw utility, negative advantages and
+    the independent policy-selection metrics retain their original definitions.
+    """
     if not math.isfinite(strength) or strength <= 0: raise ValueError('Positive prior strength required')
-    target = (group['prior'].clamp_min(1e-30).log() + group['utility'] / strength).softmax(-1)
+    if mode not in ('utility_v1','win_compatible_v1'):raise ValueError('Unknown distillation target')
+    utility=group['utility']
+    if mode=='win_compatible_v1':
+        credit=group['credit']
+        wins=torch.tensor([credit[a]['own_win'] for a in group['eligible']],dtype=utility.dtype)
+        speed=torch.tensor([credit[a]['fast_reward'] for a in group['eligible']],dtype=utility.dtype)
+        if not torch.isfinite(wins).all() or not torch.isfinite(speed).all():
+            raise ValueError('Finite win and speed credit required')
+        compatible=(wins>1e-12)|((wins.abs()<=1e-12)&(speed>1e-12))
+        utility=torch.where((utility>0)&~compatible,torch.zeros_like(utility),utility)
+    return (group['prior'].clamp_min(1e-30).log() + utility / strength).softmax(-1)
+
+
+def distillation_loss(head, group, strength, mode='utility_v1'):
+    target=distillation_target(group,strength,mode)
     return -(target * logits(head, group['row']).log_softmax(-1)).sum()
 
 
@@ -270,6 +289,11 @@ def fit(cfg):
     torch.set_num_threads(4); torch.manual_seed(cfg['seed'])
     mode=anchor_policy(cfg);anchored=mode!='same_data_no_anchors'
     objective=cfg.get('selection_objective','net_points')
+    target_mode=cfg.get('distillation_target','utility_v1')
+    if target_mode not in ('utility_v1','win_compatible_v1'):
+        raise ValueError('Unknown distillation target')
+    if target_mode=='win_compatible_v1' and (objective!='hand_win' or mode!='calling_baseline_kl'):
+        raise ValueError('Win-compatible target requires the anchored hand-win objective')
     if objective not in ('net_points','hand_win') or ((objective=='hand_win') != (cfg.get('reward',{}).get('mode')=='own_win_first_v1')):
         raise ValueError('Reward and checkpoint selection must share the registered objective')
     if objective=='hand_win' and (not math.isfinite(cfg['max_held_dealin_increase']) or not 0<=cfg['max_held_dealin_increase']<=1):
@@ -307,7 +331,7 @@ def fit(cfg):
         held = profile(head, groups['held']); train = profile(head, groups['train'])
         with torch.no_grad():
             drift = sum(float(anchor_kl(head,r)) for r in anchors) / len(anchors) if anchors else 0.
-            loss = sum(float(distillation_loss(head,g,cfg['reference_prior_strength'])) for g in groups['held'])/len(groups['held'])
+            loss = sum(float(distillation_loss(head,g,cfg['reference_prior_strength'],target_mode)) for g in groups['held'])/len(groups['held'])
         item = save_head_checkpoint(out, cfg['model_id'], heads, protocol, epoch, loss)
         item.update(held_policy=held, train_policy=train, anchor_kl=drift)
         item['held_routes']={name:route_profile(head,gs) for name,gs in routed['held'].items()}
@@ -322,7 +346,7 @@ def fit(cfg):
             batch = [groups['train'][i] for i in indices]
             begin = updates*cfg['anchor_batch']
             ar = [anchors[anchor_order[(begin+i)%len(anchors)]] for i in range(cfg['anchor_batch'])] if anchors else []
-            loss = torch.stack([weights[i]*distillation_loss(head,g,cfg['reference_prior_strength'])
+            loss = torch.stack([weights[i]*distillation_loss(head,g,cfg['reference_prior_strength'],target_mode)
                 for i,g in zip(indices,batch)]).mean()
             if ar:loss = loss + cfg['anchor_beta']*torch.stack([anchor_kl(head,r) for r in ar]).mean()
             if not torch.isfinite(loss): raise ValueError('Nonfinite loss')
@@ -346,6 +370,7 @@ def fit(cfg):
         data=cfg['data'],data_sources=sources,data_sha256=hashes,anchor_metadata=anchor_meta,data_audit_sha256=audit_hashes,
         selected_is_starting_model=best['epoch']==0,held_policy_gain_improved=best['epoch']!=0,
         training_route_weighting=weighting,
+        distillation_target=target_mode,
         trainable_parameter_count=sum(p.numel() for p in head.parameters()),anchor_policy=mode,
         human_test_opened=False,deployed=False,strength_improvement_proven=False)
     write(out/'result.json',result); write(out/'status.json',result)

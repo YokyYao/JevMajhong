@@ -1,0 +1,143 @@
+{
+  "status": "passed_training_only_target_direction_and_descriptive_match_audit",
+  "train_states": 768,
+  "train_pairs": 1083,
+  "train_walls": 96,
+  "held_shards_opened": 0,
+  "held_labels_used": false,
+  "optimizer_updates": 0,
+  "new_simulations": 0,
+  "negative_utility_options_preserved": 588,
+  "positive_target_boost_options_withheld": 139,
+  "target_argmax_choices_changed": 86,
+  "targets": {
+    "current": {
+      "counts": {
+        "states": 768,
+        "changed_vs_teacher": 264,
+        "choice_chi": 175,
+        "lower_own_win_choices": 31,
+        "utility_positive_lower_win_lower_dealin": 31,
+        "tied_win_slower_choices": 18,
+        "positive_utility_own_win_call_choices": 131,
+        "choice_none": 427,
+        "choice_pon": 166
+      },
+      "state_mean_sampled_credit": {
+        "own_win": 0.048095703125,
+        "dealin": -0.039306640625,
+        "fast_reward": 0.0367541792259752,
+        "net_points": 356.5511067708333,
+        "utility": 0.13589752918149375
+      },
+      "public_routes": {
+        "closed": {
+          "states": 416,
+          "changed_vs_teacher": 148,
+          "lower_own_win_choices": 20,
+          "positive_utility_own_win_call_choices": 95
+        },
+        "opponent_riichi": {
+          "states": 343,
+          "changed_vs_teacher": 105,
+          "lower_own_win_choices": 8,
+          "positive_utility_own_win_call_choices": 55
+        },
+        "closed_chi_tanyao_gain": {
+          "states": 192,
+          "changed_vs_teacher": 93,
+          "lower_own_win_choices": 8,
+          "positive_utility_own_win_call_choices": 71
+        },
+        "closed_pon_yakuhai": {
+          "states": 64,
+          "changed_vs_teacher": 22,
+          "lower_own_win_choices": 9,
+          "positive_utility_own_win_call_choices": 3
+        },
+        "open": {
+          "states": 352,
+          "changed_vs_teacher": 116,
+          "lower_own_win_choices": 11,
+          "positive_utility_own_win_call_choices": 36
+        }
+      }
+    },
+    "win_compatible": {
+      "counts": {
+        "states": 768,
+        "changed_vs_teacher": 178,
+        "choice_none": 424,
+        "lower_own_win_choices": 0,
+        "utility_positive_lower_win_lower_dealin": 0,
+        "tied_win_slower_choices": 0,
+        "positive_utility_own_win_call_choices": 131,
+        "choice_pon": 182,
+        "choice_chi": 162
+      },
+      "state_mean_sampled_credit": {
+        "own_win": 0.052571614583333336,
+        "dealin": -0.018473307291666668,
+        "fast_reward": 0.04037852931396443,
+        "net_points": 273.876953125,
+        "utility": 0.0996128614951578
+      },
+      "public_routes": {
+        "closed": {
+          "states": 416,
+          "changed_vs_teacher": 110,
+          "lower_own_win_choices": 0,
+          "positive_utility_own_win_call_choices": 95
+        },
+        "opponent_riichi": {
+          "states": 343,
+          "changed_vs_teacher": 64,
+          "lower_own_win_choices": 0,
+          "positive_utility_own_win_call_choices": 55
+        },
+        "closed_chi_tanyao_gain": {
+          "states": 192,
+          "changed_vs_teacher": 80,
+          "lower_own_win_choices": 0,
+          "positive_utility_own_win_call_choices": 71
+        },
+        "closed_pon_yakuhai": {
+          "states": 64,
+          "changed_vs_teacher": 8,
+          "lower_own_win_choices": 0,
+          "positive_utility_own_win_call_choices": 3
+        },
+        "open": {
+          "states": 352,
+          "changed_vs_teacher": 68,
+          "lower_own_win_choices": 0,
+          "positive_utility_own_win_call_choices": 36
+        }
+      }
+    }
+  },
+  "completed_development_descriptive": {
+    "paired_games": 96,
+    "identical_logs": 69,
+    "divergent_logs": 27,
+    "first_reference_call_to_noncall": 19,
+    "first_noncall_to_candidate_call": 7,
+    "first_changed_call_variant": 1,
+    "first_difference_involves_evaluated_call": 27,
+    "first_different_event_types": {
+      "pon -> tsumo": 17,
+      "chi -> chi": 1,
+      "tsumo -> chi": 7,
+      "chi -> tsumo": 2
+    }
+  },
+  "test_records_used_as_training_data": false,
+  "raw_records_public": false,
+  "limitations": [
+    "TRAIN-only sampled future estimates are noisy; target statistics are not new-match improvement evidence.",
+    "Completed development divergence is descriptive; it does not prove the cause of reduced own wins.",
+    "Removing a positive target boost is not an action ban; normalization and shared parameters can still increase that option probability.",
+    "All768training states and588negative-utility alternatives remain; no outcome-based row filtering.",
+    "Original reward labels, prior strength, risk cap and model-selection rules are unchanged."
+  ]
+}

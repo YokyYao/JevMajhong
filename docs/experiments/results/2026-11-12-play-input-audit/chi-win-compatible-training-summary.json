@@ -1,0 +1,316 @@
+{
+  "model_id": "jev-chi-win-compatible-v1",
+  "stage": "fit_and_independent_target_audit_passed_GPU_preflight_pending",
+  "source_sha256": "d015abdbf940b808afd935859f57a93c9b8745241205b1face7ad0b22e23befc",
+  "distillation_target": "win_compatible_v1",
+  "only_training_change_from_anchor_beta2": "withhold positive utility boosts unless sampled own wins increase or tied wins become faster",
+  "train_states": 768,
+  "held_states": 256,
+  "train_pairs": 1083,
+  "held_pairs": 343,
+  "anchor_states": 1024,
+  "starting_reference_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+  "failed_weights_reused": false,
+  "epochs": 7,
+  "optimizer_updates": 336,
+  "selected_epoch": 4,
+  "selected_sha256": "09ef6075093a746b5048dd2f5114e2e7457922c49b9b2a919f88481db91218e4",
+  "selected_internal": {
+    "train": {
+      "states": 768,
+      "label_regret": 0.13408309710066305,
+      "mean_label_utility_gain": 0.005603992169327862,
+      "mean_sampled_net_point_gain": -11.181640625,
+      "mean_sampled_fast_gain": 0.0035357603439781092,
+      "mean_sampled_dealin_change": -0.0004069010416666667,
+      "changed_argmax_states": 36,
+      "mean_sampled_hand_win_gain": 0.00390625
+    },
+    "held": {
+      "states": 256,
+      "label_regret": 0.13053815847028222,
+      "mean_label_utility_gain": 0.004831368657983268,
+      "mean_sampled_net_point_gain": 9.6435546875,
+      "mean_sampled_fast_gain": 0.002723912131933071,
+      "mean_sampled_dealin_change": -0.00048828125,
+      "changed_argmax_states": 8,
+      "mean_sampled_hand_win_gain": 0.003173828125
+    },
+    "anchor_kl": 0.00806240926309773,
+    "held_closed_chi": {
+      "states": 64,
+      "label_regret": 0.22383402125812843,
+      "mean_label_utility_gain": 0.01935519394766532,
+      "mean_sampled_net_point_gain": 59.47265625,
+      "mean_sampled_fast_gain": 0.011014525790661292,
+      "mean_sampled_dealin_change": -0.001953125,
+      "changed_argmax_states": 6,
+      "mean_sampled_hand_win_gain": 0.0126953125,
+      "missed_positive_call_states": 28,
+      "recovered_sample_positive_call_states": 3,
+      "all_sample_negative_call_states": 13,
+      "negative_states_still_skipped": 12
+    }
+  },
+  "curve": [
+    {
+      "epoch": 0,
+      "held_loss": 0.6257727337935106,
+      "train_policy": {
+        "states": 768,
+        "label_regret": 0.1396870892699909,
+        "mean_label_utility_gain": 0.0,
+        "mean_sampled_net_point_gain": 0.0,
+        "mean_sampled_fast_gain": 0.0,
+        "mean_sampled_dealin_change": 0.0,
+        "changed_argmax_states": 0,
+        "mean_sampled_hand_win_gain": 0.0
+      },
+      "held_policy": {
+        "states": 256,
+        "label_regret": 0.13536952712826547,
+        "mean_label_utility_gain": 0.0,
+        "mean_sampled_net_point_gain": 0.0,
+        "mean_sampled_fast_gain": 0.0,
+        "mean_sampled_dealin_change": 0.0,
+        "changed_argmax_states": 0,
+        "mean_sampled_hand_win_gain": 0.0
+      },
+      "anchor_kl": 7.653248549504867e-14
+    },
+    {
+      "epoch": 1,
+      "held_loss": 0.6286875197739485,
+      "train_policy": {
+        "states": 768,
+        "label_regret": 0.1392682825560201,
+        "mean_label_utility_gain": 0.0004188067139707938,
+        "mean_sampled_net_point_gain": -1.5787760416666667,
+        "mean_sampled_fast_gain": -0.00060341897745016,
+        "mean_sampled_dealin_change": -0.0006510416666666666,
+        "changed_argmax_states": 14,
+        "mean_sampled_hand_win_gain": -0.000732421875
+      },
+      "held_policy": {
+        "states": 256,
+        "label_regret": 0.13007394561132266,
+        "mean_label_utility_gain": 0.005295581516942832,
+        "mean_sampled_net_point_gain": 11.7919921875,
+        "mean_sampled_fast_gain": 0.00262763856777133,
+        "mean_sampled_dealin_change": -0.000732421875,
+        "changed_argmax_states": 6,
+        "mean_sampled_hand_win_gain": 0.003173828125
+      },
+      "anchor_kl": 0.0017105455856166465
+    },
+    {
+      "epoch": 2,
+      "held_loss": 0.6065269923112351,
+      "train_policy": {
+        "states": 768,
+        "label_regret": 0.13942203872390063,
+        "mean_label_utility_gain": 0.0002650505460902641,
+        "mean_sampled_net_point_gain": 23.575846354166668,
+        "mean_sampled_fast_gain": 0.002362285517694389,
+        "mean_sampled_dealin_change": 0.001708984375,
+        "changed_argmax_states": 20,
+        "mean_sampled_hand_win_gain": 0.0030924479166666665
+      },
+      "held_policy": {
+        "states": 256,
+        "label_regret": 0.12644658600019634,
+        "mean_label_utility_gain": 0.008922941128069134,
+        "mean_sampled_net_point_gain": 22.6806640625,
+        "mean_sampled_fast_gain": 0.002488639512276534,
+        "mean_sampled_dealin_change": -0.002685546875,
+        "changed_argmax_states": 10,
+        "mean_sampled_hand_win_gain": 0.0029296875
+      },
+      "anchor_kl": 0.0037808181655113963
+    },
+    {
+      "epoch": 3,
+      "held_loss": 0.6067133550571729,
+      "train_policy": {
+        "states": 768,
+        "label_regret": 0.12945565416694188,
+        "mean_label_utility_gain": 0.010231435103049016,
+        "mean_sampled_net_point_gain": 9.08203125,
+        "mean_sampled_fast_gain": 0.008373657078862732,
+        "mean_sampled_dealin_change": 0.0008951822916666666,
+        "changed_argmax_states": 51,
+        "mean_sampled_hand_win_gain": 0.009928385416666666
+      },
+      "held_policy": {
+        "states": 256,
+        "label_regret": 0.12347537584571118,
+        "mean_label_utility_gain": 0.011894151282554291,
+        "mean_sampled_net_point_gain": 10.888671875,
+        "mean_sampled_fast_gain": 0.006560980130217165,
+        "mean_sampled_dealin_change": -0.00146484375,
+        "changed_argmax_states": 14,
+        "mean_sampled_hand_win_gain": 0.00732421875
+      },
+      "anchor_kl": 0.015961643242482636
+    },
+    {
+      "epoch": 4,
+      "held_loss": 0.6193918289815701,
+      "train_policy": {
+        "states": 768,
+        "label_regret": 0.13408309710066305,
+        "mean_label_utility_gain": 0.005603992169327862,
+        "mean_sampled_net_point_gain": -11.181640625,
+        "mean_sampled_fast_gain": 0.0035357603439781092,
+        "mean_sampled_dealin_change": -0.0004069010416666667,
+        "changed_argmax_states": 36,
+        "mean_sampled_hand_win_gain": 0.00390625
+      },
+      "held_policy": {
+        "states": 256,
+        "label_regret": 0.13053815847028222,
+        "mean_label_utility_gain": 0.004831368657983268,
+        "mean_sampled_net_point_gain": 9.6435546875,
+        "mean_sampled_fast_gain": 0.002723912131933071,
+        "mean_sampled_dealin_change": -0.00048828125,
+        "changed_argmax_states": 8,
+        "mean_sampled_hand_win_gain": 0.003173828125
+      },
+      "anchor_kl": 0.00806240926309773
+    },
+    {
+      "epoch": 5,
+      "held_loss": 0.6151436167460435,
+      "train_policy": {
+        "states": 768,
+        "label_regret": 0.12961366288765774,
+        "mean_label_utility_gain": 0.010073426382333163,
+        "mean_sampled_net_point_gain": 16.560872395833332,
+        "mean_sampled_fast_gain": 0.007741622195999318,
+        "mean_sampled_dealin_change": 0.0006510416666666666,
+        "changed_argmax_states": 54,
+        "mean_sampled_hand_win_gain": 0.009440104166666666
+      },
+      "held_policy": {
+        "states": 256,
+        "label_regret": 0.1280648743113492,
+        "mean_label_utility_gain": 0.007304652816916286,
+        "mean_sampled_net_point_gain": 0.0732421875,
+        "mean_sampled_fast_gain": 0.0028514237676651464,
+        "mean_sampled_dealin_change": -0.002197265625,
+        "changed_argmax_states": 17,
+        "mean_sampled_hand_win_gain": 0.002197265625
+      },
+      "anchor_kl": 0.009744639859953939
+    },
+    {
+      "epoch": 6,
+      "held_loss": 0.6071802506767924,
+      "train_policy": {
+        "states": 768,
+        "label_regret": 0.1263303527743976,
+        "mean_label_utility_gain": 0.013356736495593276,
+        "mean_sampled_net_point_gain": 4.264322916666667,
+        "mean_sampled_fast_gain": 0.012085800149039774,
+        "mean_sampled_dealin_change": 0.002197265625,
+        "changed_argmax_states": 82,
+        "mean_sampled_hand_win_gain": 0.014729817708333334
+      },
+      "held_policy": {
+        "states": 256,
+        "label_regret": 0.1160859150888666,
+        "mean_label_utility_gain": 0.019283612039398868,
+        "mean_sampled_net_point_gain": 31.4208984375,
+        "mean_sampled_fast_gain": 0.011704760657595471,
+        "mean_sampled_dealin_change": -0.001708984375,
+        "changed_argmax_states": 27,
+        "mean_sampled_hand_win_gain": 0.012939453125
+      },
+      "anchor_kl": 0.021474750035903146
+    },
+    {
+      "epoch": 7,
+      "held_loss": 0.600439521484676,
+      "train_policy": {
+        "states": 768,
+        "label_regret": 0.13613010965377786,
+        "mean_label_utility_gain": 0.0035569796162130333,
+        "mean_sampled_net_point_gain": 19.816080729166668,
+        "mean_sampled_fast_gain": 0.004462293464852134,
+        "mean_sampled_dealin_change": 0.0015462239583333333,
+        "changed_argmax_states": 31,
+        "mean_sampled_hand_win_gain": 0.005533854166666667
+      },
+      "held_policy": {
+        "states": 256,
+        "label_regret": 0.12802171560014602,
+        "mean_label_utility_gain": 0.007347811528119442,
+        "mean_sampled_net_point_gain": 16.1865234375,
+        "mean_sampled_fast_gain": 0.002047496112477771,
+        "mean_sampled_dealin_change": -0.00244140625,
+        "changed_argmax_states": 11,
+        "mean_sampled_hand_win_gain": 0.001953125
+      },
+      "anchor_kl": 0.005268026542936825
+    }
+  ],
+  "unchanged": {
+    "reward": {
+      "mode": "own_win_first_v1",
+      "win_weight": 1.0,
+      "fast_weight": 0.25,
+      "dealin_penalty": 2.0,
+      "net_weight": 0.0,
+      "point_scale": 8000.0,
+      "speed_gamma": 0.98
+    },
+    "max_held_dealin_increase": 0.01,
+    "anchor_kl_limit": 0.01,
+    "reference_prior_strength": 0.05,
+    "anchor_beta": 2.0,
+    "model_architecture": true,
+    "negative_utility_labels": true
+  },
+  "trainable_parameter_count": 524800,
+  "extra_inference_networks": 0,
+  "core_tests_passed": 153,
+  "development": {
+    "seed_start": 11870000,
+    "walls": 8,
+    "matches": 192,
+    "started": false
+  },
+  "conditional_confirmation": {
+    "seed_start": 11880000,
+    "walls": 32,
+    "matches": 768,
+    "started": false
+  },
+  "raw_records_public": false,
+  "weights_public": false,
+  "deployed": false,
+  "independent_strength_improvement_proven": false,
+  "limitations": [
+    "Internal held estimates are not complete-match improvement.",
+    "Higher-win epochs violating the original KL limit remain rejected.",
+    "Fresh complete matches, independent outcome recount and confirmation are required before adoption."
+  ],
+  "fit_audit": {
+    "status": "passed_complete",
+    "selected_sha256": "09ef6075093a746b5048dd2f5114e2e7457922c49b9b2a919f88481db91218e4",
+    "selected_epoch": 4,
+    "train_states": 768,
+    "held_states": 256,
+    "anchor_states": 1024,
+    "selection_objective": "hand_win",
+    "distillation_target": "win_compatible_v1",
+    "target_losses_recomputed": 2048,
+    "win_reward_arms_recomputed": 45632,
+    "anchor_policy": "calling_baseline_kl",
+    "trainable_parameter_count": 524800,
+    "route_recovery_verified": true,
+    "route_is_diagnostic_only": true,
+    "eligible_for_development": true,
+    "strength_improvement_proven": false
+  }
+}
