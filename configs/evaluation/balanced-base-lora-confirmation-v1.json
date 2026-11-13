@@ -1,0 +1,25 @@
+{
+  "candidate_run": "runs/jev-balanced-base-lora-v1",
+  "candidate_model_id": "jev-balanced-base-lora-v1",
+  "reference": {
+    "discard_checkpoint": "models/jev-discard-v1",
+    "call_checkpoint": "models/jev-call-v1",
+    "call_context_baseline": {
+      "checkpoint": "runs/jev-call-tile-win-v1/jev-call-tile-win-v1-e01.pt",
+      "sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+    },
+    "train_scopes": [
+      "calling"
+    ],
+    "decision_filter": "all"
+  },
+  "confirmation_objective": "hand_win",
+  "fast_gamma": 0.98,
+  "max_dealin_rate_increase": 0.01,
+  "out": "runs/balanced-base-lora-v1-confirmation",
+  "stage": "independent_confirmation",
+  "seed_start": 11920000,
+  "seeds": 32,
+  "development_out": "runs/balanced-base-lora-v1-development",
+  "required_native_preflight": "runs/balanced-base-lora-v1-native-preflight/native-preflight.json"
+}

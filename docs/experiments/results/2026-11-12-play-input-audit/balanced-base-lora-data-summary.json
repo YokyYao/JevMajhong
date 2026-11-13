@@ -25,7 +25,7 @@
   "LoRA_training_started": true,
   "old_pending_kan_fit_chain_cancelled": true,
   "running_evaluation_preserved": true,
-  "core_tests_passed": 167,
+  "core_tests_passed": 173,
   "raw_records_public": false,
   "test_payloads_opened": false,
   "weights_public": false,
@@ -285,7 +285,172 @@
       "open_discard": 0.2,
       "call_window": 0.3,
       "kan_window": 0.05
-    }
+    },
+    "validation_curve_snapshot": [
+      {
+        "weighted_target_ce": 2.1024764550563737,
+        "phase_target_ce": {
+          "call_window": 0.9603380905250617,
+          "closed_discard": 2.7774403634150846,
+          "kan_window": 1.8772508807626778,
+          "open_discard": 2.353321601619665
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.5,
+          "closed_discard": 0.09375,
+          "open_discard": 0.14583333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 0,
+        "upstream_hard_label_nll": 2.1322531078222875
+      },
+      {
+        "weighted_target_ce": 1.6456948801902467,
+        "phase_target_ce": {
+          "call_window": 0.8039929513463328,
+          "closed_discard": 2.064134368070827,
+          "kan_window": 2.149123389537341,
+          "open_discard": 1.8409017983880387
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.5375,
+          "closed_discard": 0.375,
+          "open_discard": 0.2916666666666667
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 128,
+        "upstream_hard_label_nll": 1.6817044971018908
+      },
+      {
+        "weighted_target_ce": 1.3801832066047792,
+        "phase_target_ce": {
+          "call_window": 0.8618514856828922,
+          "closed_discard": 1.5450185924566089,
+          "kan_window": 1.733003563202036,
+          "open_discard": 1.6985960806716784
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.55,
+          "closed_discard": 0.4375,
+          "open_discard": 0.4166666666666667
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 256,
+        "upstream_hard_label_nll": 1.3796669876554795
+      },
+      {
+        "weighted_target_ce": 1.3458455412812491,
+        "phase_target_ce": {
+          "call_window": 0.6768319176675203,
+          "closed_discard": 1.6499960345097826,
+          "kan_window": 2.2089602131158075,
+          "open_discard": 1.4492486989790025
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.65,
+          "closed_discard": 0.4166666666666667,
+          "open_discard": 0.5416666666666666
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 384,
+        "upstream_hard_label_nll": 1.4193134104687017
+      },
+      {
+        "weighted_target_ce": 1.3583754641509942,
+        "phase_target_ce": {
+          "call_window": 0.7154337391758001,
+          "closed_discard": 1.6694197354243767,
+          "kan_window": 2.234821678949131,
+          "open_discard": 1.4038268875491402
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.675,
+          "closed_discard": 0.4270833333333333,
+          "open_discard": 0.5625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 512,
+        "upstream_hard_label_nll": 1.430797877009749
+      },
+      {
+        "weighted_target_ce": 1.2606801017458475,
+        "phase_target_ce": {
+          "call_window": 0.7046510077883144,
+          "closed_discard": 1.5130404735842025,
+          "kan_window": 1.906505798109282,
+          "open_discard": 1.3654564819549906
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.6,
+          "closed_discard": 0.4583333333333333,
+          "open_discard": 0.5208333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 640,
+        "upstream_hard_label_nll": 1.3106301552413466
+      },
+      {
+        "weighted_target_ce": 1.209129000653193,
+        "phase_target_ce": {
+          "call_window": 0.6660488614709832,
+          "closed_discard": 1.4488294782223103,
+          "kan_window": 1.8460649506357467,
+          "open_discard": 1.3251891474003556
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.7,
+          "closed_discard": 0.5104166666666666,
+          "open_discard": 0.6041666666666666
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 768,
+        "upstream_hard_label_nll": 1.2562506734385386
+      }
+    ],
+    "selected_step_at_snapshot": 768,
+    "selected_target_ce_at_snapshot": 1.209129000653193
   },
   "token_admission": {
     "requested_records": 16384,
@@ -308,5 +473,38 @@
     "Expert calls are deliberately balanced; training mixture is not natural match action frequency.",
     "LoRA, data mixture and target construction change together; this is not a controlled architecture-superiority comparison.",
     "Fresh simulated matches and independent outcome verification are still required; retained reference and Windows installer are unchanged."
-  ]
+  ],
+  "unified_evaluation": {
+    "stage": "code_and_recipes_ready_native_job_queued_after_training",
+    "source_sha256": "ec7c2afde9e42bb3def2a1e11678a7bbd17e9945a98ae9c23ba7c394f41a5384",
+    "candidate_identity": "six-file adapter+head+tokenizer manifest, plus pinned pretrained-byte training receipt",
+    "reference": "unchanged old2encoders+82bcallingresidual applied only to reference",
+    "native_validation_records": 256,
+    "native_required_routes": [
+      "closed_discard",
+      "open_discard",
+      "call_window",
+      "ankan",
+      "daiminkan",
+      "kakan"
+    ],
+    "native_each_probability_tolerance": 2e-05,
+    "actual_GPU_native_passed": false,
+    "complete_new_matches": 0,
+    "development": {
+      "seed_start": 11910000,
+      "walls": 8,
+      "games": 192
+    },
+    "conditional_confirmation": {
+      "seed_start": 11920000,
+      "walls": 32,
+      "games": 768
+    },
+    "freshness_actual_protocols_checked": 329,
+    "freshness_conflicts": 0,
+    "old_head_only_evaluator_reused": false,
+    "independent_audit": "raw MJAI winners/deal-in hands/speed,four payments,riichi pool,seat-tiebroken ranks,paired whole-wall intervals",
+    "independent_han_fu_recalculation": false
+  }
 }
