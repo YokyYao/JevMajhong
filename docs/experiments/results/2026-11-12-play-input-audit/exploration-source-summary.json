@@ -1,6 +1,6 @@
 {
   "candidate_model_id": "jev-call-feature-win-v2",
-  "stage": "source_complete_audited_paired_labels_running",
+  "stage": "paired_labels_complete_audited_full_menu_expansion_running",
   "native_source": {
     "fresh_logical_walls": 16,
     "control_matches": 64,
@@ -114,7 +114,7 @@
     }
   },
   "label_time_limit_continuation": {
-    "status": "registered_dependency_pending",
+    "status": "complete_skipped_generation",
     "original_job_limit_hours": 4,
     "partition_max_hours": 24,
     "running_job_extension_allowed_for_owner": false,
@@ -128,6 +128,28 @@
     "terminal_state_branch_checks_passed": 10,
     "actual_running_parent_rejected_without_output_or_simulation": true,
     "extra_concurrent_gpu_jobs": 0,
-    "strength_evidence": false
+    "strength_evidence": false,
+    "parent_terminal_state": "COMPLETED",
+    "action": "skip_complete",
+    "completed_states": 512,
+    "committed_shards": 16
+  },
+  "paired_label_full_audit": {
+    "status": "passed_complete",
+    "role": "data consistency audit, not policy strength",
+    "pairs": 512,
+    "states": 512,
+    "train_pairs": 384,
+    "held_pairs": 128,
+    "train_states": 384,
+    "held_states": 128,
+    "worlds_per_state": 32,
+    "prefixes_replayed": 512,
+    "future_walls_rederived": 16384,
+    "arm_records_audited": 32768,
+    "whole_wall_disjoint": true,
+    "cached_head_probability_max_error": 0.0,
+    "new_simulations": 0,
+    "independent_strength_proven": false
   }
 }
