@@ -1,6 +1,6 @@
 {
   "model_id": "jev-chi-win-compatible-v1",
-  "stage": "fit_and_independent_target_audit_passed_GPU_preflight_pending",
+  "stage": "independent_fit_and_actual_GPU_parity_passed_fresh_development_running",
   "source_sha256": "d015abdbf940b808afd935859f57a93c9b8745241205b1face7ad0b22e23befc",
   "distillation_target": "win_compatible_v1",
   "only_training_change_from_anchor_beta2": "withhold positive utility boosts unless sampled own wins increase or tied wins become faster",
@@ -278,7 +278,10 @@
     "seed_start": 11870000,
     "walls": 8,
     "matches": 192,
-    "started": false
+    "started": true,
+    "actual_startup_checkpoint_verified": true,
+    "reference_games_reused": 0,
+    "independent_event_audit_queued": true
   },
   "conditional_confirmation": {
     "seed_start": 11880000,
@@ -312,5 +315,25 @@
     "route_is_diagnostic_only": true,
     "eligible_for_development": true,
     "strength_improvement_proven": false
+  },
+  "actual_GPU_parity": {
+    "native_routes": {
+      "ordinary": 2,
+      "calling": 2
+    },
+    "selected_checkpoint_identity_verified": true,
+    "full_matches_in_preflight": 0
+  },
+  "freshness_check": {
+    "unique_runtime_protocols_checked": 325,
+    "prior_consumed_conflicts": 0,
+    "three_workspace_roots_checked": true,
+    "own_zero_match_preflight_excluded": true
+  },
+  "CI": {
+    "code_commit": "967c8816d67518a605557cbd7bb4f42e7f6f8aec",
+    "run_id": 43499035649,
+    "core": "success",
+    "desktop": "success"
   }
 }
