@@ -1,6 +1,6 @@
 {
-  "stage": "fresh_native_collection_started_after_anchored_fits_failed",
-  "snapshot_at": "2026-11-13T13:38:03.796446+00:00",
+  "stage": "native_collection_running_downstream_training_chain_registered",
+  "snapshot_at": "2026-11-13T13:45:17.374290+00:00",
   "baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
   "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
   "new_native_walls": 128,
@@ -14,7 +14,7 @@
   },
   "planned_states_per_wall": 8,
   "label_sample_not_finalized": true,
-  "next": "Audit native data then inspect public route capacities before registering exact sample. Keep existing reward; no outcome-based sample selection.",
+  "next": "Each registered downstream stage starts only after its predecessor succeeds. No new matched architecture or strength result; if a positive eligible policy emerges, bind one fresh development candidate before any confirmation.",
   "seed_freshness_configs_checked": 301,
   "seed_freshness_conflicts": 0,
   "old_validation_used_for_training": false,
@@ -40,5 +40,64 @@
   },
   "raw_records_public": false,
   "weights_public": false,
-  "deployed": false
+  "deployed": false,
+  "label_recipe_registered_before_outcomes": true,
+  "public_route_feasibility_pending": true,
+  "label_plan": {
+    "states": 1024,
+    "split": {
+      "train": 768,
+      "held": 256
+    },
+    "whole_walls": {
+      "train": 96,
+      "held": 32
+    },
+    "states_per_wall": 8,
+    "public_route_minimums": {
+      "train": {
+        "closed_chi_tanyao_gain": 192,
+        "closed_pon_yakuhai": 64
+      },
+      "held": {
+        "closed_chi_tanyao_gain": 64,
+        "closed_pon_yakuhai": 32
+      }
+    },
+    "paired_futures_per_state": 16,
+    "initial_hand_arm_budget": 32768,
+    "action_menu": "complete legal options, reuse already computed control and alternative branches",
+    "capacity_failure": "stop before labels; do not silently relax quotas",
+    "outcome_based_selection": false
+  },
+  "training_recipe": {
+    "model_id": "jev-chi-head-anchor-win-v3",
+    "start": "original verified reference, not either rejected fitted head",
+    "trainable": "existing calling decision head",
+    "fixed": "LLM, LoRAs, ordinary head and single calling context",
+    "data": "new complete-option labels only; old validation remains excluded",
+    "anchor_states": 1024,
+    "anchor_train_only": true,
+    "lr": 0.0001,
+    "epochs_max": 12,
+    "patience_epochs": 3,
+    "batch": 16,
+    "reward_unchanged": true,
+    "reference_kl_limit": 0.01,
+    "max_mean_dealin_increase": 0.01,
+    "exact_audit_counts": "generated from complete option audit before optimizer",
+    "actual_starting_policy_check": "required before optimizer",
+    "parameter_updates_started": false
+  },
+  "automatic_sequence": [
+    "native audit",
+    "outcome-independent public capacity and balanced sample",
+    "paired future labels",
+    "future audit",
+    "complete legal options",
+    "complete option audit",
+    "exact fit audit registration and actual starting-policy check",
+    "short fit",
+    "independent fit audit"
+  ]
 }
