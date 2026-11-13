@@ -74,7 +74,10 @@
   "limitations": [
     "Opportunity coverage is not correct-action or reward-sign coverage.",
     "No future labels or new fitted chi weights exist yet.",
-    "Current captured pure-call baseline probabilities require a replacement-context fitter before fitting; original fitter rejects them.",
-    "No matched residual versus decision-head/LoRA superiority result exists."
-  ]
+    "No matched residual versus decision-head/LoRA superiority result exists.",
+    "Same-component continuation is implemented and preflighted; no actual new fit has started before labels complete."
+  ],
+  "continuation_source_sha256": "bbbdaf7c2dd127b0b5845aa9e4d267501bf3c063e8916abf90fee89ca7218e53",
+  "continuation_core_tests_passed": 123,
+  "same_component_fitter_implemented": true
 }

@@ -145,7 +145,11 @@ class WinContextTests(unittest.TestCase):
             with self.subTest(version=version):self._real_fit_and_audit(version)
         self._real_fit_and_audit(VERSION,kan=True)
 
-    def _real_fit_and_audit(self,version,kan=False):
+    def test_same_component_continuation_preserves_start_and_passes_independent_audit(self):
+        from jevmahjong.policy.call_tile_context import VERSION as TILE_VERSION
+        self._real_fit_and_audit(TILE_VERSION,warm=True)
+
+    def _real_fit_and_audit(self,version,kan=False,warm=False):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             roles = {}
@@ -167,17 +171,40 @@ class WinContextTests(unittest.TestCase):
                        max_example_weight=4., hidden=4, seed=17, lr=.02, weight_decay=.001,
                        batch=1, epochs=12, patience_epochs=3)
             if kan:cfg.update(train_scopes=['ordinary'],decision_filter='kan_windows',policy_state_weighting='uniform')
+            if warm:
+                from jevmahjong.training.context_network import make_network
+                from jevmahjong.policy.call_baseline import transform
+                torch.manual_seed(73);net=make_network(4,len(feature_names(version)))
+                with torch.no_grad():net[2].weight.fill_(.001)
+                context=dict(version=version,names=list(feature_names(version)),model_kind='mlp',
+                    hidden=4,state_dict=copy.deepcopy(net.state_dict()),reference_prior_strength=.05)
+                path=root/'baseline.pt';torch.save(dict(kan_context=context),path)
+                cfg.update(context_initialization='calling_baseline',
+                    call_context_baseline=dict(checkpoint=str(path),sha256=digest(path)))
+                self.enterContext(patch('jevmahjong.training.context_initialization.initial_context',return_value=context))
+                self.enterContext(patch('jevmahjong.policy.call_baseline.load',return_value=context))
+                for rows in parts.values():
+                    for row in rows:
+                        row['original_reference']=FrozenHead()(row['decide'],row['options']).detach().softmax(-1)
+                        row['reference']=transform(row['public_request'],row['original_reference'],context)
             fitfile = root / 'fit-config.json'; fitfile.write_text(json.dumps(cfg))
 
             def prepare(_):
                 out = Path(cfg['out']); out.mkdir()
                 protocol = dict(config=cfg, model_files={}, code_sha256={})
+                if warm:protocol['call_context_baseline']=cfg['call_context_baseline']
                 (out / 'protocol.json').write_text(json.dumps(protocol))
                 return out, protocol, parts, {}, [source], {k: FrozenHead() for k in ('ordinary', 'calling')}
 
             with patch('jevmahjong.training.context_policy.prepare', side_effect=prepare):
                 fit(cfg)
             result = json.loads((root / 'fit/result.json').read_text())
+            if warm:
+                first=torch.load(result['curve'][0]['checkpoint'],weights_only=True)
+                self.assertTrue(first['context_replaces_calling_baseline'])
+                self.assertTrue(torch.count_nonzero(first['kan_context']['state_dict']['2.weight']))
+                self.assertTrue(all(torch.equal(v,context['state_dict'][k])
+                    for k,v in first['kan_context']['state_dict'].items()))
             self.assertGreater(result['selected']['epoch'], 0)
             self.assertEqual(result['selected']['validation_selection'][WIN_METRIC], .125)
             self.assertEqual(result['selected']['validation_selection']['mean_sampled_net_point_gain_per_state'], -500.)
@@ -198,6 +225,7 @@ class WinContextTests(unittest.TestCase):
                 self.assertTrue(checked['eligible_for_development'])
                 self.assertEqual(checked['selection_objective'], 'hand_win')
                 self.assertLess(checked['selected']['mean_sampled_net_point_gain_per_state'], 0)
+                if warm:self.assertTrue(checked['context_replaces_calling_baseline'])
                 if kan:
                     self.assertEqual(checked['activation'],'kan_windows')
                     self.assertEqual(checked['held_kan_routes']['daiminkan'][WIN_METRIC],.125)
@@ -218,6 +246,13 @@ class WinContextTests(unittest.TestCase):
                 (root / 'fit/result.json').write_text(json.dumps(wrong))
                 with self.assertRaisesRegex(ValueError, 'Independent held profile'):
                     audit(dict(checkcfg, out=str(root / 'corrupt-audit')))
+                if warm:
+                    changed=copy.deepcopy(result);first=changed['curve'][0];path=Path(first['checkpoint'])
+                    model=torch.load(path,weights_only=True);model['kan_context']['state_dict']['0.weight'][0,0]+=.01
+                    torch.save(model,path);first['sha256']=digest(path)
+                    (root/'fit/result.json').write_text(json.dumps(changed))
+                    with self.assertRaisesRegex(ValueError,'Starting parameters differ from fixed calling baseline'):
+                        audit(dict(checkcfg,out=str(root/'wrong-continuation-start')))
 
 
 if __name__ == '__main__':

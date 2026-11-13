@@ -57,8 +57,6 @@ def prepare(cfg):
         and cfg.get('feature_version') == 'public-discard-defense-context-v1'
         and cfg.get('policy_state_weighting') == 'uniform')
     if not (kan or call or defense): raise ValueError('One declared kan, pure-call or defense context component required')
-    if call and cfg.get('call_context_baseline'):
-        raise ValueError('Pure-call baseline data requires an explicit replacement-context fitter')
     selection=cfg.get('selection_validation','latest_source')
     if selection != 'latest_source' and not (selection == 'all_sources' and cfg.get('fit_model') == 'residual_policy'):
         raise ValueError('Unsupported validation selection for fit model')
@@ -69,10 +67,16 @@ def prepare(cfg):
     if not train or not held:raise ValueError('Whole-wall train and validation required')
     heads={s:make_head(torch.load(Path(cfg[k])/'head.pt',map_location='cpu',weights_only=True),'cpu').eval()
         for s,k in [('ordinary','discard_checkpoint'),('calling','call_checkpoint')]}
+    from .context_initialization import initial_context
+    from jevmahjong.policy.call_baseline import load as load_baseline,transform
+    initial=initial_context(cfg,protocol['model_files'])
+    baseline=load_baseline(cfg,protocol['model_files'])
     with torch.no_grad():
         for r in train+held:
             p=heads[r['scope']](r['decide'],r['options']).softmax(-1)
-            if not torch.allclose(p,r['reference'],atol=2e-5,rtol=2e-4):raise ValueError('Original reference input or policy changed')
+            q=transform(r['public_request'],p,baseline)
+            if not torch.allclose(q,r['reference'],atol=2e-5,rtol=2e-4):raise ValueError('Original reference input or policy changed')
+            if initial is not None:r['original_reference']=p.detach().clone()
     return out,protocol,parts,hashes,sources,heads
 
 

@@ -51,6 +51,19 @@ def wrap(frozen, context):
     return frozen if context is None else CallContextPolicyClient(frozen, context)
 
 
+def replaces_calling_baseline(saved):
+    """A continued context replaces the old context; it must never be added twice."""
+    replaces=saved.get('context_replaces_calling_baseline',False)
+    if not isinstance(replaces,bool):raise ValueError('Explicit context replacement flag required')
+    if replaces and (not saved.get('call_context_baseline')
+            or saved.get('trained_scopes')!=['calling']
+            or saved.get('decision_filter')!='call_windows'
+            or saved.get('context_initialization')!='calling_baseline'
+            or 'kan_context' not in saved):
+        raise ValueError('Calling context replacement requires its pinned continuation identity')
+    return replaces
+
+
 def transform(request, reference, context):
     if context is None or not is_call_request(request):
         return reference

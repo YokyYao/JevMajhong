@@ -190,8 +190,9 @@ def main():
         raise ValueError('Candidate and reference frozen encoders differ')
     if model.get('call_context_baseline')!=protocol.get('call_context_baseline'):
         raise ValueError('Candidate calling baseline differs')
-    from jevmahjong.policy.call_baseline import load as load_baseline,wrap as wrap_baseline,transform as baseline_transform
+    from jevmahjong.policy.call_baseline import load as load_baseline,wrap as wrap_baseline,transform as baseline_transform,replaces_calling_baseline
     calling_baseline=load_baseline(cfg,protocol['model_files'])
+    replaces_baseline=replaces_calling_baseline(model)
     heads = {}
     for scope, role in [('ordinary', 'discard'), ('calling', 'call')]:
         expected = model['model_files'][role]
@@ -218,7 +219,7 @@ def main():
         if activation in ('call_windows','defense_windows'): raise ValueError('Scoped activation requires a context component')
         router = (KanPolicyClient(ordinary, calling, heads) if activation == 'kan_windows'
             else HeadPolicyClient(ordinary, calling, heads))
-    router=wrap_baseline(router,calling_baseline)
+    if not replaces_baseline:router=wrap_baseline(router,calling_baseline)
     checked = {'ordinary': 0, 'calling': 0}
     if activation == 'kan_windows': checked['ordinary_nonkan'] = 0
     if activation == 'call_windows': checked['ordinary_kan'] = 0
@@ -241,7 +242,7 @@ def main():
                 expected = head(row['decide'].cuda(), row['options'].cuda()).softmax(-1).cpu()
             if context is not None and key == ('calling' if activation == 'call_windows' else 'ordinary'):
                 expected = torch.tensor(context_probabilities(row['public_request'],expected.tolist(),context))
-            expected=baseline_transform(row['public_request'],expected,calling_baseline)
+            if not replaces_baseline:expected=baseline_transform(row['public_request'],expected,calling_baseline)
             p = router.system_one(**row['public_request'])['answers']['action']['probabilities']
             if not torch.allclose(expected, torch.tensor(list(p.values())), atol=2e-5, rtol=2e-4):
                 raise ValueError('Updated head and native probabilities disagree')

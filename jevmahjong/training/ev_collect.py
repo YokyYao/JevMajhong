@@ -35,7 +35,7 @@ def case_key(row):
     return tuple(row['episode_key'])
 
 
-def choose_cases(partitions, head, limit, canonical_state_only=False, stratify_call_openness=False):
+def choose_cases(partitions, head, limit, canonical_state_only=False, stratify_call_openness=False,baseline_context=None):
     if not isinstance(stratify_call_openness,bool):raise ValueError('Boolean call-openness sampling flag required')
     buckets = defaultdict(list); seen = set()
     for split, rows in partitions.items():
@@ -43,6 +43,8 @@ def choose_cases(partitions, head, limit, canonical_state_only=False, stratify_c
             row = copy.deepcopy(original)
             current_head = head[row['scope']] if isinstance(head, dict) else head
             with torch.no_grad(): reference = current_head(row['decide'], row['options']).softmax(-1)
+            from jevmahjong.policy.call_baseline import transform
+            reference=transform(row['public_request'],reference,baseline_context)
             teacher = max(row['eligible'], key=lambda i: float(reference[i]))
             alternative = row['action'] if row['action'] != teacher else row['teacher_action']
             identity = (row['episode_key'][0], row['episode_key'][1], row['request_sha256'], teacher, alternative)
@@ -55,7 +57,8 @@ def choose_cases(partitions, head, limit, canonical_state_only=False, stratify_c
             state = row['public_request']['state']; threat = bool(set(state['riichi']) - {state['seat']})
             row.update(reference=reference, teacher_action=teacher, action=alternative, source_split=split)
             row.pop('alternative_probability', None)
-            row['pair_selection'] = 'original_legal_pair_against_play_v1'
+            row['pair_selection'] = ('original_legal_pair_against_registered_policy_v1' if baseline_context is not None
+                else 'original_legal_pair_against_play_v1')
             bucket=(split,kan,threat)
             if stratify_call_openness:
                 if row['scope']!='calling':raise ValueError('Call-openness sampling requires pure calling states')
@@ -70,16 +73,43 @@ def choose_cases(partitions, head, limit, canonical_state_only=False, stratify_c
     return selected
 
 
-def select_case_plan(partitions,head,config):
+def select_case_plan(partitions,head,config,baseline_context=None):
     limits=config.get('max_states_by_split')
     options=(config.get('canonical_state_only',False),config.get('stratify_call_openness',False))
-    if limits is None:return choose_cases(partitions,head,config.get('max_states'),*options)
+    if config.get('call_context_baseline') and config.get('train_scopes')==['calling'] and baseline_context is None:
+        raise ValueError('Pure-call selection requires the actual pinned calling context')
+    reserve=config.get('call_route_reserve_by_split')
+    if reserve is not None and (limits is None or not options[0]
+            or config.get('train_scopes')!=['calling'] or config.get('decision_filter')!='all'
+            or not isinstance(reserve,dict) or set(reserve)!={'train','held'}):
+        raise ValueError('Call-route reserves require canonical pure-call states and separate split budgets')
+    if limits is None:return choose_cases(partitions,head,config.get('max_states'),*options,baseline_context)
     if (not isinstance(limits,dict) or set(limits)!={'train','held'}
             or any(isinstance(v,bool) or not isinstance(v,int) or v<1 for v in limits.values())
             or config.get('max_states')!=sum(limits.values())):
         raise ValueError('Explicit positive train/held quotas must sum to the state budget')
-    return [row for split in ('train','held')
-        for row in choose_cases({split:partitions[split]},head,limits[split],*options)]
+    selected=[]
+    for split in ('train','held'):
+        if reserve is None:
+            selected.extend(choose_cases({split:partitions[split]},head,limits[split],*options,baseline_context))
+            continue
+        requested=reserve[split];allowed={'closed_chi_tanyao_gain','closed_pon_yakuhai','open'}
+        if (not isinstance(requested,dict) or set(requested)-allowed
+                or any(isinstance(n,bool) or not isinstance(n,int) or n<1 for n in requested.values())
+                or sum(requested.values())>limits[split]):
+            raise ValueError('Positive public call-route reserves must fit each split budget')
+        candidates=choose_cases({split:partitions[split]},head,None,*options,baseline_context)
+        from .call_head import route_groups
+        routes=route_groups([{'row':r} for r in candidates]);chosen={}
+        for name,count in sorted(requested.items()):
+            pool=routes.get(name,[])
+            if len(pool)<count:raise ValueError('Insufficient public call-route coverage: '+split+'/'+name)
+            for g in pool[:count]:chosen[case_key(g['row'])]=g['row']
+        for row in candidates:
+            if len(chosen)>=limits[split]:break
+            chosen.setdefault(case_key(row),row)
+        selected.extend(chosen.values())
+    return selected
 
 
 def collect_case(row, source, payload, policy, config):
@@ -158,7 +188,9 @@ def main():
     role = 'discard' if scope == 'ordinary' else 'call'
     meta=torch.load(Path(cfg[role+'_checkpoint'])/'head.pt',map_location='cpu',weights_only=True)
     head=make_head(meta,'cpu').eval().requires_grad_(False)
-    cases=select_case_plan(parts,head,cfg);by_wall=defaultdict(list)
+    from jevmahjong.policy.call_baseline import load as load_baseline
+    calling_baseline=load_baseline(cfg,protocol['model_files'])
+    cases=select_case_plan(parts,head,cfg,calling_baseline);by_wall=defaultdict(list)
     for row in cases:by_wall[row['episode_key'][0]].append(row)
     protocol['source_files']=hashes;protocol['selected_case_keys']=[list(case_key(r)) for r in cases]
     if (out/'protocol.json').exists() and json.loads((out/'protocol.json').read_text()) != protocol:

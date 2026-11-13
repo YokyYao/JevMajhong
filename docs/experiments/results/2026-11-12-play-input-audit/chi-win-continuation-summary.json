@@ -1,0 +1,81 @@
+{
+  "stage": "same_component_continuation_registered_not_trained",
+  "initialization_preflight": {
+    "status": "passed_real_context_continuation_start",
+    "states": 237,
+    "parameters": 38528,
+    "features": 600,
+    "max_cached_reference_error": 6.963510483792845e-07,
+    "max_single_context_error": 2.220446049250313e-16,
+    "changed_starting_actions": 0,
+    "context_networks_per_decision": 1,
+    "base_and_LoRA_frozen": true,
+    "source_sha256": "bbbdaf7c2dd127b0b5845aa9e4d267501bf3c063e8916abf90fee89ca7218e53",
+    "checkpoint_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+    "optimizer_updates": 0,
+    "new_simulations": 0,
+    "weights_saved": false,
+    "held_outcomes_analyzed": false,
+    "limitations": [
+      "Uses audited public native inputs and cached encoder features, not a new full GPU encoder pass.",
+      "Checks initialization and inference semantics, not policy improvement."
+    ]
+  },
+  "initialization_preflight_sha256": "a08b86e6fa265e65cc857e431beb743f31dca507da582e1161f979306c45c5b1",
+  "fit_recipe": {
+    "model_id": "jev-chi-win-v1",
+    "context_initialization": "calling_baseline",
+    "feature_version": "public-call-tile-context-v1",
+    "hidden": 64,
+    "reference_prior_strength": 0.05,
+    "policy_state_weighting": "uniform",
+    "epochs": 12,
+    "patience_epochs": 3,
+    "batch": 16,
+    "lr": 0.0001,
+    "weight_decay": 0.001,
+    "selection_objective": "hand_win",
+    "max_held_dealin_increase": 0.01,
+    "reward": {
+      "mode": "own_win_first_v1",
+      "win_weight": 1.0,
+      "fast_weight": 0.25,
+      "dealin_penalty": 2.0,
+      "net_weight": 0.0,
+      "point_scale": 8000.0,
+      "speed_gamma": 0.98
+    }
+  },
+  "sampling_recipe": {
+    "max_states": 512,
+    "max_states_by_split": {
+      "train": 384,
+      "held": 128
+    },
+    "canonical_state_only": true,
+    "stratify_call_openness": true,
+    "call_route_reserve_by_split": {
+      "train": {
+        "closed_chi_tanyao_gain": 96
+      },
+      "held": {
+        "closed_chi_tanyao_gain": 32
+      }
+    },
+    "worlds": 16,
+    "wall_scope": "unseen"
+  },
+  "parameters": 38528,
+  "parameter_training_started": false,
+  "new_labels_started": false,
+  "new_weights_exist": false,
+  "matched_head_or_LoRA_comparison_proven": false,
+  "raw_records_public": false,
+  "weights_public": false,
+  "deployed": false,
+  "limitations": [
+    "Reserved internal chi-route samples are a diagnostic distribution, not natural-match win-rate evidence.",
+    "If public-route reserves are unavailable, inspect/supplement data before computing labels.",
+    "No architecture superiority or new policy improvement has been established."
+  ]
+}

@@ -106,6 +106,12 @@ def audit(cfg):
     require(training.get('policy_state_weighting','stratified')==cfg['expected']['policy_state_weighting'],'Registered state weighting differs')
     verify(original);protocol=snapshot(cfg)
     require(protocol['model_files']==original['model_files'],'Audit frozen encoders differ')
+    from jevmahjong.training.context_initialization import initial_context
+    from jevmahjong.policy.call_baseline import load as load_baseline,transform,replaces_calling_baseline
+    initial=initial_context(training,original['model_files'])
+    baseline=load_baseline(training,original['model_files'])
+    require(fit.get('context_replaces_calling_baseline',False)==(initial is not None),
+        'Fit continuation initialization differs')
     out=Path(cfg['out']);out.mkdir(parents=True,exist_ok=False)
     hashes={str(training_file):digest(training_file)}
     for name in ('result.json','protocol.json','data-coverage.json'):hashes[str(fit_run/name)]=digest(fit_run/name)
@@ -150,6 +156,8 @@ def audit(cfg):
     for rows in parts.values():
         for row in rows:
             q=heads[row['scope']](row['decide'],row['options']).softmax(-1)
+            if initial is not None:row['original_reference']=q.detach().clone()
+            q=transform(row['public_request'],q,baseline)
             cached_error=max(cached_error,float((q-row['reference']).abs().max()))
             require(torch.allclose(q,row['reference'],atol=2e-5,rtol=2e-4),'Cached frozen head probability differs')
     groups=held_groups(parts['held'],sources,training['feature_version'],strength)
@@ -167,6 +175,9 @@ def audit(cfg):
             and model['trained_scopes']==training['train_scopes'] and model['decision_filter']==activation,'Checkpoint identity differs')
         require(model.get('call_context_baseline')==original.get('call_context_baseline'),
             'Checkpoint calling continuation baseline differs')
+        require(replaces_calling_baseline(model)==(initial is not None)
+            and model.get('context_initialization','zero_output')==training.get('context_initialization','zero_output'),
+            'Checkpoint continuation initialization differs')
         for scope,head in heads.items():
             expected=head.state_dict();saved=model['heads'][scope]
             require(set(saved)==set(expected) and all(torch.equal(saved[k],v) for k,v in expected.items()),'Original pointer head changed')
@@ -176,15 +187,21 @@ def audit(cfg):
         shapes={'0.weight':(h,len(names)),'0.bias':(h,),'2.weight':(1,h)}
         require(set(w)==set(shapes) and all(tuple(v.shape)==shapes[k] and torch.isfinite(v).all() for k,v in w.items()),'Context parameters differ')
         require(sum(v.numel() for v in w.values())==cfg['expected']['parameters']==fit['parameter_count'],'Parameter count differs')
-        if item['epoch']==0:require(not torch.count_nonzero(w['2.weight']),'Starting residual must output zero')
         if item['epoch']==0:
-            from jevmahjong.training.context_network import make_network
-            with torch.random.fork_rng(devices=[]):
-                torch.manual_seed(training['seed']);initial=make_network(h,len(names)).state_dict()
-            require(all(torch.equal(w[k],v) for k,v in initial.items()),'Starting parameters differ from registered seed')
+            if initial is None:
+                require(not torch.count_nonzero(w['2.weight']),'Starting residual must output zero')
+                from jevmahjong.training.context_network import make_network
+                with torch.random.fork_rng(devices=[]):
+                    torch.manual_seed(training['seed']);starting=make_network(h,len(names)).state_dict()
+                message='Starting parameters differ from registered seed'
+            else:
+                starting=initial['state_dict'];message='Starting parameters differ from fixed calling baseline'
+            require(all(torch.equal(w[k],v) for k,v in starting.items()),message)
         by_source=defaultdict(list);selected=item['sha256']==fit['selected']['sha256']
         for row,eligible,x,q,y,target,values,source in groups:
-            z=q.clamp_min(1e-30).log()+(torch.tanh(x@w['0.weight'].T+w['0.bias'])@w['2.weight'].T).flatten()/strength
+            inference_q=row['original_reference'].double()[eligible] if initial is not None else q
+            inference_q=inference_q/inference_q.sum()
+            z=inference_q.clamp_min(1e-30).log()+(torch.tanh(x@w['0.weight'].T+w['0.bias'])@w['2.weight'].T).flatten()/strength
             index=int(z.argmax());choice=eligible[index]
             by_source[source].append({'label_regret':float(y.max()-y[index]),
                 'policy_kl':float((target*(target.clamp_min(1e-300).log()-z.log_softmax(-1))).sum()),
@@ -201,7 +218,8 @@ def audit(cfg):
                     selected_records.append(dict(record,sampled_positive_call_state=int(skipped and bool(good)),
                         recovered_sample_positive_call=int(skipped and choice in good)))
             if selected or item['epoch']==0:
-                actual=torch.tensor(probabilities(row['public_request'],row['reference'].tolist(),context),dtype=torch.float64)
+                inference_prior=row['original_reference'] if initial is not None else row['reference']
+                actual=torch.tensor(probabilities(row['public_request'],inference_prior.tolist(),context),dtype=torch.float64)
                 eligible_p=actual[eligible]/actual[eligible].sum();error=float((eligible_p-z.softmax(-1)).abs().max())
                 inference_error=max(inference_error,error)
                 require(error<1e-10 and eligible[int(eligible_p.argmax())]==choice,'Actual inference differs from manual policy')
@@ -213,7 +231,7 @@ def audit(cfg):
         profile_error=max(profile_error,check_profiles(combined,item['validation_selection']))
         require(abs(combined['label_regret']-item['held_loss'])<1e-10,'Held selection loss differs')
         curves.append({'epoch':item['epoch'],**combined,'validation_sources':profiles})
-    require(zero_error<1e-12,'Starting model does not preserve original probabilities')
+    require(zero_error<(2e-5 if initial is not None else 1e-12),'Starting model does not preserve original probabilities')
     require(fit['optimizer_updates']==(len(fit['curve'])-1)*math.ceil(counts['train']/training['batch']),'Optimizer update count differs')
     require(len(fit['curve'])<=training['epochs']+1,'Registered epoch limit exceeded')
     stale=0;best=fit['curve'][0]
@@ -239,6 +257,8 @@ def audit(cfg):
         'max_cached_head_probability_error':cached_error,'max_profile_recomputation_error':profile_error,
         'max_actual_inference_error':inference_error,'max_zero_probability_error':zero_error,
         'selection_objective':objective,
+        'context_initialization':training.get('context_initialization','zero_output'),
+        'context_replaces_calling_baseline':initial is not None,
         'eligible_for_development':(chosen[WIN_METRIC]>1e-12 and chosen['mean_label_utility_gain_vs_play']>1e-12
             and chosen['mean_sampled_dealin_change_per_state']<=training['max_held_dealin_increase']+1e-12
             if objective=='hand_win' else improved and chosen['mean_sampled_net_point_gain_per_state']>0),

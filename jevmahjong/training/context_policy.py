@@ -46,13 +46,17 @@ def pack_options(rows, pair_weights=None, feature_version=VERSION):
         features=torch.tensor(feature_vectors(first['public_request'],feature_version),dtype=torch.float64)[eligible]
         result.append({'key':key,'features':features,'utility':y,'log_prior':q.clamp_min(1e-30).log(),
             'teacher':eligible.index(teacher),'weight':sum(pair_weights[i] for i,_ in items) if pair_weights is not None else 1.})
+        if 'original_reference' in first:
+            original=first['original_reference'][eligible].double();original=original/original.sum()
+            if not torch.isfinite(original).all() or (original<0).any():raise ValueError('Invalid original calling prior')
+            result[-1]['inference_log_prior']=original.clamp_min(1e-30).log()
         if win_credit:result[-1]['credit']=[credit[a] for a in eligible]
     return result
 
 
 def policy_logits(net,group,strength):
     if not math.isfinite(strength) or strength<=0:raise ValueError('Positive prior strength required')
-    return group['log_prior']+net(group['features']).flatten()/strength
+    return group.get('inference_log_prior',group['log_prior'])+net(group['features']).flatten()/strength
 
 
 def target(group,strength):
@@ -159,11 +163,22 @@ def fit(cfg):
         'call_windows' if cfg['train_scopes'] == ['calling'] else 'kan_windows')
     if not math.isfinite(strength) or strength<=0:raise ValueError('Positive prior strength required')
     out,protocol,parts,hashes,sources,heads=prepare(cfg);torch.manual_seed(cfg['seed'])
+    from .context_initialization import initial_context
+    starting_context=initial_context(cfg,protocol['model_files'])
     train,coverage=training_groups(parts['train'],cfg,version);held=pack_options(parts['held'],feature_version=version)
     coverage.update(policy_loss_unit='one complete eligible action set per state',
         policy_state_weight_cap=cfg['max_example_weight'],policy_training_states=len(train))
     write(out/'data-coverage.json',coverage)
-    net=make_network(cfg['hidden'],len(names));optimizer=torch.optim.AdamW(net.parameters(),lr=cfg['lr'],weight_decay=cfg['weight_decay'])
+    net=make_network(cfg['hidden'],len(names))
+    if starting_context is not None:
+        net.load_state_dict(starting_context['state_dict'])
+        for group in train+held:
+            if 'inference_log_prior' not in group:raise ValueError('Continuation requires the original encoder prior')
+            with torch.no_grad():p=policy_logits(net,group,strength).softmax(-1)
+            q=group['log_prior'].softmax(-1)
+            if not torch.allclose(p,q,atol=2e-5,rtol=2e-4) or int(p.argmax())!=group['teacher']:
+                raise ValueError('Starting continuation differs from fixed calling baseline')
+    optimizer=torch.optim.AdamW(net.parameters(),lr=cfg['lr'],weight_decay=cfg['weight_decay'])
     curve=[];updates=0;stale=0;reason='epoch_limit'
     @torch.no_grad()
     def save(epoch):
@@ -173,6 +188,8 @@ def fit(cfg):
             'reference_prior_strength':strength,'state_dict':{k:v.detach().clone() for k,v in net.state_dict().items()}}
         torch.save({'model_id':cfg['model_id'],'model_files':protocol['model_files'],'base_and_LoRA_frozen':True,
             **({'call_context_baseline':protocol['call_context_baseline']} if protocol.get('call_context_baseline') else {}),
+            'context_replaces_calling_baseline':starting_context is not None,
+            'context_initialization':cfg.get('context_initialization','zero_output'),
             'heads':{s:copy.deepcopy(h.state_dict()) for s,h in heads.items()},'trained_scopes':cfg['train_scopes'],
             'decision_filter':activation,'kan_context':context,'epoch':epoch},checkpoint)
         item={'epoch':epoch,'held_loss':selected_profile['label_regret'],'validation_sources':prof,
@@ -209,6 +226,8 @@ def fit(cfg):
         'selection_metric':('state-mean sampled own wins, then speed, with positive utility and deal-in guard'
             if objective=='hand_win' else selection+' state-mean label regret; policy KL breaks ties'),
         'selection_objective':objective,
+        'context_initialization':cfg.get('context_initialization','zero_output'),
+        'context_replaces_calling_baseline':starting_context is not None,
         'selection_validation':selection,'optimizer_updates':updates,'stop_reason':reason,
         'train_rows':len(parts['train']),'held_rows':len(parts['held']),'train_states':len(train),'held_states':len(held),
         'parameter_count':sum(p.numel() for p in net.parameters()),'baseline_held_loss':baseline,

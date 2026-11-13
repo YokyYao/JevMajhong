@@ -45,6 +45,46 @@ def native_collection(root, start, gamma=.995):
 
 
 class SamplingTests(unittest.TestCase):
+    def test_stronger_call_baseline_is_used_when_selecting_future_controls(self):
+        from jevmahjong.training.ev_collect import select_case_plan
+        from jevmahjong.policy.kan_context import feature_names
+        from jevmahjong.policy.kan_progress import VERSION
+        from tests.core.test_win_context import pair
+        class Head:
+            def __call__(self,decide,options):return torch.tensor([2.,0.])
+        names=feature_names(VERSION);coef=torch.zeros(len(names));coef[names.index('pon')]=.5
+        context=dict(version=VERSION,names=list(names),coefficients=coef,reference_prior_strength=.05)
+        cfg=dict(train_scopes=['calling'],decision_filter='all',call_context_baseline={'sha256':'fixed'},max_states=None)
+        parts=dict(train=[pair(100)],held=[])
+        with self.assertRaisesRegex(ValueError,'actual pinned calling context'):select_case_plan(parts,Head(),cfg)
+        row=select_case_plan(parts,Head(),cfg,context)[0]
+        self.assertEqual(row['teacher_action'],1)
+        self.assertEqual(row['action'],0)
+        self.assertGreater(float(row['reference'][1]),.99)
+        self.assertEqual(row['pair_selection'],'original_legal_pair_against_registered_policy_v1')
+
+    def test_public_chi_reserves_keep_negative_examples_and_split_budgets(self):
+        from jevmahjong.training.ev_collect import select_case_plan
+        from tests.core.test_win_context import pair
+        class Head:
+            def __call__(self,decide,options):return torch.tensor([1.,0.])
+        parts=dict(train=[pair(s) for s in range(100,108)],held=[pair(s) for s in range(200,204)])
+        cfg=dict(train_scopes=['calling'],decision_filter='all',max_states=6,
+            max_states_by_split={'train':4,'held':2},canonical_state_only=True,
+            call_route_reserve_by_split={'train':{'closed_chi_tanyao_gain':2},'held':{'closed_chi_tanyao_gain':1}})
+        classify=lambda gs:{'closed_chi_tanyao_gain':[g for g in gs if g['row']['episode_key'][0]%4>=2]}
+        with patch('jevmahjong.training.call_head.route_groups',side_effect=classify):
+            selected=select_case_plan(parts,Head(),cfg)
+            self.assertEqual(len(selected),6)
+            for split,quota in [('train',2),('held',1)]:
+                self.assertGreaterEqual(sum(r['episode_key'][0]%4>=2 for r in selected if r['source_split']==split),quota)
+            for rows in parts.values():
+                for row in rows:row['training_advantage']*=-1
+            self.assertEqual([r['episode_key'] for r in select_case_plan(parts,Head(),cfg)],
+                [r['episode_key'] for r in selected])
+            with self.assertRaisesRegex(ValueError,'Insufficient public call-route'):
+                select_case_plan(dict(train=parts['train'][:2],held=parts['held']),Head(),cfg)
+
     def test_bounded_future_sampling_covers_rare_open_calls_without_using_outcomes(self):
         from jevmahjong.training.ev_collect import choose_cases,select_case_plan
         class Head:

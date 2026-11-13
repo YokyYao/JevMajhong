@@ -5,7 +5,7 @@ from jevmahjong.training.sampling import OPERATIONS, stratum
 
 
 @torch.no_grad()
-def evaluate(heads, rows, per_direction=8, context=None):
+def evaluate(heads, rows, per_direction=8, context=None, replaces_baseline=False):
     buckets = defaultdict(list)
     for row in rows:
         category, direction = stratum(row)
@@ -28,7 +28,9 @@ def evaluate(heads, rows, per_direction=8, context=None):
                 delta = row.get('training_advantage', row['fast_advantage'])
                 if context is not None:
                     from jevmahjong.policy.kan_context import probabilities
-                    p = probabilities(row['public_request'],row['reference'].tolist(),context)
+                    prior=(heads[row['scope']](row['decide'],row['options']).softmax(-1)
+                        if replaces_baseline else row['reference'])
+                    p = probabilities(row['public_request'],prior.tolist(),context)
                     z = torch.tensor(p,dtype=torch.float64).clamp_min(1e-300).log()
                 else:
                     head = heads[row['scope']]
@@ -79,6 +81,8 @@ def main():
     if digest(checkpoint) != fit['selected']['sha256']:
         raise ValueError('Selected candidate changed')
     saved = torch.load(checkpoint, map_location='cpu', weights_only=True)
+    from jevmahjong.policy.call_baseline import replaces_calling_baseline
+    replaces_baseline=replaces_calling_baseline(saved)
     heads = {}
     for scope, role in [('ordinary', 'discard'), ('calling', 'call')]:
         meta = torch.load(Path(fit['config'][role + '_checkpoint']) / 'head.pt',
@@ -95,7 +99,7 @@ def main():
     result = {'model_id': fit['model_id'], 'checkpoint_sha256': digest(checkpoint),
         'strength_improvement_proven': False, 'human_test_opened': False}
     for key, rows in partitions.items():
-        result[key] = evaluate(heads, rows, context=saved.get('kan_context'))
+        result[key] = evaluate(heads, rows, context=saved.get('kan_context'),replaces_baseline=replaces_baseline)
         result[key]['label_target'] = fit['config'].get('reward', {'mode': 'fast_win'})
         result[key]['role'] = key + '-wall action diagnostic; not independent full-game strength'
     write(args.out, result)
