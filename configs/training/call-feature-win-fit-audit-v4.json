@@ -1,8 +1,8 @@
 {
   "discard_checkpoint": "models/jev-discard-v1",
   "call_checkpoint": "models/jev-call-v1",
-  "fit_config": "runs/configs/call-feature-win-fit-v4.json",
-  "fit_config_sha256": "f81f8113393ea5656778c4a1bee05b940aa539f90e562a7ccc3453ed7a36e71d",
+  "fit_config": "runs/configs/call-feature-win-fit-v4-r2.json",
+  "fit_config_sha256": "e8290029cb37fe459cea70aae04dc41ea17d3596bba9b8ba465fdfd52da156d1",
   "data_audits": [
     "runs/play-call-routes-future-audit-v1",
     "runs/play-call-routes-option-audit-v1",
@@ -18,5 +18,5 @@
     "parameters": 40960,
     "policy_state_weighting": "public_routes"
   },
-  "out": "runs/call-feature-win-fit-audit-v4"
+  "out": "runs/call-feature-win-fit-audit-v4-r2"
 }

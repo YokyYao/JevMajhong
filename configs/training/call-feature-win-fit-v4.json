@@ -16,7 +16,7 @@
     "speed_gamma": 0.98
   },
   "model_id": "jev-call-feature-win-v4",
-  "out": "runs/jev-call-feature-win-v4",
+  "out": "runs/jev-call-feature-win-v4-r2",
   "fit_model": "residual_policy",
   "train_scopes": [
     "calling"

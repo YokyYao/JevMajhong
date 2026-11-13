@@ -1,5 +1,6 @@
 """Own-win model promotion, credit accounting, and independent fit verification."""
 import copy
+import io
 import json
 from pathlib import Path
 import tempfile
@@ -51,6 +52,25 @@ class FrozenHead(torch.nn.Module):
 
 
 class WinContextTests(unittest.TestCase):
+    def test_capacity_checkpoint_roundtrip_matches_actual_inference(self):
+        from jevmahjong.training.context_network import make_network
+        from jevmahjong.policy.kan_context import context_scores, probabilities
+        req=pair(100)['public_request'];names=feature_names(VERSION)
+        net=make_network(256,len(names))
+        self.assertEqual(sum(p.numel() for p in net.parameters()),40960)
+        context=dict(version=VERSION,names=list(names),model_kind='mlp',hidden=256,
+                     state_dict=net.state_dict(),reference_prior_strength=.05)
+        self.assertEqual(probabilities(req,[.9,.1],context),[.9,.1])
+        with torch.no_grad():net[2].weight.normal_(std=.01)
+        buffer=io.BytesIO();torch.save(context,buffer);buffer.seek(0)
+        loaded=torch.load(buffer,weights_only=True)
+        from jevmahjong.policy.kan_context import feature_vectors
+        expected=net(torch.tensor(feature_vectors(req,VERSION),dtype=torch.float64)).flatten()
+        self.assertTrue(torch.allclose(context_scores(req,loaded),expected,atol=1e-12,rtol=0))
+        for bad in (257,True,0):
+            with self.assertRaises(ValueError):make_network(bad,len(names))
+            with self.assertRaises(ValueError):context_scores(req,dict(loaded,hidden=bad))
+
     def test_public_route_loss_keeps_negative_states_and_complete_menus(self):
         rows=[pair(100),pair(104),pair(108)]
         def reverse_credit(row):

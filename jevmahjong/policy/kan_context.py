@@ -12,6 +12,7 @@ from .defense import VERSION as DEFENSE_VERSION,is_defense_request
 from .kan_progress import VERSION as PROGRESS_VERSION, NAMES as PROGRESS_NAMES, visible_bounds, option_progress
 
 VERSION = 'public-kan-context-v1'
+MAX_HIDDEN = 256
 KINDS = ('none', 'dahai', 'reach', 'chi', 'pon', 'ankan', 'daiminkan', 'kakan')
 STATE_NAMES = ('shanten', 'closed', 'meld_count', 'own_riichi', 'threats', 'discards',
     'dealer', 'honba', 'sticks', 'gap_leader', 'gap_last', 'own_dora', 'own_red',
@@ -115,7 +116,7 @@ def context_scores(request, context):
     x = torch.tensor(feature_vectors(request,context['version']),dtype=torch.float64)
     if context.get('model_kind','ridge') == 'mlp':
         h = context['hidden']; weights = context['state_dict']
-        if not isinstance(h,int) or not 1 <= h <= 128:raise ValueError('Invalid context hidden width')
+        if isinstance(h,bool) or not isinstance(h,int) or not 1 <= h <= MAX_HIDDEN:raise ValueError('Invalid context hidden width')
         shapes = {'0.weight':(h,len(names)),'0.bias':(h,),'2.weight':(1,h)}
         if set(weights) != set(shapes) or any(v.shape != shapes[k] or not torch.isfinite(v).all() for k,v in weights.items()):
             raise ValueError('Invalid context network parameters')
