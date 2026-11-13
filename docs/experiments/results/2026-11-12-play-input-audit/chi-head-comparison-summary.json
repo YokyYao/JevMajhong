@@ -1,5 +1,5 @@
 {
-  "stage": "matched_fits_audited_head_development_registered",
+  "stage": "matched_head_development_failed_reference_retained",
   "initialization_preflight": {
     "status": "passed_real_head_continuation_start",
     "states": 237,
@@ -217,7 +217,7 @@
     "independent_match_improvement_proven": false
   },
   "development": {
-    "status": "submitted_corrected_config",
+    "status": "completed_failed_own_win_objective",
     "expected_games": 192,
     "new_whole_wall_groups": 8,
     "candidate": "calling_pointer_head",
@@ -229,5 +229,388 @@
     "corrected_actual_baseline_load_verified_on_cpu": true,
     "weights_and_data_unchanged": true
   },
-  "snapshot_at": "2026-11-13T12:48:50.097267+00:00"
+  "snapshot_at": "2026-11-13T13:21:29.160491+00:00",
+  "development_result": {
+    "games": 192,
+    "hand_win_paired": {
+      "gain": -0.028678902116402116,
+      "ci95": [
+        -0.05060371512570701,
+        -0.006754089107097225
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "dealin_rate_paired": {
+      "gain": 0.0074198082010582,
+      "ci95": [
+        -0.010961641041139648,
+        0.02580125744325605
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "fast_reward_paired": {
+      "gain": -0.012239659677221158,
+      "ci95": [
+        -0.021885047524806266,
+        -0.0025942718296360513
+      ],
+      "unit": "discounted own wins per hand, equal-weight match means, whole-wall paired CI"
+    },
+    "overall": {
+      "policies": {
+        "reference": {
+          "games": 96,
+          "mean_net_points": 4994.791666666667,
+          "first_rate": 0.3854166666666667,
+          "top2_rate": 0.6770833333333334,
+          "fourth_rate": 0.13541666666666666,
+          "mean_rank": 2.0729166666666665,
+          "hand_win_rate": 0.2870544090056285,
+          "dealin_rate": 0.0975609756097561,
+          "dealin_event_rate": 0.0975609756097561,
+          "calls_per_game": 2.28125,
+          "mean_point_components": {
+            "draw_settlement": 541.6666666666666,
+            "final_unclaimed_pool": 156.25,
+            "riichi_deposits": -1593.75,
+            "ron_payments": -2500,
+            "tsumo_payments": -3200,
+            "win_income": 11590.625
+          },
+          "discounted_own_wins_per_hand": 0.1196164761419227,
+          "mean_table_draws_when_winning": 44.30065359477124,
+          "kan_opportunities": {
+            "ankan": 36,
+            "daiminkan": 39,
+            "kakan": 7
+          },
+          "kan_choices": {
+            "ankan": 8,
+            "daiminkan": 0,
+            "kakan": 3
+          },
+          "mean_match_hand_win_rate": 0.2798239087301587
+        },
+        "candidate": {
+          "games": 96,
+          "mean_net_points": 3702.0833333333335,
+          "first_rate": 0.34375,
+          "top2_rate": 0.625,
+          "fourth_rate": 0.14583333333333334,
+          "mean_rank": 2.1770833333333335,
+          "hand_win_rate": 0.2565543071161049,
+          "dealin_rate": 0.10486891385767791,
+          "dealin_event_rate": 0.10486891385767791,
+          "calls_per_game": 2.15625,
+          "mean_point_components": {
+            "draw_settlement": 453.125,
+            "final_unclaimed_pool": 93.75,
+            "riichi_deposits": -1458.3333333333333,
+            "ron_payments": -2735.4166666666665,
+            "tsumo_payments": -3290.625,
+            "win_income": 10639.583333333334
+          },
+          "discounted_own_wins_per_hand": 0.10737681646470154,
+          "mean_table_draws_when_winning": 44.722627737226276,
+          "kan_opportunities": {
+            "ankan": 35,
+            "daiminkan": 44,
+            "kakan": 7
+          },
+          "kan_choices": {
+            "ankan": 8,
+            "daiminkan": 0,
+            "kakan": 3
+          },
+          "mean_match_hand_win_rate": 0.2511450066137566
+        }
+      },
+      "candidate_minus_reference": {
+        "gain": -1292.7083333333333,
+        "ci95": [
+          -2177.0341648574267,
+          -408.38250180923956
+        ],
+        "independent_wall_streams": 8
+      }
+    },
+    "suites": {
+      "closed": {
+        "policies": {
+          "reference": {
+            "games": 32,
+            "mean_net_points": 5462.5,
+            "first_rate": 0.375,
+            "top2_rate": 0.71875,
+            "fourth_rate": 0.09375,
+            "mean_rank": 2,
+            "hand_win_rate": 0.2807017543859649,
+            "dealin_rate": 0.07017543859649122,
+            "dealin_event_rate": 0.07017543859649122,
+            "calls_per_game": 1.96875,
+            "mean_point_components": {
+              "draw_settlement": 687.5,
+              "final_unclaimed_pool": 250,
+              "riichi_deposits": -1625,
+              "ron_payments": -1234.375,
+              "tsumo_payments": -3450,
+              "win_income": 10834.375
+            }
+          },
+          "candidate": {
+            "games": 32,
+            "mean_net_points": 3637.5,
+            "first_rate": 0.3125,
+            "top2_rate": 0.59375,
+            "fourth_rate": 0.125,
+            "mean_rank": 2.21875,
+            "hand_win_rate": 0.2543352601156069,
+            "dealin_rate": 0.08670520231213873,
+            "dealin_event_rate": 0.08670520231213873,
+            "calls_per_game": 1.9375,
+            "mean_point_components": {
+              "draw_settlement": 484.375,
+              "final_unclaimed_pool": 156.25,
+              "riichi_deposits": -1375,
+              "ron_payments": -1946.875,
+              "tsumo_payments": -3587.5,
+              "win_income": 9906.25
+            }
+          }
+        },
+        "candidate_minus_reference": {
+          "gain": -1825,
+          "ci95": [
+            -3268.412058318356,
+            -381.5879416816442
+          ],
+          "independent_wall_streams": 8
+        }
+      },
+      "mixed": {
+        "policies": {
+          "reference": {
+            "games": 32,
+            "mean_net_points": 5818.75,
+            "first_rate": 0.40625,
+            "top2_rate": 0.75,
+            "fourth_rate": 0.09375,
+            "mean_rank": 1.9375,
+            "hand_win_rate": 0.30057803468208094,
+            "dealin_rate": 0.07514450867052024,
+            "dealin_event_rate": 0.07514450867052024,
+            "calls_per_game": 2.15625,
+            "mean_point_components": {
+              "draw_settlement": 437.5,
+              "final_unclaimed_pool": 156.25,
+              "riichi_deposits": -1562.5,
+              "ron_payments": -1690.625,
+              "tsumo_payments": -3159.375,
+              "win_income": 11637.5
+            }
+          },
+          "candidate": {
+            "games": 32,
+            "mean_net_points": 3315.625,
+            "first_rate": 0.34375,
+            "top2_rate": 0.6875,
+            "fourth_rate": 0.125,
+            "mean_rank": 2.09375,
+            "hand_win_rate": 0.24571428571428572,
+            "dealin_rate": 0.10285714285714286,
+            "dealin_event_rate": 0.10285714285714286,
+            "calls_per_game": 1.96875,
+            "mean_point_components": {
+              "draw_settlement": 265.625,
+              "final_unclaimed_pool": 62.5,
+              "riichi_deposits": -1468.75,
+              "ron_payments": -2078.125,
+              "tsumo_payments": -3481.25,
+              "win_income": 10015.625
+            }
+          }
+        },
+        "candidate_minus_reference": {
+          "gain": -2503.125,
+          "ci95": [
+            -4356.143580378237,
+            -650.1064196217633
+          ],
+          "independent_wall_streams": 8
+        }
+      },
+      "strong": {
+        "policies": {
+          "reference": {
+            "games": 32,
+            "mean_net_points": 3703.125,
+            "first_rate": 0.375,
+            "top2_rate": 0.5625,
+            "fourth_rate": 0.21875,
+            "mean_rank": 2.28125,
+            "hand_win_rate": 0.2804232804232804,
+            "dealin_rate": 0.14285714285714285,
+            "dealin_event_rate": 0.14285714285714285,
+            "calls_per_game": 2.71875,
+            "mean_point_components": {
+              "draw_settlement": 500,
+              "final_unclaimed_pool": 62.5,
+              "riichi_deposits": -1593.75,
+              "ron_payments": -4575,
+              "tsumo_payments": -2990.625,
+              "win_income": 12300
+            }
+          },
+          "candidate": {
+            "games": 32,
+            "mean_net_points": 4153.125,
+            "first_rate": 0.375,
+            "top2_rate": 0.59375,
+            "fourth_rate": 0.1875,
+            "mean_rank": 2.21875,
+            "hand_win_rate": 0.26881720430107525,
+            "dealin_rate": 0.12365591397849462,
+            "dealin_event_rate": 0.12365591397849462,
+            "calls_per_game": 2.5625,
+            "mean_point_components": {
+              "draw_settlement": 609.375,
+              "final_unclaimed_pool": 62.5,
+              "riichi_deposits": -1531.25,
+              "ron_payments": -4181.25,
+              "tsumo_payments": -2803.125,
+              "win_income": 11996.875
+            }
+          }
+        },
+        "candidate_minus_reference": {
+          "gain": 450,
+          "ci95": [
+            -1495.6258938752756,
+            2395.6258938752753
+          ],
+          "independent_wall_streams": 8
+        }
+      }
+    },
+    "eligible_for_confirmation": false,
+    "improvement_verified": false,
+    "new_games_simulated": 192,
+    "reference_games_reused": 0
+  },
+  "development_independent_audit": {
+    "status": "passed_complete",
+    "games": 192,
+    "manual_four_seat_payment_records": 192,
+    "manual_final_ranks_checked": 192,
+    "whole_wall_groups": 8,
+    "paired_outcomes": {
+      "hand_win_paired": {
+        "gain": -0.028678902116402116,
+        "ci95": [
+          -0.05060371512570701,
+          -0.006754089107097225
+        ]
+      },
+      "dealin_rate_paired": {
+        "gain": 0.0074198082010582,
+        "ci95": [
+          -0.010961641041139648,
+          0.02580125744325605
+        ]
+      },
+      "fast_reward_paired": {
+        "gain": -0.012239659677221158,
+        "ci95": [
+          -0.021885047524806266,
+          -0.0025942718296360513
+        ]
+      }
+    },
+    "whole_wall_net_point_gain": -1292.7083333333333,
+    "whole_wall_ci95": [
+      -2177.0341648574267,
+      -408.38250180923956
+    ],
+    "new_simulations": 0,
+    "comparison_contract": {
+      "candidate_component": "calling_pointer_head",
+      "reference_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+      "candidate_activation": "all",
+      "expected_native_parity": {
+        "ordinary": 2,
+        "calling": 2
+      }
+    }
+  },
+  "confirmation_run": false,
+  "candidate_adopted": false,
+  "train_only_drift_diagnostic": {
+    "status": "passed_train_only_drift_diagnostic",
+    "cohorts": {
+      "all_native_train": {
+        "states": 7189,
+        "changed_actions": 186,
+        "changed_action_rate": 0.02587286131589929,
+        "mean_reference_kl": 0.029313440764775472,
+        "mean_total_variation": 0.08321327416456936,
+        "opened": 842,
+        "opened_rate": 0.11712338294616775,
+        "opponent_riichi": 2304,
+        "opponent_riichi_rate": 0.32048963694533317,
+        "changed_action_types": {
+          "none->chi": 67,
+          "pon->none": 57,
+          "none->pon": 13,
+          "chi->none": 45,
+          "pon->chi": 2,
+          "chi->chi": 2
+        }
+      },
+      "labelled_train": {
+        "states": 384,
+        "changed_actions": 25,
+        "changed_action_rate": 0.06510416666666667,
+        "mean_reference_kl": 0.029746130774795987,
+        "mean_total_variation": 0.08798329688230083,
+        "opened": 148,
+        "opened_rate": 0.3854166666666667,
+        "opponent_riichi": 192,
+        "opponent_riichi_rate": 0.5,
+        "changed_action_types": {
+          "none->chi": 3,
+          "pon->none": 17,
+          "pon->chi": 2,
+          "chi->none": 2,
+          "none->pon": 1
+        }
+      },
+      "other_native_train": {
+        "states": 6805,
+        "changed_actions": 161,
+        "changed_action_rate": 0.023659074210139602,
+        "mean_reference_kl": 0.029289024458552426,
+        "mean_total_variation": 0.08294410609350264,
+        "opened": 694,
+        "opened_rate": 0.10198383541513593,
+        "opponent_riichi": 2112,
+        "opponent_riichi_rate": 0.3103600293901543,
+        "changed_action_types": {
+          "none->chi": 64,
+          "pon->none": 40,
+          "none->pon": 12,
+          "chi->none": 43,
+          "chi->chi": 2
+        }
+      }
+    },
+    "max_recomputed_reference_error": 8.910246500626329e-07,
+    "held_states_analyzed": 0,
+    "future_reward_labels_used": false,
+    "optimizer_updates": 0,
+    "new_simulations": 0,
+    "limitations": [
+      "Cached native inputs measure behavior drift, not causal reasons for match losses.",
+      "Non-labelled train windows contain no counterfactual reward targets."
+    ]
+  }
 }

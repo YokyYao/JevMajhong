@@ -61,7 +61,7 @@ def logits(head, row):
 
 def anchor_policy(config):
     mode=config.get('anchor_policy','reference_kl')
-    if mode not in ('reference_kl','same_data_no_anchors'):
+    if mode not in ('reference_kl','same_data_no_anchors','calling_baseline_kl'):
         raise ValueError('Unknown call-head anchor policy')
     if mode=='same_data_no_anchors':
         if (not config.get('call_context_baseline') or config.get('selection_objective')!='hand_win'
@@ -70,6 +70,12 @@ def anchor_policy(config):
                 or config.get('reference_anchor_data') or config.get('route_loss_weights')
                 or config.get('initial_heads')):
             raise ValueError('Same-data comparison requires a pinned calling context, no extra anchors or route weights')
+    elif mode=='calling_baseline_kl':
+        if (not config.get('call_context_baseline') or config.get('selection_objective')!='hand_win'
+                or config.get('train_scopes')!=['calling'] or config.get('decision_filter')!='all'
+                or not config.get('reference_anchor_data') or config.get('matched_context_fit')
+                or config.get('initial_heads')):
+            raise ValueError('Calling-baseline KL requires explicit train-only anchors and its fixed baseline')
     elif config.get('call_context_baseline'):
         raise ValueError('Pinned calling-context comparison requires explicit same_data_no_anchors')
     return mode
@@ -221,28 +227,48 @@ def load_inputs(cfg, protocol):
     if mode=='same_data_no_anchors':
         meta=dict(sources=[],source_sha256={},keys=[],held_states_used=0,labels_used=False,mode=mode)
         return parts,groups,hashes,sources,[],meta,audit_hashes
-    old, anchor_hashes, anchor_sources = load_sources(cfg['reference_anchor_data'], protocol['model_files'])
+    fixed_anchors=mode=='calling_baseline_kl'
+    old, anchor_hashes, anchor_sources = load_sources(cfg['reference_anchor_data'], protocol['model_files'],
+        **({'allow_unlabeled':True,'expected_call_baseline':cfg['call_context_baseline']} if fixed_anchors else {}))
+    if fixed_anchors:
+        from jevmahjong.data.native_states import CALL_METHOD
+        for source in anchor_sources:
+            directory=Path(source['path']).resolve()
+            if directory not in audits or json.loads((directory/'protocol.json').read_text()).get('collection_method')!=CALL_METHOD:
+                raise ValueError('Calling-baseline anchors require an audited native calling source')
+    fit_keys={g['key'] for gs in groups.values() for g in gs}
+    held_walls={g['key'][0] for g in groups['held']}
+    excluded=set()
     anchors = {}
     for row in old['train']:
         if row['scope'] != 'calling': continue
         key = state_key(row)
+        if fixed_anchors:
+            if key[0] in held_walls:raise ValueError('Anchor train input overlaps a held validation wall')
+            if key in fit_keys:excluded.add(key);continue
         # Only forward inputs and original probabilities enter anchor training.
         anchors.setdefault(key, {k: row[k] for k in ('decide','options','eligible','reference')})
+        if fixed_anchors:
+            for name in ('public_request','episode_key','request_sha256'):anchors[key][name]=row[name]
+            anchors[key]['fixed_call_context_logits']=context_scores(row['public_request'],context)/context['reference_prior_strength']
     old_held = {state_key(r) for r in old['held']}
     if set(anchors) & old_held: raise ValueError('Anchor state crosses old source split')
     def order(key): return hashlib.sha256(json.dumps([cfg['seed'],key]).encode()).hexdigest()
     keys = sorted(anchors, key=order)[:cfg['reference_anchor_states']]
     if len(keys) != cfg['reference_anchor_states']: raise ValueError('Insufficient distinct train-only anchors')
     train_walls = {g['key'][0] for split in groups.values() for g in split}
-    if train_walls & {key[0] for key in keys}: raise ValueError('Anchor and new fit walls overlap')
+    if not fixed_anchors and train_walls & {key[0] for key in keys}: raise ValueError('Anchor and new fit walls overlap')
     meta = dict(sources=anchor_sources, source_sha256=anchor_hashes, keys=[list(k) for k in keys],
                 held_states_used=0, labels_used=False)
+    if fixed_anchors:meta.update(mode=mode,excluded_reward_labelled_states=len(excluded),
+        candidate_states=len(anchors),train_walls=len({key[0] for key in keys}),
+        fixed_calling_context_applied_once=True)
     return parts, groups, hashes, sources, [anchors[k] for k in keys], meta, audit_hashes
 
 
 def fit(cfg):
     torch.set_num_threads(4); torch.manual_seed(cfg['seed'])
-    mode=anchor_policy(cfg);anchored=mode=='reference_kl'
+    mode=anchor_policy(cfg);anchored=mode!='same_data_no_anchors'
     objective=cfg.get('selection_objective','net_points')
     if objective not in ('net_points','hand_win') or ((objective=='hand_win') != (cfg.get('reward',{}).get('mode')=='own_win_first_v1')):
         raise ValueError('Reward and checkpoint selection must share the registered objective')
@@ -300,7 +326,8 @@ def fit(cfg):
                 for i,g in zip(indices,batch)]).mean()
             if ar:loss = loss + cfg['anchor_beta']*torch.stack([anchor_kl(head,r) for r in ar]).mean()
             if not torch.isfinite(loss): raise ValueError('Nonfinite loss')
-            optimizer.zero_grad(); loss.backward(); norm = torch.nn.utils.clip_grad_norm_(head.parameters(),.5 if anchored else 1.)
+            # Preserve the original matched-head step bound for the new mode.
+            optimizer.zero_grad(); loss.backward(); norm = torch.nn.utils.clip_grad_norm_(head.parameters(),.5 if mode=='reference_kl' else 1.)
             if not torch.isfinite(norm): raise ValueError('Nonfinite gradient')
             optimizer.step(); updates += 1
         item = save(epoch)

@@ -11,7 +11,7 @@ from jevmahjong.policy.call_baseline import transform
 from jevmahjong.policy.call_tile_context import VERSION
 from jevmahjong.policy.kan_context import feature_names
 from jevmahjong.training.context_network import make_network
-from jevmahjong.training.call_head import anchor_policy,check_matched_context,fit
+from jevmahjong.training.call_head import anchor_policy,check_matched_context,fit,load_inputs
 from jevmahjong.evaluation.call_head_audit import audit
 from tests.core.test_win_context import FrozenHead,pair
 
@@ -28,6 +28,12 @@ class CallHeadComparisonTests(unittest.TestCase):
             with self.subTest(change=change),self.assertRaises(ValueError):anchor_policy(dict(cfg,**change))
 
     def test_real_head_fit_and_independent_win_audit_keep_fixed_context(self):
+        self._real_fit_and_audit('same_data_no_anchors')
+
+    def test_native_train_anchors_keep_fixed_context_and_exclude_labelled_and_held_inputs(self):
+        self._real_fit_and_audit('calling_baseline_kl')
+
+    def _real_fit_and_audit(self,mode):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);roles={}
             for role in ('discard','call'):
@@ -69,19 +75,44 @@ class CallHeadComparisonTests(unittest.TestCase):
                 reference_anchor_states=0,anchor_batch=0,reference_prior_strength=.05,
                 lr=.5,weight_decay=0.,epochs=12,patience_epochs=3,batch=1,
                 data=[str(source)],required_data_audits=[str(data_audit)],reward=reward)
+            native=root/'native';native.mkdir()
+            (native/'protocol.json').write_text(json.dumps({'collection_method':'native_call_states_v1'}))
+            anchor=pair(100);anchor.update(episode_key=(100,0,7),request_sha256='different-public-window')
+            anchor['public_request']['state']['honba']=1
+            anchor['reference']=transform(anchor['public_request'],FrozenHead()(anchor['decide'],anchor['options']).detach().softmax(-1),context)
+            anchor.pop('training_credit');anchor.pop('training_advantage')
+            native_parts={'train':[copy.deepcopy(parts['train'][0]),anchor],'held':[copy.deepcopy(parts['held'][0])]}
+            native_audit=root/'native-audit';native_audit.mkdir()
+            (native_audit/'result.json').write_text(json.dumps({'status':'passed_complete'}))
+            (native_audit/'protocol.json').write_text(json.dumps(dict(config={'collection':str(native)},
+                model_files={},code_sha256={},source_files={})))
+            if mode=='calling_baseline_kl':
+                cfg.update(anchor_policy=mode,anchor_beta=.001,anchor_kl_limit=100.,
+                    anchor_batch=1,reference_anchor_states=1,reference_anchor_data=[str(native)],
+                    required_data_audits=[str(data_audit),str(native_audit)])
+                for change in (dict(call_context_baseline=None),dict(reference_anchor_data=[]),
+                        dict(matched_context_fit={'config':'old-comparison'})):
+                    with self.subTest(change=change),self.assertRaisesRegex(ValueError,'Calling-baseline KL'):
+                        anchor_policy(dict(cfg,**change))
             other=dict(cfg,fit_model='residual_policy',context_initialization='calling_baseline',policy_state_weighting='uniform')
             counterpart=root/'context-fit.json';counterpart.write_text(json.dumps(other))
-            cfg['matched_context_fit']=dict(config=str(counterpart),sha256=digest(counterpart))
+            if mode=='same_data_no_anchors':cfg['matched_context_fit']=dict(config=str(counterpart),sha256=digest(counterpart))
             check_matched_context(cfg)
-            for change in (dict(lr=.1),dict(seed=18),dict(data=['other-data'])):
+            for change in (dict(lr=.1),dict(seed=18),dict(data=['other-data'])) if mode=='same_data_no_anchors' else ():
                 with self.subTest(change=change),self.assertRaisesRegex(ValueError,'fitting budget differ'):
                     check_matched_context(dict(cfg,**change))
             fitfile=root/'fit.json';fitfile.write_text(json.dumps(cfg))
             snapshot=lambda c:dict(config=c,model_files={},code_sha256={},call_context_baseline=baseline,
-                matched_context_fit=cfg['matched_context_fit'])
+                **({'matched_context_fit':cfg['matched_context_fit']} if 'matched_context_fit' in cfg else {}))
+            def inputs(paths,*args,**kwargs):
+                if paths==[str(native)]:
+                    self.assertTrue(kwargs['allow_unlabeled'])
+                    self.assertEqual(kwargs['expected_call_baseline'],baseline)
+                    return copy.deepcopy(native_parts),{},[dict(path=str(native))]
+                return copy.deepcopy(parts),hashes,sources
             with (patch('jevmahjong.training.call_head.snapshot',side_effect=snapshot),
                   patch('jevmahjong.evaluation.call_head_audit.snapshot',side_effect=snapshot),
-                  patch('jevmahjong.training.call_head.load_sources',side_effect=lambda *a,**k:(copy.deepcopy(parts),hashes,sources)),
+                  patch('jevmahjong.training.call_head.load_sources',side_effect=inputs),
                   patch('jevmahjong.policy.call_baseline.load',return_value=context),
                   patch('jevmahjong.training.call_head.make_head',side_effect=lambda *a:FrozenHead()),
                   patch('jevmahjong.evaluation.call_head_audit.make_head',side_effect=lambda *a:FrozenHead())):
@@ -94,14 +125,26 @@ class CallHeadComparisonTests(unittest.TestCase):
                 self.assertFalse(torch.count_nonzero(saved['heads']['ordinary']['offset']))
                 self.assertEqual(digest(checkpoint),baseline['sha256'])
                 checkcfg=dict(**roles,out=str(root/'audit'),fit_config=str(fitfile),fit_config_sha256=digest(fitfile),
-                    expected=dict(train_states=1,held_states=1,train_pairs=1,held_pairs=1,anchor_states=0),
+                    expected=dict(train_states=1,held_states=1,train_pairs=1,held_pairs=1,anchor_states=int(mode=='calling_baseline_kl')),
                     minimum_held_closed_chi_recoveries=0,require_route_recovery_for_development=False,
                     call_context_baseline=baseline)
                 checked=audit(checkcfg)
                 self.assertTrue(checked['eligible_for_development'])
                 self.assertEqual(checked['win_reward_arms_recomputed'],16)
-                self.assertEqual(checked['anchor_policy'],'same_data_no_anchors')
+                self.assertEqual(checked['anchor_policy'],mode)
                 self.assertEqual(checked['trainable_parameter_count'],2)
+                if mode=='calling_baseline_kl':
+                    loaded=load_inputs(cfg,snapshot(cfg));anchors=loaded[4]
+                    self.assertEqual(len(anchors),1)
+                    self.assertEqual(loaded[5]['excluded_reward_labelled_states'],1)
+                    self.assertNotIn('training_credit',anchors[0])
+                    self.assertIn('fixed_call_context_logits',anchors[0])
+                    native_parts['train'][1]['episode_key']=(103,0,7)
+                    with self.assertRaisesRegex(ValueError,'held validation wall'):load_inputs(cfg,snapshot(cfg))
+                    native_parts['train'][1]['episode_key']=(100,0,7)
+                    (native/'protocol.json').write_text(json.dumps({'collection_method':'paired_future_ev_v1'}))
+                    with self.assertRaisesRegex(ValueError,'audited native calling source'):load_inputs(cfg,snapshot(cfg))
+                    (native/'protocol.json').write_text(json.dumps({'collection_method':'native_call_states_v1'}))
                 wrong=torch.load(result['curve'][0]['checkpoint'],weights_only=True)
                 wrong['heads']['calling']['offset'][0]+=.01
                 path=Path(result['curve'][0]['checkpoint']);torch.save(wrong,path)
@@ -110,8 +153,8 @@ class CallHeadComparisonTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError,'Frozen ordinary head or reference initialization changed'):
                     audit(dict(checkcfg,out=str(root/'wrong-start')))
                 counterpart.write_text(counterpart.read_text()+'\n')
-                with self.assertRaisesRegex(ValueError,'Matched context configuration changed'):
-                    check_matched_context(cfg)
+                if mode=='same_data_no_anchors':
+                    with self.assertRaisesRegex(ValueError,'Matched context configuration changed'):check_matched_context(cfg)
 
 
 if __name__=='__main__':unittest.main()

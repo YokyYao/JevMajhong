@@ -129,7 +129,7 @@ def audit(cfg):
         from jevmahjong.policy.call_baseline import load
         from jevmahjong.policy.kan_context import feature_vectors
         context=load(training,registered['model_files']);w=context['state_dict']
-        for rows in parts.values():
+        for rows in [*parts.values(),anchors]:
             for row in rows:
                 x=torch.tensor(feature_vectors(row['public_request'],context['version']),dtype=torch.float64)
                 bias=(torch.tanh(x@w['0.weight'].T+w['0.bias'])@w['2.weight'].T).flatten()/context['reference_prior_strength']
@@ -149,6 +149,15 @@ def audit(cfg):
                 if (r['episode_key'][0],r['episode_key'][1],r['request_sha256'])==group['key']]
     if len(anchors)!=expected['anchor_states'] or anchor_meta['held_states_used']!=0 or anchor_meta['labels_used']:
         raise ValueError('Train-only anchor coverage differs')
+    if mode=='calling_baseline_kl':
+        from jevmahjong.training.sampling import state_key
+        keys={state_key(row) for row in anchors}
+        labelled={g['key'] for gs in groups.values() for g in gs}
+        held_walls={g['key'][0] for g in groups['held']}
+        if (len(keys)!=len(anchors) or keys!=set(map(tuple,anchor_meta['keys']))
+                or keys & labelled or {key[0] for key in keys} & held_walls
+                or anchor_meta.get('fixed_calling_context_applied_once') is not True):
+            raise ValueError('Fixed-calling anchor identity or train-only separation differs')
     routed={split:route_groups(gs) for split,gs in groups.items()}
     if training.get('route_loss_weights'):
         raw={g['key']:1. for g in groups['train']}
@@ -217,7 +226,7 @@ def audit(cfg):
         if improved:best=item;stale=0
         else:stale+=1
     if best!=fit['selected'] or fit['selected_is_starting_model']!=(best['epoch']==0): raise ValueError('Checkpoint selection differs')
-    if mode=='same_data_no_anchors' and fit.get('trainable_parameter_count')!=sum(p.numel() for p in heads['calling'].parameters()):
+    if mode in ('same_data_no_anchors','calling_baseline_kl') and fit.get('trainable_parameter_count')!=sum(p.numel() for p in heads['calling'].parameters()):
         raise ValueError('Matched comparison parameter count differs')
     if len(curve)>training['epochs']+1 or fit['optimizer_updates']!=(len(curve)-1)*math.ceil(len(groups['train'])/training['batch']):
         raise ValueError('Epoch or optimizer update count differs')

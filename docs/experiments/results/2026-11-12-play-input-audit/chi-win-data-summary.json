@@ -1,6 +1,6 @@
 {
   "model_target": "jev-chi-win-v1",
-  "stage": "complete_data_audited_matched_fits_completed",
+  "stage": "matched_head_development_failed_reference_retained",
   "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
   "source_sha256": "9c2d72262cc7fea037a9dda35cd5fa8add1b8ab7545903031a37a24bd53d2d6a",
   "planned_whole_wall_groups": 128,
@@ -232,7 +232,7 @@
     "expand complete legal alternatives using the same futures/control",
     "audit complete alternatives"
   ],
-  "snapshot_at": "2026-11-13T12:48:50.110360+00:00",
+  "snapshot_at": "2026-11-13T13:21:29.161741+00:00",
   "initial_future_collection": {
     "status": "collection_complete",
     "method": "paired_future_ev_v1",
@@ -401,5 +401,36 @@
     "head_updates": 96,
     "head_eligible_for_development": true,
     "independent_match_improvement_proven": false
+  },
+  "development_summary": {
+    "games": 192,
+    "hand_win_paired": {
+      "gain": -0.028678902116402116,
+      "ci95": [
+        -0.05060371512570701,
+        -0.006754089107097225
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "dealin_rate_paired": {
+      "gain": 0.0074198082010582,
+      "ci95": [
+        -0.010961641041139648,
+        0.02580125744325605
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "net_points_paired": {
+      "gain": -1292.7083333333333,
+      "ci95": [
+        -2177.0341648574267,
+        -408.38250180923956
+      ],
+      "independent_wall_streams": 8
+    },
+    "independent_audit": "passed_complete",
+    "eligible_for_confirmation": false,
+    "confirmation_run": false,
+    "strong_reference_retained": true
   }
 }
