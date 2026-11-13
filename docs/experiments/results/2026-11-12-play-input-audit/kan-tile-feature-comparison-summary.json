@@ -1,6 +1,6 @@
 {
-  "stage": "registered_fits_queued_not_started",
-  "snapshot_at": "2026-11-13T17:12:49.016239+00:00",
+  "stage": "fits_audited_no_eligible_tile_candidate",
+  "snapshot_at": "2026-11-13T17:24:11.521359+00:00",
   "source_sha256": "092381a25e6e2cedb3af9bdd34d7d723d61f706a85b0c6cc2b1e2846916c971d",
   "reason": "Prior kan candidate changed only3/96paired logs and had no observed own-win gain; weaker prior was rejected. Test additional public tile inputs before expanded-data fitting.",
   "feature_version": "public-kan-tile-context-v1",
@@ -68,7 +68,7 @@
     "verified calling context"
   ],
   "replaces_the_same_kan_network_no_stacking": true,
-  "schedule": "Four sequential CPU fit/audit jobs queued after fresh-native audit; max2running jobs across chi/kan pipelines.",
+  "schedule": "All four sequential CPUfit/audit jobs completed; no new full matches for either variant.",
   "admission": "Control must reproduce original selected v1 tensors within1e-8. Only independently eligible tile candidate with improved own-win-first validation over control can enter new games under unchanged utility/risk rules.",
   "evaluation": {
     "actual_matches_started": false,
@@ -83,5 +83,186 @@
   "candidate_adopted": false,
   "raw_records_public": false,
   "weights_public": false,
-  "deployed": false
+  "deployed": false,
+  "control_reproduction": {
+    "status": "passed_complete",
+    "tensor_count": 11,
+    "maximum_tensor_error": 0.0,
+    "allowed_error": 1e-08,
+    "selected_epoch": 7
+  },
+  "fit_results": {
+    "control": {
+      "epochs": 11,
+      "optimizer_updates": 253,
+      "selected_epoch": 7,
+      "fit_audit": "passed_complete",
+      "eligible_for_development": true,
+      "selected_validation": {
+        "states": 91,
+        "policy_kl": 0.561053786357609,
+        "label_regret": 0.10388156437562869,
+        "mean_label_utility_gain_vs_play": 0.00014118486235124042,
+        "mean_sampled_hand_win_gain_per_state": 0.0013736263736263737,
+        "mean_sampled_net_point_gain_per_state": 8.516483516483516,
+        "mean_sampled_dealin_change_per_state": 0.0006868131868131869,
+        "mean_sampled_fast_reward_change_per_state": 0.0005647394494049581,
+        "changed_argmax_states": 6,
+        "aggregation": "equal public-state means across all validation sources"
+      },
+      "curve": [
+        {
+          "epoch": 0,
+          "mean_sampled_hand_win_gain_per_state": 0.0,
+          "mean_sampled_dealin_change_per_state": 0.0,
+          "mean_label_utility_gain_vs_play": 0.0,
+          "changed_argmax_states": 0
+        },
+        {
+          "epoch": 1,
+          "mean_sampled_hand_win_gain_per_state": 0.0,
+          "mean_sampled_dealin_change_per_state": 0.0,
+          "mean_label_utility_gain_vs_play": 0.0,
+          "changed_argmax_states": 0
+        },
+        {
+          "epoch": 2,
+          "mean_sampled_hand_win_gain_per_state": 0.0,
+          "mean_sampled_dealin_change_per_state": 0.0,
+          "mean_label_utility_gain_vs_play": 0.0,
+          "changed_argmax_states": 0
+        },
+        {
+          "epoch": 3,
+          "mean_sampled_hand_win_gain_per_state": 0.0006868131868131869,
+          "mean_sampled_dealin_change_per_state": 0.0,
+          "mean_label_utility_gain_vs_play": 0.000829577690169767,
+          "changed_argmax_states": 1
+        },
+        {
+          "epoch": 4,
+          "mean_sampled_hand_win_gain_per_state": 0.0006868131868131869,
+          "mean_sampled_dealin_change_per_state": 0.0020604395604395605,
+          "mean_label_utility_gain_vs_play": -0.003291301430709354,
+          "changed_argmax_states": 2
+        },
+        {
+          "epoch": 5,
+          "mean_sampled_hand_win_gain_per_state": 0.0006868131868131869,
+          "mean_sampled_dealin_change_per_state": 0.0,
+          "mean_label_utility_gain_vs_play": 0.000829577690169767,
+          "changed_argmax_states": 1
+        },
+        {
+          "epoch": 6,
+          "mean_sampled_hand_win_gain_per_state": 0.0013736263736263737,
+          "mean_sampled_dealin_change_per_state": -0.0013736263736263737,
+          "mean_label_utility_gain_vs_play": 0.004261652379811698,
+          "changed_argmax_states": 2
+        },
+        {
+          "epoch": 7,
+          "mean_sampled_hand_win_gain_per_state": 0.0013736263736263737,
+          "mean_sampled_dealin_change_per_state": 0.0006868131868131869,
+          "mean_label_utility_gain_vs_play": 0.00014118486235124042,
+          "changed_argmax_states": 6
+        },
+        {
+          "epoch": 8,
+          "mean_sampled_hand_win_gain_per_state": -0.0027472527472527475,
+          "mean_sampled_dealin_change_per_state": 0.0,
+          "mean_label_utility_gain_vs_play": -0.0030672385882614954,
+          "changed_argmax_states": 5
+        },
+        {
+          "epoch": 9,
+          "mean_sampled_hand_win_gain_per_state": -0.0027472527472527475,
+          "mean_sampled_dealin_change_per_state": 0.0,
+          "mean_label_utility_gain_vs_play": -0.0030672385882614954,
+          "changed_argmax_states": 5
+        },
+        {
+          "epoch": 10,
+          "mean_sampled_hand_win_gain_per_state": -0.003434065934065934,
+          "mean_sampled_dealin_change_per_state": 0.0,
+          "mean_label_utility_gain_vs_play": -0.003853565430033414,
+          "changed_argmax_states": 6
+        },
+        {
+          "epoch": 11,
+          "mean_sampled_hand_win_gain_per_state": -0.0013736263736263737,
+          "mean_sampled_dealin_change_per_state": 0.0,
+          "mean_label_utility_gain_vs_play": -0.0014492551409411613,
+          "changed_argmax_states": 6
+        }
+      ]
+    },
+    "candidate": {
+      "epochs": 4,
+      "optimizer_updates": 92,
+      "selected_epoch": 0,
+      "fit_audit": "passed_complete",
+      "eligible_for_development": false,
+      "selected_validation": {
+        "states": 91,
+        "policy_kl": 0.6029672457624385,
+        "label_regret": 0.10402274923797994,
+        "mean_label_utility_gain_vs_play": 0.0,
+        "mean_sampled_hand_win_gain_per_state": 0.0,
+        "mean_sampled_net_point_gain_per_state": 0.0,
+        "mean_sampled_dealin_change_per_state": 0.0,
+        "mean_sampled_fast_reward_change_per_state": 0.0,
+        "changed_argmax_states": 0,
+        "aggregation": "equal public-state means across all validation sources"
+      },
+      "curve": [
+        {
+          "epoch": 0,
+          "mean_sampled_hand_win_gain_per_state": 0.0,
+          "mean_sampled_dealin_change_per_state": 0.0,
+          "mean_label_utility_gain_vs_play": 0.0,
+          "changed_argmax_states": 0
+        },
+        {
+          "epoch": 1,
+          "mean_sampled_hand_win_gain_per_state": 0.0,
+          "mean_sampled_dealin_change_per_state": 0.0,
+          "mean_label_utility_gain_vs_play": 0.0,
+          "changed_argmax_states": 0
+        },
+        {
+          "epoch": 2,
+          "mean_sampled_hand_win_gain_per_state": 0.0,
+          "mean_sampled_dealin_change_per_state": 0.0,
+          "mean_label_utility_gain_vs_play": 0.0,
+          "changed_argmax_states": 0
+        },
+        {
+          "epoch": 3,
+          "mean_sampled_hand_win_gain_per_state": 0.0006868131868131869,
+          "mean_sampled_dealin_change_per_state": 0.006181318681318681,
+          "mean_label_utility_gain_vs_play": -0.011533059672467596,
+          "changed_argmax_states": 3
+        },
+        {
+          "epoch": 4,
+          "mean_sampled_hand_win_gain_per_state": 0.0006868131868131869,
+          "mean_sampled_dealin_change_per_state": 0.004120879120879121,
+          "mean_label_utility_gain_vs_play": -0.0074121805515884745,
+          "changed_argmax_states": 3
+        }
+      ]
+    }
+  },
+  "decision": "Candidate retained epoch0 and cannot beat control under unchanged rules; no GPUparity or development matches. Continue new data labels; no threshold relaxation.",
+  "new_data_labels": {
+    "native_walls": 128,
+    "native_states": 429,
+    "train_states": 336,
+    "held_states": 93,
+    "worlds_per_state": 32,
+    "initial_arm_records": 27456,
+    "stage": "running_with_actual_protocol_binding_passed",
+    "raw_records_public": false
+  }
 }

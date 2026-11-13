@@ -1,6 +1,6 @@
 {
   "stage": "v1_no_match_gain_v2_prior_only_fit_rejected_new_native_data_started",
-  "snapshot_at": "2026-11-13T16:38:27.838165+00:00",
+  "snapshot_at": "2026-11-13T17:24:11.521359+00:00",
   "v1_development": {
     "games": 192,
     "new_walls": 8,
@@ -228,7 +228,7 @@
     "existing_frozen_training_package_unchanged": true
   },
   "next_data": {
-    "stage": "native_collection_submitted",
+    "stage": "native_audit_complete_32future_labels_running",
     "new_walls": 128,
     "wall_split": {
       "train": 96,
@@ -238,9 +238,53 @@
     "native_source_sha256": "1baa982d80c1d7367a7eee66a3b1d03b29636fecac6390a12b6a69ab29d2ae26",
     "old_validation_to_training": false,
     "planned_future_samples_per_state": 32,
-    "future_label_recipe_pending_native_audit_and_public_capacity_check": true,
+    "future_label_recipe_pending_native_audit_and_public_capacity_check": false,
     "feature_information_and_fitting_gap_to_assess": true,
-    "no_reward_or_risk_guard_relaxation": true
+    "no_reward_or_risk_guard_relaxation": true,
+    "states": 429,
+    "train_states": 336,
+    "held_states": 93,
+    "native_audit": {
+      "status": "passed_complete",
+      "prefixes_replayed": 429,
+      "control_matches_audited": 512,
+      "cached_head_probability_max_error": 2.980232238769531e-07
+    },
+    "public_capacity": {
+      "train": {
+        "states": 336,
+        "canonical_states": 336,
+        "public_action_availability": {
+          "ankan": 153,
+          "daiminkan": 143,
+          "pon": 143,
+          "kakan": 40,
+          "chi": 8
+        },
+        "opponent_riichi": 133,
+        "nonempty_walls": 83,
+        "maximum_states_in_one_wall": 21
+      },
+      "held": {
+        "states": 93,
+        "canonical_states": 93,
+        "public_action_availability": {
+          "daiminkan": 60,
+          "pon": 60,
+          "ankan": 25,
+          "kakan": 8,
+          "chi": 1
+        },
+        "opponent_riichi": 28,
+        "nonempty_walls": 27,
+        "maximum_states_in_one_wall": 12
+      }
+    },
+    "all_canonical_states_retained": true,
+    "worlds_per_state": 32,
+    "initial_arm_records": 27456,
+    "actual_startup_protocol_binding": "passed_complete",
+    "feature_only_comparison": "600featurecandidate retainedepoch0; no full matches; see kan-tile-feature-comparison-summary.json"
   },
   "limitations": [
     "Sampled16future advantages are not expert labels.",
