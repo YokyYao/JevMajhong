@@ -1,6 +1,6 @@
 {
   "model_id": "jev-call-tile-win-v1",
-  "stage": "development_complete_independent_confirmation_submitted",
+  "stage": "development_complete_confirmation_complete",
   "checkpoint_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
   "games": 192,
   "fresh_whole_wall_groups": 8,
@@ -79,13 +79,14 @@
   "fixed_before_matches_binding": "passed_complete",
   "manual_result_sha256": "30964d5a0bf03b0fff5584a865ea0e6c2ad615a83e3a1ad7f1f19a1cd50f462e",
   "confirmation": {
-    "status": "submitted",
+    "status": "passed_independent_own_win_confirmation",
     "games": 768,
     "fresh_whole_wall_groups": 32,
     "config": "configs/evaluation/call-tile-win-confirmation-v1.json",
     "same_checkpoint": true,
     "no_weights_selected_from_match_results": true,
-    "freshness_configs_checked": 230
+    "freshness_configs_checked": 230,
+    "summary": "call-tile-win-confirmation-summary.json"
   },
   "deployed": false,
   "raw_records_public": false,

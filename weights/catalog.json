@@ -1523,7 +1523,7 @@
     },
     "jev-call-tile-win-v1": {
       "role": "public-tile-nonlinear-own-win-first-call-component",
-      "status": "development-positive-confirmation-submitted-not-deployed",
+      "status": "independent-own-win-improvement-verified-not-deployed",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1-encoder-and-LoRA",
@@ -1595,13 +1595,42 @@
       "development_expected_games": 192,
       "adopted": false,
       "deployed": false,
-      "strength_improvement_proven": false,
+      "strength_improvement_proven": true,
       "experimental_weights_public": false,
       "development_summary": "docs/experiments/results/2026-11-12-play-input-audit/call-tile-win-development-summary.json",
       "development_hand_win_gain": 0.00768323112073112,
       "development_dealin_gain": 0.0099619708994709,
       "development_net_points_gain": -78.125,
-      "confirmation_expected_games": 768
+      "confirmation_expected_games": 768,
+      "strength_scope": "own hand wins under fixed whole-East simulation protocol only",
+      "confirmation_completed_games": 768,
+      "confirmation_summary": "docs/experiments/results/2026-11-12-play-input-audit/call-tile-win-confirmation-summary.json",
+      "confirmation_hand_win_gain": {
+        "gain": 0.022239414231601733,
+        "ci95": [
+          0.004955371864911063,
+          0.0395234565982924
+        ],
+        "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+      },
+      "confirmation_dealin_gain": {
+        "gain": 0.006626533189033188,
+        "ci95": [
+          -0.006010849139029515,
+          0.01926391551709589
+        ],
+        "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+      },
+      "confirmation_net_points": {
+        "gain": 323.4375,
+        "ci95": [
+          -675.9774669770954,
+          1322.8524669770954
+        ],
+        "independent_wall_streams": 32
+      },
+      "candidate_daiminkan_opportunities": 140,
+      "candidate_daiminkan_choices": 0
     }
   },
   "legacy_aliases": {

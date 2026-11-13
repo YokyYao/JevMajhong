@@ -1,6 +1,6 @@
 {
   "model_id": "jev-call-tile-win-v1",
-  "stage": "internal_fit_audited_development_complete_confirmation_submitted",
+  "stage": "internal_fit_audited_independent_confirmation_complete",
   "checkpoint_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
   "selected_epoch": 1,
   "epochs_run": 5,
@@ -246,7 +246,7 @@
   "seed_freshness_configurations_checked": 228,
   "seed_freshness_worktrees_checked": 3,
   "independent_fixed_checkpoint_event_recount_submitted": true,
-  "improvement_proven": false,
+  "improvement_proven": true,
   "adopted": false,
   "deployed": false,
   "experimental_weights_public": false,
@@ -258,5 +258,6 @@
     "The richer representation is an experiment, not a proven explanation for earlier failures.",
     "No new-model weights are part of the published Windows installer."
   ],
-  "development_summary": "call-tile-win-development-summary.json"
+  "development_summary": "call-tile-win-development-summary.json",
+  "independent_confirmation_summary": "call-tile-win-confirmation-summary.json"
 }

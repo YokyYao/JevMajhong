@@ -1,0 +1,598 @@
+{
+  "model_id": "jev-call-tile-win-v1",
+  "stage": "independent_confirmation_complete",
+  "checkpoint_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+  "games": 768,
+  "fresh_whole_wall_groups": 32,
+  "new_reference_games": 384,
+  "new_candidate_games": 384,
+  "reference_games_reused": 0,
+  "primary": "own hand win-rate gain, equal-weight matches and whole-wall paired CI; speed and net points reported separately",
+  "comparison": "unchanged Jev Play v1 versus the same frozen components plus the preselected Call Tile Win residual in pure chi/pon/pass windows",
+  "hand_win_paired": {
+    "gain": 0.022239414231601733,
+    "ci95": [
+      0.004955371864911063,
+      0.0395234565982924
+    ],
+    "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+  },
+  "dealin_rate_paired": {
+    "gain": 0.006626533189033188,
+    "ci95": [
+      -0.006010849139029515,
+      0.01926391551709589
+    ],
+    "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+  },
+  "fast_reward_paired": {
+    "gain": 0.011034346828900029,
+    "ci95": [
+      0.0037208924686803584,
+      0.0183478011891197
+    ],
+    "unit": "discounted own wins per hand, equal-weight match means, whole-wall paired CI"
+  },
+  "overall": {
+    "policies": {
+      "reference": {
+        "games": 384,
+        "mean_net_points": 2656.7708333333335,
+        "first_rate": 0.3645833333333333,
+        "top2_rate": 0.5911458333333334,
+        "fourth_rate": 0.18489583333333334,
+        "mean_rank": 2.2291666666666665,
+        "hand_win_rate": 0.22559551611396544,
+        "dealin_rate": 0.0929472209248015,
+        "dealin_event_rate": 0.0929472209248015,
+        "calls_per_game": 1.1458333333333333,
+        "mean_point_components": {
+          "draw_settlement": 57.291666666666664,
+          "final_unclaimed_pool": 80.72916666666667,
+          "riichi_deposits": -1546.875,
+          "ron_payments": -2622.9166666666665,
+          "tsumo_payments": -2558.3333333333335,
+          "win_income": 9246.875
+        },
+        "discounted_own_wins_per_hand": 0.09593750360735329,
+        "mean_table_draws_when_winning": 45.86749482401656,
+        "kan_opportunities": {
+          "ankan": 165,
+          "daiminkan": 141,
+          "kakan": 27
+        },
+        "kan_choices": {
+          "ankan": 29,
+          "daiminkan": 0,
+          "kakan": 14
+        },
+        "mean_match_hand_win_rate": 0.23024459626022126
+      },
+      "candidate": {
+        "games": 384,
+        "mean_net_points": 2980.2083333333335,
+        "first_rate": 0.3776041666666667,
+        "top2_rate": 0.578125,
+        "fourth_rate": 0.20833333333333334,
+        "mean_rank": 2.2526041666666665,
+        "hand_win_rate": 0.24789915966386555,
+        "dealin_rate": 0.10084033613445378,
+        "dealin_event_rate": 0.10270774976657329,
+        "calls_per_game": 2.09375,
+        "mean_point_components": {
+          "draw_settlement": 173.17708333333334,
+          "final_unclaimed_pool": 57.291666666666664,
+          "riichi_deposits": -1447.9166666666667,
+          "ron_payments": -3077.34375,
+          "tsumo_payments": -2433.8541666666665,
+          "win_income": 9708.854166666666
+        },
+        "discounted_own_wins_per_hand": 0.1069718504362533,
+        "mean_table_draws_when_winning": 44.772128060263654,
+        "kan_opportunities": {
+          "ankan": 148,
+          "daiminkan": 140,
+          "kakan": 35
+        },
+        "kan_choices": {
+          "ankan": 29,
+          "daiminkan": 0,
+          "kakan": 16
+        },
+        "mean_match_hand_win_rate": 0.252484010491823
+      }
+    },
+    "candidate_minus_reference": {
+      "gain": 323.4375,
+      "ci95": [
+        -675.9774669770954,
+        1322.8524669770954
+      ],
+      "independent_wall_streams": 32
+    }
+  },
+  "suites": {
+    "closed": {
+      "policies": {
+        "reference": {
+          "games": 128,
+          "mean_net_points": 3446.09375,
+          "first_rate": 0.3828125,
+          "top2_rate": 0.6015625,
+          "fourth_rate": 0.1796875,
+          "mean_rank": 2.1953125,
+          "hand_win_rate": 0.2288488210818308,
+          "dealin_rate": 0.09015256588072122,
+          "dealin_event_rate": 0.09015256588072122,
+          "calls_per_game": 1.1953125,
+          "mean_point_components": {
+            "draw_settlement": 85.9375,
+            "final_unclaimed_pool": 70.3125,
+            "riichi_deposits": -1546.875,
+            "ron_payments": -2568.75,
+            "tsumo_payments": -2472.65625,
+            "win_income": 9878.125
+          }
+        },
+        "candidate": {
+          "games": 128,
+          "mean_net_points": 3885.15625,
+          "first_rate": 0.40625,
+          "top2_rate": 0.5859375,
+          "fourth_rate": 0.1953125,
+          "mean_rank": 2.203125,
+          "hand_win_rate": 0.2594670406732118,
+          "dealin_rate": 0.09537166900420757,
+          "dealin_event_rate": 0.09537166900420757,
+          "calls_per_game": 2.1171875,
+          "mean_point_components": {
+            "draw_settlement": 210.9375,
+            "final_unclaimed_pool": 46.875,
+            "riichi_deposits": -1460.9375,
+            "ron_payments": -2987.5,
+            "tsumo_payments": -2155.46875,
+            "win_income": 10231.25
+          }
+        }
+      },
+      "candidate_minus_reference": {
+        "gain": 439.0625,
+        "ci95": [
+          -752.6928228060347,
+          1630.8178228060347
+        ],
+        "independent_wall_streams": 32
+      }
+    },
+    "mixed": {
+      "policies": {
+        "reference": {
+          "games": 128,
+          "mean_net_points": 1849.21875,
+          "first_rate": 0.359375,
+          "top2_rate": 0.546875,
+          "fourth_rate": 0.2109375,
+          "mean_rank": 2.3046875,
+          "hand_win_rate": 0.21896792189679218,
+          "dealin_rate": 0.09205020920502092,
+          "dealin_event_rate": 0.09205020920502092,
+          "calls_per_game": 1.1640625,
+          "mean_point_components": {
+            "draw_settlement": -117.1875,
+            "final_unclaimed_pool": 78.125,
+            "riichi_deposits": -1500,
+            "ron_payments": -2625,
+            "tsumo_payments": -2628.125,
+            "win_income": 8641.40625
+          }
+        },
+        "candidate": {
+          "games": 128,
+          "mean_net_points": 2096.09375,
+          "first_rate": 0.3671875,
+          "top2_rate": 0.5390625,
+          "fourth_rate": 0.234375,
+          "mean_rank": 2.328125,
+          "hand_win_rate": 0.23763736263736263,
+          "dealin_rate": 0.10302197802197802,
+          "dealin_event_rate": 0.10302197802197802,
+          "calls_per_game": 2.1875,
+          "mean_point_components": {
+            "draw_settlement": 58.59375,
+            "final_unclaimed_pool": 62.5,
+            "riichi_deposits": -1375,
+            "ron_payments": -3303.125,
+            "tsumo_payments": -2569.53125,
+            "win_income": 9222.65625
+          }
+        }
+      },
+      "candidate_minus_reference": {
+        "gain": 246.875,
+        "ci95": [
+          -1151.962897817149,
+          1645.712897817149
+        ],
+        "independent_wall_streams": 32
+      }
+    },
+    "strong": {
+      "policies": {
+        "reference": {
+          "games": 128,
+          "mean_net_points": 2675,
+          "first_rate": 0.3515625,
+          "top2_rate": 0.625,
+          "fourth_rate": 0.1640625,
+          "mean_rank": 2.1875,
+          "hand_win_rate": 0.22901849217638692,
+          "dealin_rate": 0.09672830725462304,
+          "dealin_event_rate": 0.09672830725462304,
+          "calls_per_game": 1.078125,
+          "mean_point_components": {
+            "draw_settlement": 203.125,
+            "final_unclaimed_pool": 93.75,
+            "riichi_deposits": -1593.75,
+            "ron_payments": -2675,
+            "tsumo_payments": -2574.21875,
+            "win_income": 9221.09375
+          }
+        },
+        "candidate": {
+          "games": 128,
+          "mean_net_points": 2959.375,
+          "first_rate": 0.359375,
+          "top2_rate": 0.609375,
+          "fourth_rate": 0.1953125,
+          "mean_rank": 2.2265625,
+          "hand_win_rate": 0.24679029957203993,
+          "dealin_rate": 0.10413694721825963,
+          "dealin_event_rate": 0.10984308131241084,
+          "calls_per_game": 1.9765625,
+          "mean_point_components": {
+            "draw_settlement": 250,
+            "final_unclaimed_pool": 62.5,
+            "riichi_deposits": -1507.8125,
+            "ron_payments": -2941.40625,
+            "tsumo_payments": -2576.5625,
+            "win_income": 9672.65625
+          }
+        }
+      },
+      "candidate_minus_reference": {
+        "gain": 284.375,
+        "ci95": [
+          -1274.658376914214,
+          1843.408376914214
+        ],
+        "independent_wall_streams": 32
+      }
+    }
+  },
+  "improvement_verified": true,
+  "net_point_improvement_verified": false,
+  "mean_dealin_cap": 0.01,
+  "risk_ci_upper_is_not_below_cap": true,
+  "checkpoint_selected_before_matches": true,
+  "independent_event_recount": {
+    "status": "passed_complete",
+    "stage": "independent_confirmation",
+    "games": 768,
+    "games_sha256": "d7abbf971fd6b39c485f6709eb21268580bcf57386f905205a81144b0728b843",
+    "checkpoint_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+    "reference_records_exact": 0,
+    "manual_four_seat_payment_records": 768,
+    "manual_final_ranks_checked": 768,
+    "terminal_unclaimed_pool_rule_included": true,
+    "whole_wall_groups": 32,
+    "paired_outcomes": {
+      "hand_win_paired": {
+        "gain": 0.022239414231601733,
+        "ci95": [
+          0.004955371864911063,
+          0.0395234565982924
+        ]
+      },
+      "dealin_rate_paired": {
+        "gain": 0.006626533189033188,
+        "ci95": [
+          -0.006010849139029515,
+          0.01926391551709589
+        ]
+      },
+      "fast_reward_paired": {
+        "gain": 0.011034346828900029,
+        "ci95": [
+          0.0037208924686803575,
+          0.0183478011891197
+        ]
+      }
+    },
+    "whole_wall_net_point_gain": 323.4375,
+    "whole_wall_ci95": [
+      -675.9774669770954,
+      1322.8524669770954
+    ],
+    "independent_strength_improvement_verified": true,
+    "new_simulations": 0,
+    "auditor_sha256": "a059b094418f2465eda491e3d28e38f8d0eaada09f8efdbb954b832f6a542a99",
+    "spec_sha256": "1b55c2d924e6caddacb4434a20b3468125c16a1dc687e2a71abaa5a2492e82b7"
+  },
+  "checkpoint_binding": {
+    "status": "passed_complete",
+    "template_sha256": "1be0734782f79f34156793b9808ff6026f59c9793fdc1beeb20004a49ff5f949",
+    "bound_spec_sha256": "1b55c2d924e6caddacb4434a20b3468125c16a1dc687e2a71abaa5a2492e82b7",
+    "checkpoint_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+    "selected_before_matches": true,
+    "new_simulations": 0,
+    "manual_audit_result_sha256": "39e102cecd92775c84e55ffb6cb670731e3da2d93677e59ad1311988107ab729"
+  },
+  "confirmation_result_sha256": "5da9ebce9d1ce3dc3b29399f2e6d7c126ef15973273a0c5a7bab093f97a6d699",
+  "manual_result_sha256": "39e102cecd92775c84e55ffb6cb670731e3da2d93677e59ad1311988107ab729",
+  "binding_result_sha256": "97e86fd868a91e4973969c2a81ef1ed49c802cb929fef4cd62d761bb82fdea09",
+  "deployed": false,
+  "weights_public": false,
+  "raw_records_public": false,
+  "reward_conflict_training_diagnostic": {
+    "train_states": 828,
+    "train_pairs": 959,
+    "routes": {
+      "closed": {
+        "states": 693,
+        "positive_win_option": 194,
+        "positive_win_option_with_nonpositive_utility": 65,
+        "utility_argmax_sacrifices_sampled_wins": 93,
+        "current_target_sacrifices_sampled_wins": 106,
+        "penalty_changes_target": 68,
+        "penalty_reduces_target_sampled_wins": 37,
+        "algebraic_target_sensitivity": {
+          "0.0": {
+            "changed_from_reference": 111,
+            "sampled_own_win_delta": 0.04513888888888889,
+            "sampled_dealin_delta": 0.0031114718614718615,
+            "sampled_fast_reward_delta": 0.03240290044332256,
+            "sampled_net_points_delta": 154.56349206349208
+          },
+          "0.5": {
+            "changed_from_reference": 109,
+            "sampled_own_win_delta": 0.04369588744588745,
+            "sampled_dealin_delta": -9.018759018759019e-05,
+            "sampled_fast_reward_delta": 0.03165735595595293,
+            "sampled_net_points_delta": 155.0820707070707
+          },
+          "1.0": {
+            "changed_from_reference": 111,
+            "sampled_own_win_delta": 0.041711760461760464,
+            "sampled_dealin_delta": -0.004374098124098124,
+            "sampled_fast_reward_delta": 0.03038257838784786,
+            "sampled_net_points_delta": 167.57305194805195
+          },
+          "2.0": {
+            "changed_from_reference": 124,
+            "sampled_own_win_delta": 0.03923160173160173,
+            "sampled_dealin_delta": -0.008658008658008658,
+            "sampled_fast_reward_delta": 0.028774349110142483,
+            "sampled_net_points_delta": 170.58080808080808
+          }
+        }
+      },
+      "closed_pon_yakuhai": {
+        "states": 54,
+        "positive_win_option": 22,
+        "positive_win_option_with_nonpositive_utility": 4,
+        "utility_argmax_sacrifices_sampled_wins": 7,
+        "current_target_sacrifices_sampled_wins": 6,
+        "penalty_changes_target": 9,
+        "penalty_reduces_target_sampled_wins": 6,
+        "algebraic_target_sensitivity": {
+          "0.0": {
+            "changed_from_reference": 21,
+            "sampled_own_win_delta": 0.1087962962962963,
+            "sampled_dealin_delta": 0.004629629629629629,
+            "sampled_fast_reward_delta": 0.0694157798309385,
+            "sampled_net_points_delta": 370.3703703703704
+          },
+          "0.5": {
+            "changed_from_reference": 22,
+            "sampled_own_win_delta": 0.10648148148148148,
+            "sampled_dealin_delta": -0.00636574074074074,
+            "sampled_fast_reward_delta": 0.068038684489921,
+            "sampled_net_points_delta": 373.66898148148147
+          },
+          "1.0": {
+            "changed_from_reference": 22,
+            "sampled_own_win_delta": 0.10648148148148148,
+            "sampled_dealin_delta": -0.00636574074074074,
+            "sampled_fast_reward_delta": 0.068038684489921,
+            "sampled_net_points_delta": 373.66898148148147
+          },
+          "2.0": {
+            "changed_from_reference": 22,
+            "sampled_own_win_delta": 0.0954861111111111,
+            "sampled_dealin_delta": -0.014467592592592593,
+            "sampled_fast_reward_delta": 0.06016856917372231,
+            "sampled_net_points_delta": 379.1666666666667
+          }
+        }
+      },
+      "closed_chi_tanyao_gain": {
+        "states": 46,
+        "positive_win_option": 30,
+        "positive_win_option_with_nonpositive_utility": 4,
+        "utility_argmax_sacrifices_sampled_wins": 5,
+        "current_target_sacrifices_sampled_wins": 6,
+        "penalty_changes_target": 4,
+        "penalty_reduces_target_sampled_wins": 4,
+        "algebraic_target_sensitivity": {
+          "0.0": {
+            "changed_from_reference": 28,
+            "sampled_own_win_delta": 0.1983695652173913,
+            "sampled_dealin_delta": 0.016304347826086956,
+            "sampled_fast_reward_delta": 0.15171972493859257,
+            "sampled_net_points_delta": 544.429347826087
+          },
+          "0.5": {
+            "changed_from_reference": 28,
+            "sampled_own_win_delta": 0.1983695652173913,
+            "sampled_dealin_delta": 0.016304347826086956,
+            "sampled_fast_reward_delta": 0.15171972493859257,
+            "sampled_net_points_delta": 544.429347826087
+          },
+          "1.0": {
+            "changed_from_reference": 27,
+            "sampled_own_win_delta": 0.19429347826086957,
+            "sampled_dealin_delta": 0.010869565217391304,
+            "sampled_fast_reward_delta": 0.14918055767076854,
+            "sampled_net_points_delta": 549.320652173913
+          },
+          "2.0": {
+            "changed_from_reference": 25,
+            "sampled_own_win_delta": 0.18885869565217392,
+            "sampled_dealin_delta": 0.007472826086956522,
+            "sampled_fast_reward_delta": 0.14461388070489245,
+            "sampled_net_points_delta": 567.3233695652174
+          }
+        }
+      },
+      "opponent_riichi": {
+        "states": 384,
+        "positive_win_option": 82,
+        "positive_win_option_with_nonpositive_utility": 27,
+        "utility_argmax_sacrifices_sampled_wins": 46,
+        "current_target_sacrifices_sampled_wins": 54,
+        "penalty_changes_target": 31,
+        "penalty_reduces_target_sampled_wins": 11,
+        "algebraic_target_sensitivity": {
+          "0.0": {
+            "changed_from_reference": 30,
+            "sampled_own_win_delta": 0.021484375,
+            "sampled_dealin_delta": -0.0013834635416666667,
+            "sampled_fast_reward_delta": 0.017682199107812265,
+            "sampled_net_points_delta": 138.24869791666666
+          },
+          "0.5": {
+            "changed_from_reference": 32,
+            "sampled_own_win_delta": 0.020914713541666668,
+            "sampled_dealin_delta": -0.004231770833333333,
+            "sampled_fast_reward_delta": 0.01745472230185702,
+            "sampled_net_points_delta": 144.873046875
+          },
+          "1.0": {
+            "changed_from_reference": 38,
+            "sampled_own_win_delta": 0.020833333333333332,
+            "sampled_dealin_delta": -0.00732421875,
+            "sampled_fast_reward_delta": 0.017381980055840993,
+            "sampled_net_points_delta": 154.150390625
+          },
+          "2.0": {
+            "changed_from_reference": 51,
+            "sampled_own_win_delta": 0.019612630208333332,
+            "sampled_dealin_delta": -0.011637369791666666,
+            "sampled_fast_reward_delta": 0.016408459289600122,
+            "sampled_net_points_delta": 162.939453125
+          }
+        }
+      },
+      "open": {
+        "states": 135,
+        "positive_win_option": 41,
+        "positive_win_option_with_nonpositive_utility": 2,
+        "utility_argmax_sacrifices_sampled_wins": 14,
+        "current_target_sacrifices_sampled_wins": 16,
+        "penalty_changes_target": 26,
+        "penalty_reduces_target_sampled_wins": 11,
+        "algebraic_target_sensitivity": {
+          "0.0": {
+            "changed_from_reference": 29,
+            "sampled_own_win_delta": 0.03796296296296296,
+            "sampled_dealin_delta": -0.01597222222222222,
+            "sampled_fast_reward_delta": 0.02722351017277355,
+            "sampled_net_points_delta": 343.1712962962963
+          },
+          "0.5": {
+            "changed_from_reference": 32,
+            "sampled_own_win_delta": 0.038425925925925926,
+            "sampled_dealin_delta": -0.019675925925925927,
+            "sampled_fast_reward_delta": 0.027492076423489765,
+            "sampled_net_points_delta": 369.7453703703704
+          },
+          "1.0": {
+            "changed_from_reference": 37,
+            "sampled_own_win_delta": 0.038657407407407404,
+            "sampled_dealin_delta": -0.02361111111111111,
+            "sampled_fast_reward_delta": 0.028282063410251055,
+            "sampled_net_points_delta": 387.037037037037
+          },
+          "2.0": {
+            "changed_from_reference": 49,
+            "sampled_own_win_delta": 0.03287037037037037,
+            "sampled_dealin_delta": -0.035416666666666666,
+            "sampled_fast_reward_delta": 0.02336884554356596,
+            "sampled_net_points_delta": 395.64814814814815
+          }
+        }
+      },
+      "all_train": {
+        "states": 828,
+        "positive_win_option": 235,
+        "positive_win_option_with_nonpositive_utility": 67,
+        "utility_argmax_sacrifices_sampled_wins": 107,
+        "current_target_sacrifices_sampled_wins": 122,
+        "penalty_changes_target": 94,
+        "penalty_reduces_target_sampled_wins": 48,
+        "algebraic_target_sensitivity": {
+          "0.0": {
+            "changed_from_reference": 140,
+            "sampled_own_win_delta": 0.043968900966183576,
+            "sampled_dealin_delta": 0.0,
+            "sampled_fast_reward_delta": 0.031558434638341744,
+            "sampled_net_points_delta": 185.31476449275362
+          },
+          "0.5": {
+            "changed_from_reference": 141,
+            "sampled_own_win_delta": 0.042836654589371984,
+            "sampled_dealin_delta": -0.003283514492753623,
+            "sampled_fast_reward_delta": 0.03097823429305133,
+            "sampled_net_points_delta": 190.08152173913044
+          },
+          "1.0": {
+            "changed_from_reference": 148,
+            "sampled_own_win_delta": 0.04121376811594203,
+            "sampled_dealin_delta": -0.007510567632850242,
+            "sampled_fast_reward_delta": 0.03004010311976142,
+            "sampled_net_points_delta": 203.35522342995168
+          },
+          "2.0": {
+            "changed_from_reference": 173,
+            "sampled_own_win_delta": 0.03819444444444445,
+            "sampled_dealin_delta": -0.013020833333333334,
+            "sampled_fast_reward_delta": 0.02789301700689631,
+            "sampled_net_points_delta": 207.27657004830917
+          }
+        }
+      }
+    },
+    "script_sha256": "3a542180452400ba8fbd2c5cdffef197630d51db3537940d01f1dadb89e558fa",
+    "result_sha256": "8cc6622039e8566ae32cd7843571eddc6e908832426715f603674cd4758db6de",
+    "optimizer_updates": 0,
+    "new_simulations": 0,
+    "held_states_analyzed": 0,
+    "match_results_read": false,
+    "coefficient_selected": false,
+    "limitations": [
+      "Algebraic target sensitivity is not a trained or deployable policy, or a strength result.",
+      "No penalty coefficient is selected from this diagnostic.",
+      "Sampled labels are noisy and conditional on fixed opponent concealed hands and Play continuation.",
+      "Shared source loading verifies held-shard integrity, but no held state enters these aggregates.",
+      "Current independent confirmation continues with unchanged weights and reward."
+    ]
+  },
+  "limitations": [
+    "Own-win improvement holds for this fixed simulation protocol; it is not human-match strength evidence.",
+    "Mean risk satisfies the predeclared cap; its confidence interval does not prove the increase is below the cap.",
+    "Net-point interval includes zero; mean rank and top-two rate do not improve.",
+    "Candidate chooses daiminkan0/140; kan routing stays original Play.",
+    "Held sampled-positive chi-route recovery remains0/9; this result does not prove all missed chi cases fixed.",
+    "Desktop compatibility with reconstructed or unknown metadata still requires validation; installer unchanged."
+  ]
+}
