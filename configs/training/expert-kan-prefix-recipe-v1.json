@@ -1,0 +1,18 @@
+{
+  "recipe_kind": "unadmitted_observed_expert_kan_prefix_extraction",
+  "command": "jevmahjong prepare-prefix-kan --config GENERATED_PRIVATE_MANIFEST.json",
+  "output_schema": "public-prefix-kan-v1",
+  "requires_private_fields": [
+    "catalog_index",
+    "catalog_index_sha256",
+    "archives:path_to_sha256",
+    "out",
+    "shadow_seed"
+  ],
+  "whole_group_selection": "previously declared train groups minus every historical validation/test group; no outcome-sign filter",
+  "input_construction": "native RiichiEnv from prior MJAI events; request built before the event used as its label",
+  "negative_labels": "reaction pass only if following draw identifies no claim; censored other-player reactions excluded; actual non-kan self choices retained",
+  "source_integrity": "raw archives and catalog sha256 verified before and after extraction",
+  "admission": "pending independent source audit; producer cannot self-admit; existing LoRA pool rejects this new schema",
+  "raw_data_and_experimental_weights_private": true
+}

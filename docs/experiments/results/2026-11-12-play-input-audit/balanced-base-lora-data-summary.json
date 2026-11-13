@@ -25,7 +25,7 @@
   "LoRA_training_started": true,
   "old_pending_kan_fit_chain_cancelled": true,
   "running_evaluation_preserved": true,
-  "core_tests_passed": 173,
+  "core_tests_passed": 178,
   "raw_records_public": false,
   "test_payloads_opened": false,
   "weights_public": false,
@@ -1072,6 +1072,98 @@
         "pseudo_labels_are_not_expert_truth": true,
         "step": 256,
         "upstream_hard_label_nll": 1.3792140245314188
+      },
+      {
+        "weighted_target_ce": 1.250163008730492,
+        "phase_target_ce": {
+          "call_window": 0.7402015754430326,
+          "closed_discard": 1.4931588005644238,
+          "kan_window": 1.9897835637843535,
+          "open_discard": 1.283459488271869
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.6125,
+          "closed_discard": 0.4479166666666667,
+          "open_discard": 0.6041666666666666
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 384,
+        "upstream_hard_label_nll": 1.315910744408444
+      },
+      {
+        "weighted_target_ce": 1.2642820904481487,
+        "phase_target_ce": {
+          "call_window": 0.7832056282096761,
+          "closed_discard": 1.5190914424572826,
+          "kan_window": 1.985216093826659,
+          "open_discard": 1.2323422409406788
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.6875,
+          "closed_discard": 0.4583333333333333,
+          "open_discard": 0.5833333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 512,
+        "upstream_hard_label_nll": 1.325151136236573
+      },
+      {
+        "weighted_target_ce": 1.1900018531591727,
+        "phase_target_ce": {
+          "call_window": 0.6747148084041499,
+          "closed_discard": 1.4601316668490754,
+          "kan_window": 1.956632116144992,
+          "open_discard": 1.1634827737429716
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.6125,
+          "closed_discard": 0.4791666666666667,
+          "open_discard": 0.6458333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 640,
+        "upstream_hard_label_nll": 1.2437428755447901
+      },
+      {
+        "weighted_target_ce": 1.1501987799480218,
+        "phase_target_ce": {
+          "call_window": 0.6582997174602501,
+          "closed_discard": 1.4099065042710321,
+          "kan_window": 1.7929294989690143,
+          "open_discard": 1.1430223141976577
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.65,
+          "closed_discard": 0.4791666666666667,
+          "open_discard": 0.6458333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 768,
+        "upstream_hard_label_nll": 1.1933410114661551
       }
     ],
     "initial_adapter_tensors_equal_v1": true,
@@ -1154,6 +1246,59 @@
       "new_strength_matches": 0,
       "uses_different_shadow_random_seed": true
     },
-    "route_warning": "At128 all80expertcallwindows choosechi/pon and all14daiminkanwindows choosekan; at256 all14daiminkanwindows choosepass. LowerCE or morekan choices do not prove contextual skill."
+    "route_warning": "At128 all80expertcallwindows choosechi/pon and all14daiminkanwindows choosekan; at256 all14daiminkanwindows choosepass. LowerCE or morekan choices do not prove contextual skill.",
+    "legacy_replay_repair_full_public_probe": {
+      "status": "replay_prefix_shadow_probe_only",
+      "checked_decisions": 12602,
+      "completed_native_games": 32,
+      "action_opportunities": {
+        "pon": 995,
+        "chi": 1670,
+        "reach": 442,
+        "daiminkan": 35,
+        "hora": 109,
+        "ankan": 18,
+        "kakan": 3
+      },
+      "mismatches": [],
+      "training_records_admitted": 0,
+      "new_strength_matches": 0,
+      "uses_different_shadow_random_seed": true,
+      "checks_shared_public_request_and_features": true,
+      "normalizes_nonsemantic_physical_tile_copy_ids": true
+    }
+  },
+  "expert_prefix_kan_candidate_data": {
+    "status": "expert_kan_prefix_extracted_pending_independent_audit",
+    "source_sha256": "1e1684f48e73ace5ecaa77b468e86b4585976db0d17376b175ea8dd9dc31c1c9",
+    "matches_replayed": 6603,
+    "records": 47436,
+    "nonempty_match_groups": 6437,
+    "actual_observed_action_counts": {
+      "none": 15754,
+      "dahai": 24198,
+      "kakan": 2390,
+      "ankan": 3347,
+      "pon": 668,
+      "reach": 487,
+      "daiminkan": 536,
+      "chi": 56
+    },
+    "failed_matches": 0,
+    "source_archive_years": [
+      2019,
+      2026
+    ],
+    "training_admitted": false,
+    "independent_source_audit_required": true,
+    "inputs_built_before_label_event": true,
+    "censored_passes_excluded": true,
+    "all_historical_held_groups_excluded": true,
+    "sealed_test_payloads_opened": false,
+    "current_v2_training_data_changed": false,
+    "raw_records_public": false,
+    "synthetic_tests": "178coretests passed;actual native menus/publicfeatures plus prefix input invariance under later pon/kan choice,observed declined self-kan/pass cases and held-payload exclusion.",
+    "expert_actions_not_guaranteed_optimal": true,
+    "new_strength_evaluation_games": 0
   }
 }
