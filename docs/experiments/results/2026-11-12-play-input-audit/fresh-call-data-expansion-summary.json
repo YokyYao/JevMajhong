@@ -1,0 +1,44 @@
+{
+  "stage": "fresh_native_collection_started_after_anchored_fits_failed",
+  "snapshot_at": "2026-11-13T13:38:03.796446+00:00",
+  "baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+  "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
+  "new_native_walls": 128,
+  "planned_wall_split": {
+    "train": 96,
+    "held": 32
+  },
+  "planned_label_states": {
+    "train": 768,
+    "held": 256
+  },
+  "planned_states_per_wall": 8,
+  "label_sample_not_finalized": true,
+  "next": "Audit native data then inspect public route capacities before registering exact sample. Keep existing reward; no outcome-based sample selection.",
+  "seed_freshness_configs_checked": 301,
+  "seed_freshness_conflicts": 0,
+  "old_validation_used_for_training": false,
+  "new_optimizer_started": false,
+  "new_strength_evidence": false,
+  "kan_track": {
+    "states": 457,
+    "train_states": 366,
+    "held_states": 91,
+    "train_routes": {
+      "ankan": 172,
+      "daiminkan": 146,
+      "kakan": 48
+    },
+    "held_routes": {
+      "ankan": 42,
+      "daiminkan": 43,
+      "kakan": 6
+    },
+    "parent_future_audit": "passed_complete",
+    "complete_options": "started",
+    "fit": "not_started"
+  },
+  "raw_records_public": false,
+  "weights_public": false,
+  "deployed": false
+}

@@ -1,6 +1,6 @@
 {
-  "stage": "reference_anchored_head_preflight_passed_not_fitted",
-  "snapshot_at": "2026-11-13T13:21:29.162589+00:00",
+  "stage": "both_anchored_short_fits_retained_starting_policy",
+  "snapshot_at": "2026-11-13T13:38:03.796446+00:00",
   "model_id": "jev-chi-head-anchor-win-v1",
   "reason": "Failed unanchored head development and train-only evidence of broad probability drift and distribution mismatch. Causal explanation is not established.",
   "reference_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
@@ -47,7 +47,7 @@
   "weights_initialized_from_failed_head": false,
   "fixed_calling_contexts_per_decision": 1,
   "extra_inference_networks": 0,
-  "optimizer_updates": 0,
+  "optimizer_updates": 144,
   "new_simulations": 0,
   "fit_config": "configs/training/chi-head-anchor-win-fit-v1.json",
   "fit_audit_config": "configs/evaluation/chi-head-anchor-win-fit-audit-v1.json",
@@ -68,5 +68,99 @@
     "Anchor KL<=0.01 is a predeclared conservative bound, not a proven optimal threshold.",
     "Additional train-only anchor inputs and regularization change the recipe; this is not a matched architecture comparison.",
     "No improved policy has yet been established; the verified baseline remains in use."
-  ]
+  ],
+  "fit_results": [
+    {
+      "model_id": "jev-chi-head-anchor-win-v1",
+      "learning_rate": 0.0001,
+      "epochs": 3,
+      "optimizer_updates": 72,
+      "selected_epoch": 0,
+      "selected_is_starting_policy": true,
+      "fit_audit_status": "passed_complete",
+      "eligible_for_development": false,
+      "stop_reason": "held_actual_choices_stalled",
+      "curve": [
+        {
+          "epoch": 0,
+          "anchor_kl": 8.17075114865237e-14,
+          "mean_sampled_hand_win_gain": 0.0,
+          "mean_sampled_dealin_change": 0.0,
+          "mean_label_utility_gain": 0.0,
+          "changed_argmax_states": 0
+        },
+        {
+          "epoch": 1,
+          "anchor_kl": 0.018994412575689217,
+          "mean_sampled_hand_win_gain": 0.0029296875,
+          "mean_sampled_dealin_change": 0.0009765625,
+          "mean_label_utility_gain": 0.0013935563999446679,
+          "changed_argmax_states": 1
+        },
+        {
+          "epoch": 2,
+          "anchor_kl": 0.033767015195348485,
+          "mean_sampled_hand_win_gain": 0.001953125,
+          "mean_sampled_dealin_change": 0.0107421875,
+          "mean_label_utility_gain": -0.019403665606545415,
+          "changed_argmax_states": 9
+        },
+        {
+          "epoch": 3,
+          "anchor_kl": 0.01806340651071636,
+          "mean_sampled_hand_win_gain": 0.001953125,
+          "mean_sampled_dealin_change": 0.00537109375,
+          "mean_label_utility_gain": -0.008459960203213436,
+          "changed_argmax_states": 8
+        }
+      ]
+    },
+    {
+      "model_id": "jev-chi-head-anchor-win-v2",
+      "learning_rate": 5e-05,
+      "epochs": 3,
+      "optimizer_updates": 72,
+      "selected_epoch": 0,
+      "selected_is_starting_policy": true,
+      "fit_audit_status": "passed_complete",
+      "eligible_for_development": false,
+      "stop_reason": "held_actual_choices_stalled",
+      "curve": [
+        {
+          "epoch": 0,
+          "anchor_kl": 8.17075114865237e-14,
+          "mean_sampled_hand_win_gain": 0.0,
+          "mean_sampled_dealin_change": 0.0,
+          "mean_label_utility_gain": 0.0,
+          "changed_argmax_states": 0
+        },
+        {
+          "epoch": 1,
+          "anchor_kl": 0.005914883875952866,
+          "mean_sampled_hand_win_gain": -0.0048828125,
+          "mean_sampled_dealin_change": 0.00146484375,
+          "mean_label_utility_gain": -0.00855032396385544,
+          "changed_argmax_states": 4
+        },
+        {
+          "epoch": 2,
+          "anchor_kl": 0.011131298222755008,
+          "mean_sampled_hand_win_gain": 0.0,
+          "mean_sampled_dealin_change": 0.0,
+          "mean_label_utility_gain": 0.0,
+          "changed_argmax_states": 0
+        },
+        {
+          "epoch": 3,
+          "anchor_kl": 0.014462363829184139,
+          "mean_sampled_hand_win_gain": 0.0009765625,
+          "mean_sampled_dealin_change": 0.00634765625,
+          "mean_label_utility_gain": -0.011512857362607818,
+          "changed_argmax_states": 9
+        }
+      ]
+    }
+  ],
+  "interpretation": "v1 epoch1 has positive internal sampled hand-win gain but exceeds the predeclared KL limit; v2 halves learning rate but no snapshot meets all hand-win, utility, deal-in and KL conditions. Neither enters development. No architecture superiority or improvement established.",
+  "next": "Stop learning-rate-only search on these512states. Add128fresh native walls, inspect public route capacities, register balanced sampling and complete-option labels before another fit; preserve old validation and consumed development walls."
 }

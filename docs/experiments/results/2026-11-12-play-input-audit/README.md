@@ -270,3 +270,6 @@ v3实际将46／828个训练局面所在的公开门清断幺加速吃牌路线�
 
 
 决策头192场开发已独立复算，和牌率−2.8679个百分点、净点−1292.71点／场，未采用且未进入确认。训练端概率漂移诊断后，已登记带1024个无奖励训练参考窗口的约束续训；129项检查及实际起点核对通过，尚未产生新改进结论。[开发与漂移聚合](chi-head-comparison-summary.json) · [约束训练方案](chi-head-anchor-training-summary.json)。
+
+
+参考约束短训 v1/v2 均保留起点，无新比赛提升证据。已停止同数据的学习率搜索，启动128个新牌山的吃碰来源采集和457个杠牌局面的完整选项扩展；详情见 [短训聚合](chi-head-anchor-training-summary.json)、[扩充计划](fresh-call-data-expansion-summary.json) 与 [训练方案](../../plans/play-fresh-call-stream-20261112.md)。
