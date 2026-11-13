@@ -309,3 +309,10 @@ v5的192场及独立原始事件审计已完成：和牌率配对差−0.410个�
 Jev Chi Win Compatible v1更新已有吃碰头，无新增小网络。7轮336更新后选第4轮，独立奖励与目标损失审计通过；内部验证和牌差+0.317个百分点、KL0.008062，不代表整场提升。实际GPU预检及全新192场开发依次推进，开发通过才进入768场独立确认。153项核心检查通过；未替换发布模型。
 
 [上一轮完整结果](chi-head-anchor-training-summary.json) · [训练目标诊断](chi-win-target-direction-summary.json) · [本轮配方与状态](chi-win-compatible-training-summary.json)。
+
+
+## 后续主线：整理已有数据，从base重训LoRA
+
+按用户最新要求，先对71组既有数据建立私有逐条索引，区分专家牌谱、模拟分支、无标签窗口、视角和修订版；完成去重和历史保留组隔离后再冻结配比。采用同一固定预训练base，新建LoRA与统一动作头，旧隐藏特征缓存不用于LoRA反向传播。尚未开始本次LoRA训练。旧杠小网络尚未启动的拟合下游已取消，现有采集和整场评估继续。156项核心检查通过。
+
+[完整新方案](../../plans/balanced-base-lora-20261114.md) · [分类聚合状态](balanced-base-lora-data-summary.json)。
