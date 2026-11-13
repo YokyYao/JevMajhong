@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -35,6 +36,18 @@ def freeze_source(root):
     return target
 
 
+def existing_source(root, identity):
+    """Select an already frozen package without changing an older launch."""
+    if re.fullmatch(r'[0-9a-f]{64}', identity) is None:
+        raise ValueError('Expected a lowercase SHA256 source identity')
+    target = root / 'runs/code' / identity
+    if not (target / 'jevmahjong').is_dir():
+        raise ValueError('Requested source snapshot is missing')
+    if tree_digest(target / 'jevmahjong') != identity:
+        raise ValueError('Requested source snapshot changed')
+    return target
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('command', choices=('collect', 'collect-defense-states', 'collect-call-states', 'collect-kan-states', 'collect-ev', 'audit-defense-states', 'audit-native-states', 'audit-futures', 'audit-context-fit', 'audit-call-head', 'train', 'train-context', 'train-call-head', 'evaluate'))
@@ -42,6 +55,7 @@ def main():
     parser.add_argument('--resume', action='store_true')
     parser.add_argument('--prepare-only', action='store_true', help='Pin source/configuration without starting work')
     parser.add_argument('--registered', action='store_true', help='Use a previously pinned launch; do not resume module state')
+    parser.add_argument('--source-sha', help='For a new launch, reuse a verified existing source snapshot')
     parser.add_argument('--max-walls',type=int)
     args = parser.parse_args(); config = json.loads(args.config.read_text())
     if args.max_walls is not None and args.command not in ('collect-defense-states','collect-call-states','collect-kan-states'):
@@ -59,8 +73,13 @@ def main():
         source = Path(saved['source'])
         if tree_digest(source / 'jevmahjong') != saved['source_sha256']:
             raise ValueError('Original source snapshot changed')
+        if args.source_sha is not None:
+            if args.source_sha != saved['source_sha256']:
+                raise ValueError('Registered source identity differs; choose a new output directory')
+            if existing_source(ROOT, args.source_sha).resolve() != source.resolve():
+                raise ValueError('Registered source location differs')
     else:
-        source = freeze_source(ROOT)
+        source = freeze_source(ROOT) if args.source_sha is None else existing_source(ROOT, args.source_sha)
         saved = {'command': args.command, 'source': str(source), 'source_sha256': source.name, 'config': config}
         record.write_text(json.dumps(saved, indent=2) + '\n')
     frozen_config = launches / (key + '-config.json')

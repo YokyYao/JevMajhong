@@ -39,7 +39,12 @@
     "fit": "complete_and_independently_audited",
     "selected_epoch": 7,
     "eligible_for_development": true,
-    "model_id": "jev-kan-win-v1"
+    "model_id": "jev-kan-win-v1",
+    "v1_development": "complete_no_own_win_gain",
+    "v1_adopted": false,
+    "v2_fit": "complete_retained_epoch0",
+    "new_native_walls": 128,
+    "new_native_stage": "submitted"
   },
   "raw_records_public": false,
   "weights_public": false,

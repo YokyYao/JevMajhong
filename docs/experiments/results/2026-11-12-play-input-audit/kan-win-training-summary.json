@@ -1,6 +1,6 @@
 {
-  "stage": "fit_and_independent_audit_passed_native_gpu_preflight_running",
-  "snapshot_at": "2026-11-13T15:51:36.464517+00:00",
+  "stage": "development_complete_no_own_win_gain_reference_retained",
+  "snapshot_at": "2026-11-13T16:38:27.838165+00:00",
   "model_id": "jev-kan-win-v1",
   "reference": "verified Call Tile Win v1, preserved once",
   "reference_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
@@ -79,16 +79,79 @@
     }
   },
   "actual_cpu_selected_model_contract": "passed",
-  "actual_gpu_native_parity": "running_not_yet_verified",
+  "actual_gpu_native_parity": "passed_three_routes",
   "development": {
-    "games_planned": 192,
+    "games": 192,
     "new_walls": 8,
-    "started": false,
-    "independent_event_audit_scheduled": true
+    "reference_games_reused": 0,
+    "hand_win_paired": {
+      "gain": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "dealin_rate_paired": {
+      "gain": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "fast_reward_paired": {
+      "gain": -1.9049800196455254e-05,
+      "ci95": [
+        -6.409541972899032e-05,
+        2.5995819336079815e-05
+      ],
+      "unit": "discounted own wins per hand, equal-weight match means, whole-wall paired CI"
+    },
+    "net_points_paired": {
+      "gain": 10.416666666666666,
+      "ci95": [
+        -14.2148359540915,
+        35.048169287424834
+      ],
+      "independent_wall_streams": 8
+    },
+    "eligible_for_confirmation": false,
+    "independent_event_audit": "passed_complete",
+    "four_seat_payment_and_rank_records_audited": 192,
+    "paired_logs_identical": 93,
+    "paired_logs_divergent": 3,
+    "kan_choices": {
+      "reference": {
+        "choices": {
+          "ankan": 1,
+          "daiminkan": 0,
+          "kakan": 0
+        },
+        "opportunities": {
+          "ankan": 10,
+          "daiminkan": 37,
+          "kakan": 10
+        }
+      },
+      "candidate": {
+        "choices": {
+          "ankan": 3,
+          "daiminkan": 1,
+          "kakan": 0
+        },
+        "opportunities": {
+          "ankan": 10,
+          "daiminkan": 37,
+          "kakan": 10
+        }
+      }
+    },
+    "degenerate_interval_note": "All observed paired own-win/deal-in differences are zero in these8wallgroups. The zero-width interval is not proof of equal underlying ability or of no rare effect."
   },
   "confirmation": {
-    "games_if_eligible": 768,
-    "started": false
+    "started": false,
+    "reason": "No observed own-win improvement; not eligible."
   },
   "raw_records_public": false,
   "weights_public": false,
@@ -98,5 +161,6 @@
     "Internal sampled own-win improvement is only0.1374percentage points and is concentrated in one changed kakan validation state.",
     "Ankan and daiminkan validation subsets have zero sampled own-win gain; calling defects are not solved.",
     "Small internal signals require new paired full matches and independent event auditing before any strength claim."
-  ]
+  ],
+  "candidate_adopted": false
 }
