@@ -1,0 +1,50 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "call_context_baseline": {
+    "checkpoint": "runs/jev-call-tile-win-v1/jev-call-tile-win-v1-e01.pt",
+    "sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+  },
+  "train_scopes": [
+    "calling"
+  ],
+  "decision_filter": "all",
+  "data": [
+    "runs/chi-win-options-v4-r2/source_0"
+  ],
+  "reward": {
+    "mode": "own_win_first_v1",
+    "win_weight": 1.0,
+    "fast_weight": 0.25,
+    "dealin_penalty": 2.0,
+    "net_weight": 0.0,
+    "point_scale": 8000.0,
+    "speed_gamma": 0.98
+  },
+  "epochs": 12,
+  "batch": 16,
+  "patience_epochs": 3,
+  "lr": 0.0001,
+  "weight_decay": 0.001,
+  "seed": 2026111319,
+  "reference_prior_strength": 0.05,
+  "max_held_dealin_increase": 0.01,
+  "selection_objective": "hand_win",
+  "out": "runs/jev-chi-head-anchor-win-v5",
+  "model_id": "jev-chi-head-anchor-win-v5",
+  "fit_model": "complete_option_call_head",
+  "anchor_policy": "calling_baseline_kl",
+  "anchor_beta": 2.0,
+  "anchor_kl_limit": 0.01,
+  "reference_anchor_states": 1024,
+  "anchor_batch": 16,
+  "route_loss_weights": {},
+  "required_data_audits": [
+    "runs/chi-win-native-audit-v2",
+    "runs/chi-win-future-audit-v4",
+    "runs/chi-win-option-audit-v4-r2"
+  ],
+  "reference_anchor_data": [
+    "runs/chi-win-native-v2"
+  ]
+}

@@ -1,6 +1,6 @@
 {
-  "stage": "first_labels_audited_corrected_full_menu_expansion_running",
-  "snapshot_at": "2026-11-13T18:12:08.872862+00:00",
+  "stage": "complete_data_audits_beta2_head_development_running",
+  "snapshot_at": "2026-11-13T19:27:07.491376+00:00",
   "baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
   "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
   "new_native_walls": 128,
@@ -14,11 +14,11 @@
   },
   "planned_states_per_wall": 8,
   "label_sample_not_finalized": false,
-  "next": "Complete1426pair full-menu expansion/audit, then exact count and anchor start binding, anchored head fit and independent audit.",
+  "next": "Finish192newdevelopment andindependent event/payment/rank audit; conditional confirmation only for unchanged admitted weights.",
   "seed_freshness_configs_checked": 301,
   "seed_freshness_conflicts": 0,
   "old_validation_used_for_training": false,
-  "new_optimizer_started": false,
+  "new_optimizer_started": true,
   "new_strength_evidence": false,
   "kan_track": "Independent429state kan source fullyaudited;32future labelsrunning under existing immutable pipeline.",
   "raw_records_public": false,
@@ -54,16 +54,18 @@
     "outcome_based_selection": false
   },
   "training_recipe": {
-    "model_id": "jev-chi-head-anchor-win-v4",
-    "fit_config": "configs/training/chi-head-anchor-win-fit-v4.json",
+    "model_id": "jev-chi-head-anchor-win-v5",
+    "fit_config": "configs/training/chi-head-anchor-win-fit-v5.json",
     "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
     "same_previous_hyperparameters_reward_anchors_baseline": true,
     "train_states": 768,
     "held_states": 256,
     "anchor_states": 1024,
-    "actual_new_optimizer_updates": 0,
+    "actual_new_optimizer_updates": 192,
     "calling_pointer_updated_fixed_MLP_applied_once": true,
-    "model_id_revision_does_not_mean_weights_exist": true
+    "model_id_revision_does_not_mean_weights_exist": true,
+    "anchor_beta": 2.0,
+    "reason": "v4candidatefailedKL; singlefactor stronger reference penalty selected a new eligible checkpoint without relaxing limits."
   },
   "automatic_sequence": [
     "correctedGPUfullmenu",
@@ -226,5 +228,59 @@
       "new_simulations_in_check": 0,
       "checked_at": "2026-11-13T18:12:08.872862+00:00"
     }
+  },
+  "full_menu_completion": {
+    "status": "collection_complete",
+    "method": "paired_future_ev_v1",
+    "original_unique_states": 1024,
+    "pairs": 1426,
+    "worlds_per_state": 16,
+    "new_native_hand_rollouts": 6432,
+    "reused_control_rollouts": 16384,
+    "reused_branch_rollouts": 16384,
+    "fresh_matches": 0,
+    "rows_by_category": {
+      "chi": 823,
+      "pon": 603
+    },
+    "source_outputs": [
+      "/home/junchi.yao/mahjong-discard-defense/runs/chi-win-options-v4-r2/source_0"
+    ],
+    "optimizer_updates": 0,
+    "human_test_opened": false
+  },
+  "full_menu_audit": {
+    "status": "passed_complete",
+    "role": "data consistency audit, not policy strength",
+    "pairs": 1426,
+    "states": 1024,
+    "train_pairs": 1083,
+    "held_pairs": 343,
+    "train_states": 768,
+    "held_states": 256,
+    "worlds_per_state": 16,
+    "prefixes_replayed": 1024,
+    "future_walls_rederived": 16384,
+    "arm_records_audited": 45632,
+    "whole_wall_disjoint": true,
+    "cached_head_probability_max_error": 0.0,
+    "new_simulations": 0,
+    "independent_strength_proven": false
+  },
+  "actual_start_binding": {
+    "status": "exact_counts_and_actual_anchor_start_bound_before_optimizer",
+    "states_by_split": {
+      "train": 768,
+      "held": 256
+    },
+    "pairs_by_split": {
+      "train": 1083,
+      "held": 343
+    },
+    "anchor_states": 1024,
+    "max_starting_probability_error": 7.228700713568514e-07,
+    "changed_starting_actions": 0,
+    "optimizer_updates": 0,
+    "new_simulations": 0
   }
 }

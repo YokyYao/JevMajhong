@@ -12,15 +12,16 @@
     "calling"
   ],
   "parity_source_run": "runs/jev-call-uniform-v1",
-  "candidate_run": "runs/jev-chi-head-anchor-win-v4",
-  "out": "runs/chi-head-anchor-win-v4-development",
+  "candidate_run": "runs/jev-chi-head-anchor-win-v5",
+  "out": "runs/chi-head-anchor-win-v5-native-preflight",
   "stage": "development",
   "seed_start": 11730000,
   "seeds": 8,
   "candidate_activation": "all",
-  "required_call_head_audit_config": "runs/configs/chi-head-anchor-win-fit-audit-v4.json",
+  "required_call_head_audit_config": "runs/configs/chi-head-anchor-win-fit-audit-v5.json",
   "train_scopes": [
     "calling"
   ],
-  "decision_filter": "all"
+  "decision_filter": "all",
+  "preflight_only": true
 }
