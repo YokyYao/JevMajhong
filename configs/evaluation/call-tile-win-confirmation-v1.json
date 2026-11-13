@@ -1,0 +1,19 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "candidate_run": "runs/jev-call-tile-win-v1",
+  "out": "runs/call-tile-win-v1-confirmation",
+  "stage": "independent_confirmation",
+  "seed_start": 11500000,
+  "seeds": 32,
+  "fast_gamma": 0.98,
+  "confirmation_objective": "hand_win",
+  "max_dealin_rate_increase": 0.01,
+  "updated_scopes": [
+    "calling"
+  ],
+  "candidate_activation": "call_windows",
+  "required_fit_audit_config": "runs/configs/call-tile-win-fit-audit-v1.json",
+  "parity_source_run": "runs/jev-call-uniform-v1",
+  "development_out": "runs/call-tile-win-v1-development"
+}

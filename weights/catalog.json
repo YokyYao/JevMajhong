@@ -1523,7 +1523,7 @@
     },
     "jev-call-tile-win-v1": {
       "role": "public-tile-nonlinear-own-win-first-call-component",
-      "status": "fit-audited-fresh-development-submitted-not-deployed",
+      "status": "development-positive-confirmation-submitted-not-deployed",
       "frozen_components": [
         "jev-discard-v1",
         "jev-call-v1-encoder-and-LoRA",
@@ -1596,7 +1596,12 @@
       "adopted": false,
       "deployed": false,
       "strength_improvement_proven": false,
-      "experimental_weights_public": false
+      "experimental_weights_public": false,
+      "development_summary": "docs/experiments/results/2026-11-12-play-input-audit/call-tile-win-development-summary.json",
+      "development_hand_win_gain": 0.00768323112073112,
+      "development_dealin_gain": 0.0099619708994709,
+      "development_net_points_gain": -78.125,
+      "confirmation_expected_games": 768
     }
   },
   "legacy_aliases": {

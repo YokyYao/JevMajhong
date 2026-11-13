@@ -1,6 +1,6 @@
 {
   "model_id": "jev-call-tile-win-v1",
-  "stage": "internal_fit_audited_fresh_development_submitted",
+  "stage": "internal_fit_audited_development_complete_confirmation_submitted",
   "checkpoint_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
   "selected_epoch": 1,
   "epochs_run": 5,
@@ -257,5 +257,6 @@
     "Open-hand own-win estimate turns positive but its utility is slightly negative; full matches and independent recount are required.",
     "The richer representation is an experiment, not a proven explanation for earlier failures.",
     "No new-model weights are part of the published Windows installer."
-  ]
+  ],
+  "development_summary": "call-tile-win-development-summary.json"
 }
