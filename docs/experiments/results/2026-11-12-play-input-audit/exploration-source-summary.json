@@ -60,8 +60,8 @@
   },
   "core_tests_passed": 105,
   "github_source_ci": {
-    "head_sha": "2fa79c718489c3a8a5f1e2a9466023215a690541",
-    "run_id": 43321484843,
+    "head_sha": "db57db8d1aafebb614c2906e412999f8b3b3770f",
+    "run_id": 43332488647,
     "core": "success",
     "desktop": "success"
   },
@@ -112,5 +112,22 @@
       "only_unstarted_evaluation_jobs_superseded": true,
       "old_evaluation_games_simulated": 0
     }
+  },
+  "label_time_limit_continuation": {
+    "status": "registered_dependency_pending",
+    "original_job_limit_hours": 4,
+    "partition_max_hours": 24,
+    "running_job_extension_allowed_for_owner": false,
+    "continuation_job_limit_hours": 6,
+    "normal_completion_skips_generation": true,
+    "only_actual_timeout_can_resume_incomplete_data": true,
+    "running_cancelled_node_failure_and_unexplained_failure_rejected": true,
+    "committed_shard_checks_required": true,
+    "fixed_source_and_recipe_preserved": true,
+    "full_data_audit_waits_for_collection_barrier": true,
+    "terminal_state_branch_checks_passed": 10,
+    "actual_running_parent_rejected_without_output_or_simulation": true,
+    "extra_concurrent_gpu_jobs": 0,
+    "strength_evidence": false
   }
 }
