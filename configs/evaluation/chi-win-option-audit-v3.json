@@ -9,6 +9,6 @@
     "calling"
   ],
   "decision_filter": "all",
-  "collection": "runs/chi-win-options-v2",
-  "out": "runs/chi-win-option-audit-v2"
+  "collection": "runs/chi-win-options-v3",
+  "out": "runs/chi-win-option-audit-v3"
 }

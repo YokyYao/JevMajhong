@@ -10,9 +10,9 @@
   ],
   "decision_filter": "all",
   "data": [
-    "runs/chi-win-options-v2/source_0"
+    "runs/chi-win-options-v3/source_0"
   ],
-  "out": "runs/jev-chi-win-v2",
+  "out": "runs/jev-chi-win-v3",
   "model_id": "jev-chi-win-v1",
   "fit_model": "residual_policy",
   "context_initialization": "calling_baseline",

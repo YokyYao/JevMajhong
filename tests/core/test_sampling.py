@@ -45,6 +45,40 @@ def native_collection(root, start, gamma=.995):
 
 
 class SamplingTests(unittest.TestCase):
+    def test_wall_caps_prevent_dense_early_wall_dominating_reserved_routes(self):
+        from collections import Counter
+        from jevmahjong.training.ev_collect import select_case_plan
+        from tests.core.test_win_context import pair
+        class Head:
+            def __call__(self,decide,options):return torch.tensor([1.,0.])
+        def cases(seeds):
+            result=[]
+            for seed in seeds:
+                for replica in range(20 if seed==seeds[0] else 4):
+                    r=pair(seed);r['episode_key']=(seed,0,replica)
+                    r['request_sha256']=str((seed,replica));result.append(r)
+            return result
+        parts={'train':cases([100,101,102,103]),'held':cases([200,201])}
+        cfg=dict(train_scopes=['calling'],decision_filter='all',max_states=12,
+            max_states_by_split={'train':8,'held':4},canonical_state_only=True,
+            whole_wall_state_cap_by_split={'train':2,'held':2},
+            call_route_reserve_by_split={'train':{'closed_chi_tanyao_gain':3},'held':{'closed_chi_tanyao_gain':2}})
+        classify=lambda gs:{'closed_chi_tanyao_gain':[g for g in gs if g['row']['episode_key'][0]%2==0]}
+        with patch('jevmahjong.training.call_head.route_groups',side_effect=classify):
+            selected=select_case_plan(parts,Head(),cfg)
+            self.assertEqual(Counter(r['episode_key'][0] for r in selected),{s:2 for s in (100,101,102,103,200,201)})
+            for rows in parts.values():
+                rows.reverse()
+                for r in rows:r['training_advantage']*=-1
+            self.assertEqual([r['episode_key'] for r in select_case_plan(parts,Head(),cfg)],
+                [r['episode_key'] for r in selected])
+            cfg['whole_wall_state_cap_by_split']['train']=1
+            with self.assertRaisesRegex(ValueError,'whole-wall-balanced'):
+                select_case_plan(parts,Head(),cfg)
+            cfg['whole_wall_state_cap_by_split']['train']=True
+            with self.assertRaisesRegex(ValueError,'Whole-wall caps'):
+                select_case_plan(parts,Head(),cfg)
+
     def test_stronger_call_baseline_is_used_when_selecting_future_controls(self):
         from jevmahjong.training.ev_collect import select_case_plan
         from jevmahjong.policy.kan_context import feature_names

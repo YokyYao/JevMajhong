@@ -75,10 +75,15 @@ def choose_cases(partitions, head, limit, canonical_state_only=False, stratify_c
 
 def select_case_plan(partitions,head,config,baseline_context=None):
     limits=config.get('max_states_by_split')
+    wall_caps=config.get('whole_wall_state_cap_by_split')
     options=(config.get('canonical_state_only',False),config.get('stratify_call_openness',False))
     if config.get('call_context_baseline') and config.get('train_scopes')==['calling'] and baseline_context is None:
         raise ValueError('Pure-call selection requires the actual pinned calling context')
     reserve=config.get('call_route_reserve_by_split')
+    if wall_caps is not None and (limits is None or not options[0]
+            or not isinstance(wall_caps,dict) or set(wall_caps)!={'train','held'}
+            or any(isinstance(v,bool) or not isinstance(v,int) or v<1 for v in wall_caps.values())):
+        raise ValueError('Whole-wall caps require canonical states and explicit positive split caps')
     if reserve is not None and (limits is None or not options[0]
             or config.get('train_scopes')!=['calling'] or config.get('decision_filter')!='all'
             or not isinstance(reserve,dict) or set(reserve)!={'train','held'}):
@@ -90,10 +95,10 @@ def select_case_plan(partitions,head,config,baseline_context=None):
         raise ValueError('Explicit positive train/held quotas must sum to the state budget')
     selected=[]
     for split in ('train','held'):
-        if reserve is None:
+        if reserve is None and wall_caps is None:
             selected.extend(choose_cases({split:partitions[split]},head,limits[split],*options,baseline_context))
             continue
-        requested=reserve[split];allowed={'closed_chi_tanyao_gain','closed_pon_yakuhai','open'}
+        requested=reserve[split] if reserve is not None else {};allowed={'closed_chi_tanyao_gain','closed_pon_yakuhai','open'}
         if (not isinstance(requested,dict) or set(requested)-allowed
                 or any(isinstance(n,bool) or not isinstance(n,int) or n<1 for n in requested.values())
                 or sum(requested.values())>limits[split]):
@@ -101,6 +106,10 @@ def select_case_plan(partitions,head,config,baseline_context=None):
         candidates=choose_cases({split:partitions[split]},head,None,*options,baseline_context)
         from .call_head import route_groups
         routes=route_groups([{'row':r} for r in candidates]);chosen={}
+        if wall_caps is not None:
+            from .whole_wall_sampling import balanced_subset
+            selected.extend(balanced_subset(candidates,routes,requested,limits[split],wall_caps[split]))
+            continue
         for name,count in sorted(requested.items()):
             pool=routes.get(name,[])
             if len(pool)<count:raise ValueError('Insufficient public call-route coverage: '+split+'/'+name)

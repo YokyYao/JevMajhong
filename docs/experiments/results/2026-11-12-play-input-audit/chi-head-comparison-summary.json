@@ -20,7 +20,7 @@
     ]
   },
   "initialization_preflight_sha256": "9c0237047558c73bf1cf23e790bf7fd9d0b7297d913d9d64645de4d90cf055b3",
-  "core_tests_passed": 125,
+  "core_tests_passed": 128,
   "matched_context_recipe_sha256": "7d91095ad92000ab648cb966ce5a94d58a5861c714ea50d5a91729b160b32427",
   "shared_conditions": [
     "data",
@@ -53,8 +53,8 @@
     "No new fitted candidate or architecture superiority result exists yet.",
     "The audit will bind exact complete-option pair counts before fitting, once the immutable dataset is available."
   ],
-  "active_recipe_revision": "coverage-v2-preserve-pon",
-  "active_fit_config": "configs/training/chi-head-win-fit-v2.json",
-  "active_matched_context_recipe_sha256": "e21f6cfede52fee02dc995ca837875f370ba4c79e43f851bb39d5af4b8b37287",
+  "active_recipe_revision": "whole-wall-balanced-v3",
+  "active_fit_config": "configs/training/chi-head-win-fit-v3.json",
+  "active_matched_context_recipe_sha256": "b2ccbfc8dd08ceb7bf7bdd70ede6dc37e2e69b8b4e19dccc858c477fabec1704",
   "initialization_preflight_unchanged": true
 }

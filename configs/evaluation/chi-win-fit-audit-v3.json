@@ -9,13 +9,13 @@
     "calling"
   ],
   "decision_filter": "all",
-  "out": "runs/chi-win-fit-audit-v2",
-  "fit_config": "runs/configs/chi-win-fit-v2.json",
-  "fit_config_sha256": "e21f6cfede52fee02dc995ca837875f370ba4c79e43f851bb39d5af4b8b37287",
+  "out": "runs/chi-win-fit-audit-v3",
+  "fit_config": "runs/configs/chi-win-fit-v3.json",
+  "fit_config_sha256": "b2ccbfc8dd08ceb7bf7bdd70ede6dc37e2e69b8b4e19dccc858c477fabec1704",
   "data_audits": [
     "runs/chi-win-native-audit-v1",
-    "runs/chi-win-future-audit-v2",
-    "runs/chi-win-option-audit-v2"
+    "runs/chi-win-future-audit-v3",
+    "runs/chi-win-option-audit-v3"
   ],
   "expected": {
     "wall_groups": 128,

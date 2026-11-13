@@ -9,6 +9,6 @@
     "calling"
   ],
   "decision_filter": "all",
-  "collection": "runs/chi-win-futures-v2",
-  "out": "runs/chi-win-future-audit-v2"
+  "collection": "runs/chi-win-futures-v3",
+  "out": "runs/chi-win-future-audit-v3"
 }

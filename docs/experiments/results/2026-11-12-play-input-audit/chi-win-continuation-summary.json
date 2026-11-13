@@ -65,7 +65,15 @@
       }
     },
     "worlds": 16,
-    "wall_scope": "unseen"
+    "wall_scope": "unseen",
+    "whole_wall_state_cap_by_split": {
+      "train": 4,
+      "held": 4
+    },
+    "nonempty_walls_by_split": {
+      "train": 96,
+      "held": 32
+    }
   },
   "parameters": 38528,
   "parameter_training_started": false,
@@ -80,8 +88,8 @@
     "If public-route reserves are unavailable, inspect/supplement data before computing labels.",
     "No architecture superiority or new policy improvement has been established."
   ],
-  "active_recipe_revision": "coverage-v2-preserve-pon",
-  "active_fit_config": "configs/training/chi-win-fit-v2.json",
+  "active_recipe_revision": "whole-wall-balanced-v3",
+  "active_fit_config": "configs/training/chi-win-fit-v3.json",
   "initialization_preflight_unchanged": true,
-  "active_label_plan_sha256": "9b01b03d1b0dd1f9bfffda7e6bdbe24ff190dbe34de8bf9c04c48acebb0052f1"
+  "active_label_plan_sha256": "ca19358d57c079d2412549229aaee1891045480abbec1b098e8ad2a4e721e291"
 }

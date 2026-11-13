@@ -9,7 +9,7 @@
     "calling"
   ],
   "decision_filter": "all",
-  "out": "runs/chi-win-options-v2",
+  "out": "runs/chi-win-options-v3",
   "seed": 2026111318,
   "worlds": 16,
   "max_states": null,
@@ -26,5 +26,5 @@
     "speed_gamma": 0.98
   },
   "wall_scope": "unseen",
-  "expand_from": "runs/chi-win-futures-v2"
+  "expand_from": "runs/chi-win-futures-v3"
 }

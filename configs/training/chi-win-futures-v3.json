@@ -12,7 +12,7 @@
   "data": [
     "runs/chi-win-native-v1"
   ],
-  "out": "runs/chi-win-futures-v2",
+  "out": "runs/chi-win-futures-v3",
   "seed": 2026111318,
   "worlds": 16,
   "max_states": 512,
@@ -45,5 +45,9 @@
     "speed_gamma": 0.98
   },
   "wall_scope": "unseen",
-  "required_native_audit": "runs/chi-win-native-audit-v1"
+  "required_native_audit": "runs/chi-win-native-audit-v1",
+  "whole_wall_state_cap_by_split": {
+    "train": 4,
+    "held": 4
+  }
 }
