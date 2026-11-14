@@ -2697,7 +2697,7 @@
     "causal_explanation_proven": false
   },
   "unified_winrisk_v1_plan": {
-    "status": "fixed512_recovered_native_preflight_running",
+    "status": "fixed512_native_passed_fresh_development_running",
     "source_sha256": "0e7233d2ed584e5a8a67557964486cec6630d6314d44ec6056845a31d210f1d3",
     "pool_job": 298451,
     "pool_rebuild_complete": true,
@@ -2721,11 +2721,11 @@
     "training_evaluation_job": 298547,
     "after_complete_data_audit": 298419,
     "all_jobs_serial": true,
-    "new_source_ci_verified": false,
-    "new_source_ci_commit": null,
-    "new_source_ci_run": null,
-    "new_source_ci_core": null,
-    "new_source_ci_desktop": null,
+    "new_source_ci_verified": true,
+    "new_source_ci_commit": "82b81ef90e85a75c9a553b653743b91de97fb1b6",
+    "new_source_ci_run": 43586321240,
+    "new_source_ci_core": "success",
+    "new_source_ci_desktop": "success",
     "data_revision": 2,
     "retired_failed_preparation_job": 298461,
     "retired_fit_job_cancelled": 298462,
@@ -2952,7 +2952,18 @@
       }
     ],
     "evaluation_only_job": 298607,
-    "future_training_source_sha256": "89b78f1e738f156459248d1b999bf1db7cb4aee3bfc924fdf164c66c923263b9"
+    "future_training_source_sha256": "89b78f1e738f156459248d1b999bf1db7cb4aee3bfc924fdf164c66c923263b9",
+    "native_preflight": {
+      "records": 400,
+      "complete_matches_simulated": 0,
+      "max_abs_probability_difference": 1.2740629606877718e-07,
+      "status": "passed_selected_unified_native_validation"
+    },
+    "latest_development_progress": {
+      "completed_games": 18,
+      "expected_games": 192,
+      "partial_result_used_for_selection": false
+    }
   },
   "risk_target_conversion_persisted_revision": {
     "status": "verified_persisted_target_revision",
@@ -2988,5 +2999,5 @@
     ],
     "new_pool_records": 126569
   },
-  "active_experiment_status": "fixed512_recovered_native_preflight_running"
+  "active_experiment_status": "fixed512_native_passed_fresh_development_running"
 }
