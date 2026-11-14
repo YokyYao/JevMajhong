@@ -21,6 +21,21 @@ def closed_opportunity(request):
     return is_closed_request(request) and len(request_eligible(request))>1
 
 
+def control_source_window(config,source_config,marker):
+    """A contiguous completed slice must preserve opponent and holdout rotation."""
+    total=config['training_seeds_per_stage'];start=config['training_seed_start']
+    origin=source_config['training_seed_start'];available=source_config['training_seeds_per_stage']
+    if (marker['status']!='collection_complete' or marker['walls']!=available
+            or any(isinstance(v,bool) or not isinstance(v,int) for v in (start,total,origin,available))
+            or total<1 or available<1 or start<origin or start+total>origin+available):
+        raise ValueError('Declared completed control window required')
+    # Opponents rotate every 3 walls; train/held every 4. A multiple of 12
+    # preserves both when the subset has its own collection start.
+    if (start-origin)%12:
+        raise ValueError('Control slice must preserve three-suite and four-wall split rotation')
+    return start,total
+
+
 def replay_control(control,config,policy=None):
     """Enumerate before reading the next logged action; no outcome sampling."""
     seed,seat=control['seed'],control['seat']
@@ -76,10 +91,7 @@ def collect(cfg,resume=False):
     marker=json.loads((source/'collection-result.json').read_text());verify(original);sc=original['config']
     if original.get('collection_method') not in INPUT_METHODS or original.get('behavior_heads'):
         raise ValueError('Existing frozen native control source required')
-    total=cfg['training_seeds_per_stage'];start=cfg['training_seed_start']
-    if (marker['status']!='collection_complete' or marker['walls']!=sc['training_seeds_per_stage']
-            or start!=sc['training_seed_start'] or not 1<=total<=marker['walls']):
-        raise ValueError('Declared completed control prefix required')
+    start,total=control_source_window(cfg,sc,marker)
     from jevmahjong.policy.call_baseline import identity
     if identity(cfg)!=identity(sc) or any(cfg[k]!=sc[k] for k in ('game_mode','seed_scheme','fast_gamma')):
         raise ValueError('Control rules, partition or calling baseline changed')

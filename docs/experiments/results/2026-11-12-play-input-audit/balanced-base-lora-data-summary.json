@@ -2697,7 +2697,7 @@
     "causal_explanation_proven": false
   },
   "unified_winrisk_v1_plan": {
-    "status": "development_passed_independent_confirmation_running",
+    "status": "confirmation_complete_improvement_not_proven",
     "source_sha256": "0e7233d2ed584e5a8a67557964486cec6630d6314d44ec6056845a31d210f1d3",
     "pool_job": 298451,
     "pool_rebuild_complete": true,
@@ -2713,7 +2713,7 @@
     "evaluation_candidate_rule": "final_registered_budget_v1",
     "registered_final_step": 512,
     "gradient_training_started": true,
-    "new_strength_games": 192,
+    "new_strength_games": 960,
     "fitness_gates_unchanged": true,
     "raw_and_weights_private": true,
     "local_core_tests_passed": 210,
@@ -2991,7 +2991,7 @@
     },
     "eligible_for_confirmation": true,
     "independent_full_match_improvement_proven": false,
-    "confirmation_status": "running_fresh_768",
+    "confirmation_status": "complete_independently_audited_not_passed",
     "actual_exposure": {
       "records": 8192,
       "expert_records": 7505,
@@ -3028,8 +3028,46 @@
       "optimizer_started": false,
       "confirmation_still_required": true,
       "local_core_tests_passed": 212,
-      "new_code_ci_verified": false
-    }
+      "new_code_ci_verified": true,
+      "new_code_ci_commit": "a155a6b9844ac4f516fc4bf4bd9a831aaf350e0e",
+      "new_code_ci_run": 43589062547,
+      "new_code_ci_core": "success",
+      "new_code_ci_desktop": "success"
+    },
+    "confirmation_games": 768,
+    "confirmation_hand_win_paired": {
+      "gain": 0.008560204263329263,
+      "ci95": [
+        -0.020449524269066065,
+        0.03756993279572459
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "confirmation_dealin_rate_paired": {
+      "gain": 0.009753000182687682,
+      "ci95": [
+        -0.01740454368089661,
+        0.036910544046271976
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "confirmation_net_points_paired": {
+      "gain": -634.6354166666667,
+      "ci95": [
+        -2489.423673764688,
+        1220.1528404313544
+      ],
+      "independent_wall_streams": 32
+    },
+    "confirmation_fast_reward_paired": {
+      "gain": 4.422394927831233e-05,
+      "ci95": [
+        -0.013857476241906719,
+        0.013945924140463343
+      ],
+      "unit": "discounted own wins per hand, equal-weight match means, whole-wall paired CI"
+    },
+    "confirmation_result_summary": "unified-winrisk-v1-confirmation-summary.json"
   },
   "risk_target_conversion_persisted_revision": {
     "status": "verified_persisted_target_revision",
@@ -3065,5 +3103,35 @@
     ],
     "new_pool_records": 126569
   },
-  "active_experiment_status": "development_passed_independent_confirmation_running"
+  "active_experiment_status": "v1_confirmation_not_passed_v2_data_breadth_preparation",
+  "followup_winrisk_v2": {
+    "model_id": "jev-unified-winrisk-v2",
+    "status": "data_plan_registered_not_training",
+    "source_sha256": "61a3411c21ac0c70a9641712969f727774bc3742fb8cc26950e58cb219678e04",
+    "new_control_matches": 0,
+    "reused_control_walls": 24,
+    "reused_control_matches": 96,
+    "planned_train_walls": 18,
+    "planned_held_walls": 6,
+    "planned_MC_train_states": 432,
+    "planned_MC_held_states": 144,
+    "max_states_per_wall": 24,
+    "paired_worlds": 16,
+    "proposed_fixed_final_step": 1024,
+    "reward_unchanged": true,
+    "proposed_source_loss_mass": {
+      "expert_replay": 0.75,
+      "paired_future_masked": 0.25
+    },
+    "proposed_MC_phase_mass": {
+      "closed_discard": 0.4,
+      "call_window": 0.3,
+      "kan_window": 0.2,
+      "open_discard": 0.1
+    },
+    "phase_weight_implementation_pending": true,
+    "optimizer_started": false,
+    "local_core_tests_passed": 213,
+    "raw_and_weights_private": true
+  }
 }

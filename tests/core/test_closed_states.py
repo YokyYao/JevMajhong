@@ -15,12 +15,25 @@ from jevmahjong.data.native_states import CLOSED_METHOD,validate
 from jevmahjong.data.future_pairs import future_scope
 from jevmahjong.evaluation.agents import EfficiencyAgent,guarded_indices
 from jevmahjong.policy.closed import is_closed_request,request_eligible
-from jevmahjong.training.closed_states import replay_control,audit_control_coverage
+from jevmahjong.training.closed_states import replay_control,audit_control_coverage,control_source_window
 from jevmahjong.training.collector import action_key
 from tests.core.test_defense_states import fixture
 
 
 class ClosedStatesTests(unittest.TestCase):
+    def test_completed_control_subsets_preserve_opponents_and_held_partition(self):
+        source=dict(training_seed_start=11810000,training_seeds_per_stage=128)
+        marker=dict(status='collection_complete',walls=128)
+        for offset,count in [(0,8),(12,24),(108,20)]:
+            cfg=dict(training_seed_start=11810000+offset,training_seeds_per_stage=count)
+            self.assertEqual(control_source_window(cfg,source,marker),(cfg['training_seed_start'],count))
+            for seed in range(cfg['training_seed_start'],cfg['training_seed_start']+count):
+                self.assertEqual((seed-cfg['training_seed_start'])%3,(seed-source['training_seed_start'])%3)
+                self.assertEqual((seed-cfg['training_seed_start'])%4,(seed-source['training_seed_start'])%4)
+        for offset,count in [(8,24),(3,24),(-12,24),(120,24),(12,0),(12,True)]:
+            with self.assertRaises(ValueError):control_source_window(dict(training_seed_start=11810000+offset,training_seeds_per_stage=count),source,marker)
+        with self.assertRaises(ValueError):control_source_window(source,source,dict(marker,status='collecting'))
+
     def test_public_guard_matches_native_reach_and_multi_riichi_risk(self):
         for riichi in ([],[1],[1,2]):
             for reach in (False,True):
