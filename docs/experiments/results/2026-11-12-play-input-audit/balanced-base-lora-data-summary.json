@@ -1,5 +1,5 @@
 {
-  "stage": "v2_audited_development_failed_v3_rebalanced_fresh_base_training_running",
+  "stage": "v3_early_stopped_selected256_native352_passed_development_running",
   "datasets": 71,
   "replay_jsonl_datasets": 22,
   "native_collection_datasets": 49,
@@ -1890,7 +1890,7 @@
   },
   "followup_v3": {
     "model_id": "jev-balanced-base-lora-v3",
-    "status": "actual_fresh_LoRA_and_pointer_updates_verified",
+    "status": "training_complete_native_passed_development_running",
     "recipe": {
       "recipe_kind": "unified_fresh_base_LoRA_training_plan_requires_registered_wrapper",
       "model_id": "jev-balanced-base-lora-v3",
@@ -2032,7 +2032,104 @@
     "audit_dependency": "afterok:297986",
     "new_strength_games_at_submission": 0,
     "conditional_confirmation_submitted": false,
-    "private_admission_checks": "Five wall-overlap checks passed; unfinished training correctly rejected."
+    "private_admission_checks": "Five wall-overlap checks passed; unfinished training correctly rejected.",
+    "optimizer_steps": 640,
+    "selected_step": 256,
+    "selected_weighted_target_ce": 1.3079775243772334,
+    "actual_source_records_seen_before_stop": 10240,
+    "source_records_used_at_selected_checkpoint": 4096,
+    "all_prepared_records_completed_training": false,
+    "early_stop_stale_evaluations": 3,
+    "validation_curve": [
+      {
+        "step": 0,
+        "weighted_target_ce": 2.130415089614179,
+        "phase_target_ce": {
+          "kan_window": 2.436023571918783,
+          "call_window": 0.9603380905250617,
+          "closed_discard": 2.7774403634150846,
+          "open_discard": 2.353321601619665
+        }
+      },
+      {
+        "step": 128,
+        "weighted_target_ce": 2.1989396214197865,
+        "phase_target_ce": {
+          "kan_window": 3.068960070565674,
+          "call_window": 1.1299641272917629,
+          "closed_discard": 2.64765548930225,
+          "open_discard": 2.5752870475898058
+        }
+      },
+      {
+        "step": 256,
+        "weighted_target_ce": 1.3079775243772334,
+        "phase_target_ce": {
+          "kan_window": 1.6350885332743565,
+          "call_window": 0.7767841637037755,
+          "closed_discard": 1.5998138299030755,
+          "open_discard": 1.366358125729995
+        }
+      },
+      {
+        "step": 384,
+        "weighted_target_ce": 1.469128107128841,
+        "phase_target_ce": {
+          "kan_window": 2.1737309636531448,
+          "call_window": 1.2898617093452798,
+          "closed_discard": 1.5721388318181135,
+          "open_discard": 1.3301028591222426
+        }
+      },
+      {
+        "step": 512,
+        "weighted_target_ce": 1.3399835211538382,
+        "phase_target_ce": {
+          "kan_window": 1.7736961318203708,
+          "call_window": 1.0205377183804927,
+          "closed_discard": 1.493675207420571,
+          "open_discard": 1.364917778547075
+        }
+      },
+      {
+        "step": 640,
+        "weighted_target_ce": 1.3124505791787415,
+        "phase_target_ce": {
+          "kan_window": 1.5302720169230282,
+          "call_window": 0.8383889048939798,
+          "closed_discard": 1.5456881947389727,
+          "open_discard": 1.4443030961592926
+        }
+      }
+    ],
+    "training_scheduler_exit": "0:0",
+    "native_scheduler_exit": "0:0",
+    "complete_candidate_identity_sha256": "6b3f3929cb35addd2b8a31d796630f08bc69b5c634af793b6d2f117f47ba457c",
+    "native_preflight_passed": true,
+    "native_validation_records": 352,
+    "native_validation_routes": {
+      "closed_discard": 96,
+      "open_discard": 48,
+      "call_window": 80,
+      "ankan": 44,
+      "daiminkan": 46,
+      "kakan": 38
+    },
+    "native_max_abs_probability_difference": 9.083013663424566e-08,
+    "native_is_not_strength_evaluation": true,
+    "actual_freshness_protocols_checked": 342,
+    "development_status": "evaluating_unified_policy",
+    "development_completed_games_at_snapshot": 44,
+    "snapshot_utc": "2026-11-14T01:29:03.778788+00:00",
+    "selected_checkpoint_new_expert_kan_positive_choices": {
+      "ankan": 1,
+      "daiminkan": 0,
+      "kakan": 1
+    },
+    "new_expert_kan_positive_records_each": 16,
+    "selected_checkpoint_new_expert_decline_kan_choices": 0,
+    "new_expert_decline_kan_records": 48,
+    "kan_strategy_solved": false
   },
   "active_model_id": "jev-balanced-base-lora-v3",
   "top_level_model_training_and_unified_evaluation_fields_are_v1_history": true
