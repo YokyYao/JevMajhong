@@ -2719,6 +2719,44 @@
     "after_complete_data_audit": 298419,
     "all_jobs_serial": true,
     "pool_scheduler_exit_code": "0:0",
-    "new_source_ci_verified": false
+    "new_source_ci_verified": true,
+    "new_source_ci_commit": "97d3781d9bd29553a548b40cd1166c69a36de9dc",
+    "new_source_ci_run": 43576318328,
+    "new_source_ci_core": "success",
+    "new_source_ci_desktop": "success"
+  },
+  "risk_target_conversion_persisted_revision": {
+    "status": "verified_persisted_target_revision",
+    "missing_positions": 0,
+    "extra_positions": 0,
+    "expert_payloads_changed": 0,
+    "all_historical_group_splits_preserved": true,
+    "changed_target_positions": [
+      {
+        "split": "train",
+        "phase": "call_window",
+        "label_type": "paired_future_masked",
+        "positions": 146
+      },
+      {
+        "split": "train",
+        "phase": "kan_window",
+        "label_type": "paired_future_masked",
+        "positions": 67
+      },
+      {
+        "split": "train",
+        "phase": "open_discard",
+        "label_type": "paired_future_masked",
+        "positions": 36
+      },
+      {
+        "split": "validation",
+        "phase": "kan_window",
+        "label_type": "paired_future_masked",
+        "positions": 8
+      }
+    ],
+    "new_pool_records": 126569
   }
 }
