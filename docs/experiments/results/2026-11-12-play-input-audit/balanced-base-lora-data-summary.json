@@ -3460,7 +3460,7 @@
   },
   "followup_winrisk_v3": {
     "model_id": "jev-unified-winrisk-v3",
-    "status": "GPU_training_actual_updates_verified",
+    "status": "audited_development_passed_independent_confirmation_running",
     "training_source_sha256": "ab0fb10eea18b7087d77ee6090e806b6802f5a2975aa0b874149ef86a68e53bd",
     "parent_model_id": "jev-unified-winrisk-v1",
     "parent_checkpoint_step": 512,
@@ -3523,7 +3523,7 @@
     "all_32768_public_inputs_identical": true,
     "actual_tokenized_inputs_checked": 160,
     "fixed_full_validation_bytes_identical": true,
-    "completed_optimizer_steps_at_least": 52,
+    "completed_optimizer_steps_at_least": 1024,
     "admitted_training_records": 32768,
     "rejected_training_records": 0,
     "parent_exact_loaded_LoRA_tensors": 372,
@@ -3532,6 +3532,197 @@
     "new_code_CI_run": 43623718627,
     "new_code_CI_core": "success",
     "new_code_CI_desktop": "success",
-    "new_code_commit": "8ee9104bb6e7ee6ef126ea9e55cdb69ae5eabcb9"
+    "new_code_commit": "8ee9104bb6e7ee6ef126ea9e55cdb69ae5eabcb9",
+    "training_complete": true,
+    "actual_training_records_consumed": 16384,
+    "actual_relabelled_training_exposure": {
+      "records": 16384,
+      "changed_target_positions": 99,
+      "changed_argmax_positions": 30,
+      "changed_target_by_phase": {
+        "call_window": 61,
+        "kan_window": 15,
+        "closed_discard": 13,
+        "open_discard": 10
+      }
+    },
+    "validation_curve": [
+      {
+        "weighted_target_ce": 1.245697788938394,
+        "phase_target_ce": {
+          "kan_window": 1.2741148614847442,
+          "call_window": 0.641363881828794,
+          "closed_discard": 1.6982374222186754,
+          "open_discard": 1.1268802065855732
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5,
+          "call_window": 0.6625,
+          "closed_discard": 0.4791666666666667,
+          "open_discard": 0.6458333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 0,
+        "upstream_hard_label_nll": 1.4378024426131921
+      },
+      {
+        "weighted_target_ce": 1.2094089779951147,
+        "phase_target_ce": {
+          "kan_window": 1.267635677785923,
+          "call_window": 0.6189741332268263,
+          "closed_discard": 1.640693170732698,
+          "open_discard": 1.1101151365402824
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.4895833333333333,
+          "call_window": 0.7125,
+          "closed_discard": 0.5104166666666666,
+          "open_discard": 0.6041666666666666
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 256,
+        "upstream_hard_label_nll": 1.4332801117822282
+      },
+      {
+        "weighted_target_ce": 1.183340217738248,
+        "phase_target_ce": {
+          "kan_window": 1.2360625353361918,
+          "call_window": 0.6277672221493893,
+          "closed_discard": 1.5847353750936295,
+          "open_discard": 1.100380027672441
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5,
+          "call_window": 0.675,
+          "closed_discard": 0.5208333333333334,
+          "open_discard": 0.6458333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 512,
+        "upstream_hard_label_nll": 1.3900621976109344
+      },
+      {
+        "weighted_target_ce": 1.1952070341434693,
+        "phase_target_ce": {
+          "kan_window": 1.2458101863485493,
+          "call_window": 0.6222036781371885,
+          "closed_discard": 1.607238352417512,
+          "open_discard": 1.114990813985025
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5,
+          "call_window": 0.7,
+          "closed_discard": 0.5416666666666666,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 768,
+        "upstream_hard_label_nll": 1.3982978508757065
+      },
+      {
+        "weighted_target_ce": 1.1915474267879422,
+        "phase_target_ce": {
+          "kan_window": 1.2368761676937121,
+          "call_window": 0.6233051580180186,
+          "closed_discard": 1.603356565450975,
+          "open_discard": 1.1060080827245615
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5416666666666666,
+          "call_window": 0.7,
+          "closed_discard": 0.5104166666666666,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1024,
+        "upstream_hard_label_nll": 1.386825753371534
+      }
+    ],
+    "candidate_identity_sha256": "cdea5e9cd833a76ad622db8f64a2995a8b68b4493a0cce1fc46be0bc51f08a4e",
+    "evaluated_checkpoint_step": 1024,
+    "diagnostic_CE_selected_step": 512,
+    "native_preflight": {
+      "status": "passed_selected_unified_native_validation",
+      "records": 540,
+      "routes": {
+        "closed_discard": 284,
+        "open_discard": 48,
+        "call_window": 80,
+        "ankan": 44,
+        "daiminkan": 46,
+        "kakan": 38
+      },
+      "max_abs_probability_difference": 1.155170220590307e-07
+    },
+    "development": {
+      "games": 192,
+      "reference_games": 96,
+      "candidate_games": 96,
+      "independent_wall_streams": 8,
+      "hand_win_paired": {
+        "gain": 0.034415960197210195,
+        "ci95": [
+          -0.033386098298671625,
+          0.10221801869309202
+        ],
+        "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+      },
+      "dealin_rate_paired": {
+        "gain": -0.005732664326414325,
+        "ci95": [
+          -0.050238783198050814,
+          0.038773454545222165
+        ],
+        "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+      },
+      "net_points_paired": {
+        "gain": 1560.4166666666665,
+        "ci95": [
+          -1945.076025171763,
+          5065.909358505096
+        ]
+      },
+      "independent_audit": {
+        "status": "passed_complete",
+        "games": 192,
+        "whole_wall_groups": 8,
+        "four_seat_payment_records": 192,
+        "final_ranks_checked": 192,
+        "han_fu_independently_recalculated": false
+      },
+      "eligible_for_confirmation": true,
+      "summary": "docs/experiments/results/2026-11-12-play-input-audit/unified-winrisk-v3-development-summary.json"
+    },
+    "independent_confirmation_status": "running"
   }
 }

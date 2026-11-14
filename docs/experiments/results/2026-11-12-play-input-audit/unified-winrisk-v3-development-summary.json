@@ -1,0 +1,440 @@
+{
+  "model_id": "jev-unified-winrisk-v3",
+  "checkpoint": 1024,
+  "training_validation_selected_step": 512,
+  "stage": "development",
+  "games": 192,
+  "reference_games": 96,
+  "candidate_games": 96,
+  "independent_wall_streams": 8,
+  "candidate_identity_sha256": "cdea5e9cd833a76ad622db8f64a2995a8b68b4493a0cce1fc46be0bc51f08a4e",
+  "hand_win_paired": {
+    "gain": 0.034415960197210195,
+    "ci95": [
+      -0.033386098298671625,
+      0.10221801869309202
+    ],
+    "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+  },
+  "dealin_rate_paired": {
+    "gain": -0.005732664326414325,
+    "ci95": [
+      -0.050238783198050814,
+      0.038773454545222165
+    ],
+    "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+  },
+  "fast_reward_paired": {
+    "gain": 0.011226414927220145,
+    "ci95": [
+      -0.012476184504890762,
+      0.03492901435933105
+    ],
+    "unit": "discounted own wins per hand, equal-weight match means, whole-wall paired CI"
+  },
+  "net_points_paired": {
+    "gain": 1560.4166666666665,
+    "ci95": [
+      -1945.076025171763,
+      5065.909358505096
+    ]
+  },
+  "policies": {
+    "reference": {
+      "games": 96,
+      "mean_net_points": 1164.5833333333333,
+      "first_rate": 0.3541666666666667,
+      "top2_rate": 0.5416666666666666,
+      "fourth_rate": 0.21875,
+      "mean_rank": 2.3229166666666665,
+      "hand_win_rate": 0.24662162162162163,
+      "dealin_rate": 0.11993243243243243,
+      "dealin_event_rate": 0.11993243243243243,
+      "calls_per_game": 2.6145833333333335,
+      "discounted_own_wins_per_hand": 0.10257408932953978,
+      "mean_table_draws_when_winning": 45.68493150684932,
+      "mean_match_hand_win_rate": 0.2485212993025493,
+      "mean_point_components": {
+        "draw_settlement": 135.41666666666666,
+        "final_unclaimed_pool": 20.833333333333332,
+        "riichi_deposits": -1312.5,
+        "ron_payments": -3916.6666666666665,
+        "tsumo_payments": -4206.25,
+        "win_income": 10443.75
+      },
+      "kan_opportunities": {
+        "ankan": 17,
+        "daiminkan": 27,
+        "kakan": 5
+      },
+      "kan_choices": {
+        "ankan": 7,
+        "daiminkan": 0,
+        "kakan": 2
+      }
+    },
+    "candidate": {
+      "games": 96,
+      "mean_net_points": 2725,
+      "first_rate": 0.3854166666666667,
+      "top2_rate": 0.6145833333333334,
+      "fourth_rate": 0.16666666666666666,
+      "mean_rank": 2.1666666666666665,
+      "hand_win_rate": 0.27545909849749584,
+      "dealin_rate": 0.12020033388981637,
+      "dealin_event_rate": 0.12020033388981637,
+      "calls_per_game": 2.7083333333333335,
+      "discounted_own_wins_per_hand": 0.11380050425675992,
+      "mean_table_draws_when_winning": 46.72727272727273,
+      "mean_match_hand_win_rate": 0.2829372594997595,
+      "mean_point_components": {
+        "draw_settlement": -197.91666666666666,
+        "final_unclaimed_pool": 93.75,
+        "riichi_deposits": -1739.5833333333333,
+        "ron_payments": -3589.5833333333335,
+        "tsumo_payments": -3722.9166666666665,
+        "win_income": 11881.25
+      },
+      "kan_opportunities": {
+        "ankan": 12,
+        "daiminkan": 35,
+        "kakan": 7
+      },
+      "kan_choices": {
+        "ankan": 12,
+        "daiminkan": 5,
+        "kakan": 4
+      }
+    }
+  },
+  "suites": {
+    "closed": {
+      "policies": {
+        "reference": {
+          "games": 32,
+          "mean_net_points": 2459.375,
+          "first_rate": 0.375,
+          "top2_rate": 0.59375,
+          "fourth_rate": 0.1875,
+          "mean_rank": 2.21875,
+          "hand_win_rate": 0.26,
+          "dealin_rate": 0.105,
+          "dealin_event_rate": 0.105,
+          "calls_per_game": 2.40625,
+          "mean_point_components": {
+            "draw_settlement": 203.125,
+            "final_unclaimed_pool": 31.25,
+            "riichi_deposits": -1343.75,
+            "ron_payments": -3237.5,
+            "tsumo_payments": -4393.75,
+            "win_income": 11200
+          }
+        },
+        "candidate": {
+          "games": 32,
+          "mean_net_points": 3356.25,
+          "first_rate": 0.40625,
+          "top2_rate": 0.625,
+          "fourth_rate": 0.125,
+          "mean_rank": 2.09375,
+          "hand_win_rate": 0.2878787878787879,
+          "dealin_rate": 0.12121212121212122,
+          "dealin_event_rate": 0.12121212121212122,
+          "calls_per_game": 2.65625,
+          "mean_point_components": {
+            "draw_settlement": -296.875,
+            "final_unclaimed_pool": 125,
+            "riichi_deposits": -1750,
+            "ron_payments": -3515.625,
+            "tsumo_payments": -3334.375,
+            "win_income": 12128.125
+          }
+        }
+      },
+      "candidate_minus_reference": {
+        "gain": 896.875,
+        "ci95": [
+          -2439.594420220281,
+          4233.344420220281
+        ]
+      }
+    },
+    "mixed": {
+      "policies": {
+        "reference": {
+          "games": 32,
+          "mean_net_points": 1837.5,
+          "first_rate": 0.40625,
+          "top2_rate": 0.53125,
+          "fourth_rate": 0.25,
+          "mean_rank": 2.3125,
+          "hand_win_rate": 0.255,
+          "dealin_rate": 0.13,
+          "dealin_event_rate": 0.13,
+          "calls_per_game": 2.75,
+          "mean_point_components": {
+            "draw_settlement": 328.125,
+            "riichi_deposits": -1437.5,
+            "ron_payments": -4759.375,
+            "tsumo_payments": -3496.875,
+            "win_income": 11203.125
+          }
+        },
+        "candidate": {
+          "games": 32,
+          "mean_net_points": 1462.5,
+          "first_rate": 0.3125,
+          "top2_rate": 0.5625,
+          "fourth_rate": 0.21875,
+          "mean_rank": 2.34375,
+          "hand_win_rate": 0.26865671641791045,
+          "dealin_rate": 0.13930348258706468,
+          "dealin_event_rate": 0.13930348258706468,
+          "calls_per_game": 2.5625,
+          "mean_point_components": {
+            "draw_settlement": -468.75,
+            "final_unclaimed_pool": 125,
+            "riichi_deposits": -1812.5,
+            "ron_payments": -4506.25,
+            "tsumo_payments": -3471.875,
+            "win_income": 11596.875
+          }
+        }
+      },
+      "candidate_minus_reference": {
+        "gain": -375,
+        "ci95": [
+          -5972.2945295450545,
+          5222.2945295450545
+        ]
+      }
+    },
+    "strong": {
+      "policies": {
+        "reference": {
+          "games": 32,
+          "mean_net_points": -803.125,
+          "first_rate": 0.28125,
+          "top2_rate": 0.5,
+          "fourth_rate": 0.21875,
+          "mean_rank": 2.4375,
+          "hand_win_rate": 0.22395833333333334,
+          "dealin_rate": 0.125,
+          "dealin_event_rate": 0.125,
+          "calls_per_game": 2.6875,
+          "mean_point_components": {
+            "draw_settlement": -125,
+            "final_unclaimed_pool": 31.25,
+            "riichi_deposits": -1156.25,
+            "ron_payments": -3753.125,
+            "tsumo_payments": -4728.125,
+            "win_income": 8928.125
+          }
+        },
+        "candidate": {
+          "games": 32,
+          "mean_net_points": 3356.25,
+          "first_rate": 0.4375,
+          "top2_rate": 0.65625,
+          "fourth_rate": 0.15625,
+          "mean_rank": 2.0625,
+          "hand_win_rate": 0.27,
+          "dealin_rate": 0.1,
+          "dealin_event_rate": 0.1,
+          "calls_per_game": 2.90625,
+          "mean_point_components": {
+            "draw_settlement": 171.875,
+            "final_unclaimed_pool": 31.25,
+            "riichi_deposits": -1656.25,
+            "ron_payments": -2746.875,
+            "tsumo_payments": -4362.5,
+            "win_income": 11918.75
+          }
+        }
+      },
+      "candidate_minus_reference": {
+        "gain": 4159.375,
+        "ci95": [
+          -1109.9370500847235,
+          9428.687050084724
+        ]
+      }
+    }
+  },
+  "eligible_for_confirmation": true,
+  "improvement_verified": false,
+  "deployed": false,
+  "reference_games_reused": 0,
+  "fitness_gates_unchanged": true,
+  "independent_audit": {
+    "status": "passed_complete",
+    "games": 192,
+    "whole_wall_groups": 8,
+    "four_seat_payment_records": 192,
+    "final_ranks_checked": 192,
+    "han_fu_independently_recalculated": false
+  },
+  "training": {
+    "optimizer_steps": 1024,
+    "prepared_records": 32768,
+    "consumed_records": 16384,
+    "validation_records": 540,
+    "validation_curve": [
+      {
+        "weighted_target_ce": 1.245697788938394,
+        "phase_target_ce": {
+          "kan_window": 1.2741148614847442,
+          "call_window": 0.641363881828794,
+          "closed_discard": 1.6982374222186754,
+          "open_discard": 1.1268802065855732
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5,
+          "call_window": 0.6625,
+          "closed_discard": 0.4791666666666667,
+          "open_discard": 0.6458333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 0,
+        "upstream_hard_label_nll": 1.4378024426131921
+      },
+      {
+        "weighted_target_ce": 1.2094089779951147,
+        "phase_target_ce": {
+          "kan_window": 1.267635677785923,
+          "call_window": 0.6189741332268263,
+          "closed_discard": 1.640693170732698,
+          "open_discard": 1.1101151365402824
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.4895833333333333,
+          "call_window": 0.7125,
+          "closed_discard": 0.5104166666666666,
+          "open_discard": 0.6041666666666666
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 256,
+        "upstream_hard_label_nll": 1.4332801117822282
+      },
+      {
+        "weighted_target_ce": 1.183340217738248,
+        "phase_target_ce": {
+          "kan_window": 1.2360625353361918,
+          "call_window": 0.6277672221493893,
+          "closed_discard": 1.5847353750936295,
+          "open_discard": 1.100380027672441
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5,
+          "call_window": 0.675,
+          "closed_discard": 0.5208333333333334,
+          "open_discard": 0.6458333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 512,
+        "upstream_hard_label_nll": 1.3900621976109344
+      },
+      {
+        "weighted_target_ce": 1.1952070341434693,
+        "phase_target_ce": {
+          "kan_window": 1.2458101863485493,
+          "call_window": 0.6222036781371885,
+          "closed_discard": 1.607238352417512,
+          "open_discard": 1.114990813985025
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5,
+          "call_window": 0.7,
+          "closed_discard": 0.5416666666666666,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 768,
+        "upstream_hard_label_nll": 1.3982978508757065
+      },
+      {
+        "weighted_target_ce": 1.1915474267879422,
+        "phase_target_ce": {
+          "kan_window": 1.2368761676937121,
+          "call_window": 0.6233051580180186,
+          "closed_discard": 1.603356565450975,
+          "open_discard": 1.1060080827245615
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5416666666666666,
+          "call_window": 0.7,
+          "closed_discard": 0.5104166666666666,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1024,
+        "upstream_hard_label_nll": 1.386825753371534
+      }
+    ],
+    "actual_relabelled_training_exposure": {
+      "records": 16384,
+      "changed_target_positions": 99,
+      "changed_argmax_positions": 30,
+      "changed_target_by_phase": {
+        "call_window": 61,
+        "kan_window": 15,
+        "closed_discard": 13,
+        "open_discard": 10
+      }
+    },
+    "CE_is_diagnostic_not_policy_strength": true
+  },
+  "native_preflight": {
+    "status": "passed_selected_unified_native_validation",
+    "records": 540,
+    "routes": {
+      "closed_discard": 284,
+      "open_discard": 48,
+      "call_window": 80,
+      "ankan": 44,
+      "daiminkan": 46,
+      "kakan": 38
+    },
+    "max_abs_probability_difference": 1.155170220590307e-07
+  },
+  "raw_records_public": false,
+  "weights_public": false,
+  "limitations": [
+    "Eight independent wall streams; 192 matches are not 192 independent samples.",
+    "Simulation does not establish live human performance.",
+    "Kan opportunities depend on policy; counts do not prove causal effects.",
+    "Winning-hand draws are conditional, not a causal same-hand speed measure.",
+    "Audit checks ledgers and ranks, not a separate han/fu implementation.",
+    "Paired rates use equal-weight match-level averages; pooled hand rates have different denominators and may differ in direction."
+  ]
+}
