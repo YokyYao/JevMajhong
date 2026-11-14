@@ -1,0 +1,45 @@
+{
+  "schema": "closed-win-data-recovery-v1",
+  "source_sha256": "61bcad97f78a546e9faf1e267353775de6cbe795e278069f8440336b56571bb3",
+  "source_control_collection": "kan-win-native-v2",
+  "input_method": "replayed_native_closed_states_v1",
+  "reused_wall_groups": 8,
+  "reused_control_matches": 32,
+  "fresh_control_matches": 0,
+  "train_scopes": [
+    "ordinary"
+  ],
+  "decision_filter": "closed_discard",
+  "source_split": "every fourth wall held; original wall-group partition preserved",
+  "pilot_states": {
+    "train": 128,
+    "held": 48
+  },
+  "maximum_states_per_wall": {
+    "train": 24,
+    "held": 24
+  },
+  "worlds_per_state": 16,
+  "wall_scope": "unseen",
+  "reward": {
+    "mode": "own_win_first_v1",
+    "win_weight": 1.0,
+    "fast_weight": 0.25,
+    "dealin_penalty": 2.0,
+    "net_weight": 0.0,
+    "point_scale": 8000.0,
+    "speed_gamma": 0.98
+  },
+  "stages": [
+    "recover-closed-states",
+    "audit-native-states",
+    "collect-ev paired",
+    "audit-futures",
+    "collect-ev all-eligible expansion",
+    "audit-futures"
+  ],
+  "training_admission": "Complete input and full-option independent data audits; exclude all historical held groups; re-catalog and freeze actual available mix before optimizer work",
+  "gradient_training_started": false,
+  "public_raw_records": false,
+  "automatic_retry": false
+}

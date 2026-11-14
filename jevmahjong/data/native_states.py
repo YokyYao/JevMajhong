@@ -7,10 +7,14 @@ from jevmahjong.policy.defense import is_defense_request,request_eligible
 METHOD='native_defense_states_v1'
 CALL_METHOD='native_call_states_v1'
 KAN_METHOD='native_kan_states_v1'
-INPUT_METHODS=(METHOD,CALL_METHOD,KAN_METHOD)
+CLOSED_METHOD='replayed_native_closed_states_v1'
+INPUT_METHODS=(METHOD,CALL_METHOD,KAN_METHOD,CLOSED_METHOD)
 
 
 def input_eligible(request,method):
+    if method==CLOSED_METHOD:
+        from jevmahjong.policy.closed import request_eligible as closed_eligible
+        return closed_eligible(request)
     if method==KAN_METHOD:
         from jevmahjong.policy.kan import request_eligible as kan_eligible
         return kan_eligible(request)

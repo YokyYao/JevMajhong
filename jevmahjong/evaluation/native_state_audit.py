@@ -8,7 +8,7 @@ from riichienv import GameRule,RiichiEnv
 from jevmahjong.core.io import digest,request_hash,write
 from jevmahjong.core.seeds import engine_seed
 from jevmahjong.core.state import build_request
-from jevmahjong.data.native_states import METHOD,CALL_METHOD,KAN_METHOD,INPUT_METHODS,validate
+from jevmahjong.data.native_states import METHOD,CALL_METHOD,KAN_METHOD,CLOSED_METHOD,INPUT_METHODS,validate
 from jevmahjong.evaluation.agents import guarded_indices
 from jevmahjong.policy.defense import eligible_indices
 from jevmahjong.policy.routing import make_head
@@ -29,6 +29,10 @@ def audit(cfg):
     total=source_cfg['training_seeds_per_stage'];count=cfg.get('prefix_walls',total)
     if not isinstance(count,int) or not 1<=count<=total:raise ValueError('Invalid registered prefix length')
     hashes={str(source_file):digest(source_file)}
+    if method==CLOSED_METHOD:
+        for name,checksum in original['source_files'].items():
+            if digest(Path(name))!=checksum:raise ValueError('Recovered control source changed')
+            hashes[name]=checksum
     marker=None
     if count==total:
         path=root/'collection-result.json';marker=json.loads(path.read_text());hashes[str(path)]=digest(path)
@@ -54,6 +58,9 @@ def audit(cfg):
         if checksum!=record['sha256']:raise ValueError('Native input shard changed')
         hashes[str(path)]=checksum;hashes[str(receipt)]=digest(receipt)
         payload=torch.load(path,map_location='cpu',weights_only=False);rows=validate(payload,seed,source_cfg)
+        if method==CLOSED_METHOD:
+            from jevmahjong.training.closed_states import audit_control_coverage
+            audit_control_coverage(payload,source_cfg,hashes)
         if record['rows']!=len(rows) or record['controls']!=4:raise ValueError('Native receipt counts differ')
         meta={tuple(d['episode_key']):d for d in payload['decisions']}
         controls={c['seat']:c for c in payload['controls']}
@@ -77,7 +84,7 @@ def audit(cfg):
             obs=replay_prefix(env,controls[seat]['mjai_log'],decision['intervention_step'])
             request,actions,features=build_request(obs[seat]);hands=hand_outcomes(env.mjai_log)
             eligible=(sorted(set(guarded_indices(obs[seat],actions,features)) |
-                {i for i,f in enumerate(features) if not f}) if method in (CALL_METHOD,KAN_METHOD)
+                {i for i,f in enumerate(features) if not f}) if method in (CALL_METHOD,KAN_METHOD,CLOSED_METHOD)
                 else eligible_indices(obs[seat],actions,features))
             if (call_observation_digest(obs)!=row['source_state_digest']
                     or request_hash(request)!=row['request_sha256']
@@ -106,6 +113,9 @@ def audit(cfg):
     elif method==KAN_METHOD:
         result['kan_state_coverage']=dict(coverage)
         result['calling_baseline_sha256']=identity(source_cfg)
+    elif method==CLOSED_METHOD:
+        result.update(all_recovered_opportunities_enumerated=True,original_controls_unchanged=True,
+            reused_control_matches=count*4,fresh_control_matches=0)
     write(out/'result.json',result);write(out/'status.json',result);return result
 
 

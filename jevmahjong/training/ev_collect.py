@@ -105,7 +105,7 @@ def select_case_plan(partitions,head,config,baseline_context=None):
             raise ValueError('Positive public call-route reserves must fit each split budget')
         candidates=choose_cases({split:partitions[split]},head,None,*options,baseline_context)
         from .call_head import route_groups
-        routes=route_groups([{'row':r} for r in candidates]);chosen={}
+        routes=route_groups([{'row':r} for r in candidates]) if requested else {};chosen={}
         if wall_caps is not None:
             from .whole_wall_sampling import balanced_subset
             selected.extend(balanced_subset(candidates,routes,requested,limits[split],wall_caps[split]))

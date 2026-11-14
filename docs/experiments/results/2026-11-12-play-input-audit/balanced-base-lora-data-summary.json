@@ -2544,7 +2544,7 @@
     "native_passed": true,
     "development_job": 298236,
     "independent_audit_job": 298241,
-    "development_running": true,
+    "development_running": false,
     "development_expected_games": 192,
     "actual_prelaunch_protocols_checked": 349,
     "development_seed_start": 12010000,
@@ -2553,6 +2553,124 @@
     "fitness_gates_unchanged": true,
     "own_win_and_risk_improvement_proven": false,
     "deployed": false,
-    "core_tests_passed": 194
+    "core_tests_passed": 194,
+    "development_status": "independently_audited_complete",
+    "development_complete_games": 192,
+    "development_audit_status": "passed_complete",
+    "eligible_for_confirmation": false,
+    "failed_gate": "mean_dealin_increase_exceeds_0.01",
+    "hand_win_paired": {
+      "gain": 0.024611441798941796,
+      "ci95": [
+        -0.04417425171706109,
+        0.09339713531494469
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "dealin_rate_paired": {
+      "gain": 0.028877314814814814,
+      "ci95": [
+        -0.036654741753572556,
+        0.09440937138320218
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "net_points_paired": {
+      "gain": 430.20833333333326,
+      "ci95": [
+        -4323.959274397877,
+        5184.375941064543
+      ],
+      "independent_wall_streams": 8
+    },
+    "speed_paired": {
+      "gain": 0.008631398801508889,
+      "ci95": [
+        -0.019666484278910826,
+        0.03692928188192861
+      ],
+      "unit": "discounted own wins per hand, equal-weight match means, whole-wall paired CI"
+    },
+    "scheduler_exit_codes": {
+      "298236": "0:0",
+      "298241": "0:0"
+    },
+    "new_source_CI_commit": "6563476c540a5a38815d2acbb147bcabb24a2a30",
+    "new_source_CI_run": 43572666529,
+    "new_source_CI_core": "success",
+    "new_source_CI_desktop": "success",
+    "kan_choices_and_opportunities": {
+      "reference": {
+        "choices": {
+          "ankan": 11,
+          "daiminkan": 0,
+          "kakan": 6
+        },
+        "opportunities": {
+          "ankan": 43,
+          "daiminkan": 29,
+          "kakan": 12
+        }
+      },
+      "candidate": {
+        "choices": {
+          "ankan": 22,
+          "daiminkan": 15,
+          "kakan": 11
+        },
+        "opportunities": {
+          "ankan": 42,
+          "daiminkan": 46,
+          "kakan": 11
+        }
+      }
+    }
+  },
+  "closed_win_data_recovery_v1": {
+    "status": "submitted_serial",
+    "source_sha256": "61bcad97f78a546e9faf1e267353775de6cbe795e278069f8440336b56571bb3",
+    "source_control_collection": "kan-win-native-v2",
+    "reused_wall_groups": 8,
+    "reused_control_matches": 32,
+    "fresh_control_matches": 0,
+    "pilot_train_states": 128,
+    "pilot_held_states": 48,
+    "worlds_per_state": 16,
+    "stages": [
+      {
+        "job": 298414,
+        "resource": "gpu",
+        "command": "recover-closed-states"
+      },
+      {
+        "job": 298415,
+        "resource": "cpu",
+        "command": "audit-native-states"
+      },
+      {
+        "job": 298416,
+        "resource": "gpu",
+        "command": "collect-ev"
+      },
+      {
+        "job": 298417,
+        "resource": "cpu",
+        "command": "audit-futures"
+      },
+      {
+        "job": 298418,
+        "resource": "gpu",
+        "command": "collect-ev"
+      },
+      {
+        "job": 298419,
+        "resource": "cpu",
+        "command": "audit-futures"
+      }
+    ],
+    "all_alternatives_before_training": true,
+    "reward_unchanged": true,
+    "optimizer_updates": 0,
+    "raw_private": true
   }
 }

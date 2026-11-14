@@ -22,7 +22,7 @@ def load(config, model_files):
     checksum = identity(config)
     if checksum is None:
         return None
-    kan = config.get('train_scopes') == ['ordinary'] and config.get('decision_filter') == 'kan_windows'
+    kan = config.get('train_scopes') == ['ordinary'] and config.get('decision_filter') in ('kan_windows','closed_discard')
     calling = config.get('train_scopes') == ['calling'] and config.get('decision_filter') == 'all'
     if not (kan or calling):
         raise ValueError('Calling baseline requires a declared kan or pure-call workflow')
