@@ -41,6 +41,7 @@ class UnifiedEvaluationTests(unittest.TestCase):
         self.assertEqual(check_recipes(p,d,c)['status'],'passed_unified_recipe_links')
         for changes in [dict(development_out='some-other-model'),dict(seed_start=105),dict(reference={'residual':'other'})]:
             with self.subTest(changes=changes),self.assertRaises(ValueError):check_recipes(p,d,dict(c,**changes))
+        with self.assertRaises(ValueError):check_recipes(p,d,dict(c,candidate_selection={'manifest':'other'}))
 
     def test_native_preflight_covers_all_routes_and_compares_each_probability(self):
         from tests.core.test_win_context import pair

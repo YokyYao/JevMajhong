@@ -97,7 +97,7 @@ def assert_same_candidate(protocol,candidate):
 
 def check_recipes(preflight,development,confirmation):
     """Check candidate/reference/objective links before any model is selected."""
-    shared=('candidate_run','candidate_model_id','reference','confirmation_objective','max_dealin_rate_increase','fast_gamma')
+    shared=('candidate_run','candidate_model_id','candidate_selection','reference','confirmation_objective','max_dealin_rate_increase','fast_gamma')
     if (not isinstance(development.get('candidate_model_id'),str) or not development['candidate_model_id']
             or development.get('confirmation_objective')!='hand_win'
             or not math.isfinite(development['max_dealin_rate_increase'])

@@ -8,7 +8,8 @@ import sys
 
 from jevmahjong.core.io import digest,write
 from jevmahjong.training.provenance import snapshot,verify
-from .unified_contract import checked_candidate,assert_same_candidate,verify_files,bundle,read
+from .unified_contract import assert_same_candidate,verify_files,bundle,read
+from .checkpoint_selection import candidate_for_evaluation
 
 
 def preflight(client,candidate):
@@ -49,7 +50,7 @@ def preflight(client,candidate):
 
 def run(cfg,resume=False):
     from .metrics import summarize,SUITES,POLICIES
-    candidate=checked_candidate(cfg['candidate_run']);train_cfg=candidate['training_config']
+    candidate=candidate_for_evaluation(cfg);train_cfg=candidate['training_config']
     if not isinstance(cfg.get('preflight_only',False),bool):raise ValueError('Boolean native-preflight flag required')
     if cfg.get('candidate_model_id')!=candidate['model_id']:raise ValueError('Prescribed unified model id differs')
     if cfg.get('confirmation_objective')!='hand_win' or cfg.get('reference_cache_out'):
@@ -58,6 +59,8 @@ def run(cfg,resume=False):
     lock=(out/'evaluation.lock').open('w');fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     reference=cfg['reference'];proto=snapshot({key:reference[key] for key in ('discard_checkpoint','call_checkpoint')})
     proto['config']=cfg;proto['candidate_bundle']=candidate['model'];proto['fit_receipt']=candidate['receipt']
+    proto['candidate_selection_method']=candidate.get('selection_method','validation_target_ce')
+    proto['training_validation_selected_step']=candidate.get('training_validation_selected_step',candidate['selected_step'])
     proto['reference_policy']=reference;proto['source_files']={reference['call_context_baseline']['checkpoint']:reference['call_context_baseline']['sha256']}
     verify_files(proto['source_files'])
     if not cfg.get('preflight_only',False):
@@ -117,6 +120,7 @@ def run(cfg,resume=False):
     if bundle(candidate['model']['directory'])!=candidate['model']:raise ValueError('Adapter/head changed during matches')
     component='unified_continued_adapter_and_pointer_head' if candidate.get('initialization_mode')=='continued' else 'unified_new_adapter_and_pointer_head'
     result.update(candidate_identity_sha256=candidate['model']['identity_sha256'],candidate_component=component,
+        candidate_selection_method=proto['candidate_selection_method'],training_validation_selected_step=proto['training_validation_selected_step'],
         reference_games_reused=0,new_games_simulated=len(games),independent_audit_required=True)
     write(out/'evaluation-result.json',result);write(out/'audit.json',dict(status='evaluation_complete_independent_audit_pending',games=len(games),games_sha256=digest(raw),candidate_identity_sha256=candidate['model']['identity_sha256'],
         native_files={str(out/name):digest(out/name) for name in ('native-preflight.json','native-rows-private.json')}))

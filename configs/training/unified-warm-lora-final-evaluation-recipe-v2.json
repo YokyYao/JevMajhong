@@ -1,0 +1,35 @@
+{
+  "recipe_kind": "registered_single_final_checkpoint_diagnostic",
+  "model_id": "jev-unified-warm-lora-v2",
+  "training_source_sha256": "fdd0fffdcb4d84ffe5f279d94ae1cfe7b7645dccb2f60b1e7c1f587f8e46713f",
+  "evaluation_source_sha256": "8f984e331b1aff42336d40f7ae3e3ae7039259c0eb4e22947d17911d604dbc1e",
+  "original_CE_selected_step": 0,
+  "declared_step": 384,
+  "selection_method": "registered_final_training_checkpoint",
+  "candidate_identity_sha256": "8bcee99f14d7dfa29f857fa20dc4fa67ba6acf0aa4d288d14867aa552df9cd78",
+  "declaration_sha256": "c36feb9d21914a23183c0a7b58502bbcee0d12a7f09590a788d61d21b8b3c960",
+  "declaration_timing": "after training, before any full match for this fit",
+  "one_candidate_only": true,
+  "no_retrospective_selection_after_fit_games": true,
+  "preserve_original_training_artifacts": true,
+  "requires_changed_LoRA_and_head": true,
+  "requires_same_architecture_and_tokenizer": true,
+  "native_validation_records": 352,
+  "development": {
+    "seed_start": 12010000,
+    "seeds": 8,
+    "games": 192
+  },
+  "conditional_confirmation": {
+    "seed_start": 12020000,
+    "seeds": 32,
+    "games": 768
+  },
+  "confirmation_objective": "hand_win",
+  "development_own_win_mean_must_be_positive": true,
+  "max_dealin_rate_increase": 0.01,
+  "confirmation_own_win_CI_lower_must_be_positive": true,
+  "independent_event_audit_required": true,
+  "raw_data_and_weights_private": true,
+  "not_real_human_win_rate": true
+}

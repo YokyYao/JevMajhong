@@ -1,5 +1,5 @@
 {
-  "stage": "warm_v1_no_new_learning_warm_v2_kan_balanced_training_running",
+  "stage": "warm_v2_final384_registered_before_matches_diagnostic_running",
   "datasets": 71,
   "replay_jsonl_datasets": 22,
   "native_collection_datasets": 49,
@@ -20,12 +20,12 @@
     "trainable_parameters": 11347456,
     "adapter_tensors": 372
   },
-  "next": "Monitor verified-parent warm LoRA and linked native/development/audit; promote only after new independently confirmed own-hand-win improvement and unchanged risk gate.",
+  "next": "Wait for full final384 development and independent audit; real own-win/risk gates decide confirmation. If unmet, investigate direct own-win counterfactual coverage, especially closed discards, before repeating SFT.",
   "phase_mix_not_finalized": false,
   "LoRA_training_started": true,
   "old_pending_kan_fit_chain_cancelled": true,
   "running_evaluation_preserved": true,
-  "core_tests_passed": 188,
+  "core_tests_passed": 194,
   "raw_records_public": false,
   "test_payloads_opened": false,
   "weights_public": false,
@@ -2447,7 +2447,7 @@
       "extra_kan_reward": false,
       "parent_initialization_and_optimizer_unchanged_from_warm_v1": true
     },
-    "status": "actual_parameter_updates_verified",
+    "status": "training_complete_CE_selected_parent_final384_diagnostic_running",
     "train_groups": 3458,
     "validation_groups": 178,
     "all_validation_bytes_unchanged": true,
@@ -2471,13 +2471,88 @@
     "independent_audit_job": 298059,
     "all_jobs_serial": true,
     "freshness_protocols_checked": 346,
-    "code_unchanged": true,
     "last_code_CI_commit": "997f8086768a364034c0353cd056d7c464da8d45",
     "last_code_CI_run": 43544794810,
     "last_code_CI_core": "success",
     "last_code_CI_desktop": "success",
     "strength_improvement_proven": false,
-    "complete_new_strength_games": 0,
-    "deployed": false
+    "deployed": false,
+    "optimizer_steps": 384,
+    "original_CE_selected_step": 0,
+    "validation_curve": [
+      {
+        "step": 0,
+        "weighted_target_ce": 1.0695736208094526
+      },
+      {
+        "step": 128,
+        "weighted_target_ce": 1.088111253343383
+      },
+      {
+        "step": 256,
+        "weighted_target_ce": 1.0962711867028834
+      },
+      {
+        "step": 384,
+        "weighted_target_ce": 1.1268442713757993
+      }
+    ],
+    "regular_native_status": "skipped_no_validation_learning",
+    "regular_development_status": "admission_rejected_no_validation_learning",
+    "regular_audit_cancelled": true,
+    "objective_label_coverage": {
+      "expert_hard": 31216,
+      "counterfactual_soft": 1552,
+      "counterfactual_fraction": 0.04736328125,
+      "policy_gradient_RL_enabled": false,
+      "by_phase": {
+        "closed_discard": {
+          "expert": 15224,
+          "counterfactual": 0
+        },
+        "open_discard": {
+          "expert": 7992,
+          "counterfactual": 200
+        },
+        "call_window": {
+          "expert": 5376,
+          "counterfactual": 1352
+        },
+        "kan_window": {
+          "expert": 2624,
+          "counterfactual": 0
+        }
+      }
+    },
+    "regular_path_games": 0,
+    "training_code_unchanged": true,
+    "diagnostic_evaluation_code_changed": true
+  },
+  "active_evaluation_source_sha256": "8f984e331b1aff42336d40f7ae3e3ae7039259c0eb4e22947d17911d604dbc1e",
+  "followup_warm_v2_final_probe": {
+    "candidate_identity_sha256": "8bcee99f14d7dfa29f857fa20dc4fa67ba6acf0aa4d288d14867aa552df9cd78",
+    "original_CE_selected_step": 0,
+    "declared_final_step": 384,
+    "selection_method": "registered_final_training_checkpoint",
+    "registered_after_training_before_any_fit_games": true,
+    "single_final_candidate_only": true,
+    "no_prior_fit_games_protocols_checked": 348,
+    "original_training_files_preserved": true,
+    "native_job": 298234,
+    "native_records": 352,
+    "native_max_abs_probability_difference": 1.2688821815487472e-07,
+    "native_passed": true,
+    "development_job": 298236,
+    "independent_audit_job": 298241,
+    "development_running": true,
+    "development_expected_games": 192,
+    "actual_prelaunch_protocols_checked": 349,
+    "development_seed_start": 12010000,
+    "conditional_confirmation_seed_start": 12020000,
+    "confirmation_submitted": false,
+    "fitness_gates_unchanged": true,
+    "own_win_and_risk_improvement_proven": false,
+    "deployed": false,
+    "core_tests_passed": 194
   }
 }

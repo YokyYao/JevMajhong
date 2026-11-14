@@ -7,7 +7,8 @@ from pathlib import Path
 import statistics
 from jevmahjong.core.io import digest,write
 from jevmahjong.training.provenance import verify
-from .unified_contract import checked_candidate,assert_same_candidate,verify_files,bundle,read
+from .unified_contract import assert_same_candidate,verify_files,bundle,read
+from .checkpoint_selection import candidate_for_evaluation
 
 
 def recount(events,seat,gamma):
@@ -86,7 +87,7 @@ def audit(cfg):
     if digest(evaluation_file)!=cfg['evaluation_config_sha256']:raise ValueError('Registered evaluation recipe changed')
     ecfg=read(evaluation_file);out=Path(ecfg['out']);protocol=read(out/'protocol.json');verify(protocol)
     if protocol['config']!=ecfg:raise ValueError('Actual evaluator startup differs')
-    candidate=checked_candidate(ecfg['candidate_run']);assert_same_candidate(protocol,candidate)
+    candidate=candidate_for_evaluation(ecfg);assert_same_candidate(protocol,candidate)
     verify_files(protocol['source_files']);verify_files(protocol['native_preflight_receipt']);verify_files(protocol.get('development_receipt',{}))
     native=read(out/'native-preflight.json')
     if native['candidate_identity_sha256']!=candidate['model']['identity_sha256'] or any(n<1 for n in native['routes'].values()):
@@ -94,6 +95,12 @@ def audit(cfg):
     result=read(out/'evaluation-result.json');raw=out/'games-private.jsonl';raw_sha=digest(raw)
     component='unified_continued_adapter_and_pointer_head' if candidate.get('initialization_mode')=='continued' else 'unified_new_adapter_and_pointer_head'
     if result.get('candidate_component')!=component:raise ValueError('Candidate initialization component differs')
+    method=candidate.get('selection_method','validation_target_ce')
+    if protocol.get('candidate_selection_method')!=method or result.get('candidate_selection_method')!=method:
+        raise ValueError('Candidate checkpoint-selection method differs')
+    training_step=candidate.get('training_validation_selected_step',candidate['selected_step'])
+    if protocol.get('training_validation_selected_step')!=training_step or result.get('training_validation_selected_step')!=training_step:
+        raise ValueError('Original training selection was not preserved')
     completion=read(out/'audit.json')
     if (completion['status']!='evaluation_complete_independent_audit_pending'
             or completion['games_sha256']!=raw_sha or completion['candidate_identity_sha256']!=candidate['model']['identity_sha256']):
@@ -116,7 +123,8 @@ def audit(cfg):
         raise ValueError('Model or games changed during independent audit')
     proof=dict(status='passed_complete',games=len(rows),games_sha256=raw_sha,
         candidate_identity_sha256=candidate['model']['identity_sha256'],selected_step=candidate['selected_step'],
-        candidate_component=component,whole_wall_groups=ecfg['seeds'],
+        candidate_component=component,candidate_selection_method=method,
+        training_validation_selected_step=candidate.get('training_validation_selected_step',candidate['selected_step']),whole_wall_groups=ecfg['seeds'],
         manual_four_seat_payment_records=len(rows),manual_final_ranks_checked=len(rows),
         paired_outcomes=outcomes,reference_games_reused=0,independent_strength_improvement_verified=verified,
         han_fu_independently_recalculated=False,new_simulations=0,evaluation_config_sha256=digest(evaluation_file),
