@@ -2167,7 +2167,7 @@
     "reference_calls_per_game": 2.3958333333333335,
     "candidate_calls_per_game": 1.2708333333333333
   },
-  "active_model_id": "jev-unified-winrisk-v2",
+  "active_model_id": "jev-unified-winrisk-v3",
   "top_level_model_training_and_unified_evaluation_fields_are_v1_history": true,
   "followup_warm_v1": {
     "recipe": {
@@ -2340,7 +2340,7 @@
     "audit_pending_cancelled": true,
     "improvement_verified": false
   },
-  "active_source_sha256": "3cbc70fa6260d918abf6701bc62edc7a6b2094ae8d9bab8cd73ff552d633a309",
+  "active_source_sha256": "ab0fb10eea18b7087d77ee6090e806b6802f5a2975aa0b874149ef86a68e53bd",
   "followup_warm_v2": {
     "recipe": {
       "recipe_kind": "verified_complete_parent_LoRA_continuation_requires_registered_wrapper",
@@ -2528,7 +2528,7 @@
     "training_code_unchanged": true,
     "diagnostic_evaluation_code_changed": true
   },
-  "active_evaluation_source_sha256": "3cbc70fa6260d918abf6701bc62edc7a6b2094ae8d9bab8cd73ff552d633a309",
+  "active_evaluation_source_sha256": "ab0fb10eea18b7087d77ee6090e806b6802f5a2975aa0b874149ef86a68e53bd",
   "followup_warm_v2_final_probe": {
     "candidate_identity_sha256": "8bcee99f14d7dfa29f857fa20dc4fa67ba6acf0aa4d288d14867aa552df9cd78",
     "original_CE_selected_step": 0,
@@ -3103,10 +3103,10 @@
     ],
     "new_pool_records": 126569
   },
-  "active_experiment_status": "v2_GPU_fit_running_after_complete_data_and_preparation",
+  "active_experiment_status": "v3_training_target_relabel_and_preflight_running",
   "followup_winrisk_v2": {
     "model_id": "jev-unified-winrisk-v2",
-    "status": "full_data_audits_and_actual_preparation_passed_GPU_fit_running",
+    "status": "training_and_audited_development_complete_risk_gate_failed",
     "source_sha256": "61a3411c21ac0c70a9641712969f727774bc3742fb8cc26950e58cb219678e04",
     "new_control_matches": 0,
     "reused_control_walls": 24,
@@ -3294,6 +3294,234 @@
       "original_failed_artifacts_preserved": true,
       "optimizer_updates_during_recovery": 0
     },
-    "validation_weighting_note": "No training source/MC-phase coefficient in validation; existing diagnostic phase CE weights remain .45 closed/.2 open/.3 call/.05 kan."
+    "validation_weighting_note": "No training source/MC-phase coefficient in validation; existing diagnostic phase CE weights remain .45 closed/.2 open/.3 call/.05 kan.",
+    "optimizer_steps": 1024,
+    "training_validation_selected_step": 512,
+    "evaluated_checkpoint_step": 1024,
+    "validation_curve": [
+      {
+        "weighted_target_ce": 1.245697788938394,
+        "phase_target_ce": {
+          "kan_window": 1.2741148614847442,
+          "call_window": 0.641363881828794,
+          "closed_discard": 1.6982374222186754,
+          "open_discard": 1.1268802065855732
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5,
+          "call_window": 0.6625,
+          "closed_discard": 0.4791666666666667,
+          "open_discard": 0.6458333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 0,
+        "upstream_hard_label_nll": 1.4378024426131921
+      },
+      {
+        "weighted_target_ce": 1.2100876348289198,
+        "phase_target_ce": {
+          "kan_window": 1.2781392256672663,
+          "call_window": 0.6188895311277981,
+          "closed_discard": 1.6415245814433155,
+          "open_discard": 1.109138762788625
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.46875,
+          "call_window": 0.7,
+          "closed_discard": 0.5104166666666666,
+          "open_discard": 0.6041666666666666
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 256,
+        "upstream_hard_label_nll": 1.43760701685256
+      },
+      {
+        "weighted_target_ce": 1.1838871901921864,
+        "phase_target_ce": {
+          "kan_window": 1.2389653546553998,
+          "call_window": 0.622397074678923,
+          "closed_discard": 1.5885551364069546,
+          "open_discard": 1.101849943363049
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5,
+          "call_window": 0.675,
+          "closed_discard": 0.5208333333333334,
+          "open_discard": 0.6458333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 512,
+        "upstream_hard_label_nll": 1.3914271540953105
+      },
+      {
+        "weighted_target_ce": 1.1961174008295272,
+        "phase_target_ce": {
+          "kan_window": 1.245945179020432,
+          "call_window": 0.6220004985259087,
+          "closed_discard": 1.609095286412744,
+          "open_discard": 1.1156355671749913
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5104166666666666,
+          "call_window": 0.7,
+          "closed_discard": 0.5208333333333334,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 768,
+        "upstream_hard_label_nll": 1.4006306830891662
+      },
+      {
+        "weighted_target_ce": 1.1927301164777206,
+        "phase_target_ce": {
+          "kan_window": 1.2377707115314065,
+          "call_window": 0.6232365547034678,
+          "closed_discard": 1.6052487542961003,
+          "open_discard": 1.1075433752843244
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5520833333333334,
+          "call_window": 0.7,
+          "closed_discard": 0.5208333333333334,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1024,
+        "upstream_hard_label_nll": 1.3892893078714528
+      }
+    ],
+    "development_games": 192,
+    "development_independent_wall_streams": 8,
+    "hand_win_paired": {
+      "gain": 0.02296213624338624,
+      "ci95": [
+        -0.02836186029293992,
+        0.0742861327797124
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "dealin_rate_paired": {
+      "gain": 0.027657903439153437,
+      "ci95": [
+        -0.011870840349656058,
+        0.06718664722796293
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "net_points_paired": {
+      "gain": -445.83333333333326,
+      "ci95": [
+        -4904.577369728178,
+        4012.9107030615123
+      ]
+    },
+    "fast_reward_paired": {
+      "gain": 0.016807397584183967,
+      "ci95": [
+        -0.00794540418648285,
+        0.04156019935485078
+      ],
+      "unit": "discounted own wins per hand, equal-weight match means, whole-wall paired CI"
+    },
+    "independent_development_audit": "passed_complete",
+    "eligible_for_confirmation": false,
+    "confirmation_games": 0,
+    "result_summary": "unified-winrisk-v2-development-summary.json"
+  },
+  "followup_winrisk_v3": {
+    "model_id": "jev-unified-winrisk-v3",
+    "status": "preparation_complete_GPU_job_running_initialization",
+    "training_source_sha256": "ab0fb10eea18b7087d77ee6090e806b6802f5a2975aa0b874149ef86a68e53bd",
+    "parent_model_id": "jev-unified-winrisk-v1",
+    "parent_checkpoint_step": 512,
+    "same_parent_hyperparameters_seed_and_budget_as_v2": true,
+    "only_change": "Positive risk-adjusted utility is no longer suppressed solely because own-win probability decreases, when deal-in probability also decreases.",
+    "risk_target_audit": {
+      "states_checked": 3143,
+      "phase_states": {
+        "call_window": 1980,
+        "kan_window": 366,
+        "open_discard": 243,
+        "closed_discard": 554
+      },
+      "clipped_actions": {
+        "call_window/lower_win_positive_utility_clipped": 139,
+        "call_window/safety_tradeoff_positive_utility_clipped": 139,
+        "kan_window/lower_win_positive_utility_clipped": 40,
+        "kan_window/safety_tradeoff_positive_utility_clipped": 40,
+        "open_discard/lower_win_positive_utility_clipped": 40,
+        "open_discard/safety_tradeoff_positive_utility_clipped": 40,
+        "closed_discard/lower_win_positive_utility_clipped": 61,
+        "closed_discard/safety_tradeoff_positive_utility_clipped": 61
+      },
+      "affected_states": {
+        "call_window": 130,
+        "kan_window": 26,
+        "open_discard": 25,
+        "closed_discard": 34
+      },
+      "argmax_changes": {
+        "call_window": 47,
+        "kan_window": 3,
+        "open_discard": 9,
+        "closed_discard": 6
+      },
+      "causal_explanation_proven": false
+    },
+    "planned_target_changes": 215,
+    "planned_argmax_label_changes": 65,
+    "fixed_train_records": 32768,
+    "fixed_full_validation_records": 540,
+    "fixed_validation_labels_unchanged": true,
+    "reward_unchanged": true,
+    "phase_and_source_weights_unchanged": true,
+    "registered_final_step": 1024,
+    "development_games": 192,
+    "conditional_confirmation_games": 768,
+    "fitness_gates_unchanged": true,
+    "CPU_preparation_job": 299170,
+    "GPU_fit_and_evaluation_job": 299193,
+    "optimizer_started": false,
+    "local_core_tests_passed": 223,
+    "new_code_CI_status": "pending_new_commit",
+    "strength_improvement_proven": false,
+    "deployed": false,
+    "raw_records_public": false,
+    "weights_public": false,
+    "CPU_preparation_state": "COMPLETED",
+    "GPU_job_state": "RUNNING",
+    "all_32768_public_inputs_identical": true,
+    "actual_tokenized_inputs_checked": 160,
+    "fixed_full_validation_bytes_identical": true
   }
 }

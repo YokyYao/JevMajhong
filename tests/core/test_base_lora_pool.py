@@ -11,6 +11,28 @@ from jevmahjong.training.base_lora import question_loss,target_cross_entropy,val
 
 
 class BaseLoraPoolTests(unittest.TestCase):
+    def test_safety_tradeoff_retains_positive_reward_defense_only_when_explicit(self):
+        zero=dict(utility=0.,own_win=0.,fast_reward=0.,dealin=0.)
+        safer=dict(utility=-.0625+.25*(-.02)-2*(-.125),own_win=-.0625,fast_reward=-.02,dealin=-.125)
+        self.assertEqual(soft_target([zero,safer],.05,True),[.5,.5])
+        self.assertGreater(soft_target([zero,safer],.05,True,True)[1],.97)
+        speed_only=dict(utility=.1,own_win=-.0625,fast_reward=.65,dealin=0.)
+        self.assertEqual(soft_target([zero,speed_only],.05,True,True),[.5,.5])
+        unsafe=dict(utility=-.295,own_win=.1,fast_reward=.02,dealin=.2)
+        self.assertGreater(soft_target([zero,unsafe],.05,True,True)[0],.99)
+        with self.assertRaisesRegex(ValueError,'explicit risk'):soft_target([zero,safer],.05,False,True)
+
+    def test_safety_tradeoff_can_prefer_a_call_without_labelling_unknown_actions(self):
+        reward={'mode':'registered'}
+        control=dict(utility=-.225,own_win=.25,fast_reward=.1,dealin=.25,net_points=0.)
+        branch=dict(utility=-.0425,own_win=.1875,fast_reward=.08,dealin=.125,net_points=0.)
+        row=dict(public_request=dict(state={},questions={'action':{'criteria':dict(a0={'type':'none'},a1={'type':'chi'},a2={'type':'pon'})}}),
+            eligible=[0,1],teacher_action=0,action=1,_source_reward=reward,training_credit=dict(control=control,branch=branch))
+        legacy,_=complete_target([row],reward,.05,True)
+        revised,_=complete_target([row],reward,.05,True,True)
+        self.assertEqual(legacy,dict(a0=.5,a1=.5,a2=0.))
+        self.assertGreater(revised['a1'],.97);self.assertEqual(revised['a2'],0.)
+
     def test_risk_compatible_version_keeps_equal_win_safer_action_and_preserves_legacy(self):
         zero=dict(utility=0.,own_win=0.,fast_reward=0.,dealin=0.)
         safer=dict(utility=.125,own_win=0.,fast_reward=0.,dealin=-.0625)

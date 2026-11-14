@@ -59,9 +59,11 @@ def normalized_request(request,group,label_type,ordinal):
     return enrich_request(result)
 
 
-def soft_target(credits,temperature,allow_risk_only=False):
-    """Outcome-only win-compatible target; no inherited never-call prior."""
+def soft_target(credits,temperature,allow_risk_only=False,allow_safety_tradeoff=False):
+    """Outcome targets with explicit legacy or safety-tradeoff compatibility."""
     if not math.isfinite(temperature) or temperature<=0:raise ValueError('Positive temperature required')
+    if allow_safety_tradeoff and not allow_risk_only:
+        raise ValueError('Safety tradeoffs require explicit risk-compatible targets')
     values=[]
     for c in credits:
         u,w,s=(c[k] for k in ('utility','own_win','fast_reward'))
@@ -70,13 +72,14 @@ def soft_target(credits,temperature,allow_risk_only=False):
         if allow_risk_only and (not isinstance(d,(int,float)) or not math.isfinite(d)):
             raise ValueError('Finite deal-in credit required for risk-compatible targets')
         compatible=w>1e-12 or (abs(w)<=1e-12 and (s>1e-12 or (allow_risk_only and d<-1e-12)))
+        if allow_safety_tradeoff and d<-1e-12:compatible=True
         if u>0 and not compatible:u=0.
         values.append(u/temperature)
     maximum=max(values);raw=[math.exp(x-maximum) for x in values];total=sum(raw)
     return [x/total for x in raw]
 
 
-def complete_target(rows,reward,temperature,allow_risk_only=False):
+def complete_target(rows,reward,temperature,allow_risk_only=False,allow_safety_tradeoff=False):
     """Use every labelled action; unknown legal actions receive an explicit mask.
 
     Zero entries outside eligible mean UNLABELLED, not negative supervision.
@@ -99,7 +102,7 @@ def complete_target(rows,reward,temperature,allow_risk_only=False):
         delta={k:means['branch'][k]-means['control'][k] for k in zero}
         credits[row['action']]=delta
     if set(credits)!=set(eligible):raise ValueError('Incomplete labelled future menu')
-    probability=soft_target([credits[a] for a in eligible],temperature,allow_risk_only)
+    probability=soft_target([credits[a] for a in eligible],temperature,allow_risk_only,allow_safety_tradeoff)
     target={k:0. for k in keys}
     for action,p in zip(eligible,probability):target[keys[action]]=p
     if any(p<=0 for p in probability):raise ValueError('Labelled target probability underflow')

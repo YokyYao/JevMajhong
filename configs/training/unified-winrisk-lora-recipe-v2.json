@@ -1,6 +1,6 @@
 {
   "model_id": "jev-unified-winrisk-v2",
-  "status": "complete_data_audits_and_preparation_passed_GPU_fit_running",
+  "status": "training_and_audited_development_complete_risk_gate_failed",
   "base": "Qwen/Qwen3.5-0.8B",
   "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
   "training_source_sha256": "3cbc70fa6260d918abf6701bc62edc7a6b2094ae8d9bab8cd73ff552d633a309",
@@ -96,5 +96,11 @@
     "head_parameters_changed": true,
     "cached_encoder_features_used": false
   },
-  "strength_improvement_proven": false
+  "strength_improvement_proven": false,
+  "actual_optimizer_steps": 1024,
+  "training_validation_selected_step": 512,
+  "evaluated_checkpoint_step": 1024,
+  "eligible_for_confirmation": false,
+  "confirmation_games": 0,
+  "failed_gate": "mean_dealin_increase_exceeds_0.01"
 }
