@@ -7,10 +7,60 @@ import torch
 from safetensors.torch import save_file
 from jevmahjong.training.base_lora import package_digest
 from jevmahjong.training.initialization import (check_groups,exact_loaded_tensors,
-    check_initialization,verified_parent)
+    check_initialization,verified_parent,lineage_training_files,bind_parent)
+from jevmahjong.core.io import digest
+from unittest.mock import patch
 
 
 class LoraInitializationTests(unittest.TestCase):
+    def test_continued_parent_requires_and_uses_explicit_archived_selection(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);source=root/'source';package=source/'jevmahjong';module=package/'evaluation'
+            module.mkdir(parents=True);(package/'__init__.py').write_text('');(module/'__init__.py').write_text('')
+            parent=dict(model={'identity_sha256':'continued-final'},receipt={},selected_step=512,
+                training_config={'initialization':'continued','base':'base','base_revision':'rev'},training_protocol={})
+            (module/'unified_contract.py').write_text('def checked_candidate(run):\n    return '+repr(parent)+'\n')
+            (module/'checkpoint_selection.py').write_text('def candidate_for_evaluation(cfg):\n'
+                "    if cfg['candidate_selection']['sha256']!='bound-declaration': raise ValueError('Declaration changed')\n"
+                '    return '+repr(parent)+'\n')
+            cfg=dict(out=str(root/'new'),base='base',base_revision='rev',parent_initialization=dict(
+                source=str(source),source_sha256=package_digest(package),run=str(root/'parent'),
+                identity_sha256='continued-final',selected_step=512))
+            with self.assertRaisesRegex(ValueError,'explicit registered checkpoint'):verified_parent(cfg)
+            cfg['parent_initialization']['candidate_selection']=dict(method='registered_final_training_checkpoint',manifest='decl.json',sha256='bound-declaration')
+            self.assertEqual(verified_parent(cfg),parent)
+            wrong=copy.deepcopy(cfg);wrong['parent_initialization']['candidate_selection']['sha256']='wrong'
+            with self.assertRaisesRegex(ValueError,'Declaration changed'):verified_parent(wrong)
+            wrong=copy.deepcopy(cfg);wrong['parent_initialization']['selected_step']=0
+            with self.assertRaisesRegex(ValueError,'identity differs'):verified_parent(wrong)
+            wrong=copy.deepcopy(cfg);wrong['parent_initialization']['candidate_selection']['method']='latest'
+            with self.assertRaisesRegex(ValueError,'Explicit registered'):verified_parent(wrong)
+
+    def test_changed_holdout_is_checked_against_every_ancestor_not_only_immediate_parent(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary)
+            def data(name,groups):
+                f=root/name;f.write_text(''.join(json.dumps({'_meta':{'group_id':g}})+'\n' for g in groups));return str(f)
+            grand=data('grand.jsonl',['older-match']);parent_file=data('parent.jsonl',['parent-match'])
+            current=data('current.jsonl',['new-match']);held=data('held.jsonl',['held-match'])
+            protocol=dict(config={'initialization':'continued'},trainer_args={'data':parent_file},
+                input_sha256={p:digest(p) for p in [grand,parent_file]},code_sha256={},
+                parent_initialization={'parent_training_file':grand})
+            parent=dict(model={'directory':str(root/'weights'),'identity_sha256':'parent'},selected_step=512,
+                receipt={},training_protocol=protocol)
+            args=dict(init_from=str(root/'weights'),data=current,eval_data=held)
+            with patch('jevmahjong.training.initialization.verified_parent',return_value=parent):
+                bound=bind_parent({},args)
+                self.assertEqual(bound['ancestor_training_files'],[parent_file,grand])
+                self.assertEqual(bound['group_proof']['ancestor_validation_overlap'],0)
+                data('held.jsonl',['older-match'])
+                with self.assertRaisesRegex(ValueError,'earlier ancestor'):bind_parent({},args)
+            # A third generation must retain both earlier training inputs.
+            protocol['parent_initialization']['ancestor_training_files']=[grand,parent_file]
+            self.assertEqual(lineage_training_files(protocol),[parent_file,grand])
+            protocol['input_sha256'].pop(grand)
+            with self.assertRaisesRegex(ValueError,'unbound'):lineage_training_files(protocol)
+
     def test_every_loaded_parent_tensor_is_checked_not_only_names_and_counts(self):
         with tempfile.TemporaryDirectory() as temporary:
             p=Path(temporary)

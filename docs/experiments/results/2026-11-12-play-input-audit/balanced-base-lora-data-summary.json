@@ -2952,7 +2952,7 @@
       }
     ],
     "evaluation_only_job": 298607,
-    "future_training_source_sha256": "89b78f1e738f156459248d1b999bf1db7cb4aee3bfc924fdf164c66c923263b9",
+    "future_training_source_sha256": "15d5ad86de3b634035cd5ec1859b53bbf2022c4fa427b8d73fe8027252283728",
     "native_preflight": {
       "records": 400,
       "complete_matches_simulated": 0,
@@ -3014,6 +3014,21 @@
       "record_ID_novelty_does_not_prove_physical_novelty": true,
       "reused_positions_may_have_changed_targets": true,
       "causal_performance_claim": false
+    },
+    "continuation_parent_preflight": {
+      "status": "passed_actual_declared_warm_parent_preflight_only",
+      "parent_model_id": "jev-unified-winrisk-v1",
+      "selected_step": 512,
+      "parent_identity_sha256": "9c659182a2a09519b61d9cc5707351c28752272c5fa31c98037906cb132f9f06",
+      "parent_train_groups": 3354,
+      "earlier_ancestor_train_groups": 2169,
+      "union_lineage_train_groups": 3399,
+      "validation_groups": 180,
+      "lineage_validation_overlap": 0,
+      "optimizer_started": false,
+      "confirmation_still_required": true,
+      "local_core_tests_passed": 212,
+      "new_code_ci_verified": false
     }
   },
   "risk_target_conversion_persisted_revision": {
