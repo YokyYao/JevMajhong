@@ -1,0 +1,563 @@
+{
+  "stage": "v1_no_match_gain_v2_prior_only_fit_rejected_new_native_data_started",
+  "snapshot_at": "2026-11-13T17:49:12.871563+00:00",
+  "v1_development": {
+    "games": 192,
+    "new_walls": 8,
+    "reference_games_reused": 0,
+    "hand_win_paired": {
+      "gain": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "dealin_rate_paired": {
+      "gain": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "fast_reward_paired": {
+      "gain": -1.9049800196455254e-05,
+      "ci95": [
+        -6.409541972899032e-05,
+        2.5995819336079815e-05
+      ],
+      "unit": "discounted own wins per hand, equal-weight match means, whole-wall paired CI"
+    },
+    "net_points_paired": {
+      "gain": 10.416666666666666,
+      "ci95": [
+        -14.2148359540915,
+        35.048169287424834
+      ],
+      "independent_wall_streams": 8
+    },
+    "eligible_for_confirmation": false,
+    "independent_event_audit": "passed_complete",
+    "four_seat_payment_and_rank_records_audited": 192,
+    "paired_logs_identical": 93,
+    "paired_logs_divergent": 3,
+    "kan_choices": {
+      "reference": {
+        "choices": {
+          "ankan": 1,
+          "daiminkan": 0,
+          "kakan": 0
+        },
+        "opportunities": {
+          "ankan": 10,
+          "daiminkan": 37,
+          "kakan": 10
+        }
+      },
+      "candidate": {
+        "choices": {
+          "ankan": 3,
+          "daiminkan": 1,
+          "kakan": 0
+        },
+        "opportunities": {
+          "ankan": 10,
+          "daiminkan": 37,
+          "kakan": 10
+        }
+      }
+    },
+    "degenerate_interval_note": "All observed paired own-win/deal-in differences are zero in these8wallgroups. The zero-width interval is not proof of equal underlying ability or of no rare effect."
+  },
+  "train_only_diagnostic": {
+    "status": "passed_train_only_prior_and_actual_action_diagnostic",
+    "train_states": 366,
+    "train_pairs": 1094,
+    "train_walls": 96,
+    "held_shards_opened": 0,
+    "held_labels_used": false,
+    "train_total": {
+      "states": 366,
+      "changed_choices": 54,
+      "target_choices_changed_005_to_001": 60
+    },
+    "train_model_choices": {
+      "none": 140,
+      "dahai": 144,
+      "ankan": 60,
+      "daiminkan": 6,
+      "kakan": 15,
+      "reach": 1
+    },
+    "train_kan_routes": {
+      "ankan": {
+        "windows": 172,
+        "teacher_chooses": 47,
+        "model_chooses": 60,
+        "positive_sampled_utility_and_own_win_windows": 14,
+        "positive_kan_model_chooses": 3,
+        "positive_kan_target_005_chooses": 7,
+        "positive_kan_target_001_chooses": 10,
+        "positive_kan_old_target_still_teacher": 3,
+        "kan_among_global_best_positive_sampled_windows": 10,
+        "global_best_kan_model_chooses": 3,
+        "global_best_kan_target_005_chooses": 7,
+        "global_best_kan_target_001_chooses": 10,
+        "global_best_kan_old_target_still_teacher": 3
+      },
+      "daiminkan": {
+        "windows": 146,
+        "teacher_chooses": 0,
+        "model_chooses": 6,
+        "positive_sampled_utility_and_own_win_windows": 26,
+        "positive_kan_model_chooses": 1,
+        "positive_kan_target_005_chooses": 14,
+        "positive_kan_target_001_chooses": 18,
+        "positive_kan_old_target_still_teacher": 8,
+        "kan_among_global_best_positive_sampled_windows": 20,
+        "global_best_kan_model_chooses": 1,
+        "global_best_kan_target_005_chooses": 12,
+        "global_best_kan_target_001_chooses": 18,
+        "global_best_kan_old_target_still_teacher": 8
+      },
+      "kakan": {
+        "windows": 48,
+        "teacher_chooses": 11,
+        "model_chooses": 15,
+        "positive_sampled_utility_and_own_win_windows": 12,
+        "positive_kan_model_chooses": 2,
+        "positive_kan_target_005_chooses": 5,
+        "positive_kan_target_001_chooses": 7,
+        "positive_kan_old_target_still_teacher": 3,
+        "kan_among_global_best_positive_sampled_windows": 7,
+        "global_best_kan_model_chooses": 1,
+        "global_best_kan_target_005_chooses": 4,
+        "global_best_kan_target_001_chooses": 7,
+        "global_best_kan_old_target_still_teacher": 3
+      }
+    },
+    "completed_development": {
+      "paired_games": 96,
+      "divergent_event_logs": 3,
+      "identical_event_logs": 93,
+      "first_different_event_types": {
+        "dahai -> ankan": 2,
+        "tsumo -> daiminkan": 1
+      },
+      "first_difference_candidate_self_event": 3
+    },
+    "target_strengths_inspected": [
+      0.05,
+      0.01
+    ],
+    "selection_based_on_held_rewards": false,
+    "new_simulations": 0,
+    "optimizer_updates": 0,
+    "raw_records_public": false,
+    "checkpoint_sha256": "9024d80501755c73669a0e3c3ae8db6e0ced69ab1f848db990f8a07c37308db4",
+    "registration_sha256": "0fc8d53adeae93fa1005ce1a345beeb40f901cc672a606c365f0868333f6e3a6",
+    "limitations": "Training counterfactual gains use16paired sampled futures, not expert actions. Prior target inspection alone does not establish the cause of unchanged wins or predict a new policy improvement."
+  },
+  "v2_single_factor": {
+    "changed_parameter": "reference_prior_strength",
+    "old": 0.05,
+    "new": 0.01,
+    "identical_complete_training_source_sha256": "1baa982d80c1d7367a7eee66a3b1d03b29636fecac6390a12b6a69ab29d2ae26",
+    "same_data_reward_risk_seed_lr_architecture_state_weights": true,
+    "epochs": 4,
+    "updates": 92,
+    "selected_epoch": 0,
+    "fit_audit_status": "passed_complete",
+    "eligible_for_development": false,
+    "curve": [
+      {
+        "epoch": 0,
+        "mean_sampled_hand_win_gain_per_state": 0.0,
+        "mean_sampled_dealin_change_per_state": 0.0,
+        "mean_label_utility_gain_vs_play": 0.0,
+        "mean_sampled_fast_reward_change_per_state": 0.0,
+        "mean_sampled_net_point_gain_per_state": 0.0,
+        "changed_argmax_states": 0
+      },
+      {
+        "epoch": 1,
+        "mean_sampled_hand_win_gain_per_state": 0.0006868131868131869,
+        "mean_sampled_dealin_change_per_state": 0.006868131868131868,
+        "mean_label_utility_gain_vs_play": -0.01290668604609397,
+        "mean_sampled_fast_reward_change_per_state": 0.0005710580134263246,
+        "mean_sampled_net_point_gain_per_state": -73.83241758241758,
+        "changed_argmax_states": 4
+      },
+      {
+        "epoch": 2,
+        "mean_sampled_hand_win_gain_per_state": 0.004120879120879121,
+        "mean_sampled_dealin_change_per_state": 0.006181318681318681,
+        "mean_label_utility_gain_vs_play": -0.007434575737094418,
+        "mean_sampled_fast_reward_change_per_state": 0.003228730018655296,
+        "mean_sampled_net_point_gain_per_state": -37.77472527472528,
+        "changed_argmax_states": 8
+      },
+      {
+        "epoch": 3,
+        "mean_sampled_hand_win_gain_per_state": 0.0006868131868131869,
+        "mean_sampled_dealin_change_per_state": 0.006181318681318681,
+        "mean_label_utility_gain_vs_play": -0.011634152968431668,
+        "mean_sampled_fast_reward_change_per_state": 0.00016668482957003214,
+        "mean_sampled_net_point_gain_per_state": -44.505494505494504,
+        "changed_argmax_states": 10
+      },
+      {
+        "epoch": 4,
+        "mean_sampled_hand_win_gain_per_state": -0.0020604395604395605,
+        "mean_sampled_dealin_change_per_state": 0.006868131868131868,
+        "mean_label_utility_gain_vs_play": -0.0163400011625934,
+        "mean_sampled_fast_reward_change_per_state": -0.0021731914635604176,
+        "mean_sampled_net_point_gain_per_state": -74.45054945054945,
+        "changed_argmax_states": 11
+      }
+    ],
+    "new_full_matches": 0,
+    "interpretation": "Weaker prior changes more actions, but deal-in cost makes all trained snapshots negative under the unchanged reward. Starting reference retained; no repeated full matches."
+  },
+  "source_pinning": {
+    "launcher_option": "--source-sha",
+    "existing_snapshot_verified_by_full_package_digest": true,
+    "registered_launch_cannot_change_source": true,
+    "core_checks": 134,
+    "existing_frozen_training_package_unchanged": true
+  },
+  "next_data": {
+    "stage": "native_audit_complete_32future_labels_running",
+    "new_walls": 128,
+    "wall_split": {
+      "train": 96,
+      "held": 32
+    },
+    "reference": "verified Call Tile Win v1 with original kan behavior; rejected candidates not adopted",
+    "native_source_sha256": "1baa982d80c1d7367a7eee66a3b1d03b29636fecac6390a12b6a69ab29d2ae26",
+    "old_validation_to_training": false,
+    "planned_future_samples_per_state": 32,
+    "future_label_recipe_pending_native_audit_and_public_capacity_check": false,
+    "feature_information_and_fitting_gap_to_assess": true,
+    "no_reward_or_risk_guard_relaxation": true,
+    "states": 429,
+    "train_states": 336,
+    "held_states": 93,
+    "native_audit": {
+      "status": "passed_complete",
+      "prefixes_replayed": 429,
+      "control_matches_audited": 512,
+      "cached_head_probability_max_error": 2.980232238769531e-07
+    },
+    "public_capacity": {
+      "train": {
+        "states": 336,
+        "canonical_states": 336,
+        "public_action_availability": {
+          "ankan": 153,
+          "daiminkan": 143,
+          "pon": 143,
+          "kakan": 40,
+          "chi": 8
+        },
+        "opponent_riichi": 133,
+        "nonempty_walls": 83,
+        "maximum_states_in_one_wall": 21
+      },
+      "held": {
+        "states": 93,
+        "canonical_states": 93,
+        "public_action_availability": {
+          "daiminkan": 60,
+          "pon": 60,
+          "ankan": 25,
+          "kakan": 8,
+          "chi": 1
+        },
+        "opponent_riichi": 28,
+        "nonempty_walls": 27,
+        "maximum_states_in_one_wall": 12
+      }
+    },
+    "all_canonical_states_retained": true,
+    "worlds_per_state": 32,
+    "initial_arm_records": 27456,
+    "actual_startup_protocol_binding": "passed_complete",
+    "feature_only_comparison": "600featurecandidate retainedepoch0; no full matches; see kan-tile-feature-comparison-summary.json"
+  },
+  "limitations": [
+    "Sampled16future advantages are not expert labels.",
+    "Prior target suppression and feature/fitting limitations are hypotheses, not demonstrated sole causes.",
+    "Lowering the prior alone did not produce an eligible model; additional data and representation work are not guaranteed to improve strength."
+  ],
+  "raw_records_public": false,
+  "weights_public": false,
+  "deployed": false,
+  "strength_improvement_proven": false,
+  "expanded_data_training_plan": {
+    "stage": "registered_and_serially_queued_after_complete_option_audit",
+    "source_sha256": "092381a25e6e2cedb3af9bdd34d7d723d61f706a85b0c6cc2b1e2846916c971d",
+    "training_only_diagnostic": {
+      "status": "passed_training_only_archived_fit_diagnostic",
+      "train_states": 366,
+      "train_pairs": 1094,
+      "train_walls": 96,
+      "held_shards_opened": 0,
+      "optimizer_updates": 0,
+      "new_simulations": 0,
+      "models": [
+        {
+          "model_id": "jev-kan-aggregate-control-v1",
+          "feature_version": "public-kan-context-v2",
+          "prior_strength": 0.05,
+          "first_epoch": {
+            "epoch": 0,
+            "checkpoint_sha256": "e4bbf08bedc47e8e0c0a28ac5fee0f4302f924cacf32ab3d538e2b53002bb96c",
+            "mean_training_target_KL": 0.7802438399217915,
+            "training_target_argmax_matches": 235,
+            "changed_training_choices": 0,
+            "mean_training_utility_gain": 0.0,
+            "mean_training_own_win_gain": 0.0,
+            "mean_training_dealin_gain": 0.0,
+            "mean_training_fast_reward_gain": 0.0,
+            "choice_types": {
+              "none": 146,
+              "dahai": 159,
+              "ankan": 47,
+              "kakan": 11,
+              "reach": 3
+            }
+          },
+          "last_epoch": {
+            "epoch": 11,
+            "checkpoint_sha256": "6ab6168785d24c7c587eb123aa499ad729a52ff82762265ea8786c3fa46f395b",
+            "mean_training_target_KL": 0.5932370667111421,
+            "training_target_argmax_matches": 236,
+            "changed_training_choices": 55,
+            "mean_training_utility_gain": 0.02210336080737306,
+            "mean_training_own_win_gain": 0.005122950819672131,
+            "mean_training_dealin_gain": -0.008025956284153006,
+            "mean_training_fast_reward_gain": 0.003713989677579676,
+            "choice_types": {
+              "none": 141,
+              "dahai": 151,
+              "ankan": 54,
+              "daiminkan": 5,
+              "kakan": 13,
+              "reach": 2
+            }
+          },
+          "sampled_target_argmax_profile": {
+            "mean_training_utility_gain": 0.116580740650766,
+            "mean_training_own_win_gain": 0.034665300546448084,
+            "mean_training_dealin_gain": -0.03790983606557377,
+            "mean_training_fast_reward_gain": 0.02438307189268149,
+            "choice_types": {
+              "daiminkan": 23,
+              "dahai": 158,
+              "ankan": 46,
+              "none": 114,
+              "kakan": 14,
+              "pon": 7,
+              "reach": 2,
+              "chi": 2
+            }
+          }
+        },
+        {
+          "model_id": "jev-kan-tile-win-v1",
+          "feature_version": "public-kan-tile-context-v1",
+          "prior_strength": 0.05,
+          "first_epoch": {
+            "epoch": 0,
+            "checkpoint_sha256": "d5a65eba5379bf5fa4aaaa07667c3c8f1fcc3e0f4fd4319ff2b9444049439ef6",
+            "mean_training_target_KL": 0.7802438399217915,
+            "training_target_argmax_matches": 235,
+            "changed_training_choices": 0,
+            "mean_training_utility_gain": 0.0,
+            "mean_training_own_win_gain": 0.0,
+            "mean_training_dealin_gain": 0.0,
+            "mean_training_fast_reward_gain": 0.0,
+            "choice_types": {
+              "none": 146,
+              "dahai": 159,
+              "ankan": 47,
+              "kakan": 11,
+              "reach": 3
+            }
+          },
+          "last_epoch": {
+            "epoch": 4,
+            "checkpoint_sha256": "0559d0a781b1dae0921d95f3ad87b428856c118592d3b92e3bb4456fe758a1c8",
+            "mean_training_target_KL": 0.6623979272407494,
+            "training_target_argmax_matches": 230,
+            "changed_training_choices": 35,
+            "mean_training_utility_gain": 0.0027075223389644368,
+            "mean_training_own_win_gain": 0.0025614754098360654,
+            "mean_training_dealin_gain": 0.00017076502732240437,
+            "mean_training_fast_reward_gain": 0.0019503079350927214,
+            "choice_types": {
+              "none": 135,
+              "dahai": 155,
+              "ankan": 48,
+              "daiminkan": 11,
+              "kakan": 14,
+              "reach": 3
+            }
+          },
+          "sampled_target_argmax_profile": {
+            "mean_training_utility_gain": 0.116580740650766,
+            "mean_training_own_win_gain": 0.034665300546448084,
+            "mean_training_dealin_gain": -0.03790983606557377,
+            "mean_training_fast_reward_gain": 0.02438307189268149,
+            "choice_types": {
+              "daiminkan": 23,
+              "dahai": 158,
+              "ankan": 46,
+              "none": 114,
+              "kakan": 14,
+              "pon": 7,
+              "reach": 2,
+              "chi": 2
+            }
+          }
+        },
+        {
+          "model_id": "jev-kan-win-v2",
+          "feature_version": "public-kan-context-v2",
+          "prior_strength": 0.01,
+          "first_epoch": {
+            "epoch": 0,
+            "checkpoint_sha256": "268ffd6676bf2a49fa7213798d0e3d4191545947504e3ce14f067a10c21de8f8",
+            "mean_training_target_KL": 1.6233895239387266,
+            "training_target_argmax_matches": 192,
+            "changed_training_choices": 0,
+            "mean_training_utility_gain": 0.0,
+            "mean_training_own_win_gain": 0.0,
+            "mean_training_dealin_gain": 0.0,
+            "mean_training_fast_reward_gain": 0.0,
+            "choice_types": {
+              "none": 146,
+              "dahai": 159,
+              "ankan": 47,
+              "kakan": 11,
+              "reach": 3
+            }
+          },
+          "last_epoch": {
+            "epoch": 4,
+            "checkpoint_sha256": "0bb7c5c83fa1f6f85acdf8a29c87ad803e7e789796611f22eed874d7e0fe6bf9",
+            "mean_training_target_KL": 1.2260220445643615,
+            "training_target_argmax_matches": 178,
+            "changed_training_choices": 94,
+            "mean_training_utility_gain": 0.012078617872809921,
+            "mean_training_own_win_gain": 0.0006830601092896175,
+            "mean_training_dealin_gain": -0.0056352459016393444,
+            "mean_training_fast_reward_gain": 0.0005002638409664612,
+            "choice_types": {
+              "none": 122,
+              "ankan": 63,
+              "dahai": 148,
+              "pon": 10,
+              "kakan": 7,
+              "daiminkan": 14,
+              "reach": 2
+            }
+          },
+          "sampled_target_argmax_profile": {
+            "mean_training_utility_gain": 0.1339879888948233,
+            "mean_training_own_win_gain": 0.043886612021857924,
+            "mean_training_dealin_gain": -0.041325136612021855,
+            "mean_training_fast_reward_gain": 0.029804414595686668,
+            "choice_types": {
+              "daiminkan": 23,
+              "dahai": 157,
+              "ankan": 48,
+              "pon": 22,
+              "none": 98,
+              "kakan": 13,
+              "reach": 2,
+              "chi": 3
+            }
+          }
+        }
+      ],
+      "limitations": "Training-only sampled16-future fit diagnostic; no additional epochs, causal early-stop comparison or independent strength evidence."
+    },
+    "data": "old457states plus new429states; only original train partitions enter optimizer",
+    "expected_train_states": 702,
+    "expected_held_states": 184,
+    "whole_wall_groups": 256,
+    "future_samples": "old16,new32; state-equal weighting retained",
+    "prior_strength": 0.05,
+    "feature_count": 600,
+    "parameters": 38528,
+    "initialization": "same verified82bcalling baseline, original heads and zero kan MLP; no rejected checkpoint continuation",
+    "reward": {
+      "mode": "own_win_first_v1",
+      "win_weight": 1.0,
+      "fast_weight": 0.25,
+      "dealin_penalty": 2.0,
+      "net_weight": 0.0,
+      "point_scale": 8000.0,
+      "speed_gamma": 0.98
+    },
+    "selection": "unchanged all-source sampled own wins first, speed second, positive utility and deal-in increment<=.01; final new complete matches required",
+    "budget": {
+      "epochs": 24,
+      "patience_epochs": 12,
+      "batch": 16,
+      "lr": 0.0003,
+      "seed": 2026111326,
+      "maximum_expected_updates": 1056,
+      "reason": "Archived training targetKL is still decreasing at prior stop and target action agreement has not improved; more CPUfit is a bounded test, not proven solution."
+    },
+    "confounds": "Data quantity, label sampling and stopping budget change; not a causal isolation or architecture comparison. No guarantee that additional epochs improve strength.",
+    "before_optimizer": "Complete matching new optionaudit; verify source and exact702/184states, complete menus, all6dataaudits, actual frozen head probabilities and zero-output start; save exact pair-count receipt.",
+    "jobs": "Serial count/start preflight,CPUfit,independentaudit after297004; respect max2running across pipelines",
+    "evaluation": {
+      "development_seed_start": 11830000,
+      "development_walls": 8,
+      "development_matches": 192,
+      "conditional_confirmation_seed_start": 11840000,
+      "confirmation_walls": 32,
+      "confirmation_matches": 768,
+      "no_full_matches_if_fit_ineligible": true,
+      "selected_weight_contract_and_actual_GPU_native_parity_required": true
+    },
+    "old_validation_never_train": true,
+    "raw_records_and_weights_private": true,
+    "current_new_data_optimizer_updates": 0,
+    "complete_matches_started": false,
+    "raw_records_and_weights_public": false
+  },
+  "confirmation_recipe_revision": {
+    "status": "corrected_registered_unexecuted_recipe",
+    "previous_config": "kan-expanded-win-confirmation-v1.json",
+    "active_config": "configs/training/kan-expanded-win-confirmation-v1-r2.json",
+    "reason": "Copied development_out still pointed to earlier tile candidate; fixed to expanded candidate development in a new immutable revision.",
+    "original_config_executed": false,
+    "old_registration_preserved_private": true,
+    "old_public_recipe_removed": true,
+    "data_fit_reward_scope_seed_ranges_and_checkpoint_unchanged": true,
+    "recipe_link_check": {
+      "status": "passed_recipe_links",
+      "candidate_run": "runs/jev-kan-expanded-win-v1",
+      "development_out": "runs/kan-expanded-win-v1-development",
+      "confirmation_out": "runs/kan-expanded-win-v1-confirmation-r2",
+      "development_wall_range": [
+        11830000,
+        11830008
+      ],
+      "confirmation_wall_range": [
+        11840000,
+        11840032
+      ],
+      "actual_weights_or_fit_eligibility_verified": false,
+      "independent_strength_proven": false
+    },
+    "new_match_jobs": 0,
+    "core_tests_passed": 147
+  }
+}

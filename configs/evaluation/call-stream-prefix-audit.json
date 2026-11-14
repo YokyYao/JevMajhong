@@ -1,0 +1,7 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "collection": "runs/play-call-stream-native-v1",
+  "out": "runs/play-call-stream-prefix-audit-v1",
+  "prefix_walls": 4
+}

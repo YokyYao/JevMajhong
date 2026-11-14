@@ -1,0 +1,27 @@
+{
+  "recipe_kind": "independent_observed_expert_kan_source_audit",
+  "command": "jevmahjong audit-prefix-kan --config GENERATED_PRIVATE_MANIFEST.json",
+  "producer_schema": "public-prefix-kan-v1",
+  "requires_private_fields": [
+    "producer_out",
+    "producer_provenance_sha256",
+    "producer_result_sha256",
+    "producer_train_sha256",
+    "producer_launch",
+    "producer_launch_sha256",
+    "native_probe",
+    "native_probe_sha256",
+    "out"
+  ],
+  "checks": [
+    "Frozen producer code and raw archive/catalog/output hashes.",
+    "Independently enumerate every observed eligible raw prefix, using a different shadow seed.",
+    "Match all public input fields, legal menus, exact source event index and prefix hash, and observed label.",
+    "Identify pass only from a following draw and reject censored, missing or extra records.",
+    "Preserve historical held-group exclusion; never decompress sealed test groups."
+  ],
+  "shared_component": "Uses the same pinned RiichiEnv rule implementation and shared public feature builder; not an independent formal rules or han/fu proof.",
+  "successful_result": "passed_complete with audit_kind observed_expert_kan_prefix_v1; source eligible for explicit pool integration, never automatic training",
+  "catalog_append": "python tools/data_catalog.py --config GENERATED_PRIVATE_APPEND_MANIFEST.json",
+  "raw_data_and_weights_private": true
+}

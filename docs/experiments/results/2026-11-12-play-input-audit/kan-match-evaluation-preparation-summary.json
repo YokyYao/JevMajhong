@@ -1,0 +1,56 @@
+{
+  "stage": "development_and_independent_audit_complete_no_gain",
+  "snapshot_at": "2026-11-13T16:38:27.838165+00:00",
+  "fit_model": "jev-kan-win-v1",
+  "strong_reference_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+  "candidate_activation": "kan_windows",
+  "updated_scopes": [
+    "ordinary"
+  ],
+  "calling_baseline_replaced": false,
+  "package_source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
+  "existing_training_snapshots_unchanged": true,
+  "contract_checker": "tools/audits/kan_comparison.py",
+  "expected_native_parity": {
+    "ordinary": 2,
+    "calling": 2,
+    "ordinary_nonkan": 2
+  },
+  "core_tests_passed": 132,
+  "negative_checks": [
+    "wrong activation",
+    "calling baseline replacement",
+    "head-only candidate",
+    "wrong updated scope",
+    "changed encoders",
+    "missing stronger reference",
+    "changed reference checkpoint"
+  ],
+  "cpu_baseline_load": "passed_actual_stronger_baseline_load",
+  "actual_selected_model_contract": "passed_actual_selected_model_and_reference_contract",
+  "actual_gpu_native_parity": "passed_actual_three_route_and_startup_binding",
+  "development": {
+    "whole_walls": 8,
+    "games": 192,
+    "seed_start": 11750000
+  },
+  "confirmation_if_eligible": {
+    "whole_walls": 32,
+    "games": 768,
+    "seed_start": 11760000
+  },
+  "freshness_configs_checked": 317,
+  "freshness_conflicts": 0,
+  "independent_event_audit_templates_registered": true,
+  "new_games": 192,
+  "evaluation_jobs_submitted": true,
+  "strength_improvement_proven": false,
+  "limits": "Full192match development and independent event/payment/rank auditing passed. Own-win gain is0, net+10.42with interval crossing0. No confirmation, adoption, release or general strength claim.",
+  "raw_records_public": false,
+  "weights_public": false,
+  "deployed": false,
+  "selected_epoch": 7,
+  "selected_sha256": "9024d80501755c73669a0e3c3ae8db6e0ced69ab1f848db990f8a07c37308db4",
+  "development_completed": true,
+  "eligible_for_confirmation": false
+}

@@ -38,6 +38,7 @@ def save_head_checkpoint(out, model_id, heads, protocol, epoch, metric):
     torch.save({'model_id': model_id, 'heads': {s: copy.deepcopy(h.state_dict()) for s, h in heads.items()},
         'model_files': protocol['model_files'], 'base_and_LoRA_frozen': True, 'epoch': epoch,
         'initial_heads': protocol.get('initial_heads'),
+        **({'call_context_baseline':protocol['call_context_baseline']} if protocol.get('call_context_baseline') else {}),
         'trained_scopes': protocol.get('config', {}).get('train_scopes', ['ordinary', 'calling']),
         'decision_filter': protocol.get('config', {}).get('decision_filter', 'all')}, checkpoint)
     return {'epoch': epoch, 'held_loss': metric, 'checkpoint': str(checkpoint.resolve()), 'sha256': digest(checkpoint)}

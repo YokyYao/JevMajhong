@@ -1,0 +1,100 @@
+{
+  "model_id": "jev-call-tile-win-v1",
+  "stage": "development_complete_confirmation_complete",
+  "checkpoint_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+  "games": 192,
+  "fresh_whole_wall_groups": 8,
+  "new_reference_games": 96,
+  "new_candidate_games": 96,
+  "comparison": "candidate pure-call component versus unchanged Jev Play v1, same whole walls, 3 opponent suites, 4 seats",
+  "hand_win_paired": {
+    "gain": 0.00768323112073112,
+    "ci95": [
+      -0.03193548792868107,
+      0.047301950170143305
+    ],
+    "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+  },
+  "dealin_rate_paired": {
+    "gain": 0.0099619708994709,
+    "ci95": [
+      -0.0037137906467592623,
+      0.02363773244570106
+    ],
+    "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+  },
+  "fast_reward_paired": {
+    "gain": 0.00630854137210118,
+    "ci95": [
+      -0.0096238263569225,
+      0.02224090910112486
+    ],
+    "unit": "discounted own wins per hand, equal-weight match means, whole-wall paired CI"
+  },
+  "policies": {
+    "reference": {
+      "games": 96,
+      "mean_net_points": -411.4583333333333,
+      "first_rate": 0.20833333333333334,
+      "top2_rate": 0.4791666666666667,
+      "fourth_rate": 0.25,
+      "mean_rank": 2.5625,
+      "hand_win_rate": 0.1996370235934664,
+      "dealin_rate": 0.1306715063520871,
+      "dealin_event_rate": 0.132486388384755,
+      "calls_per_game": 0.8125,
+      "discounted_own_wins_per_hand": 0.07524315318630641,
+      "mean_table_draws_when_winning": 48.472727272727276,
+      "mean_match_hand_win_rate": 0.19255651755651756
+    },
+    "candidate": {
+      "games": 96,
+      "mean_net_points": -489.5833333333333,
+      "first_rate": 0.21875,
+      "top2_rate": 0.4375,
+      "fourth_rate": 0.22916666666666666,
+      "mean_rank": 2.5729166666666665,
+      "hand_win_rate": 0.2018018018018018,
+      "dealin_rate": 0.14054054054054055,
+      "dealin_event_rate": 0.14234234234234233,
+      "calls_per_game": 1.8020833333333333,
+      "discounted_own_wins_per_hand": 0.08155169455840759,
+      "mean_table_draws_when_winning": 46.151785714285715,
+      "mean_match_hand_win_rate": 0.20023974867724867
+    }
+  },
+  "net_points_paired": {
+    "gain": -78.12499999999997,
+    "ci95": [
+      -1182.0682474995574,
+      1025.8182474995574
+    ],
+    "independent_wall_streams": 8
+  },
+  "eligible_for_confirmation": true,
+  "improvement_verified": false,
+  "net_points_are_admission_gate": false,
+  "max_mean_dealin_increase": 0.01,
+  "independent_event_audit": "passed_complete",
+  "fixed_before_matches_binding": "passed_complete",
+  "manual_result_sha256": "30964d5a0bf03b0fff5584a865ea0e6c2ad615a83e3a1ad7f1f19a1cd50f462e",
+  "confirmation": {
+    "status": "passed_independent_own_win_confirmation",
+    "games": 768,
+    "fresh_whole_wall_groups": 32,
+    "config": "configs/evaluation/call-tile-win-confirmation-v1.json",
+    "same_checkpoint": true,
+    "no_weights_selected_from_match_results": true,
+    "freshness_configs_checked": 230,
+    "summary": "call-tile-win-confirmation-summary.json"
+  },
+  "deployed": false,
+  "raw_records_public": false,
+  "experimental_weights_public": false,
+  "limitations": [
+    "8 independent whole-wall groups only; own-win gain CI includes zero.",
+    "Mean deal-in gain is just below the 1 percentage point admission cap; not proof of safety.",
+    "Held positive chi-route recovery remains 0/9; kan behavior unchanged.",
+    "Fixed simulation opponents are not real-player strength evidence."
+  ]
+}

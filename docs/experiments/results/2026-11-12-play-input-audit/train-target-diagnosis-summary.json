@@ -1,0 +1,519 @@
+{
+  "model_id": "jev-call-win-v4",
+  "selected_sha256": "36f1bf7a7e719eb8f9df53e0532e2dfdeb071b314bdc388d36115444683133a4",
+  "held_states_summarized": 0,
+  "confirmation_records_opened": 0,
+  "sampled_labels_are_not_expert_truth": true,
+  "prior_strength": 0.05,
+  "routes": {
+    "all": {
+      "states": 444,
+      "sample_utility_best_is_call": 221,
+      "target_is_call": 117,
+      "selected_is_call": 61,
+      "target_argmax_matched": 356,
+      "sample_positive_skipped_call_states": 91,
+      "target_recovers_positive_call": 72,
+      "model_recovers_positive_call": 18,
+      "prior_target_still_passes_positive_call": 19,
+      "model_misses_positive_target_call": 54,
+      "model_recovers_call_despite_target_pass": 0
+    },
+    "closed": {
+      "states": 413,
+      "sample_utility_best_is_call": 200,
+      "target_is_call": 100,
+      "selected_is_call": 47,
+      "target_argmax_matched": 337,
+      "sample_positive_skipped_call_states": 86,
+      "target_recovers_positive_call": 68,
+      "model_recovers_positive_call": 17,
+      "prior_target_still_passes_positive_call": 18,
+      "model_misses_positive_target_call": 51,
+      "model_recovers_call_despite_target_pass": 0
+    },
+    "closed_pon_yakuhai": {
+      "states": 39,
+      "sample_utility_best_is_call": 32,
+      "target_is_call": 31,
+      "selected_is_call": 33,
+      "target_argmax_matched": 35,
+      "sample_positive_skipped_call_states": 12,
+      "target_recovers_positive_call": 12,
+      "model_recovers_positive_call": 11,
+      "prior_target_still_passes_positive_call": 0,
+      "model_misses_positive_target_call": 1,
+      "model_recovers_call_despite_target_pass": 0
+    },
+    "closed_chi_tanyao_gain": {
+      "states": 37,
+      "sample_utility_best_is_call": 24,
+      "target_is_call": 21,
+      "selected_is_call": 7,
+      "target_argmax_matched": 18,
+      "sample_positive_skipped_call_states": 21,
+      "target_recovers_positive_call": 21,
+      "model_recovers_positive_call": 5,
+      "prior_target_still_passes_positive_call": 0,
+      "model_misses_positive_target_call": 16,
+      "model_recovers_call_despite_target_pass": 0
+    },
+    "opponent_riichi": {
+      "states": 200,
+      "sample_utility_best_is_call": 109,
+      "target_is_call": 25,
+      "selected_is_call": 8,
+      "target_argmax_matched": 177,
+      "sample_positive_skipped_call_states": 24,
+      "target_recovers_positive_call": 15,
+      "model_recovers_positive_call": 2,
+      "prior_target_still_passes_positive_call": 9,
+      "model_misses_positive_target_call": 13,
+      "model_recovers_call_despite_target_pass": 0
+    },
+    "open": {
+      "states": 31,
+      "sample_utility_best_is_call": 21,
+      "target_is_call": 17,
+      "selected_is_call": 14,
+      "target_argmax_matched": 19,
+      "sample_positive_skipped_call_states": 5,
+      "target_recovers_positive_call": 4,
+      "model_recovers_positive_call": 1,
+      "prior_target_still_passes_positive_call": 1,
+      "model_misses_positive_target_call": 3,
+      "model_recovers_call_despite_target_pass": 0
+    }
+  },
+  "script_sha256": "82ebf1217aa81cab75a2328d60c2aa72a4df97e40221abbe6290cd7ce7c8cb9d",
+  "scope": "Training-state target and actual-choice diagnosis only; no new simulations, no confirmation outcomes, no weight changes.",
+  "interpretation": [
+    "In the closed chi acceleration subgroup, all 21 sampled positive missed-call states have positive-call target argmax, but only 5 are recovered by the selected head. The reference-adjusted target does not explain these 16 remaining training misses.",
+    "This points to fitting, shared representation, or regularization constraints as hypotheses; it does not distinguish their causal roles.",
+    "Future-rollout estimates use 16 sampled worlds and are not expert optimal-action labels or a match-strength estimate."
+  ],
+  "deployed": false,
+  "local_gradient_check": {
+    "model_id": "jev-call-win-v4",
+    "checkpoint_sha256": "36f1bf7a7e719eb8f9df53e0532e2dfdeb071b314bdc388d36115444683133a4",
+    "train_states": 444,
+    "chi_route_states": 37,
+    "positive_chi_route_states": 21,
+    "anchor_states": 256,
+    "anchor_beta": 0.2,
+    "held_states_summarized": 0,
+    "confirmation_records_opened": 0,
+    "optimizer_steps": 0,
+    "losses": {
+      "all_train": 0.5212190977157409,
+      "chi_route": 0.8214691385452402,
+      "positive_chi_route": 1.13340656271675,
+      "anchor_raw": 0.041829099152861295
+    },
+    "gradient_norms": {
+      "all_train": 0.32732811788454563,
+      "chi_route": 2.465436100040134,
+      "positive_chi_route": 6.643413362786637,
+      "anchor_raw": 1.4479321660344244,
+      "anchor_weighted": 0.28958643320688593,
+      "combined_train": 0.18543494866560672
+    },
+    "comparisons": {
+      "all_train__anchor_weighted": {
+        "dot_product": -0.07830893943435391,
+        "cosine": -0.826132708199691,
+        "descent_along_second_reduces_first_loss_locally": false
+      },
+      "chi_route__all_train": {
+        "dot_product": 0.6639829399168816,
+        "cosine": 0.8227726689618575,
+        "descent_along_second_reduces_first_loss_locally": true
+      },
+      "chi_route__anchor_weighted": {
+        "dot_product": -0.5950923852215013,
+        "cosine": -0.8335131011494098,
+        "descent_along_second_reduces_first_loss_locally": false
+      },
+      "chi_route__combined_train": {
+        "dot_product": 0.06889055469537939,
+        "cosine": 0.1506864988834946,
+        "descent_along_second_reduces_first_loss_locally": true
+      },
+      "positive_chi_route__all_train": {
+        "dot_product": 1.7981478875057704,
+        "cosine": 0.8268958609931287,
+        "descent_along_second_reduces_first_loss_locally": true
+      },
+      "positive_chi_route__anchor_weighted": {
+        "dot_product": -1.6924549711905335,
+        "cosine": -0.8797264208037678,
+        "descent_along_second_reduces_first_loss_locally": false
+      },
+      "positive_chi_route__combined_train": {
+        "dot_product": 0.10569291631523936,
+        "cosine": 0.08579520517283006,
+        "descent_along_second_reduces_first_loss_locally": true
+      }
+    },
+    "caveat": "Local Euclidean full-batch gradients at one fixed checkpoint. Not AdamW trajectory, a causal ablation, optimal-action truth, or strength evidence.",
+    "script_sha256": "6d1c5363af091c4fdf8c5f801ba2a4fc42075dd8406c77aeafcd08b347704614",
+    "interpretation": "At the selected checkpoint, the reference anchor gradient opposes both full-training and chi-group distillation gradients. Combined descent still aligns weakly with the positive-chi group. This motivates a controlled anchor-strength ablation, without proving a causal training effect or a strength improvement."
+  },
+  "conditional_control": {
+    "model_id": "jev-call-win-v5",
+    "status": "completed_fit_no_additional_held_gain_development_skipped",
+    "single_factor": {
+      "anchor_beta": {
+        "reference": 0.2,
+        "control": 0.05
+      }
+    },
+    "trigger": "Only after complete independently audited v4 confirmation that does not verify improvement; verified v4 causes skip; missing or mismatched audit causes stop.",
+    "pure_decision_cases_passed": 10,
+    "missing_real_audit_rejected_before_output_creation": true,
+    "training_started": true,
+    "confirmation_outcomes_used_for_recipe_selection": false,
+    "confirmation_seeds_used_for_fitting": false,
+    "source_sha256": "f161ea4dadeec3223395ed6ac7a17da472ff9d65e94f495194f18ceb9ad6e42d",
+    "control_fit_config": "../../../../configs/training/call-win-anchor-fit.json",
+    "experimental_weights_public": false,
+    "selected_epoch": 5,
+    "checkpoint_sha256": "9bf3e833c75c542f3d97693b75885595d616d4fc5e7f4c2e2096d4655a30136e",
+    "selected_held_policy_matches_v4_estimates": true,
+    "held_positive_chi_route_recovered": 0,
+    "held_sample_positive_chi_route_states": 6,
+    "full_development_games": 0
+  },
+  "capacity_probe": {
+    "status": "completed",
+    "train_states": 444,
+    "max_updates": 400,
+    "lr": 5e-05,
+    "anchor_beta": 0,
+    "saved_weights": false,
+    "held_fitting_or_selection": false,
+    "new_match_simulations": 0,
+    "purpose": "training-only frozen-encoder fitting-capacity probe",
+    "optimizer_updates": 400,
+    "choice_comparison_v4_v5": {
+      "train": {
+        "states": 444,
+        "selected_argmax_differences": 1
+      },
+      "held": {
+        "states": 146,
+        "selected_argmax_differences": 0
+      }
+    },
+    "curve": [
+      {
+        "updates": 0,
+        "train_loss": 0.5147666545158852,
+        "train_target_argmax_matches": 357,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 6
+      },
+      {
+        "updates": 25,
+        "train_loss": 0.5137603247261752,
+        "train_target_argmax_matches": 357,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 6
+      },
+      {
+        "updates": 50,
+        "train_loss": 0.5034544092137652,
+        "train_target_argmax_matches": 357,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 4
+      },
+      {
+        "updates": 100,
+        "train_loss": 0.511856377359937,
+        "train_target_argmax_matches": 354,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 1
+      },
+      {
+        "updates": 200,
+        "train_loss": 0.4805596166062484,
+        "train_target_argmax_matches": 354,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 7
+      },
+      {
+        "updates": 400,
+        "train_loss": 0.46083332968094853,
+        "train_target_argmax_matches": 366,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 7
+      }
+    ],
+    "training_states": 444,
+    "held_states_used_for_probe_fitting": 0,
+    "held_states_used_for_probe_selection": 0,
+    "confirmation_records_opened": 0,
+    "saved_policy_checkpoints": 0,
+    "no_strength_or_causal_component_claim": true,
+    "manifest_sha256": "04afe7890098f94dab90de215fd7c9f2014a1d4bc0c1208458f65172bb1812c7",
+    "script_sha256": "71882309ef1c5f28d4a14fc90f353ba964e4ddb1958c3db9c7bd20d4bbddb188",
+    "interpretation": "No strong fitting improvement from this particular unanchored, faster, 400-update probe: 21 sampled positive training chi-route opportunities recovered 6 to 7. This does not prove an intrinsic representation limit; optimization and sampled-target conflict remain possible. Fixed v4-v5 held choices are identical on these 146 cached inputs only."
+  },
+  "public_feature_representation_probe": {
+    "status": "completed",
+    "optimizer_updates": 400,
+    "feature_version": "public-kan-context-v2",
+    "features": 158,
+    "parameter_count": 10240,
+    "curve": [
+      {
+        "updates": 0,
+        "train_loss": 0.6008446344607714,
+        "train_target_argmax_matches": 347,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 0
+      },
+      {
+        "updates": 25,
+        "train_loss": 0.5280225885009275,
+        "train_target_argmax_matches": 356,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 8
+      },
+      {
+        "updates": 50,
+        "train_loss": 0.5102848666451393,
+        "train_target_argmax_matches": 350,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 10
+      },
+      {
+        "updates": 100,
+        "train_loss": 0.5127201316646728,
+        "train_target_argmax_matches": 362,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 8
+      },
+      {
+        "updates": 200,
+        "train_loss": 0.5030986683840312,
+        "train_target_argmax_matches": 343,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 19
+      },
+      {
+        "updates": 400,
+        "train_loss": 0.47994783344881314,
+        "train_target_argmax_matches": 365,
+        "train_states": 444,
+        "sampled_positive_chi_route_states": 21,
+        "train_positive_chi_route_recovered": 10
+      }
+    ],
+    "conditional_label_summary": {
+      "training_chi_route_states": 37,
+      "sampled_positive_call_states": 21,
+      "sampled_positive_call_pairs": 25,
+      "worlds_per_pair": 16,
+      "nominal_utility_interval_lower_positive_pairs": 5,
+      "both_fixed_halves_utility_positive_pairs": 21,
+      "caveat": "Descriptive post-selection intervals conditional on the recorded opponent hands. No multiplicity adjustment or independent optimal-action guarantee. Only live/dead unseen wall tiles were resampled in the source protocol."
+    },
+    "training_states": 444,
+    "held_states_used_for_fitting": 0,
+    "held_states_used_for_selection": 0,
+    "confirmation_records_opened": 0,
+    "saved_policy_checkpoints": 0,
+    "new_match_simulations": 0,
+    "not_strength_evidence": true,
+    "not_a_single_factor_architecture_ablation": true,
+    "manifest_sha256": "acf4a64144aa8409b750481c68877ef6b7d85fc13e72e9a09be883e0009713bc",
+    "script_sha256": "90a72e5bcc780e97069f5fa83789ab5eea1325a9de07fa4a56edc13d45a1253e"
+  },
+  "next_candidate": {
+    "model_id": "jev-call-feature-win-v1",
+    "status": "positive_development_independent_confirmation_submitted",
+    "architecture": "64-hidden tanh public-feature residual over frozen Play call probabilities",
+    "public_features": 158,
+    "trainable_parameters": 10240,
+    "data_and_reward_unchanged_from_v4": true,
+    "selection_objective": "hand_win",
+    "max_held_dealin_increase": 0.01,
+    "full_match_evaluation_started": false,
+    "deployed": false,
+    "selected_epoch": 1,
+    "checkpoint_sha256": "c25ec8e963d3cd21ce6dd6a10350658aae22d0078141c398301c9f098d4977d5",
+    "selected_held_own_win_gain": 0.012842465753424657,
+    "selected_held_dealin_change": 0.0025684931506849314,
+    "held_chi_recovered": 0,
+    "development_expected_games": 192,
+    "development_completed_games": 192,
+    "development_hand_win_paired": {
+      "gain": 0.011495535714285715,
+      "ci95": [
+        -0.022098947519786187,
+        0.04509001894835762
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "development_dealin_rate_paired": {
+      "gain": 0.0067956349206349225,
+      "ci95": [
+        -0.019642099092320356,
+        0.033233368933590204
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "confirmation_expected_games": 768,
+    "confirmation_new_walls": 32,
+    "improvement_verified": false
+  },
+  "post_chi_first_discard_diagnosis": {
+    "status": "completed",
+    "summary": {
+      "training_public_chi_route_states": 37,
+      "qualifying_chi_options": 40,
+      "future_worlds_per_option": 16,
+      "all": {
+        "chi_options": 40,
+        "options_with_realized_chi": 40,
+        "realized_chi_worlds": 640,
+        "options_with_any_worse_shanten": 3,
+        "options_with_any_lost_all_simples": 6,
+        "options_with_multiple_first_discard_choices": 0,
+        "mean_option_best_shanten_fraction": 0.925,
+        "mean_option_all_simples_fraction": 0.85
+      },
+      "sample_positive": {
+        "chi_options": 22,
+        "options_with_realized_chi": 22,
+        "realized_chi_worlds": 352,
+        "options_with_any_worse_shanten": 0,
+        "options_with_any_lost_all_simples": 3,
+        "options_with_multiple_first_discard_choices": 0,
+        "mean_option_best_shanten_fraction": 1.0,
+        "mean_option_all_simples_fraction": 0.8636363636363636
+      }
+    },
+    "selection": "public closed chi acceleration route, all outcome signs",
+    "held_states_analyzed": 0,
+    "confirmation_records_opened": 0,
+    "optimizer_updates": 0,
+    "new_match_simulations": 0,
+    "saved_weights": 0,
+    "caveat": "Descriptive first-discard behavior, not causal win-rate proof. Future worlds share the source opponent hands and are not independent decision states.",
+    "script_sha256": "12d3c8c0d569c92c2c8a61527a9ecde506d9d25ec7df422eaf38865cc5f19e44",
+    "manifest_sha256": "99c2d5460a864a1d9e9bb5ff4e7c7bf87efa96bd1eda89f54835fe67ddb8e21f"
+  },
+  "post_chi_label_uncertainty_join": {
+    "status": "completed",
+    "summary": {
+      "all_sample_positive_calls": {
+        "pairs": 25,
+        "nominal_interval_lower_positive_pairs": 5,
+        "both_fixed_halves_positive_pairs": 21
+      },
+      "qualified_chi": {
+        "pairs": 22,
+        "nominal_interval_lower_positive_pairs": 5,
+        "both_fixed_halves_positive_pairs": 18,
+        "pairs_with_lost_all_simples": 3,
+        "pairs_with_worse_shanten": 0
+      },
+      "other_call_options_in_chi_route_states": {
+        "pairs": 3,
+        "nominal_interval_lower_positive_pairs": 0,
+        "both_fixed_halves_positive_pairs": 3
+      }
+    },
+    "same_public_feature_and_grouping_source_verified": true,
+    "source_result_hashes": {
+      "conditional_label_details": "d941addad536d2864c23f1f1fc332cbdb1d2b418b8fce74d00452ba75bf7f54b",
+      "first_discard_details": "eb912fc26a7f288bee291577cff355cd981a6dcdcf6e43a59fc569988195300b"
+    },
+    "held_states_analyzed": 0,
+    "confirmation_records_opened": 0,
+    "new_simulations": 0,
+    "optimizer_updates": 0,
+    "caveat": "Descriptive join of already selected positive training estimates; conditional on source opponent hands, unadjusted for selection. Other options are not automatically pon; their type is not classified here."
+  },
+  "fixed_model_positive_training_call_choice": {
+    "status": "completed",
+    "summary": {
+      "all_sample_positive_calls": {
+        "action_pairs": 25,
+        "states": 21,
+        "selected_positive_action_pairs": {
+          "jev-call-win-v4": 5,
+          "jev-call-win-v5": 6,
+          "jev-call-feature-win-v1": 6
+        },
+        "states_selecting_any_listed_positive_action": {
+          "jev-call-win-v4": 5,
+          "jev-call-win-v5": 6,
+          "jev-call-feature-win-v1": 6
+        }
+      },
+      "qualified_chi": {
+        "action_pairs": 22,
+        "states": 21,
+        "selected_positive_action_pairs": {
+          "jev-call-win-v4": 3,
+          "jev-call-win-v5": 4,
+          "jev-call-feature-win-v1": 4
+        },
+        "states_selecting_any_listed_positive_action": {
+          "jev-call-win-v4": 3,
+          "jev-call-win-v5": 4,
+          "jev-call-feature-win-v1": 4
+        }
+      },
+      "qualified_chi_nominal_lower_positive": {
+        "action_pairs": 5,
+        "states": 5,
+        "selected_positive_action_pairs": {
+          "jev-call-win-v4": 2,
+          "jev-call-win-v5": 3,
+          "jev-call-feature-win-v1": 3
+        },
+        "states_selecting_any_listed_positive_action": {
+          "jev-call-win-v4": 2,
+          "jev-call-win-v5": 3,
+          "jev-call-feature-win-v1": 3
+        }
+      },
+      "qualified_chi_interval_crosses_zero": {
+        "action_pairs": 17,
+        "states": 16,
+        "selected_positive_action_pairs": {
+          "jev-call-win-v4": 1,
+          "jev-call-win-v5": 1,
+          "jev-call-feature-win-v1": 1
+        },
+        "states_selecting_any_listed_positive_action": {
+          "jev-call-win-v4": 1,
+          "jev-call-win-v5": 1,
+          "jev-call-feature-win-v1": 1
+        }
+      }
+    },
+    "held_states_analyzed": 0,
+    "confirmation_records_opened": 0,
+    "optimizer_updates": 0,
+    "new_match_simulations": 0,
+    "caveat": "Post-selection, conditional Monte Carlo training estimates; nominal intervals are not expert truth or human win-rate proof.",
+    "manifest_sha256": "62c6a64bf00affda3fac064cddea198b8cf05d723dc975bf3fe1d23f1b38d6a9",
+    "script_sha256": "a9e7c8ee5601b51d6ac439fb78f8fd1cd304053a4bd2767f097295b0becb1faa"
+  }
+}

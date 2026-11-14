@@ -1,0 +1,73 @@
+{
+  "train_states": 156,
+  "held_states_summarized": 0,
+  "penalty_change_effect_on_train": {
+    "target_argmax_changes": 5,
+    "selected_argmax_changes": 0,
+    "sample_best_changes": 13
+  },
+  "route_counts": {
+    "jev-call-win-v1": {
+      "closed_chi_tanyao_gain": {
+        "states": 27,
+        "sample_best_call": 15,
+        "target_argmax_call": 14,
+        "selected_call": 5,
+        "target_argmax_recovered": 15,
+        "sample_utility_best_recovered": 14,
+        "positive_target_call_missed": 10,
+        "prior_keeps_sample_best_call_as_pass": 0
+      },
+      "closed_pon_yakuhai": {
+        "states": 23,
+        "sample_best_call": 22,
+        "target_argmax_call": 22,
+        "selected_call": 21,
+        "target_argmax_recovered": 22,
+        "sample_utility_best_recovered": 22,
+        "positive_target_call_missed": 1,
+        "prior_keeps_sample_best_call_as_pass": 0
+      }
+    },
+    "jev-call-win-v2": {
+      "closed_chi_tanyao_gain": {
+        "states": 27,
+        "sample_best_call": 14,
+        "target_argmax_call": 13,
+        "selected_call": 5,
+        "target_argmax_recovered": 14,
+        "sample_utility_best_recovered": 14,
+        "positive_target_call_missed": 10,
+        "prior_keeps_sample_best_call_as_pass": 0
+      },
+      "closed_pon_yakuhai": {
+        "states": 23,
+        "sample_best_call": 20,
+        "target_argmax_call": 21,
+        "selected_call": 21,
+        "target_argmax_recovered": 21,
+        "sample_utility_best_recovered": 20,
+        "positive_target_call_missed": 1,
+        "prior_keeps_sample_best_call_as_pass": 0
+      }
+    }
+  },
+  "labels_are_sampled_not_expert": true,
+  "not_full_match_effect": true,
+  "not_human_win_rate": true,
+  "raw_records_public": false,
+  "v3_vs_v2_choice_comparison": {
+    "states": {
+      "train": 156,
+      "held": 50
+    },
+    "v3_minus_v2_argmax_changes": {
+      "train": 0,
+      "held": 0
+    },
+    "checkpoint_sha256": [
+      "b3a1905c31755a3e504d556d2a1e76556b3788c3d500f4d5b9a8fced619f85d4",
+      "6adfa88340b81d2150fa9808b24122a21feedb1b257e4297f235ff11ca0bdbed"
+    ]
+  }
+}

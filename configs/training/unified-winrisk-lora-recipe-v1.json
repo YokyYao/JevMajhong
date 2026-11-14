@@ -1,0 +1,311 @@
+{
+  "schema": "unified-winrisk-lora-v1",
+  "source_sha256": "0e7233d2ed584e5a8a67557964486cec6630d6314d44ec6056845a31d210f1d3",
+  "model_id": "jev-unified-winrisk-v1",
+  "base": "Qwen/Qwen3.5-0.8B",
+  "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
+  "initialization": "verified continued unified LoRA and pointer, new optimizer",
+  "parent_model": "jev-balanced-base-lora-v2",
+  "parent_selected_step": 1536,
+  "parent_identity_sha256": "cbb72f970c1a681a792a600957bf1bb91a53f09b2d4e20e28c72f9a8bfe35092",
+  "external_residual_networks": 0,
+  "soft_target_mode": "outcome_only_win_risk_compatible_masked_v3",
+  "reward": {
+    "mode": "own_win_first_v1",
+    "win_weight": 1.0,
+    "fast_weight": 0.25,
+    "dealin_penalty": 2.0,
+    "net_weight": 0.0,
+    "point_scale": 8000.0,
+    "speed_gamma": 0.98
+  },
+  "target_temperature": 0.05,
+  "expected_train_records": 32768,
+  "expected_validation_records": 400,
+  "mixture": {
+    "train": [
+      {
+        "phase": "closed_discard",
+        "label_type": "expert_replay",
+        "count": 15097,
+        "max_repeats": 1
+      },
+      {
+        "phase": "closed_discard",
+        "label_type": "paired_future_masked",
+        "count": 127,
+        "max_repeats": 1
+      },
+      {
+        "phase": "open_discard",
+        "label_type": "expert_replay",
+        "count": 7949,
+        "max_repeats": 1
+      },
+      {
+        "phase": "open_discard",
+        "label_type": "paired_future_masked",
+        "count": 243,
+        "max_repeats": 1
+      },
+      {
+        "phase": "call_window",
+        "label_type": "expert_replay",
+        "count": 950,
+        "max_repeats": 1,
+        "choice": "chi"
+      },
+      {
+        "phase": "call_window",
+        "label_type": "expert_replay",
+        "count": 950,
+        "max_repeats": 1,
+        "choice": "pon"
+      },
+      {
+        "phase": "call_window",
+        "label_type": "expert_replay",
+        "count": 2848,
+        "max_repeats": 1,
+        "choice": "none"
+      },
+      {
+        "phase": "call_window",
+        "label_type": "paired_future_masked",
+        "count": 1980,
+        "max_repeats": 1
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "expert_replay",
+        "count": 565,
+        "max_repeats": 1,
+        "kan_kind": "ankan",
+        "choice": "ankan"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "expert_replay",
+        "count": 555,
+        "max_repeats": 1,
+        "kan_kind": "ankan",
+        "choice": "dahai"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "expert_replay",
+        "count": 10,
+        "max_repeats": 1,
+        "kan_kind": "ankan",
+        "choice": "reach"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "expert_replay",
+        "count": 413,
+        "max_repeats": 1,
+        "kan_kind": "daiminkan",
+        "choice": "daiminkan"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "expert_replay",
+        "count": 362,
+        "max_repeats": 1,
+        "kan_kind": "daiminkan",
+        "choice": "none"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "expert_replay",
+        "count": 44,
+        "max_repeats": 1,
+        "kan_kind": "daiminkan",
+        "choice": "pon"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "expert_replay",
+        "count": 7,
+        "max_repeats": 1,
+        "kan_kind": "daiminkan",
+        "choice": "chi"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "expert_replay",
+        "count": 151,
+        "max_repeats": 1,
+        "kan_kind": "kakan",
+        "choice": "kakan"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "expert_replay",
+        "count": 151,
+        "max_repeats": 1,
+        "kan_kind": "kakan",
+        "choice": "dahai"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "paired_future_masked",
+        "count": 366,
+        "max_repeats": 1
+      }
+    ],
+    "validation": [
+      {
+        "phase": "closed_discard",
+        "label_type": "expert_replay",
+        "count": 96,
+        "max_repeats": 1
+      },
+      {
+        "phase": "open_discard",
+        "label_type": "expert_replay",
+        "count": 48,
+        "max_repeats": 1
+      },
+      {
+        "phase": "call_window",
+        "label_type": "expert_replay",
+        "count": 20,
+        "max_repeats": 1,
+        "choice": "chi"
+      },
+      {
+        "phase": "call_window",
+        "label_type": "expert_replay",
+        "count": 20,
+        "max_repeats": 1,
+        "choice": "pon"
+      },
+      {
+        "phase": "call_window",
+        "label_type": "expert_replay",
+        "count": 40,
+        "max_repeats": 1,
+        "choice": "none"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "paired_future_masked",
+        "count": 12,
+        "max_repeats": 1,
+        "kan_kind": "ankan"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "paired_future_masked",
+        "count": 14,
+        "max_repeats": 1,
+        "kan_kind": "daiminkan"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "paired_future_masked",
+        "count": 6,
+        "max_repeats": 1,
+        "kan_kind": "kakan"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "expert_replay",
+        "count": 16,
+        "max_repeats": 1,
+        "kan_kind": "ankan",
+        "choice": "ankan"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "expert_replay",
+        "count": 16,
+        "max_repeats": 1,
+        "kan_kind": "ankan",
+        "choice": "dahai"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "expert_replay",
+        "count": 16,
+        "max_repeats": 1,
+        "kan_kind": "daiminkan",
+        "choice": "daiminkan"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "expert_replay",
+        "count": 16,
+        "max_repeats": 1,
+        "kan_kind": "daiminkan",
+        "choice": "none"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "expert_replay",
+        "count": 16,
+        "max_repeats": 1,
+        "kan_kind": "kakan",
+        "choice": "kakan"
+      },
+      {
+        "phase": "kan_window",
+        "label_type": "expert_replay",
+        "count": 16,
+        "max_repeats": 1,
+        "kan_kind": "kakan",
+        "choice": "dahai"
+      },
+      {
+        "phase": "closed_discard",
+        "label_type": "paired_future_masked",
+        "count": 48,
+        "max_repeats": 1
+      }
+    ]
+  },
+  "label_source_gradient_mass": {
+    "expert_replay": 0.75,
+    "paired_future_masked": 0.25
+  },
+  "maximum_source_loss_weight": 8,
+  "rank": 16,
+  "batch": 1,
+  "accum": 16,
+  "weights_dtype": "bf16",
+  "lora_lr": 2e-06,
+  "head_lr": 1e-05,
+  "weight_decay": 0.001,
+  "lora_dropout": 0.05,
+  "max_steps": 512,
+  "eval_every_steps": 128,
+  "early_stop_patience": 0,
+  "evaluation_candidate_rule": "final_registered_budget_v1",
+  "registered_final_step": 512,
+  "maximum_gradient_record_exposure": 8192,
+  "development": {
+    "seed_start": 12030000,
+    "seeds": 8,
+    "total_games": 192,
+    "own_hand_win_paired_mean_min_exclusive": 0.0,
+    "max_dealin_rate_increase": 0.01
+  },
+  "confirmation": {
+    "seed_start": 12040000,
+    "seeds": 32,
+    "total_games": 768,
+    "requires_complete_independent_development_audit": true,
+    "own_hand_win_ci95_lower_min_exclusive": 0.0,
+    "max_dealin_rate_increase": 0.01
+  },
+  "data_readiness": "requires completed full-menu independent audit, preserved family holdout and actual count/hash/group checks before any optimizer step",
+  "experimental_weights_public": false,
+  "automatic_retry": false,
+  "data_revision": 2,
+  "physical_position_canonicalization": "earliest_observed_decision_v1",
+  "new_closed_raw_decision_windows": 176,
+  "new_closed_unique_physical_positions": 175,
+  "new_closed_train_positions": 127,
+  "new_closed_validation_positions": 48
+}

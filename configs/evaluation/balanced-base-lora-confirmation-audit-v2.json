@@ -1,0 +1,5 @@
+{
+  "evaluation_config": "runs/configs/balanced-base-lora-confirmation-v2.json",
+  "evaluation_config_sha256": "657175ea7b7898de497859825939134359e9b9c25234dcd0ed51a38a538c62b1",
+  "out": "runs/balanced-base-lora-v2-confirmation-audit"
+}

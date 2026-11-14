@@ -1,0 +1,183 @@
+{
+  "candidate_model_id": "jev-call-feature-win-v2",
+  "stage": "development_complete_not_improved",
+  "native_source": {
+    "fresh_logical_walls": 16,
+    "control_matches": 64,
+    "states": 1132,
+    "state_splits": {
+      "train": 892,
+      "held": 240
+    },
+    "coverage": {
+      "closed": 991,
+      "opponent_riichi": 406,
+      "chi": 728,
+      "pon": 425,
+      "open": 141
+    },
+    "collection_policy": "calling_only_pointer",
+    "behavior_checkpoint_sha256": "36f1bf7a7e719eb8f9df53e0532e2dfdeb071b314bdc388d36115444683133a4",
+    "ordinary_and_kan_frozen_to_play": true
+  },
+  "input_audit": {
+    "status": "passed_complete",
+    "prefixes_replayed": 1132,
+    "probability_max_error": 5.364418029785156e-07
+  },
+  "fixed_outcome_blind_label_plan": {
+    "states": 512,
+    "state_splits": {
+      "train": {
+        "states": 384,
+        "open": 104,
+        "opponent_riichi": 184,
+        "chi": 214,
+        "pon": 188
+      },
+      "held": {
+        "states": 128,
+        "open": 37,
+        "opponent_riichi": 58,
+        "chi": 75,
+        "pon": 56
+      }
+    },
+    "worlds_per_state": 32,
+    "initial_hand_rollout_budget": 32768,
+    "full_menu_expansion_adds_remaining_eligible_actions": true,
+    "reference_action_and_continuation": "original_frozen_play",
+    "behavior_actor_used_only_for_source_prefix": true
+  },
+  "fit_plan": {
+    "source_wall_groups": 36,
+    "public_features": 158,
+    "trainable_parameters": 10240,
+    "net_point_reward_weight": 0,
+    "own_win_first_reward_unchanged": true,
+    "zero_residual_reset": true,
+    "early_stop_patience_epochs": 4
+  },
+  "core_tests_passed": 105,
+  "github_source_ci": {
+    "head_sha": "db57db8d1aafebb614c2906e412999f8b3b3770f",
+    "run_id": 43332488647,
+    "core": "success",
+    "desktop": "success"
+  },
+  "optimizer_updates": 364,
+  "weights_available": true,
+  "strength_improvement_proven": false,
+  "raw_records_public": false,
+  "experimental_weights_public": false,
+  "deployed": false,
+  "limitations": [
+    "The exploration actor is not a verified stronger policy. More open states do not prove better hand-win probability.",
+    "Future worlds fix opponent concealed hands and only resample unseen wall tiles.",
+    "Fresh confirmation is required after fitting and development; consumed prior tests are not reused."
+  ],
+  "paired_label_prefix_audit": {
+    "status": "passed_one_committed_shard",
+    "states": 93,
+    "validated_pair_rows": 93,
+    "raw_arm_records_checked": 5952,
+    "complete_collection_audit": false,
+    "new_simulations": 0,
+    "not_strength_evaluation": true,
+    "reward_recounted_from_native_events": true
+  },
+  "prospective_development": {
+    "stage": "development",
+    "new_logical_walls": 8,
+    "expected_matches": 192,
+    "conditional_on_completed_fit_audit_and_positive_internal_own_win_gain": true,
+    "ineligible_candidate_plays_zero_matches": true,
+    "native_parity_required": [
+      "ordinary",
+      "calling",
+      "ordinary_kan"
+    ],
+    "checkpoint_bound_to_audited_fit_and_startup_protocol": true,
+    "independent_event_recount_queued": true,
+    "binding_regression_existing_matches": 192,
+    "binding_regression_new_simulations": 0,
+    "tampered_wrapper_config_and_recipe_rejected": 3,
+    "no_v2_match_results_yet": false,
+    "parity_file_loading_fix": {
+      "model_receipts_remain_hash_checked": true,
+      "only_native_wall_shards_provide_rows": true,
+      "malformed_native_shards_rejected": true,
+      "regression_preserves_all_three_routes": true,
+      "training_and_collection_source_unchanged": true,
+      "only_unstarted_evaluation_jobs_superseded": true,
+      "old_evaluation_games_simulated": 0
+    }
+  },
+  "label_time_limit_continuation": {
+    "status": "complete_skipped_generation",
+    "original_job_limit_hours": 4,
+    "partition_max_hours": 24,
+    "running_job_extension_allowed_for_owner": false,
+    "continuation_job_limit_hours": 6,
+    "normal_completion_skips_generation": true,
+    "only_actual_timeout_can_resume_incomplete_data": true,
+    "running_cancelled_node_failure_and_unexplained_failure_rejected": true,
+    "committed_shard_checks_required": true,
+    "fixed_source_and_recipe_preserved": true,
+    "full_data_audit_waits_for_collection_barrier": true,
+    "terminal_state_branch_checks_passed": 10,
+    "actual_running_parent_rejected_without_output_or_simulation": true,
+    "extra_concurrent_gpu_jobs": 0,
+    "strength_evidence": false,
+    "parent_terminal_state": "COMPLETED",
+    "action": "skip_complete",
+    "completed_states": 512,
+    "committed_shards": 16
+  },
+  "paired_label_full_audit": {
+    "status": "passed_complete",
+    "role": "data consistency audit, not policy strength",
+    "pairs": 512,
+    "states": 512,
+    "train_pairs": 384,
+    "held_pairs": 128,
+    "train_states": 384,
+    "held_states": 128,
+    "worlds_per_state": 32,
+    "prefixes_replayed": 512,
+    "future_walls_rederived": 16384,
+    "arm_records_audited": 32768,
+    "whole_wall_disjoint": true,
+    "cached_head_probability_max_error": 0.0,
+    "new_simulations": 0,
+    "independent_strength_proven": false
+  },
+  "full_menu_collection": {
+    "states": 512,
+    "pairs": 585,
+    "worlds_per_state": 32,
+    "new_native_hand_rollouts": 2336,
+    "chi_pairs": 341,
+    "pon_pairs": 244
+  },
+  "full_menu_audit": {
+    "status": "passed_complete",
+    "role": "data consistency audit, not policy strength",
+    "pairs": 585,
+    "states": 512,
+    "train_pairs": 439,
+    "held_pairs": 146,
+    "train_states": 384,
+    "held_states": 128,
+    "worlds_per_state": 32,
+    "prefixes_replayed": 512,
+    "future_walls_rederived": 16384,
+    "arm_records_audited": 37440,
+    "whole_wall_disjoint": true,
+    "cached_head_probability_max_error": 0.0,
+    "new_simulations": 0,
+    "independent_strength_proven": false
+  },
+  "fit_summary": "feature-win-fit-v2-summary.json",
+  "development_result": "feature-win-development-v2-summary.json"
+}

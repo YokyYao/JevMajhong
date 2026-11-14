@@ -1,0 +1,39 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "model_id": "jev-call-routes-v1",
+  "out": "runs/jev-call-routes-v1",
+  "fit_model": "complete_option_call_head",
+  "train_scopes": [
+    "calling"
+  ],
+  "decision_filter": "all",
+  "data": [
+    "runs/play-call-routes-options-v1/source_0"
+  ],
+  "required_data_audits": [
+    "runs/play-call-routes-future-audit-v1",
+    "runs/play-call-routes-option-audit-v1"
+  ],
+  "reward": {
+    "mode": "net_points_with_fast_support_v1",
+    "net_weight": 1.0,
+    "fast_weight": 0.1,
+    "dealin_penalty": 0.4,
+    "point_scale": 8000.0
+  },
+  "reference_anchor_data": [
+    "runs/call-options-v1/source_0"
+  ],
+  "reference_anchor_states": 256,
+  "anchor_batch": 16,
+  "anchor_beta": 0.2,
+  "anchor_kl_limit": 0.05,
+  "reference_prior_strength": 0.05,
+  "seed": 2026111233,
+  "epochs": 24,
+  "patience_epochs": 4,
+  "batch": 16,
+  "lr": 1e-05,
+  "weight_decay": 0.001
+}

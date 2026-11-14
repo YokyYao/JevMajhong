@@ -3,6 +3,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -35,34 +36,60 @@ def freeze_source(root):
     return target
 
 
+def existing_source(root, identity):
+    """Select an already frozen package without changing an older launch."""
+    if re.fullmatch(r'[0-9a-f]{64}', identity) is None:
+        raise ValueError('Expected a lowercase SHA256 source identity')
+    target = root / 'runs/code' / identity
+    if not (target / 'jevmahjong').is_dir():
+        raise ValueError('Requested source snapshot is missing')
+    if tree_digest(target / 'jevmahjong') != identity:
+        raise ValueError('Requested source snapshot changed')
+    return target
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=('collect', 'collect-defense-states', 'collect-ev', 'audit-defense-states', 'audit-futures', 'audit-context-fit', 'train', 'train-context', 'evaluate'))
+    parser.add_argument('command', choices=('collect', 'recover-closed-states', 'collect-defense-states', 'collect-call-states', 'collect-kan-states', 'collect-ev', 'audit-defense-states', 'audit-native-states', 'audit-futures', 'audit-context-fit', 'audit-call-head', 'train', 'train-context', 'train-call-head', 'train-base-lora', 'evaluate', 'evaluate-unified', 'audit-unified', 'prepare-base-lora-pool', 'extend-base-lora-pool', 'prepare-base-lora-mix', 'prepare-prefix-kan', 'audit-prefix-kan', 'reserve-prefix-validation'))
     parser.add_argument('--config', type=Path, required=True)
     parser.add_argument('--resume', action='store_true')
+    parser.add_argument('--prepare-only', action='store_true', help='Pin source/configuration without starting work')
+    parser.add_argument('--registered', action='store_true', help='Use a previously pinned launch; do not resume module state')
+    parser.add_argument('--source-sha', help='For a new launch, reuse a verified existing source snapshot')
     parser.add_argument('--max-walls',type=int)
     args = parser.parse_args(); config = json.loads(args.config.read_text())
-    if args.max_walls is not None and args.command!='collect-defense-states':
-        raise ValueError('Bounded prefix collection is only supported for native defense states')
+    if args.max_walls is not None and args.command not in ('collect-defense-states','collect-call-states','collect-kan-states'):
+        raise ValueError('Bounded prefix collection is only supported for native decision states')
     out = (ROOT / config['out']).resolve()
     key = hashlib.sha256(str(out).encode()).hexdigest()
     launches = ROOT / 'runs/launches'; launches.mkdir(parents=True, exist_ok=True)
     record = launches / (key + '.json')
+    if args.registered and not record.exists():
+        raise ValueError('Register this exact command/configuration with --prepare-only before submitting')
     if record.exists():
         saved = json.loads(record.read_text())
-        if not args.resume or saved['config'] != config or saved['command'] != args.command:
+        if not (args.resume or args.registered or args.prepare_only) or saved['config'] != config or saved['command'] != args.command:
             raise ValueError('Use --resume with the same configuration, or choose a new output directory')
         source = Path(saved['source'])
         if tree_digest(source / 'jevmahjong') != saved['source_sha256']:
             raise ValueError('Original source snapshot changed')
+        if args.source_sha is not None:
+            if args.source_sha != saved['source_sha256']:
+                raise ValueError('Registered source identity differs; choose a new output directory')
+            if existing_source(ROOT, args.source_sha).resolve() != source.resolve():
+                raise ValueError('Registered source location differs')
     else:
-        source = freeze_source(ROOT)
+        source = freeze_source(ROOT) if args.source_sha is None else existing_source(ROOT, args.source_sha)
         saved = {'command': args.command, 'source': str(source), 'source_sha256': source.name, 'config': config}
         record.write_text(json.dumps(saved, indent=2) + '\n')
     frozen_config = launches / (key + '-config.json')
     if frozen_config.exists() and json.loads(frozen_config.read_text()) != config:
         raise ValueError('Saved launch configuration changed')
     frozen_config.write_text(json.dumps(config, indent=2) + '\n')
+    if args.prepare_only:
+        print(json.dumps({'status':'registered_not_started','source_sha256':saved['source_sha256'],
+            'launch':str(record),'config':str(frozen_config)}))
+        return
     bootstrap = ('import sys;sys.path.insert(0,sys.argv[1]);'
         'from jevmahjong.__main__ import main;sys.argv=[sys.argv[0],*sys.argv[2:]];main()')
     command = [sys.executable, '-c', bootstrap, str(source), args.command, '--config', str(frozen_config)]

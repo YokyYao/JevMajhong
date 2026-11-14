@@ -1,0 +1,53 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "call_context_baseline": {
+    "checkpoint": "runs/jev-call-tile-win-v1/jev-call-tile-win-v1-e01.pt",
+    "sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+  },
+  "train_scopes": [
+    "calling"
+  ],
+  "decision_filter": "all",
+  "data": [
+    "runs/chi-win-native-v2"
+  ],
+  "out": "runs/chi-win-futures-v4",
+  "seed": 2026111322,
+  "worlds": 16,
+  "max_states": 1024,
+  "max_states_by_split": {
+    "train": 768,
+    "held": 256
+  },
+  "canonical_state_only": true,
+  "stratify_call_openness": true,
+  "call_route_reserve_by_split": {
+    "train": {
+      "closed_chi_tanyao_gain": 192,
+      "closed_pon_yakuhai": 64
+    },
+    "held": {
+      "closed_chi_tanyao_gain": 64,
+      "closed_pon_yakuhai": 32
+    }
+  },
+  "fast_gamma": 0.98,
+  "game_mode": "4p-red-east",
+  "seed_scheme": "spaced-v1",
+  "reward": {
+    "mode": "own_win_first_v1",
+    "win_weight": 1.0,
+    "fast_weight": 0.25,
+    "dealin_penalty": 2.0,
+    "net_weight": 0.0,
+    "point_scale": 8000.0,
+    "speed_gamma": 0.98
+  },
+  "wall_scope": "unseen",
+  "required_native_audit": "runs/chi-win-native-audit-v2",
+  "whole_wall_state_cap_by_split": {
+    "train": 8,
+    "held": 8
+  }
+}

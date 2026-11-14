@@ -1,0 +1,171 @@
+{
+  "inputs": 68,
+  "live_reconstructions": 27,
+  "baseline_groups": {
+    "live_reconstruction": {
+      "opponent_pon9s_screen_unknown": {
+        "cases": 1,
+        "calls": 0,
+        "changes_from_baseline": 0,
+        "max_preference_difference": 0.02151155343582911
+      },
+      "opponent_pon9s_verified_context": {
+        "cases": 1,
+        "calls": 0,
+        "changes_from_baseline": 0,
+        "max_preference_difference": 0.03326508227076641
+      },
+      "screen_unknown": {
+        "cases": 27,
+        "calls": 0,
+        "changes_from_baseline": 0,
+        "max_preference_difference": 0.05041166066806413
+      },
+      "verified_context": {
+        "cases": 3,
+        "calls": 0,
+        "changes_from_baseline": 0,
+        "max_preference_difference": 0.029278455419632476
+      }
+    },
+    "native_training_control": {
+      "native": {
+        "cases": 12,
+        "calls": 6,
+        "changes_from_baseline": 0,
+        "max_preference_difference": 2.6365267813410753e-07
+      },
+      "screen_confirmed": {
+        "cases": 12,
+        "calls": 6,
+        "changes_from_baseline": 0,
+        "max_preference_difference": 0.06921690702438354
+      },
+      "screen_unknown": {
+        "cases": 12,
+        "calls": 6,
+        "changes_from_baseline": 0,
+        "max_preference_difference": 0.21849009968932423
+      }
+    }
+  },
+  "candidates": {
+    "jev-call-win-v1": {
+      "head_checkpoint_sha256": "808a15f58656a0329d4e27bf104f62efddc372d7af801a03c64e67ab3f4221e1",
+      "groups": {
+        "live_reconstruction": {
+          "opponent_pon9s_screen_unknown": {
+            "cases": 1,
+            "calls": 0,
+            "changes_from_baseline": 0,
+            "max_preference_difference": 0.13152295278456655
+          },
+          "opponent_pon9s_verified_context": {
+            "cases": 1,
+            "calls": 0,
+            "changes_from_baseline": 0,
+            "max_preference_difference": 0.12536467798801254
+          },
+          "screen_unknown": {
+            "cases": 27,
+            "calls": 2,
+            "changes_from_baseline": 2,
+            "max_preference_difference": 0.23211236422679044
+          },
+          "verified_context": {
+            "cases": 3,
+            "calls": 1,
+            "changes_from_baseline": 1,
+            "max_preference_difference": 0.18797938895348376
+          }
+        },
+        "native_training_control": {
+          "native": {
+            "cases": 12,
+            "calls": 7,
+            "changes_from_baseline": 1,
+            "max_preference_difference": 0.17533449534499168
+          },
+          "screen_confirmed": {
+            "cases": 12,
+            "calls": 7,
+            "changes_from_baseline": 1,
+            "max_preference_difference": 0.15264568996419448
+          },
+          "screen_unknown": {
+            "cases": 12,
+            "calls": 7,
+            "changes_from_baseline": 1,
+            "max_preference_difference": 0.33573637841785464
+          }
+        }
+      },
+      "live_unknown_actions": {
+        "none": 25,
+        "chi": 0,
+        "pon": 2
+      }
+    },
+    "jev-call-win-v2": {
+      "head_checkpoint_sha256": "b3a1905c31755a3e504d556d2a1e76556b3788c3d500f4d5b9a8fced619f85d4",
+      "groups": {
+        "live_reconstruction": {
+          "opponent_pon9s_screen_unknown": {
+            "cases": 1,
+            "calls": 0,
+            "changes_from_baseline": 0,
+            "max_preference_difference": 0.11924373994379445
+          },
+          "opponent_pon9s_verified_context": {
+            "cases": 1,
+            "calls": 0,
+            "changes_from_baseline": 0,
+            "max_preference_difference": 0.11366138913703283
+          },
+          "screen_unknown": {
+            "cases": 27,
+            "calls": 2,
+            "changes_from_baseline": 2,
+            "max_preference_difference": 0.21812452458796594
+          },
+          "verified_context": {
+            "cases": 3,
+            "calls": 1,
+            "changes_from_baseline": 1,
+            "max_preference_difference": 0.17258819209557652
+          }
+        },
+        "native_training_control": {
+          "native": {
+            "cases": 12,
+            "calls": 7,
+            "changes_from_baseline": 1,
+            "max_preference_difference": 0.16256059962267477
+          },
+          "screen_confirmed": {
+            "cases": 12,
+            "calls": 7,
+            "changes_from_baseline": 1,
+            "max_preference_difference": 0.1406915783882141
+          },
+          "screen_unknown": {
+            "cases": 12,
+            "calls": 7,
+            "changes_from_baseline": 1,
+            "max_preference_difference": 0.3207972940496955
+          }
+        }
+      },
+      "live_unknown_actions": {
+        "none": 25,
+        "chi": 0,
+        "pon": 2
+      }
+    }
+  },
+  "exact_historical_replay": false,
+  "expert_labels_created": 0,
+  "not_strength_test": true,
+  "same_input_binding_checked": true,
+  "raw_inputs_and_predictions_public": false
+}

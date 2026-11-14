@@ -1,0 +1,24 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "call_context_baseline": {
+    "checkpoint": "runs/jev-call-tile-win-v1/jev-call-tile-win-v1-e01.pt",
+    "sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+  },
+  "train_scopes": [
+    "calling"
+  ],
+  "decision_filter": "all",
+  "fit_config": "runs/configs/chi-win-compatible-fit-v1.json",
+  "fit_config_sha256": "0c1c2f1b3cdd0a04225bec58ae5fcbea5d2ab51915659f083e9d10943e140d9b",
+  "out": "runs/chi-win-compatible-fit-audit-v1",
+  "expected": {
+    "train_states": 768,
+    "held_states": 256,
+    "train_pairs": 1083,
+    "held_pairs": 343,
+    "anchor_states": 1024
+  },
+  "minimum_held_closed_chi_recoveries": 1,
+  "require_route_recovery_for_development": false
+}

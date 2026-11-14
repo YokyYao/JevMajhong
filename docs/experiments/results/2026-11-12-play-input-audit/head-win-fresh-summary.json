@@ -1,0 +1,259 @@
+{
+  "model_id": "jev-call-win-v4",
+  "fit_method": "complete-option-call-pointer-head-with-train-only-reference-KL",
+  "optimizer_updates": 168,
+  "stop_reason": "held_actual_choices_stalled",
+  "train_states": 444,
+  "held_states": 146,
+  "train_rows": 520,
+  "held_rows": 177,
+  "selected_epoch": 2,
+  "epochs_run": 6,
+  "checkpoint_sha256": "36f1bf7a7e719eb8f9df53e0532e2dfdeb071b314bdc388d36115444683133a4",
+  "held_policy": {
+    "states": 146,
+    "label_regret": 0.09917636680905687,
+    "mean_label_utility_gain": 0.010861460885714547,
+    "mean_sampled_net_point_gain": 75.85616438356165,
+    "mean_sampled_fast_gain": 0.00748693943326914,
+    "mean_sampled_dealin_change": 0.0021404109589041095,
+    "changed_argmax_states": 10,
+    "mean_sampled_hand_win_gain": 0.013270547945205479
+  },
+  "train_policy": {
+    "states": 444,
+    "label_regret": 0.08389396753642138,
+    "mean_label_utility_gain": 0.008829061969559729,
+    "mean_sampled_net_point_gain": 18.116554054054053,
+    "mean_sampled_fast_gain": 0.007726157788148824,
+    "mean_sampled_dealin_change": 0.002393018018018018,
+    "changed_argmax_states": 26,
+    "mean_sampled_hand_win_gain": 0.011683558558558559
+  },
+  "anchor_kl": 0.041829127449348476,
+  "held_routes": {
+    "closed": {
+      "states": 131,
+      "label_regret": 0.1009465459489676,
+      "mean_label_utility_gain": 0.01210513961308644,
+      "mean_sampled_net_point_gain": 84.54198473282443,
+      "mean_sampled_fast_gain": 0.008344222574483163,
+      "mean_sampled_dealin_change": 0.002385496183206107,
+      "changed_argmax_states": 10,
+      "mean_sampled_hand_win_gain": 0.014790076335877863,
+      "missed_positive_call_states": 29,
+      "recovered_sample_positive_call_states": 4,
+      "all_sample_negative_call_states": 60,
+      "negative_states_still_skipped": 58
+    },
+    "closed_chi_tanyao_gain": {
+      "states": 13,
+      "label_regret": 0.31305741783693275,
+      "mean_label_utility_gain": -0.018173078700160723,
+      "mean_sampled_net_point_gain": -63.94230769230769,
+      "mean_sampled_fast_gain": 0.004230762122434017,
+      "mean_sampled_dealin_change": 0.014423076923076924,
+      "changed_argmax_states": 1,
+      "mean_sampled_hand_win_gain": 0.009615384615384616,
+      "missed_positive_call_states": 6,
+      "recovered_sample_positive_call_states": 0,
+      "all_sample_negative_call_states": 4,
+      "negative_states_still_skipped": 4
+    },
+    "opponent_riichi": {
+      "states": 64,
+      "label_regret": 0.11588228301435682,
+      "mean_label_utility_gain": -0.0008033882406785534,
+      "mean_sampled_net_point_gain": 0.87890625,
+      "mean_sampled_fast_gain": 0.0006926970372857868,
+      "mean_sampled_dealin_change": 0.0009765625,
+      "changed_argmax_states": 1,
+      "mean_sampled_hand_win_gain": 0.0009765625,
+      "missed_positive_call_states": 12,
+      "recovered_sample_positive_call_states": 0,
+      "all_sample_negative_call_states": 29,
+      "negative_states_still_skipped": 29
+    },
+    "open": {
+      "states": 15,
+      "label_regret": 0.08371680232050303,
+      "mean_label_utility_gain": 0.0,
+      "mean_sampled_net_point_gain": 0.0,
+      "mean_sampled_fast_gain": 0.0,
+      "mean_sampled_dealin_change": 0.0,
+      "changed_argmax_states": 0,
+      "mean_sampled_hand_win_gain": 0.0,
+      "missed_positive_call_states": 0,
+      "recovered_sample_positive_call_states": 0,
+      "all_sample_negative_call_states": 5,
+      "negative_states_still_skipped": 5
+    },
+    "closed_pon_yakuhai": {
+      "states": 12,
+      "label_regret": 0.09131562279461557,
+      "mean_label_utility_gain": 0.1856675810562135,
+      "mean_sampled_net_point_gain": 837.5,
+      "mean_sampled_fast_gain": 0.0760036575581873,
+      "mean_sampled_dealin_change": -0.015625,
+      "changed_argmax_states": 7,
+      "mean_sampled_hand_win_gain": 0.13541666666666666,
+      "missed_positive_call_states": 4,
+      "recovered_sample_positive_call_states": 4,
+      "all_sample_negative_call_states": 2,
+      "negative_states_still_skipped": 1
+    }
+  },
+  "train_routes": {
+    "closed": {
+      "states": 413,
+      "label_regret": 0.07752968523369554,
+      "mean_label_utility_gain": 0.012098594468654885,
+      "mean_sampled_net_point_gain": 16.646489104116224,
+      "mean_sampled_fast_gain": 0.008442804024740602,
+      "mean_sampled_dealin_change": 0.0013619854721549636,
+      "changed_argmax_states": 23,
+      "mean_sampled_hand_win_gain": 0.012711864406779662,
+      "missed_positive_call_states": 86,
+      "recovered_sample_positive_call_states": 17,
+      "all_sample_negative_call_states": 225,
+      "negative_states_still_skipped": 221
+    },
+    "closed_pon_yakuhai": {
+      "states": 39,
+      "label_regret": 0.018115632096082718,
+      "mean_label_utility_gain": 0.12284171929381625,
+      "mean_sampled_net_point_gain": 394.71153846153845,
+      "mean_sampled_fast_gain": 0.061879697688085517,
+      "mean_sampled_dealin_change": -0.0016025641025641025,
+      "changed_argmax_states": 11,
+      "mean_sampled_hand_win_gain": 0.10416666666666667,
+      "missed_positive_call_states": 12,
+      "recovered_sample_positive_call_states": 11,
+      "all_sample_negative_call_states": 4,
+      "negative_states_still_skipped": 4
+    },
+    "closed_chi_tanyao_gain": {
+      "states": 37,
+      "label_regret": 0.2104522347717565,
+      "mean_label_utility_gain": 0.02464704973048226,
+      "mean_sampled_net_point_gain": -105.57432432432432,
+      "mean_sampled_fast_gain": 0.03102063135436148,
+      "mean_sampled_dealin_change": 0.010135135135135136,
+      "changed_argmax_states": 7,
+      "mean_sampled_hand_win_gain": 0.037162162162162164,
+      "missed_positive_call_states": 21,
+      "recovered_sample_positive_call_states": 5,
+      "all_sample_negative_call_states": 11,
+      "negative_states_still_skipped": 10
+    },
+    "opponent_riichi": {
+      "states": 200,
+      "label_regret": 0.06788097673864368,
+      "mean_label_utility_gain": -0.0027798720355159405,
+      "mean_sampled_net_point_gain": 5.28125,
+      "mean_sampled_fast_gain": 0.0013805118579362347,
+      "mean_sampled_dealin_change": 0.0028125,
+      "changed_argmax_states": 4,
+      "mean_sampled_hand_win_gain": 0.0025,
+      "missed_positive_call_states": 24,
+      "recovered_sample_positive_call_states": 2,
+      "all_sample_negative_call_states": 133,
+      "negative_states_still_skipped": 131
+    },
+    "open": {
+      "states": 31,
+      "label_regret": 0.16868263176305923,
+      "mean_label_utility_gain": -0.03472954842161122,
+      "mean_sampled_net_point_gain": 37.70161290322581,
+      "mean_sampled_fast_gain": -0.0018214194928964785,
+      "mean_sampled_dealin_change": 0.016129032258064516,
+      "changed_argmax_states": 3,
+      "mean_sampled_hand_win_gain": -0.0020161290322580645,
+      "missed_positive_call_states": 5,
+      "recovered_sample_positive_call_states": 1,
+      "all_sample_negative_call_states": 9,
+      "negative_states_still_skipped": 8
+    }
+  },
+  "fit_audit": {
+    "status": "passed_complete",
+    "selected_sha256": "36f1bf7a7e719eb8f9df53e0532e2dfdeb071b314bdc388d36115444683133a4",
+    "selected_epoch": 2,
+    "train_states": 444,
+    "held_states": 146,
+    "anchor_states": 256,
+    "selection_objective": "hand_win",
+    "win_reward_arms_recomputed": 22304,
+    "route_recovery_verified": false,
+    "route_is_diagnostic_only": true,
+    "eligible_for_development": true,
+    "strength_improvement_proven": false
+  },
+  "screen_reconstruction": {
+    "views": 68,
+    "live_unknown_actions": {
+      "none": 25,
+      "chi": 0,
+      "pon": 2
+    },
+    "groups": {
+      "live_reconstruction": {
+        "opponent_pon9s_screen_unknown": {
+          "cases": 1,
+          "calls": 0,
+          "changes_from_baseline": 0,
+          "max_preference_difference": 0.11969275959583114
+        },
+        "opponent_pon9s_verified_context": {
+          "cases": 1,
+          "calls": 0,
+          "changes_from_baseline": 0,
+          "max_preference_difference": 0.11726003770190574
+        },
+        "screen_unknown": {
+          "cases": 27,
+          "calls": 2,
+          "changes_from_baseline": 2,
+          "max_preference_difference": 0.21235424280166626
+        },
+        "verified_context": {
+          "cases": 3,
+          "calls": 1,
+          "changes_from_baseline": 1,
+          "max_preference_difference": 0.15578722953796387
+        }
+      },
+      "native_training_control": {
+        "native": {
+          "cases": 12,
+          "calls": 7,
+          "changes_from_baseline": 1,
+          "max_preference_difference": 0.16091267194580305
+        },
+        "screen_confirmed": {
+          "cases": 12,
+          "calls": 7,
+          "changes_from_baseline": 1,
+          "max_preference_difference": 0.13726737733930094
+        },
+        "screen_unknown": {
+          "cases": 12,
+          "calls": 7,
+          "changes_from_baseline": 1,
+          "max_preference_difference": 0.32288116216659546
+        }
+      }
+    },
+    "exact_historical_replay": false,
+    "expert_labels_created": 0,
+    "not_strength_test": true
+  },
+  "full_match_development": "completed_positive_signal_not_independent_proof",
+  "not_full_match_metrics": true,
+  "not_human_win_rate": true,
+  "weights_public": false,
+  "deployed": false,
+  "development_summary": "win-fresh-development-summary.json",
+  "independent_confirmation": "completed_not_improved",
+  "confirmation_summary": "win-fresh-confirmation-summary.json"
+}

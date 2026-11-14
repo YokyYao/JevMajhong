@@ -1,0 +1,71 @@
+{
+  "recipe_kind": "unified_fresh_base_LoRA_training_plan_requires_registered_wrapper",
+  "model_id": "jev-balanced-base-lora-v2",
+  "base": "Qwen/Qwen3.5-0.8B",
+  "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
+  "fresh_LoRA": true,
+  "fresh_pointer_head": true,
+  "pretrained_base_frozen": true,
+  "old_Mahjong_initialization": false,
+  "LoRA_rank": 16,
+  "LoRA_lr": 2e-05,
+  "head_lr": 0.0001,
+  "weight_decay": 0.001,
+  "LoRA_dropout": 0.05,
+  "dtype": "bf16",
+  "micro_batch": 1,
+  "accumulation": 16,
+  "epochs": 1,
+  "max_steps": 2048,
+  "checkpoint_every_steps": 128,
+  "validation_every_steps": 128,
+  "early_stop_patience": 3,
+  "validation_phase_weights": {
+    "closed_discard": 0.45,
+    "open_discard": 0.2,
+    "call_window": 0.3,
+    "kan_window": 0.05
+  },
+  "train_records": 32768,
+  "validation_records": 256,
+  "train_phase_counts": {
+    "closed_discard": 16384,
+    "open_discard": 8192,
+    "call_window": 6728,
+    "kan_window": 1464
+  },
+  "expert_call_counts": {
+    "chi": 1075,
+    "pon": 1075,
+    "none": 3226
+  },
+  "max_kan_repeat": 4,
+  "soft_target_mode": "outcome_only_win_compatible_masked_v2",
+  "target_temperature": 0.05,
+  "simulated_loss": "conditional CE over evaluated eligible support; unlabelled legal logits excluded from denominator",
+  "expert_loss": "full-menu hard-label CE",
+  "training_entrypoint": "jevmahjong train-base-lora --config GENERATED_PRIVATE_MANIFEST.json",
+  "upstream_source_sha256": "84fe7f0201a8d9928aabe4770912bf25e76c4916c1eded3011cf8f02862b758d",
+  "requires_masked_loss_wrapper": true,
+  "raw_data_and_weights_private": true,
+  "train_unique_positions": 31670,
+  "kan_counts": {
+    "ankan": 688,
+    "daiminkan": 584,
+    "kakan": 192
+  },
+  "validation_sha256_unchanged": "c09895f0bebeb4e14102d44cec00bfeae8026ad40c87764cb3b213c163df49d7",
+  "reward_unchanged": true,
+  "training_seed": 2026111402,
+  "mixture_seed": 2026111401,
+  "raw_pool_unchanged": true,
+  "optimizer": "AdamW",
+  "learning_rate_schedule": {
+    "type": "OneCycleLR",
+    "total_steps": 2048,
+    "pct_start": 0.1,
+    "listed_LoRA_and_head_lr_are_peak_values": true
+  },
+  "schedule_horizon_changed_from_v1": true,
+  "not_data_only_controlled_comparison": true
+}

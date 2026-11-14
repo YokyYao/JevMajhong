@@ -5,7 +5,7 @@ from jevmahjong.training.sampling import OPERATIONS, stratum
 
 
 @torch.no_grad()
-def evaluate(heads, rows, per_direction=8, context=None):
+def evaluate(heads, rows, per_direction=8, context=None, replaces_baseline=False,fixed_context=None):
     buckets = defaultdict(list)
     for row in rows:
         category, direction = stratum(row)
@@ -28,11 +28,16 @@ def evaluate(heads, rows, per_direction=8, context=None):
                 delta = row.get('training_advantage', row['fast_advantage'])
                 if context is not None:
                     from jevmahjong.policy.kan_context import probabilities
-                    p = probabilities(row['public_request'],row['reference'].tolist(),context)
+                    prior=(heads[row['scope']](row['decide'],row['options']).softmax(-1)
+                        if replaces_baseline else row['reference'])
+                    p = probabilities(row['public_request'],prior.tolist(),context)
                     z = torch.tensor(p,dtype=torch.float64).clamp_min(1e-300).log()
                 else:
                     head = heads[row['scope']]
                     z = head(row['decide'], row['options'])
+                    if fixed_context is not None:
+                        from jevmahjong.policy.call_baseline import transform
+                        z=transform(row['public_request'],z.softmax(-1),fixed_context).double().clamp_min(1e-300).log()
                 margin = float(z[row['action']] - z[row['teacher_action']])
                 correct += int(margin * delta > 0)
                 selected_index = max(row['eligible'], key=lambda i: float(z[i]))
@@ -79,13 +84,18 @@ def main():
     if digest(checkpoint) != fit['selected']['sha256']:
         raise ValueError('Selected candidate changed')
     saved = torch.load(checkpoint, map_location='cpu', weights_only=True)
+    from jevmahjong.policy.call_baseline import replaces_calling_baseline
+    replaces_baseline=replaces_calling_baseline(saved)
+    from jevmahjong.policy.call_baseline import load as load_baseline
+    fixed_context=load_baseline(fit['config'],saved['model_files']) if saved.get('kan_context') is None else None
     heads = {}
     for scope, role in [('ordinary', 'discard'), ('calling', 'call')]:
         meta = torch.load(Path(fit['config'][role + '_checkpoint']) / 'head.pt',
             map_location='cpu', weights_only=True)
         heads[scope] = make_head(meta, 'cpu').eval().requires_grad_(False)
         heads[scope].load_state_dict(saved['heads'][scope])
-    partitions, hashes, _ = load_sources(fit.get('data',fit['config']['data']), saved['model_files'], fit['config'].get('reward'))
+    partitions, hashes, _ = load_sources(fit.get('data',fit['config']['data']), saved['model_files'], fit['config'].get('reward'),
+        expected_call_baseline=fit['config'].get('call_context_baseline'))
     partitions = select_decisions(partitions, fit['config'].get('decision_filter', 'all'), fit['config'].get('train_scopes'))
     if hashes != fit['data_sha256']:
         raise ValueError('Source shard manifest differs')
@@ -94,7 +104,8 @@ def main():
     result = {'model_id': fit['model_id'], 'checkpoint_sha256': digest(checkpoint),
         'strength_improvement_proven': False, 'human_test_opened': False}
     for key, rows in partitions.items():
-        result[key] = evaluate(heads, rows, context=saved.get('kan_context'))
+        result[key] = evaluate(heads, rows, context=saved.get('kan_context'),replaces_baseline=replaces_baseline,
+            fixed_context=fixed_context)
         result[key]['label_target'] = fit['config'].get('reward', {'mode': 'fast_win'})
         result[key]['role'] = key + '-wall action diagnostic; not independent full-game strength'
     write(args.out, result)

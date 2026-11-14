@@ -1,0 +1,286 @@
+{
+  "stage": "complete_data_audits_beta2_head_development_running",
+  "snapshot_at": "2026-11-13T19:27:07.491376+00:00",
+  "baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+  "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
+  "new_native_walls": 128,
+  "planned_wall_split": {
+    "train": 96,
+    "held": 32
+  },
+  "planned_label_states": {
+    "train": 768,
+    "held": 256
+  },
+  "planned_states_per_wall": 8,
+  "label_sample_not_finalized": false,
+  "next": "Finish192newdevelopment andindependent event/payment/rank audit; conditional confirmation only for unchanged admitted weights.",
+  "seed_freshness_configs_checked": 301,
+  "seed_freshness_conflicts": 0,
+  "old_validation_used_for_training": false,
+  "new_optimizer_started": true,
+  "new_strength_evidence": false,
+  "kan_track": "Independent429state kan source fullyaudited;32future labelsrunning under existing immutable pipeline.",
+  "raw_records_public": false,
+  "weights_public": false,
+  "deployed": false,
+  "label_recipe_registered_before_outcomes": true,
+  "public_route_feasibility_pending": false,
+  "label_plan": {
+    "states": 1024,
+    "split": {
+      "train": 768,
+      "held": 256
+    },
+    "whole_walls": {
+      "train": 96,
+      "held": 32
+    },
+    "states_per_wall": 8,
+    "public_route_minimums": {
+      "train": {
+        "closed_chi_tanyao_gain": 192,
+        "closed_pon_yakuhai": 64
+      },
+      "held": {
+        "closed_chi_tanyao_gain": 64,
+        "closed_pon_yakuhai": 32
+      }
+    },
+    "paired_futures_per_state": 16,
+    "initial_hand_arm_budget": 32768,
+    "action_menu": "complete legal options, reuse already computed control and alternative branches",
+    "capacity_failure": "stop before labels; do not silently relax quotas",
+    "outcome_based_selection": false
+  },
+  "training_recipe": {
+    "model_id": "jev-chi-head-anchor-win-v5",
+    "fit_config": "configs/training/chi-head-anchor-win-fit-v5.json",
+    "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
+    "same_previous_hyperparameters_reward_anchors_baseline": true,
+    "train_states": 768,
+    "held_states": 256,
+    "anchor_states": 1024,
+    "actual_new_optimizer_updates": 192,
+    "calling_pointer_updated_fixed_MLP_applied_once": true,
+    "model_id_revision_does_not_mean_weights_exist": true,
+    "anchor_beta": 2.0,
+    "reason": "v4candidatefailedKL; singlefactor stronger reference penalty selected a new eligible checkpoint without relaxing limits."
+  },
+  "automatic_sequence": [
+    "correctedGPUfullmenu",
+    "CPUoptionaudit",
+    "CPUexactcount_and_anchor_start_binding",
+    "CPUcached_calling_head_fit",
+    "CPUindependentfit_audit"
+  ],
+  "actual_native_collection": {
+    "status": "collection_complete",
+    "method": "native_call_states_v1",
+    "walls": 128,
+    "rows": 9278,
+    "state_splits": {
+      "train": 7034,
+      "held": 2244
+    },
+    "fresh_control_matches": 512,
+    "counterfactual_rollouts": 0,
+    "optimizer_updates": 0,
+    "human_test_opened": false,
+    "inputs_only_not_reward_labels": true
+  },
+  "actual_native_audit": {
+    "status": "passed_complete",
+    "walls": 128,
+    "control_matches_audited": 512,
+    "states": 9278,
+    "state_splits": {
+      "train": 7034,
+      "held": 2244
+    },
+    "prefixes_replayed": 9278,
+    "cached_head_probability_max_error": 9.5367431640625e-07,
+    "whole_wall_disjoint": true,
+    "new_simulations": 0,
+    "reward_labels_available": false,
+    "independent_strength_proven": false,
+    "call_state_coverage": {
+      "closed": 7947,
+      "opponent_riichi": 3154,
+      "chi": 6121,
+      "pon": 3376,
+      "open": 1331
+    },
+    "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+  },
+  "actual_public_sample": {
+    "status": "label_plan_ready",
+    "states": 1024,
+    "states_by_split": {
+      "train": 768,
+      "held": 256
+    },
+    "native_route_coverage": {
+      "train": {
+        "closed": 6027,
+        "opponent_riichi": 2449,
+        "closed_chi_tanyao_gain": 263,
+        "closed_pon_yakuhai": 373,
+        "open": 1007
+      },
+      "held": {
+        "closed": 1920,
+        "closed_pon_yakuhai": 122,
+        "open": 324,
+        "opponent_riichi": 705,
+        "closed_chi_tanyao_gain": 84
+      }
+    },
+    "selected_route_coverage": {
+      "train": {
+        "closed": 416,
+        "opponent_riichi": 343,
+        "closed_chi_tanyao_gain": 192,
+        "closed_pon_yakuhai": 64,
+        "open": 352
+      },
+      "held": {
+        "closed": 145,
+        "closed_chi_tanyao_gain": 64,
+        "opponent_riichi": 92,
+        "closed_pon_yakuhai": 32,
+        "open": 111
+      }
+    },
+    "wall_coverage": {
+      "train": {
+        "nonempty_walls": 96,
+        "minimum_states": 8,
+        "maximum_states": 8,
+        "largest_share": 0.010416666666666666
+      },
+      "held": {
+        "nonempty_walls": 32,
+        "minimum_states": 8,
+        "maximum_states": 8,
+        "largest_share": 0.03125
+      }
+    },
+    "worlds_per_state": 16,
+    "initial_hand_arm_budget": 32768,
+    "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
+    "optimizer_updates": 0,
+    "new_simulations": 0,
+    "outcome_labels_read": false,
+    "limitation": "Counts are public opportunities, not positive/negative reward coverage or expert labels."
+  },
+  "future_labels": {
+    "status": "collection_complete_and_independently_audited",
+    "states": 1024,
+    "train_states": 768,
+    "held_states": 256,
+    "worlds_per_state": 16,
+    "native_hand_rollouts": 32768,
+    "fresh_matches": 0,
+    "audit": {
+      "status": "passed_complete",
+      "role": "data consistency audit, not policy strength",
+      "pairs": 1024,
+      "states": 1024,
+      "train_pairs": 768,
+      "held_pairs": 256,
+      "train_states": 768,
+      "held_states": 256,
+      "worlds_per_state": 16,
+      "prefixes_replayed": 1024,
+      "future_walls_rederived": 16384,
+      "arm_records_audited": 32768,
+      "whole_wall_disjoint": true,
+      "cached_head_probability_max_error": 0.0,
+      "new_simulations": 0,
+      "independent_strength_proven": false
+    },
+    "actual_case_keys_match_prelabel_plan": true
+  },
+  "full_menu_revision": {
+    "stage": "corrected_expansion_actually_running",
+    "reason": "Original expansion retained seed2026111318; actual parent seed2026111322. Guard rejected it after3seconds before any new rollout or protocol.",
+    "old_failed_run_preserved_private": true,
+    "old_output_contains_only_lock": true,
+    "corrected_config": "configs/training/chi-win-options-v4-r2.json",
+    "corrected_audit_config": "configs/training/chi-win-option-audit-v4-r2.json",
+    "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
+    "parent_labels_reused_not_regenerated": true,
+    "all_future_reward_scope_baseline_fields_match_actual_parent": true,
+    "actual_startup": {
+      "status": "passed_actual_corrected_full_menu_start_binding",
+      "source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
+      "original_states": 1024,
+      "pairs": 1426,
+      "pairs_by_split": {
+        "train": 1083,
+        "held": 343
+      },
+      "all_origin_keys_match_prelabel_plan": true,
+      "actual_future_seed": 2026111322,
+      "actual_parent_future_protocol_fields_match": true,
+      "reward_and_reference_unchanged": true,
+      "new_simulations_in_check": 0,
+      "checked_at": "2026-11-13T18:12:08.872862+00:00"
+    }
+  },
+  "full_menu_completion": {
+    "status": "collection_complete",
+    "method": "paired_future_ev_v1",
+    "original_unique_states": 1024,
+    "pairs": 1426,
+    "worlds_per_state": 16,
+    "new_native_hand_rollouts": 6432,
+    "reused_control_rollouts": 16384,
+    "reused_branch_rollouts": 16384,
+    "fresh_matches": 0,
+    "rows_by_category": {
+      "chi": 823,
+      "pon": 603
+    },
+    "source_outputs": [
+      "/home/junchi.yao/mahjong-discard-defense/runs/chi-win-options-v4-r2/source_0"
+    ],
+    "optimizer_updates": 0,
+    "human_test_opened": false
+  },
+  "full_menu_audit": {
+    "status": "passed_complete",
+    "role": "data consistency audit, not policy strength",
+    "pairs": 1426,
+    "states": 1024,
+    "train_pairs": 1083,
+    "held_pairs": 343,
+    "train_states": 768,
+    "held_states": 256,
+    "worlds_per_state": 16,
+    "prefixes_replayed": 1024,
+    "future_walls_rederived": 16384,
+    "arm_records_audited": 45632,
+    "whole_wall_disjoint": true,
+    "cached_head_probability_max_error": 0.0,
+    "new_simulations": 0,
+    "independent_strength_proven": false
+  },
+  "actual_start_binding": {
+    "status": "exact_counts_and_actual_anchor_start_bound_before_optimizer",
+    "states_by_split": {
+      "train": 768,
+      "held": 256
+    },
+    "pairs_by_split": {
+      "train": 1083,
+      "held": 343
+    },
+    "anchor_states": 1024,
+    "max_starting_probability_error": 7.228700713568514e-07,
+    "changed_starting_actions": 0,
+    "optimizer_updates": 0,
+    "new_simulations": 0
+  }
+}

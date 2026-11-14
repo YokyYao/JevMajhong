@@ -102,13 +102,34 @@ def summarize(rows, cfg):
             mean_table_draws_when_winning=sum(r['winning_table_draws'] for r in subset) / wins if wins else None,
             kan_opportunities={k: sum(r['kan_opportunities'].get(k, 0) for r in subset) for k in ('ankan', 'daiminkan', 'kakan')},
             kan_choices={k: sum(r['kan_choices'].get(k, 0) for r in subset) for k in ('ankan', 'daiminkan', 'kakan')})
-    # Keep net points as the overarching improvement objective. Positive speed
-    # with negative points is evidence to adjust risk, not a deployment claim.
     objective = cfg.get('confirmation_objective', 'joint_fast_points')
-    if objective not in ('joint_fast_points', 'net_points'):
+    if objective not in ('joint_fast_points', 'net_points', 'hand_win'):
         raise ValueError('Unknown confirmation objective')
     result['eligible_for_confirmation'] = (result['overall']['candidate_minus_reference']['gain'] > 0
         and (objective == 'net_points' or result['fast_reward_paired']['gain'] > 0))
+    if objective=='hand_win':
+        def paired_rate(field):
+            values=[]
+            for n in range(cfg['seed_start'],cfg['seed_start']+cfg['seeds']):
+                differences=[]
+                for s in SUITES:
+                    for p in range(4):
+                        a,b=indexed[s,n,p,'candidate'],indexed[s,n,p,'reference']
+                        numerator=lambda r:r['hand_wins'] if field=='wins' else hand_dealin_count(r['mjai_log'],r['seat'])
+                        differences.append(numerator(a)/a['hands']-numerator(b)/b['hands'])
+                values.append(statistics.mean(differences))
+            return dict(gain=statistics.mean(values),ci95=interval(values),
+                unit='equal-weight match-level per-hand rates, paired by whole wall')
+        result['hand_win_paired']=paired_rate('wins');result['dealin_rate_paired']=paired_rate('dealin')
+        for name in POLICIES:
+            subset=[r for r in rows if r['policy']==name]
+            result['overall']['policies'][name]['mean_match_hand_win_rate']=statistics.mean(r['hand_wins']/r['hands'] for r in subset)
+        limit=cfg['max_dealin_rate_increase']
+        if not math.isfinite(limit) or not 0<=limit<=1:raise ValueError('Valid predeclared deal-in constraint required')
+        result['primary']='own hand win-rate gain, equal-weight matches and whole-wall paired CI; speed and net points reported separately'
+        result['positive_signal']=result['hand_win_paired']['gain']>0
+        result['ci_excludes_zero_positive']=result['hand_win_paired']['ci95'][0]>0
+        result['eligible_for_confirmation']=result['positive_signal'] and result['dealin_rate_paired']['gain']<=limit
     if 'confirmation_objective' in cfg: result['confirmation_objective'] = objective
     result['not_deployed'] = True
     return result

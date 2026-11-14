@@ -78,9 +78,15 @@ class NativeCollector:
         self.policy_heads = {'ordinary': self.ordinary.runtime.model.head, 'calling': self.model.head}
         if config.get('behavior_heads'):
             protocol = snapshot(config)
-            self.policy_heads = load_updated_heads(protocol['behavior_heads']['checkpoint'],
-                protocol['model_files'], device)
+            self.policy_heads = self.load_behavior_heads(protocol, device)
             self.router = HeadPolicyClient(self.ordinary, self.client, self.policy_heads)
+        from jevmahjong.policy.call_baseline import load, wrap
+        self.call_baseline_context = None
+        if config.get('call_context_baseline'):
+            if config.get('behavior_heads'):
+                raise ValueError('Calling baseline cannot be combined with behavior-head exploration')
+            self.call_baseline_context = load(config, snapshot(config)['model_files'])
+            self.router = wrap(self.router, self.call_baseline_context)
         self.logged = CaptureClient(self.router)
         self.agent = PolicyAgent(self.logged)
         self.strong = PolicyAgent(self.ordinary)
@@ -91,6 +97,9 @@ class NativeCollector:
             self.hooks.append(head.register_forward_pre_hook(
                 lambda module, inputs, scope=scope: self.fast_inputs.append(
                     (scope, tuple(t.detach().clone().float() for t in inputs))) if self.capture_active else None))
+
+    def load_behavior_heads(self, protocol, device):
+        return load_updated_heads(protocol['behavior_heads']['checkpoint'], protocol['model_files'], device)
 
     def _env(self, seed):
         return RiichiEnv(game_mode=self.config['game_mode'], rule=GameRule.default_mjsoul(),
@@ -122,6 +131,8 @@ class NativeCollector:
             decide, options = self.fast_inputs[0][1]
             head = self.policy_heads[scope]
             p = head(decide, options).softmax(-1).detach().cpu()
+            from jevmahjong.policy.call_baseline import transform
+            p = transform(request, p, self.call_baseline_context)
             keys = list(request['questions']['action']['criteria'])
             native, _ = validate_distribution(self.logged.response['answers']['action']['probabilities'], keys)
             if not torch.allclose(p, torch.tensor(native), atol=2e-5, rtol=2e-4):

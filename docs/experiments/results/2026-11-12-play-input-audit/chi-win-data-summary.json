@@ -1,0 +1,436 @@
+{
+  "model_target": "jev-chi-win-v1",
+  "stage": "matched_head_development_failed_reference_retained",
+  "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+  "source_sha256": "9c2d72262cc7fea037a9dda35cd5fa8add1b8ab7545903031a37a24bd53d2d6a",
+  "planned_whole_wall_groups": 128,
+  "planned_control_matches": 512,
+  "planned_train_wall_groups": 96,
+  "planned_held_wall_groups": 32,
+  "prefix_walls": 4,
+  "prefix_states": 237,
+  "prefix_route_coverage": {
+    "train": {
+      "closed": 138,
+      "closed_pon_yakuhai": 6,
+      "opponent_riichi": 41,
+      "open": 19,
+      "closed_chi_tanyao_gain": 5
+    },
+    "held": {
+      "closed": 60,
+      "opponent_riichi": 21,
+      "open": 20,
+      "closed_pon_yakuhai": 7,
+      "closed_chi_tanyao_gain": 6
+    }
+  },
+  "prefix_audit": {
+    "status": "passed_registered_prefix",
+    "walls": 4,
+    "control_matches_audited": 16,
+    "states": 237,
+    "state_splits": {
+      "train": 157,
+      "held": 80
+    },
+    "prefixes_replayed": 237,
+    "cached_head_probability_max_error": 7.152557373046875e-07,
+    "whole_wall_disjoint": true,
+    "new_simulations": 0,
+    "reward_labels_available": false,
+    "independent_strength_proven": false,
+    "call_state_coverage": {
+      "closed": 198,
+      "opponent_riichi": 62,
+      "chi": 152,
+      "pon": 90,
+      "open": 39
+    },
+    "collection_policy": "frozen_play",
+    "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+  },
+  "preflight": {
+    "status": "passed_actual_native_gpu_parity",
+    "routes": {
+      "ordinary": 2,
+      "calling": 2,
+      "ankan": 1,
+      "daiminkan": 1,
+      "kakan": 1
+    },
+    "max_probability_error": 0.0,
+    "checkpoint_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+    "source_sha256": "9c2d72262cc7fea037a9dda35cd5fa8add1b8ab7545903031a37a24bd53d2d6a",
+    "optimizer_updates": 0,
+    "new_simulations": 0,
+    "strength_evidence": false
+  },
+  "core_tests_passed": 128,
+  "parameter_training_started": true,
+  "weights_public": false,
+  "raw_records_public": false,
+  "deployed": false,
+  "limitations": [
+    "Opportunity coverage is not correct-action or reward-sign coverage.",
+    "Full legal alternatives and both fits are complete and audited; independent match improvement remains unproven.",
+    "No matched residual versus decision-head/LoRA superiority result exists.",
+    "Both candidate fits used audited completed labels; actual complete-match improvement remains unproven."
+  ],
+  "continuation_source_sha256": "bbbdaf7c2dd127b0b5845aa9e4d267501bf3c063e8916abf90fee89ca7218e53",
+  "continuation_core_tests_passed": 123,
+  "same_component_fitter_implemented": true,
+  "native_collection_result": {
+    "status": "collection_complete",
+    "method": "native_call_states_v1",
+    "walls": 128,
+    "rows": 9451,
+    "state_splits": {
+      "train": 7189,
+      "held": 2262
+    },
+    "fresh_control_matches": 512,
+    "counterfactual_rollouts": 0,
+    "optimizer_updates": 0,
+    "human_test_opened": false,
+    "inputs_only_not_reward_labels": true
+  },
+  "native_full_audit": {
+    "status": "passed_complete",
+    "walls": 128,
+    "control_matches_audited": 512,
+    "states": 9451,
+    "state_splits": {
+      "train": 7189,
+      "held": 2262
+    },
+    "prefixes_replayed": 9451,
+    "cached_head_probability_max_error": 9.5367431640625e-07,
+    "whole_wall_disjoint": true,
+    "new_simulations": 0,
+    "reward_labels_available": false,
+    "independent_strength_proven": false,
+    "call_state_coverage": {
+      "closed": 8283,
+      "opponent_riichi": 3051,
+      "chi": 6221,
+      "pon": 3418,
+      "open": 1168
+    },
+    "collection_policy": "frozen_play",
+    "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+  },
+  "native_full_audit_sha256": "a9c2d80f23740bc58a568a2ca7d4329722e5b91ef4f6b39e21c9cc8d876bf45d",
+  "active_recipe_revision": "whole-wall-balanced-v3",
+  "active_source_sha256": "2edc503c0c130c9662a7019e4b2861c5e0793879c119618a685f8c2ccf2c1395",
+  "active_route_reserves": {
+    "train": {
+      "closed_chi_tanyao_gain": 96,
+      "closed_pon_yakuhai": 32
+    },
+    "held": {
+      "closed_chi_tanyao_gain": 32,
+      "closed_pon_yakuhai": 16
+    }
+  },
+  "active_label_plan": {
+    "status": "label_plan_ready",
+    "states": 512,
+    "states_by_split": {
+      "train": 384,
+      "held": 128
+    },
+    "native_route_coverage": {
+      "train": {
+        "closed": 6347,
+        "closed_pon_yakuhai": 335,
+        "opponent_riichi": 2304,
+        "open": 842,
+        "closed_chi_tanyao_gain": 285
+      },
+      "held": {
+        "closed": 1936,
+        "opponent_riichi": 747,
+        "open": 326,
+        "closed_pon_yakuhai": 128,
+        "closed_chi_tanyao_gain": 64
+      }
+    },
+    "selected_route_coverage": {
+      "train": {
+        "closed": 236,
+        "opponent_riichi": 192,
+        "closed_chi_tanyao_gain": 96,
+        "closed_pon_yakuhai": 33,
+        "open": 148
+      },
+      "held": {
+        "closed": 80,
+        "opponent_riichi": 68,
+        "closed_chi_tanyao_gain": 32,
+        "closed_pon_yakuhai": 18,
+        "open": 48
+      }
+    },
+    "wall_coverage": {
+      "train": {
+        "nonempty_walls": 96,
+        "minimum_states": 4,
+        "maximum_states": 4,
+        "largest_share": 0.010416666666666666
+      },
+      "held": {
+        "nonempty_walls": 32,
+        "minimum_states": 4,
+        "maximum_states": 4,
+        "largest_share": 0.03125
+      }
+    },
+    "worlds_per_state": 16,
+    "initial_hand_arm_budget": 16384,
+    "source_sha256": "2edc503c0c130c9662a7019e4b2861c5e0793879c119618a685f8c2ccf2c1395",
+    "calling_baseline_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+    "config_sha256": "8293f8e424cecc7a049a71922b76ab55e2957bc7bb60ebe6eccb23a43bcacb52",
+    "selected_case_keys_sha256": "2979179c488800861ef586749cb469d5167159051490b0ddca002bb140330361",
+    "optimizer_updates": 0,
+    "new_simulations": 0,
+    "outcome_labels_read": false,
+    "limitation": "Counts are public opportunities, not positive/negative reward coverage or expert labels."
+  },
+  "active_label_plan_sha256": "ca19358d57c079d2412549229aaee1891045480abbec1b098e8ad2a4e721e291",
+  "initial_future_arm_budget": 16384,
+  "worlds_per_state": 16,
+  "sampling_correction": {
+    "superseded_revision": "coverage-v2-preserve-pon",
+    "old_nonempty_walls": {
+      "train": 58,
+      "held": 18
+    },
+    "old_largest_wall_share": {
+      "train": 0.16145833333333334,
+      "held": 0.453125
+    },
+    "old_partial_batch_stopped_before_optimizer": true,
+    "old_completed_records_preserved_private": true,
+    "new_nonempty_walls": {
+      "train": 96,
+      "held": 32
+    },
+    "states_per_wall": 4,
+    "new_largest_wall_share": {
+      "train": 0.010416666666666666,
+      "held": 0.03125
+    },
+    "state_budget_changed": false,
+    "native_data_recollected": false,
+    "selection_used_future_rewards": false
+  },
+  "automatic_data_pipeline": [
+    "collect paired futures",
+    "audit paired futures",
+    "verify selected case identities and96/32walls x4states; summarize train-only pair directions",
+    "expand complete legal alternatives using the same futures/control",
+    "audit complete alternatives"
+  ],
+  "snapshot_at": "2026-11-13T13:21:29.161741+00:00",
+  "initial_future_collection": {
+    "status": "collection_complete",
+    "method": "paired_future_ev_v1",
+    "states": 512,
+    "worlds_per_state": 16,
+    "native_hand_rollouts": 16384,
+    "fresh_matches": 0,
+    "rows_by_original_category": {
+      "calling": 512
+    },
+    "human_test_opened": false,
+    "optimizer_updates": 0
+  },
+  "initial_future_full_audit": {
+    "status": "passed_complete",
+    "role": "data consistency audit, not policy strength",
+    "pairs": 512,
+    "states": 512,
+    "train_pairs": 384,
+    "held_pairs": 128,
+    "train_states": 384,
+    "held_states": 128,
+    "worlds_per_state": 16,
+    "prefixes_replayed": 512,
+    "future_walls_rederived": 8192,
+    "arm_records_audited": 16384,
+    "whole_wall_disjoint": true,
+    "cached_head_probability_max_error": 0.0,
+    "new_simulations": 0,
+    "independent_strength_proven": false
+  },
+  "initial_future_full_audit_sha256": "e65036ca82190210620b03588943840abea9e3029b27148a670deb0e50c358ad",
+  "balanced_label_inspection": {
+    "status": "passed_complete",
+    "states": 512,
+    "states_by_split": {
+      "train": 384,
+      "held": 128
+    },
+    "nonempty_walls_by_split": {
+      "train": 96,
+      "held": 32
+    },
+    "states_per_wall": 4,
+    "worlds_per_state": 16,
+    "training_pair_direction_counts": {
+      "own_win_positive": 110,
+      "fast_reward_positive": 122,
+      "dealin_positive": 156,
+      "utility_negative": 202,
+      "own_win_zero": 123,
+      "fast_reward_zero": 97,
+      "own_win_negative": 151,
+      "fast_reward_negative": 165,
+      "dealin_zero": 126,
+      "utility_positive": 138,
+      "dealin_negative": 102,
+      "utility_zero": 44
+    },
+    "training_pair_directions_by_branch_kind": {
+      "chi": {
+        "own_win_positive": 73,
+        "fast_reward_positive": 80,
+        "dealin_positive": 94,
+        "utility_negative": 104,
+        "own_win_zero": 67,
+        "fast_reward_zero": 54,
+        "own_win_negative": 66,
+        "fast_reward_negative": 72,
+        "dealin_zero": 62,
+        "utility_positive": 77,
+        "dealin_negative": 50,
+        "utility_zero": 25
+      },
+      "none": {
+        "own_win_negative": 55,
+        "fast_reward_negative": 60,
+        "dealin_negative": 34,
+        "utility_positive": 32,
+        "own_win_zero": 23,
+        "fast_reward_zero": 16,
+        "own_win_positive": 12,
+        "fast_reward_positive": 14,
+        "dealin_positive": 22,
+        "utility_negative": 51,
+        "dealin_zero": 34,
+        "utility_zero": 7
+      },
+      "pon": {
+        "own_win_zero": 33,
+        "fast_reward_zero": 27,
+        "dealin_zero": 30,
+        "utility_zero": 12,
+        "fast_reward_positive": 28,
+        "dealin_positive": 40,
+        "utility_negative": 47,
+        "own_win_negative": 30,
+        "fast_reward_negative": 33,
+        "own_win_positive": 25,
+        "dealin_negative": 18,
+        "utility_positive": 29
+      }
+    },
+    "held_outcomes_used_for_gate": false,
+    "outcome_based_case_selection": false,
+    "new_simulations": 0,
+    "optimizer_updates": 0,
+    "limitation": "Initial pair directions are conditional Monte Carlo comparisons, not expert should-call labels; full legal alternatives are still required."
+  },
+  "complete_option_plan": {
+    "original_unique_states": 512,
+    "pairs": 786,
+    "worlds_per_state": 16,
+    "expected_additional_hand_rollouts": 4384,
+    "reuses_initial_control_and_branch": true,
+    "status": "complete_and_audited"
+  },
+  "complete_option_collection": {
+    "status": "collection_complete",
+    "method": "paired_future_ev_v1",
+    "original_unique_states": 512,
+    "pairs": 786,
+    "worlds_per_state": 16,
+    "new_native_hand_rollouts": 4384,
+    "reused_control_rollouts": 8192,
+    "reused_branch_rollouts": 8192,
+    "fresh_matches": 0,
+    "rows_by_category": {
+      "chi": 435,
+      "pon": 351
+    },
+    "optimizer_updates": 0,
+    "human_test_opened": false
+  },
+  "complete_option_full_audit": {
+    "status": "passed_complete",
+    "role": "data consistency audit, not policy strength",
+    "pairs": 786,
+    "states": 512,
+    "train_pairs": 607,
+    "held_pairs": 179,
+    "train_states": 384,
+    "held_states": 128,
+    "worlds_per_state": 16,
+    "prefixes_replayed": 512,
+    "future_walls_rederived": 8192,
+    "arm_records_audited": 25152,
+    "whole_wall_disjoint": true,
+    "cached_head_probability_max_error": 0.0,
+    "new_simulations": 0,
+    "independent_strength_proven": false
+  },
+  "exact_counts_bound_before_optimizers": {
+    "train_states": 384,
+    "held_states": 128,
+    "train_pairs": 607,
+    "held_pairs": 179,
+    "anchor_states": 0,
+    "status": "passed"
+  },
+  "matched_fit_summary": {
+    "context_selected_epoch": 0,
+    "context_updates": 72,
+    "context_eligible_for_development": false,
+    "head_selected_epoch": 1,
+    "head_updates": 96,
+    "head_eligible_for_development": true,
+    "independent_match_improvement_proven": false
+  },
+  "development_summary": {
+    "games": 192,
+    "hand_win_paired": {
+      "gain": -0.028678902116402116,
+      "ci95": [
+        -0.05060371512570701,
+        -0.006754089107097225
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "dealin_rate_paired": {
+      "gain": 0.0074198082010582,
+      "ci95": [
+        -0.010961641041139648,
+        0.02580125744325605
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "net_points_paired": {
+      "gain": -1292.7083333333333,
+      "ci95": [
+        -2177.0341648574267,
+        -408.38250180923956
+      ],
+      "independent_wall_streams": 8
+    },
+    "independent_audit": "passed_complete",
+    "eligible_for_confirmation": false,
+    "confirmation_run": false,
+    "strong_reference_retained": true
+  }
+}

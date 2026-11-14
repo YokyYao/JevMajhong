@@ -1,0 +1,16 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "fit_config": "configs/training/call-win-fit.json",
+  "fit_config_sha256": "5a2c7ffea12849b9aa8305cd6807799787890d09b80ab811ab453221d19d801a",
+  "out": "runs/call-win-macro-fit-audit-v1",
+  "expected": {
+    "train_states": 156,
+    "held_states": 50,
+    "train_pairs": 183,
+    "held_pairs": 68,
+    "anchor_states": 256
+  },
+  "minimum_held_closed_chi_recoveries": 1,
+  "require_route_recovery_for_development": false
+}

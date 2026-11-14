@@ -12,7 +12,9 @@ GAMEPLAY_FILES = ('core/state.py', 'core/seeds.py', 'core/scoring.py', 'core/io.
 
 def gameplay_identity(protocol):
     files = {p.split('/jevmahjong/', 1)[-1]: h for p, h in protocol['code_sha256'].items()}
-    return {p: files[p] for p in GAMEPLAY_FILES}
+    extra=('policy/call_baseline.py','policy/kan_context.py','policy/kan_progress.py',
+        'policy/call_tile_context.py','policy/kan.py','policy/defense.py') if protocol.get('call_context_baseline') else ()
+    return {p: files[p] for p in (*GAMEPLAY_FILES,*extra)}
 
 
 def load_reference(directory, config, protocol):
@@ -26,6 +28,7 @@ def load_reference(directory, config, protocol):
     verify(previous)
     if (any(previous['config'][k] != config[k] for k in ('stage', 'seed_start', 'seeds', 'fast_gamma'))
             or previous['model_files'] != protocol['model_files']
+            or previous.get('call_context_baseline') != protocol.get('call_context_baseline')
             or gameplay_identity(previous) != gameplay_identity(protocol)):
         raise ValueError('Reference gameplay contract differs')
     rows = [json.loads(line) for line in raw.read_text().splitlines()]

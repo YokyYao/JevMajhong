@@ -1,0 +1,17 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "candidate_run": "runs/jev-call-routes-v1",
+  "out": "runs/play-call-routes-v1-development",
+  "stage": "development",
+  "seed_start": 11410000,
+  "seeds": 8,
+  "fast_gamma": 0.995,
+  "confirmation_objective": "net_points",
+  "updated_scopes": [
+    "calling"
+  ],
+  "candidate_activation": "all",
+  "required_call_head_audit_config": "configs/training/play-call-routes-fit-audit.json",
+  "parity_source_run": "runs/play-call-routes-native-v1"
+}

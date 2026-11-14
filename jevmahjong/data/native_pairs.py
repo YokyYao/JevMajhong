@@ -11,11 +11,12 @@ ENCODER_FILES = ('adapter_model.safetensors', 'adapter_config.json', 'tokenizer.
 
 
 def select_decisions(partitions, mode='all', scopes=None):
-    if mode not in ('all', 'kan_windows', 'open_tenpai_riichi'): raise ValueError('Unknown decision filter')
+    if mode not in ('all', 'kan_windows', 'open_tenpai_riichi','closed_discard'): raise ValueError('Unknown decision filter')
     if mode == 'all' and scopes is None: return partitions
     from jevmahjong.policy.kan import is_kan_request
     from jevmahjong.policy.defense import is_defense_request
-    accepted = is_defense_request if mode == 'open_tenpai_riichi' else is_kan_request
+    from jevmahjong.policy.closed import is_closed_request
+    accepted = is_closed_request if mode=='closed_discard' else is_defense_request if mode == 'open_tenpai_riichi' else is_kan_request
     return {split:[r for r in rows if (mode == 'all' or accepted(r['public_request']))
         and (scopes is None or r['scope'] in scopes)] for split,rows in partitions.items()}
 
@@ -29,7 +30,7 @@ def encoder_identity(protocol):
     return {role: {name: normalized[role][name] for name in ENCODER_FILES} for role in normalized}
 
 
-def load_sources(roots, model_files=None, reward=None, *, allow_unlabeled=False):
+def load_sources(roots, model_files=None, reward=None, *, allow_unlabeled=False, expected_call_baseline=None):
     if reward is not None: validate_config(reward)
     if isinstance(roots, (str, Path)):
         roots = [roots]
@@ -43,8 +44,11 @@ def load_sources(roots, model_files=None, reward=None, *, allow_unlabeled=False)
         marker = root / 'collection-result.json'; protocol_file = root / 'protocol.json'
         collection = json.loads(marker.read_text()); protocol = json.loads(protocol_file.read_text())
         config = protocol['config']
-        from .native_states import METHOD as INPUT_METHOD, validate as validate_inputs
-        unlabeled = protocol.get('collection_method') == INPUT_METHOD
+        from jevmahjong.policy.call_baseline import identity as baseline_identity
+        if baseline_identity(config)!=baseline_identity({'call_context_baseline':expected_call_baseline}):
+            raise ValueError('Source calling continuation baseline differs')
+        from .native_states import INPUT_METHODS, validate as validate_inputs
+        unlabeled = protocol.get('collection_method') in INPUT_METHODS
         if unlabeled and not allow_unlabeled:
             raise ValueError('Native decision inputs have no reward labels; collect paired futures before fitting')
         behavior = protocol.get('behavior_heads')
@@ -60,7 +64,7 @@ def load_sources(roots, model_files=None, reward=None, *, allow_unlabeled=False)
         if identity is not None and current != identity:
             raise ValueError('Source frozen encoders differ')
         identity = current
-        if protocol.get('collection_method') == 'paired_future_ev_v1':
+        if protocol.get('collection_method') in ('paired_future_ev_v1','replayed_native_closed_states_v1'):
             for path, checksum in protocol['source_files'].items():
                 if (path in hashes and hashes[path] != checksum) or digest(Path(path)) != checksum:
                     raise ValueError('Future-data original input changed')

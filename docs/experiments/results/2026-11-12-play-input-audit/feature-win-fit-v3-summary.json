@@ -1,0 +1,590 @@
+{
+  "model_id": "jev-call-feature-win-v3",
+  "stage": "internal_fit_audited_no_improvement_capacity_followup",
+  "checkpoint_sha256": "d5b83df4622d5ad349b922c468a52bb1d7ab4205515f1cbdca284d8f79a3a698",
+  "selected_epoch": 1,
+  "epochs_run": 5,
+  "optimizer_updates": 260,
+  "stop_reason": "held_actual_hand_wins_stalled",
+  "public_features": 158,
+  "trainable_parameters": 10240,
+  "source_sha256": "66610901b5c63a51015df4c6a9973dc44042cd58607f9f8adcfbaeea247ebc70",
+  "train_states": 828,
+  "held_states": 274,
+  "train_pairs": 959,
+  "held_pairs": 323,
+  "training_loss_weighting": {
+    "policy_state_weighting": "public_routes",
+    "unique_states": 828,
+    "outcome_sign_reweighting": false,
+    "rows": 959,
+    "public_route_loss": {
+      "routes": {
+        "closed_chi_tanyao_gain": 4.0
+      },
+      "overlap_rule": "maximum",
+      "normalizer": 1.1666666666666667,
+      "states": 828,
+      "upweighted_states": 46,
+      "outcome_based_selection": false,
+      "held_weighted": false
+    },
+    "policy_loss_unit": "one complete eligible action set per state",
+    "policy_state_weight_cap": 4.0,
+    "policy_training_states": 828
+  },
+  "selection_objective": "hand_win",
+  "selected": {
+    "epoch": 1,
+    "states": 274,
+    "label_regret": 0.08058591326174808,
+    "policy_kl": 0.3890107631109796,
+    "mean_label_utility_gain_vs_play": 0.0041019365631408365,
+    "mean_sampled_net_point_gain_per_state": 40.83029197080292,
+    "mean_sampled_dealin_change_per_state": 0.00239507299270073,
+    "mean_sampled_fast_reward_change_per_state": 0.004546432383950211,
+    "mean_sampled_hand_win_gain_per_state": 0.007755474452554745,
+    "changed_argmax_states": 19,
+    "validation_sources": [
+      {
+        "source": "original-routes",
+        "states": 50,
+        "label_regret": 0.12027923906098018,
+        "policy_kl": 0.44382936882976687,
+        "mean_label_utility_gain_vs_play": 0.00406264688681921,
+        "mean_sampled_net_point_gain_per_state": 139.875,
+        "mean_sampled_dealin_change_per_state": 0.01,
+        "mean_sampled_fast_reward_change_per_state": 0.011250587547276838,
+        "mean_sampled_hand_win_gain_per_state": 0.02125,
+        "changed_argmax_states": 8
+      },
+      {
+        "source": "fresh-call-stream",
+        "states": 96,
+        "label_regret": 0.0902606706895827,
+        "policy_kl": 0.4458001598037297,
+        "mean_label_utility_gain_vs_play": 0.012327126665069974,
+        "mean_sampled_net_point_gain_per_state": 39.0625,
+        "mean_sampled_dealin_change_per_state": -0.0013020833333333333,
+        "mean_sampled_fast_reward_change_per_state": 0.00503767332694657,
+        "mean_sampled_hand_win_gain_per_state": 0.008463541666666666,
+        "changed_argmax_states": 3
+      },
+      {
+        "source": "exploration-open-stream",
+        "states": 128,
+        "label_regret": 0.05782463980054708,
+        "policy_kl": 0.32500519773251574,
+        "mean_label_utility_gain_vs_play": -0.002051608483492881,
+        "mean_sampled_net_point_gain_per_state": 3.466796875,
+        "mean_sampled_dealin_change_per_state": 0.002197265625,
+        "mean_sampled_fast_reward_change_per_state": 0.0015591910660284782,
+        "mean_sampled_hand_win_gain_per_state": 0.001953125,
+        "changed_argmax_states": 8
+      }
+    ]
+  },
+  "held_routes": {
+    "closed": {
+      "states": 222,
+      "label_regret": 0.08136114243503748,
+      "policy_kl": 0.38361356385700635,
+      "mean_label_utility_gain_vs_play": 0.005812270622425076,
+      "mean_sampled_net_point_gain_per_state": 46.663851351351354,
+      "mean_sampled_dealin_change_per_state": 0.002815315315315315,
+      "mean_sampled_fast_reward_change_per_state": 0.00579412753474535,
+      "mean_sampled_hand_win_gain_per_state": 0.00999436936936937,
+      "changed_argmax_states": 17,
+      "sampled_positive_call_states": 41,
+      "recovered_sample_positive_calls": 5
+    },
+    "closed_chi_tanyao_gain": {
+      "states": 18,
+      "label_regret": 0.25073084724939215,
+      "policy_kl": 0.6172405100822806,
+      "mean_label_utility_gain_vs_play": -0.024193711568263047,
+      "mean_sampled_net_point_gain_per_state": -64.58333333333333,
+      "mean_sampled_dealin_change_per_state": 0.013888888888888888,
+      "mean_sampled_fast_reward_change_per_state": 0.000447375949170021,
+      "mean_sampled_hand_win_gain_per_state": 0.003472222222222222,
+      "changed_argmax_states": 2,
+      "sampled_positive_call_states": 9,
+      "recovered_sample_positive_calls": 0
+    },
+    "opponent_riichi": {
+      "states": 122,
+      "label_regret": 0.08902580059183833,
+      "policy_kl": 0.34006100236448533,
+      "mean_label_utility_gain_vs_play": -0.001446039732814979,
+      "mean_sampled_net_point_gain_per_state": -2.8432377049180326,
+      "mean_sampled_dealin_change_per_state": 0.0010245901639344263,
+      "mean_sampled_fast_reward_change_per_state": 0.00036338205234664225,
+      "mean_sampled_hand_win_gain_per_state": 0.0005122950819672131,
+      "changed_argmax_states": 3,
+      "sampled_positive_call_states": 20,
+      "recovered_sample_positive_calls": 0
+    },
+    "closed_pon_yakuhai": {
+      "states": 19,
+      "label_regret": 0.07520592838535789,
+      "policy_kl": 0.5179804334625947,
+      "mean_label_utility_gain_vs_play": 0.1442172245090206,
+      "mean_sampled_net_point_gain_per_state": 559.2105263157895,
+      "mean_sampled_dealin_change_per_state": -0.003289473684210526,
+      "mean_sampled_fast_reward_change_per_state": 0.0702899506676613,
+      "mean_sampled_hand_win_gain_per_state": 0.12006578947368421,
+      "changed_argmax_states": 9,
+      "sampled_positive_call_states": 5,
+      "recovered_sample_positive_calls": 5
+    },
+    "open": {
+      "states": 52,
+      "label_regret": 0.07727628102193562,
+      "policy_kl": 0.4120526522337117,
+      "mean_label_utility_gain_vs_play": -0.003199874228418798,
+      "mean_sampled_net_point_gain_per_state": 15.92548076923077,
+      "mean_sampled_dealin_change_per_state": 0.0006009615384615385,
+      "mean_sampled_fast_reward_change_per_state": -0.00078026614444442,
+      "mean_sampled_hand_win_gain_per_state": -0.0018028846153846155,
+      "changed_argmax_states": 2,
+      "sampled_positive_call_states": 10,
+      "recovered_sample_positive_calls": 1
+    }
+  },
+  "curve": [
+    {
+      "epoch": 0,
+      "source": "all_sources",
+      "states": 274,
+      "policy_kl": 0.41896662536594503,
+      "label_regret": 0.08468784982488892,
+      "mean_label_utility_gain_vs_play": 0.0,
+      "mean_sampled_hand_win_gain_per_state": 0.0,
+      "mean_sampled_net_point_gain_per_state": 0.0,
+      "mean_sampled_dealin_change_per_state": 0.0,
+      "mean_sampled_fast_reward_change_per_state": 0.0,
+      "changed_argmax_states": 0,
+      "aggregation": "equal public-state means across all validation sources"
+    },
+    {
+      "epoch": 1,
+      "source": "all_sources",
+      "states": 274,
+      "policy_kl": 0.3890107631109796,
+      "label_regret": 0.08058591326174808,
+      "mean_label_utility_gain_vs_play": 0.0041019365631408365,
+      "mean_sampled_hand_win_gain_per_state": 0.007755474452554745,
+      "mean_sampled_net_point_gain_per_state": 40.83029197080292,
+      "mean_sampled_dealin_change_per_state": 0.00239507299270073,
+      "mean_sampled_fast_reward_change_per_state": 0.004546432383950211,
+      "changed_argmax_states": 19,
+      "aggregation": "equal public-state means across all validation sources"
+    },
+    {
+      "epoch": 2,
+      "source": "all_sources",
+      "states": 274,
+      "policy_kl": 0.37939111381919033,
+      "label_regret": 0.08012970888218604,
+      "mean_label_utility_gain_vs_play": 0.004558140942702881,
+      "mean_sampled_hand_win_gain_per_state": 0.007755474452554745,
+      "mean_sampled_net_point_gain_per_state": 42.30155109489051,
+      "mean_sampled_dealin_change_per_state": 0.002166970802919708,
+      "mean_sampled_fast_reward_change_per_state": 0.004546432383950211,
+      "changed_argmax_states": 17,
+      "aggregation": "equal public-state means across all validation sources"
+    },
+    {
+      "epoch": 3,
+      "source": "all_sources",
+      "states": 274,
+      "policy_kl": 0.3802848951052866,
+      "label_regret": 0.08453273904975692,
+      "mean_label_utility_gain_vs_play": 0.0001551107751319962,
+      "mean_sampled_hand_win_gain_per_state": 0.005930656934306569,
+      "mean_sampled_net_point_gain_per_state": 39.495894160583944,
+      "mean_sampled_dealin_change_per_state": 0.0033074817518248174,
+      "mean_sampled_fast_reward_change_per_state": 0.0033576693779002508,
+      "changed_argmax_states": 22,
+      "aggregation": "equal public-state means across all validation sources"
+    },
+    {
+      "epoch": 4,
+      "source": "all_sources",
+      "states": 274,
+      "policy_kl": 0.38367445206699946,
+      "label_regret": 0.08487766444735297,
+      "mean_label_utility_gain_vs_play": -0.00018981462246405432,
+      "mean_sampled_hand_win_gain_per_state": 0.005816605839416058,
+      "mean_sampled_net_point_gain_per_state": 35.41286496350365,
+      "mean_sampled_dealin_change_per_state": 0.0034215328467153286,
+      "mean_sampled_fast_reward_change_per_state": 0.0033465809262021775,
+      "changed_argmax_states": 21,
+      "aggregation": "equal public-state means across all validation sources"
+    },
+    {
+      "epoch": 5,
+      "source": "all_sources",
+      "states": 274,
+      "policy_kl": 0.37167379260754657,
+      "label_regret": 0.08325836376623616,
+      "mean_label_utility_gain_vs_play": 0.001429486058652755,
+      "mean_sampled_hand_win_gain_per_state": 0.006272810218978102,
+      "mean_sampled_net_point_gain_per_state": 43.761405109489054,
+      "mean_sampled_dealin_change_per_state": 0.0028512773722627737,
+      "mean_sampled_fast_reward_change_per_state": 0.0034369223368008028,
+      "changed_argmax_states": 21,
+      "aggregation": "equal public-state means across all validation sources"
+    }
+  ],
+  "fit_audit": {
+    "status": "passed_complete",
+    "model_id": "jev-call-feature-win-v3",
+    "checkpoint_sha256": "d5b83df4622d5ad349b922c468a52bb1d7ab4205515f1cbdca284d8f79a3a698",
+    "fit_result_sha256": "6a8e7359edd6afce06c2ac225e183f7b58ed4b1ab8d0017879fd49c0d1dc9b34",
+    "checkpoints_audited": 6,
+    "activation": "call_windows",
+    "train_pairs": 959,
+    "held_pairs": 323,
+    "train_states": 828,
+    "held_states": 274,
+    "frozen_original_heads": true,
+    "whole_wall_disjoint": true,
+    "max_cached_head_probability_error": 0.0,
+    "max_profile_recomputation_error": 5.551115123125783e-17,
+    "max_actual_inference_error": 2.220446049250313e-16,
+    "max_zero_probability_error": 0.0,
+    "selection_objective": "hand_win",
+    "eligible_for_development": true,
+    "independent_strength_proven": false,
+    "new_full_matches": 0
+  },
+  "fresh_matches": 0,
+  "improvement_proven": false,
+  "adopted": false,
+  "deployed": false,
+  "experimental_weights_public": false,
+  "raw_records_public": false,
+  "limitations": [
+    "Internal metrics have not improved over v2 selected fit, and sampled-positive chi recovery remains0/9.",
+    "A fit receipt is not evidence of match strength; no fresh v3 matches have been simulated.",
+    "Training-curve diagnosis found some training recovery without held improvement; larger capacity is an unproven follow-up hypothesis."
+  ],
+  "training_curve_diagnostic": {
+    "status": "passed_training_only_curve_recount",
+    "optimizer_updates": 0,
+    "new_simulations": 0,
+    "held_rows_fitted_or_selected": false,
+    "match_results_read": false,
+    "models": {
+      "jev-call-feature-win-v2": {
+        "selected_epoch": 3,
+        "curve": [
+          {
+            "epoch": 0,
+            "all_train": {
+              "states": 828,
+              "sampled_positive_states": 266,
+              "positive_calls": 0,
+              "negative_utility_choices": 0,
+              "target_argmax_matches": 655,
+              "mean_target_kl": 0.4082811684231964,
+              "mean_sampled_utility_gain": 0.0
+            },
+            "closed_chi_tanyao_gain": {
+              "states": 46,
+              "sampled_positive_states": 28,
+              "positive_calls": 0,
+              "negative_utility_choices": 0,
+              "target_argmax_matches": 21,
+              "mean_target_kl": 0.8452110619107149,
+              "mean_sampled_utility_gain": 0.0
+            }
+          },
+          {
+            "epoch": 1,
+            "all_train": {
+              "states": 828,
+              "sampled_positive_states": 266,
+              "positive_calls": 28,
+              "negative_utility_choices": 18,
+              "target_argmax_matches": 663,
+              "mean_target_kl": 0.35779046322076236,
+              "mean_sampled_utility_gain": 0.004860202395618953
+            },
+            "closed_chi_tanyao_gain": {
+              "states": 46,
+              "sampled_positive_states": 28,
+              "positive_calls": 6,
+              "negative_utility_choices": 3,
+              "target_argmax_matches": 23,
+              "mean_target_kl": 0.5782192641472723,
+              "mean_sampled_utility_gain": 0.03536498273789973
+            }
+          },
+          {
+            "epoch": 2,
+            "all_train": {
+              "states": 828,
+              "sampled_positive_states": 266,
+              "positive_calls": 29,
+              "negative_utility_choices": 14,
+              "target_argmax_matches": 668,
+              "mean_target_kl": 0.3498363975202396,
+              "mean_sampled_utility_gain": 0.0065057934724604815
+            },
+            "closed_chi_tanyao_gain": {
+              "states": 46,
+              "sampled_positive_states": 28,
+              "positive_calls": 6,
+              "negative_utility_choices": 2,
+              "target_argmax_matches": 24,
+              "mean_target_kl": 0.5752745367632629,
+              "mean_sampled_utility_gain": 0.04803895540733209
+            }
+          },
+          {
+            "epoch": 3,
+            "all_train": {
+              "states": 828,
+              "sampled_positive_states": 266,
+              "positive_calls": 32,
+              "negative_utility_choices": 17,
+              "target_argmax_matches": 666,
+              "mean_target_kl": 0.34193514529975755,
+              "mean_sampled_utility_gain": 0.00745953537215335
+            },
+            "closed_chi_tanyao_gain": {
+              "states": 46,
+              "sampled_positive_states": 28,
+              "positive_calls": 7,
+              "negative_utility_choices": 3,
+              "target_argmax_matches": 24,
+              "mean_target_kl": 0.5510038767153683,
+              "mean_sampled_utility_gain": 0.04629302043485972
+            }
+          },
+          {
+            "epoch": 4,
+            "all_train": {
+              "states": 828,
+              "sampled_positive_states": 266,
+              "positive_calls": 37,
+              "negative_utility_choices": 18,
+              "target_argmax_matches": 668,
+              "mean_target_kl": 0.3369291043431564,
+              "mean_sampled_utility_gain": 0.008677185514327307
+            },
+            "closed_chi_tanyao_gain": {
+              "states": 46,
+              "sampled_positive_states": 28,
+              "positive_calls": 8,
+              "negative_utility_choices": 3,
+              "target_argmax_matches": 25,
+              "mean_target_kl": 0.5221991970056779,
+              "mean_sampled_utility_gain": 0.05363150025647673
+            }
+          },
+          {
+            "epoch": 5,
+            "all_train": {
+              "states": 828,
+              "sampled_positive_states": 266,
+              "positive_calls": 28,
+              "negative_utility_choices": 11,
+              "target_argmax_matches": 668,
+              "mean_target_kl": 0.3354623663660227,
+              "mean_sampled_utility_gain": 0.007765153526326652
+            },
+            "closed_chi_tanyao_gain": {
+              "states": 46,
+              "sampled_positive_states": 28,
+              "positive_calls": 7,
+              "negative_utility_choices": 2,
+              "target_argmax_matches": 25,
+              "mean_target_kl": 0.5558602161174404,
+              "mean_sampled_utility_gain": 0.04958613307706839
+            }
+          },
+          {
+            "epoch": 6,
+            "all_train": {
+              "states": 828,
+              "sampled_positive_states": 266,
+              "positive_calls": 32,
+              "negative_utility_choices": 12,
+              "target_argmax_matches": 671,
+              "mean_target_kl": 0.33369379640409447,
+              "mean_sampled_utility_gain": 0.009777507433190278
+            },
+            "closed_chi_tanyao_gain": {
+              "states": 46,
+              "sampled_positive_states": 28,
+              "positive_calls": 8,
+              "negative_utility_choices": 2,
+              "target_argmax_matches": 26,
+              "mean_target_kl": 0.5357854646491732,
+              "mean_sampled_utility_gain": 0.05692461289868539
+            }
+          },
+          {
+            "epoch": 7,
+            "all_train": {
+              "states": 828,
+              "sampled_positive_states": 266,
+              "positive_calls": 41,
+              "negative_utility_choices": 24,
+              "target_argmax_matches": 662,
+              "mean_target_kl": 0.33301277500750015,
+              "mean_sampled_utility_gain": 0.007670531424088233
+            },
+            "closed_chi_tanyao_gain": {
+              "states": 46,
+              "sampled_positive_states": 28,
+              "positive_calls": 11,
+              "negative_utility_choices": 4,
+              "target_argmax_matches": 26,
+              "mean_target_kl": 0.5029584948382416,
+              "mean_sampled_utility_gain": 0.05631363140559411
+            }
+          }
+        ]
+      },
+      "jev-call-feature-win-v3": {
+        "selected_epoch": 1,
+        "curve": [
+          {
+            "epoch": 0,
+            "all_train": {
+              "states": 828,
+              "sampled_positive_states": 266,
+              "positive_calls": 0,
+              "negative_utility_choices": 0,
+              "target_argmax_matches": 655,
+              "mean_target_kl": 0.4082811684231964,
+              "mean_sampled_utility_gain": 0.0
+            },
+            "closed_chi_tanyao_gain": {
+              "states": 46,
+              "sampled_positive_states": 28,
+              "positive_calls": 0,
+              "negative_utility_choices": 0,
+              "target_argmax_matches": 21,
+              "mean_target_kl": 0.8452110619107149,
+              "mean_sampled_utility_gain": 0.0
+            }
+          },
+          {
+            "epoch": 1,
+            "all_train": {
+              "states": 828,
+              "sampled_positive_states": 266,
+              "positive_calls": 32,
+              "negative_utility_choices": 23,
+              "target_argmax_matches": 663,
+              "mean_target_kl": 0.3589639711748134,
+              "mean_sampled_utility_gain": 0.00445666711010485
+            },
+            "closed_chi_tanyao_gain": {
+              "states": 46,
+              "sampled_positive_states": 28,
+              "positive_calls": 8,
+              "negative_utility_choices": 3,
+              "target_argmax_matches": 26,
+              "mean_target_kl": 0.5453342613014953,
+              "mean_sampled_utility_gain": 0.050017467205400984
+            }
+          },
+          {
+            "epoch": 2,
+            "all_train": {
+              "states": 828,
+              "sampled_positive_states": 266,
+              "positive_calls": 31,
+              "negative_utility_choices": 18,
+              "target_argmax_matches": 666,
+              "mean_target_kl": 0.3507112914216727,
+              "mean_sampled_utility_gain": 0.006425223811655763
+            },
+            "closed_chi_tanyao_gain": {
+              "states": 46,
+              "sampled_positive_states": 28,
+              "positive_calls": 7,
+              "negative_utility_choices": 3,
+              "target_argmax_matches": 24,
+              "mean_target_kl": 0.549908215796717,
+              "mean_sampled_utility_gain": 0.04629302043485972
+            }
+          },
+          {
+            "epoch": 3,
+            "all_train": {
+              "states": 828,
+              "sampled_positive_states": 266,
+              "positive_calls": 38,
+              "negative_utility_choices": 24,
+              "target_argmax_matches": 665,
+              "mean_target_kl": 0.3459388159343481,
+              "mean_sampled_utility_gain": 0.007877187557269865
+            },
+            "closed_chi_tanyao_gain": {
+              "states": 46,
+              "sampled_positive_states": 28,
+              "positive_calls": 9,
+              "negative_utility_choices": 3,
+              "target_argmax_matches": 26,
+              "mean_target_kl": 0.5094462335911115,
+              "mean_sampled_utility_gain": 0.05855244923998919
+            }
+          },
+          {
+            "epoch": 4,
+            "all_train": {
+              "states": 828,
+              "sampled_positive_states": 266,
+              "positive_calls": 42,
+              "negative_utility_choices": 26,
+              "target_argmax_matches": 665,
+              "mean_target_kl": 0.34509637084459044,
+              "mean_sampled_utility_gain": 0.007442209212480539
+            },
+            "closed_chi_tanyao_gain": {
+              "states": 46,
+              "sampled_positive_states": 28,
+              "positive_calls": 13,
+              "negative_utility_choices": 5,
+              "target_argmax_matches": 28,
+              "mean_target_kl": 0.4776437858679294,
+              "mean_sampled_utility_gain": 0.08129456906471359
+            }
+          },
+          {
+            "epoch": 5,
+            "all_train": {
+              "states": 828,
+              "sampled_positive_states": 266,
+              "positive_calls": 32,
+              "negative_utility_choices": 12,
+              "target_argmax_matches": 671,
+              "mean_target_kl": 0.33525266515298874,
+              "mean_sampled_utility_gain": 0.009826918786452431
+            },
+            "closed_chi_tanyao_gain": {
+              "states": 46,
+              "sampled_positive_states": 28,
+              "positive_calls": 9,
+              "negative_utility_choices": 2,
+              "target_argmax_matches": 27,
+              "mean_target_kl": 0.5076658914404537,
+              "mean_sampled_utility_gain": 0.06184556188219785
+            }
+          }
+        ]
+      }
+    },
+    "limitations": [
+      "Training fits and conditional sampled utilities are not expert labels or strength evidence.",
+      "Unweighted KL is reported for comparison; v3 optimization uses public-route-weighted cross entropy."
+    ]
+  }
+}

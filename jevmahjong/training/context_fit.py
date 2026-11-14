@@ -8,6 +8,7 @@ from jevmahjong.core.io import digest, write
 from jevmahjong.data.native_pairs import load_sources, select_decisions
 from jevmahjong.policy.routing import make_head
 from jevmahjong.policy.kan_context import VERSION, NAMES, feature_vectors
+from jevmahjong.policy.call_tile_context import VERSION as CALL_TILE_VERSION
 from .provenance import snapshot, verify
 from .sampling import weights,state_key
 
@@ -50,7 +51,7 @@ def prepare(cfg):
     kan = cfg['train_scopes'] == ['ordinary'] and cfg['decision_filter'] == 'kan_windows'
     call = (cfg['train_scopes'] == ['calling'] and cfg['decision_filter'] == 'all'
         and cfg.get('fit_model') == 'residual_policy'
-        and cfg.get('feature_version') == 'public-kan-context-v2')
+        and cfg.get('feature_version') in ('public-kan-context-v2',CALL_TILE_VERSION))
     defense = (cfg['train_scopes'] == ['ordinary'] and cfg['decision_filter'] == 'open_tenpai_riichi'
         and cfg.get('fit_model') == 'residual_policy'
         and cfg.get('feature_version') == 'public-discard-defense-context-v1'
@@ -60,15 +61,22 @@ def prepare(cfg):
     if selection != 'latest_source' and not (selection == 'all_sources' and cfg.get('fit_model') == 'residual_policy'):
         raise ValueError('Unsupported validation selection for fit model')
     torch.set_num_threads(4);protocol=snapshot(cfg);write(out/'protocol.json',protocol)
-    parts,hashes,sources=load_sources(cfg['data'],protocol['model_files'],cfg['reward'])
+    parts,hashes,sources=load_sources(cfg['data'],protocol['model_files'],cfg['reward'],
+        expected_call_baseline=cfg.get('call_context_baseline'))
     parts=select_decisions(parts,cfg['decision_filter'],cfg['train_scopes']);train,held=parts['train'],parts['held']
     if not train or not held:raise ValueError('Whole-wall train and validation required')
     heads={s:make_head(torch.load(Path(cfg[k])/'head.pt',map_location='cpu',weights_only=True),'cpu').eval()
         for s,k in [('ordinary','discard_checkpoint'),('calling','call_checkpoint')]}
+    from .context_initialization import initial_context
+    from jevmahjong.policy.call_baseline import load as load_baseline,transform
+    initial=initial_context(cfg,protocol['model_files'])
+    baseline=load_baseline(cfg,protocol['model_files'])
     with torch.no_grad():
         for r in train+held:
             p=heads[r['scope']](r['decide'],r['options']).softmax(-1)
-            if not torch.allclose(p,r['reference'],atol=2e-5,rtol=2e-4):raise ValueError('Original reference input or policy changed')
+            q=transform(r['public_request'],p,baseline)
+            if not torch.allclose(q,r['reference'],atol=2e-5,rtol=2e-4):raise ValueError('Original reference input or policy changed')
+            if initial is not None:r['original_reference']=p.detach().clone()
     return out,protocol,parts,hashes,sources,heads
 
 

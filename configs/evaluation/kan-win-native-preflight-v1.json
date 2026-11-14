@@ -1,0 +1,27 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "call_context_baseline": {
+    "checkpoint": "runs/jev-call-tile-win-v1/jev-call-tile-win-v1-e01.pt",
+    "sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021"
+  },
+  "fast_gamma": 0.98,
+  "confirmation_objective": "hand_win",
+  "max_dealin_rate_increase": 0.01,
+  "updated_scopes": [
+    "ordinary"
+  ],
+  "parity_source_run": "runs/jev-call-uniform-v1",
+  "candidate_run": "runs/jev-kan-win-v1",
+  "out": "runs/kan-win-v1-native-preflight",
+  "stage": "development",
+  "seed_start": 11750000,
+  "seeds": 8,
+  "candidate_activation": "kan_windows",
+  "train_scopes": [
+    "ordinary"
+  ],
+  "decision_filter": "kan_windows",
+  "required_fit_audit_config": "runs/configs/kan-win-fit-audit-v1.json",
+  "preflight_only": true
+}

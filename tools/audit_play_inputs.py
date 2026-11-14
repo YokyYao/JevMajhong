@@ -98,13 +98,23 @@ def prepare(args):
 
 
 def probe(args):
-    from jevmahjong.policy.routing import load_model
+    from jevmahjong.policy.routing import load_model, make_head
     from jevany.api import validate_distribution
     from desktop.jev_sidecar.call_policy import validate_call_checkpoint
     import torch
     identity = validate_call_checkpoint(args.checkpoint)
     rows = [json.loads(s) for s in Path(args.inputs).read_text(encoding='utf-8').splitlines()]
     model = load_model(args.checkpoint)
+    if args.head_checkpoint:
+        saved=torch.load(args.head_checkpoint,map_location='cpu',weights_only=True)
+        frozen={Path(p).name:checksum for p,checksum in saved['model_files']['call'].items()}
+        expected=json.loads((ROOT/'desktop/jev_sidecar/call_policy_identity.json').read_text(encoding='utf-8'))['files']
+        if (frozen!=expected or saved.get('base_and_LoRA_frozen') is not True
+                or saved.get('trained_scopes')!=['calling'] or 'kan_context' in saved):
+            raise ValueError('A calling pointer head with the frozen Call v1 encoder is required')
+        head=make_head(torch.load(Path(args.checkpoint)/'head.pt',map_location='cpu',weights_only=True),'cuda')
+        head.load_state_dict(saved['heads']['calling']);model.runtime.model.head=head.eval().requires_grad_(False)
+        identity={'model_id':saved['model_id'],'frozen_encoder':identity,'head_checkpoint_sha256':sha(args.head_checkpoint)}
     out = Path(args.out); out.mkdir(parents=True, exist_ok=True)
     results = []; summary = dict(model=identity, inputs_sha256=sha(args.inputs),
         inference_only=True, expert_labels_created=0, not_strength_evaluation=True, groups={})
@@ -130,7 +140,9 @@ def probe(args):
                 changes_from_baseline=sum(r['selection_changed_from_baseline'] for r in subset),
                 max_preference_difference=max(r['preference_max_difference'] for r in subset))
     native = [r for r in results if r['view']=='native']
-    summary['native_cached_parity_passed'] = bool(native) and all(r['preference_max_difference'] < .005 for r in native)
+    summary['native_cached_parity_passed'] = (None if args.head_checkpoint else
+        bool(native) and all(r['preference_max_difference'] < .005 for r in native))
+    summary['reference_parity_applicable'] = not bool(args.head_checkpoint)
     summary['predictions_sha256'] = sha(out / 'predictions-private.jsonl')
     (out / 'summary.json').write_text(json.dumps(summary, indent=2)+'\n', encoding='utf-8')
     print(json.dumps(summary), flush=True)
@@ -190,6 +202,7 @@ if __name__ == '__main__':
     p = sub.add_parser('prepare'); p.add_argument('--samples', required=True); p.add_argument('--contexts')
     p.add_argument('--native-source'); p.add_argument('--controls', type=int, default=12); p.add_argument('--out', required=True)
     p = sub.add_parser('probe'); p.add_argument('--inputs', required=True); p.add_argument('--checkpoint', required=True)
+    p.add_argument('--head-checkpoint', help='Optional audited calling pointer-head checkpoint; frozen encoder unchanged')
     p.add_argument('--out', required=True)
     p = sub.add_parser('inventory'); p.add_argument('--data', action='append', required=True); p.add_argument('--out', required=True)
     args = parser.parse_args(); {'prepare':prepare, 'probe':probe, 'inventory':inventory}[args.command](args)

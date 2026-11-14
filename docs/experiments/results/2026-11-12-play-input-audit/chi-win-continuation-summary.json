@@ -1,0 +1,148 @@
+{
+  "stage": "fit_audited_starting_policy_retained",
+  "initialization_preflight": {
+    "status": "passed_real_context_continuation_start",
+    "states": 237,
+    "parameters": 38528,
+    "features": 600,
+    "max_cached_reference_error": 6.963510483792845e-07,
+    "max_single_context_error": 2.220446049250313e-16,
+    "changed_starting_actions": 0,
+    "context_networks_per_decision": 1,
+    "base_and_LoRA_frozen": true,
+    "source_sha256": "bbbdaf7c2dd127b0b5845aa9e4d267501bf3c063e8916abf90fee89ca7218e53",
+    "checkpoint_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+    "optimizer_updates": 0,
+    "new_simulations": 0,
+    "weights_saved": false,
+    "held_outcomes_analyzed": false,
+    "limitations": [
+      "Uses audited public native inputs and cached encoder features, not a new full GPU encoder pass.",
+      "Checks initialization and inference semantics, not policy improvement."
+    ]
+  },
+  "initialization_preflight_sha256": "a08b86e6fa265e65cc857e431beb743f31dca507da582e1161f979306c45c5b1",
+  "fit_recipe": {
+    "model_id": "jev-chi-win-v1",
+    "context_initialization": "calling_baseline",
+    "feature_version": "public-call-tile-context-v1",
+    "hidden": 64,
+    "reference_prior_strength": 0.05,
+    "policy_state_weighting": "uniform",
+    "epochs": 12,
+    "patience_epochs": 3,
+    "batch": 16,
+    "lr": 0.0001,
+    "weight_decay": 0.001,
+    "selection_objective": "hand_win",
+    "max_held_dealin_increase": 0.01,
+    "reward": {
+      "mode": "own_win_first_v1",
+      "win_weight": 1.0,
+      "fast_weight": 0.25,
+      "dealin_penalty": 2.0,
+      "net_weight": 0.0,
+      "point_scale": 8000.0,
+      "speed_gamma": 0.98
+    }
+  },
+  "sampling_recipe": {
+    "max_states": 512,
+    "max_states_by_split": {
+      "train": 384,
+      "held": 128
+    },
+    "canonical_state_only": true,
+    "stratify_call_openness": true,
+    "call_route_reserve_by_split": {
+      "train": {
+        "closed_chi_tanyao_gain": 96,
+        "closed_pon_yakuhai": 32
+      },
+      "held": {
+        "closed_chi_tanyao_gain": 32,
+        "closed_pon_yakuhai": 16
+      }
+    },
+    "worlds": 16,
+    "wall_scope": "unseen",
+    "whole_wall_state_cap_by_split": {
+      "train": 4,
+      "held": 4
+    },
+    "nonempty_walls_by_split": {
+      "train": 96,
+      "held": 32
+    }
+  },
+  "parameters": 38528,
+  "parameter_training_started": true,
+  "new_labels_started": true,
+  "new_weights_exist": true,
+  "matched_head_or_LoRA_comparison_proven": false,
+  "raw_records_public": false,
+  "weights_public": false,
+  "deployed": false,
+  "limitations": [
+    "Reserved internal chi-route samples are a diagnostic distribution, not natural-match win-rate evidence.",
+    "If public-route reserves are unavailable, inspect/supplement data before computing labels.",
+    "No architecture superiority or new policy improvement has been established."
+  ],
+  "active_recipe_revision": "whole-wall-balanced-v3",
+  "active_fit_config": "configs/training/chi-win-fit-v3.json",
+  "initialization_preflight_unchanged": true,
+  "active_label_plan_sha256": "ca19358d57c079d2412549229aaee1891045480abbec1b098e8ad2a4e721e291",
+  "fit_result": {
+    "epochs": 3,
+    "updates": 72,
+    "selected_epoch": 0,
+    "selected_is_starting_policy": true,
+    "eligible_for_development": false,
+    "stop_reason": "held_actual_hand_wins_stalled",
+    "held_curve": [
+      {
+        "epoch": 0,
+        "mean_sampled_hand_win_gain": 0.0,
+        "mean_sampled_dealin_change": 0.0,
+        "mean_sampled_fast_gain": 0.0,
+        "mean_sampled_net_point_gain": 0.0,
+        "mean_label_utility_gain": 0.0,
+        "changed_argmax_states": 0,
+        "policy_kl": 0.5722401879910869
+      },
+      {
+        "epoch": 1,
+        "mean_sampled_hand_win_gain": 0.00439453125,
+        "mean_sampled_dealin_change": 0.00537109375,
+        "mean_sampled_fast_gain": 0.0026740114391835723,
+        "mean_sampled_net_point_gain": -16.796875,
+        "mean_label_utility_gain": -0.005679153390204107,
+        "changed_argmax_states": 4,
+        "policy_kl": 0.5679624796049484
+      },
+      {
+        "epoch": 2,
+        "mean_sampled_hand_win_gain": 0.00341796875,
+        "mean_sampled_dealin_change": 0.0078125,
+        "mean_sampled_fast_gain": 0.0018425098826642622,
+        "mean_sampled_net_point_gain": -19.53125,
+        "mean_label_utility_gain": -0.011746403779333935,
+        "changed_argmax_states": 6,
+        "policy_kl": 0.5649937680641581
+      },
+      {
+        "epoch": 3,
+        "mean_sampled_hand_win_gain": 0.00341796875,
+        "mean_sampled_dealin_change": 0.009765625,
+        "mean_sampled_fast_gain": 0.0018425098826642622,
+        "mean_sampled_net_point_gain": -25.439453125,
+        "mean_label_utility_gain": -0.015652653779333933,
+        "changed_argmax_states": 7,
+        "policy_kl": 0.563105871792216
+      }
+    ],
+    "interpretation": "Own-win estimates rise in later snapshots, but deal-in growth makes the configured utility negative; no snapshot meets all predeclared selection conditions."
+  },
+  "independent_strength_improvement_proven": false,
+  "snapshot_at": "2026-11-13T12:48:50.100373+00:00"
+}

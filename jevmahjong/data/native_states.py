@@ -5,14 +5,34 @@ from jevmahjong.core.scoring import settlement_ledger
 from jevmahjong.policy.defense import is_defense_request,request_eligible
 
 METHOD='native_defense_states_v1'
+CALL_METHOD='native_call_states_v1'
+KAN_METHOD='native_kan_states_v1'
+CLOSED_METHOD='replayed_native_closed_states_v1'
+INPUT_METHODS=(METHOD,CALL_METHOD,KAN_METHOD,CLOSED_METHOD)
+
+
+def input_eligible(request,method):
+    if method==CLOSED_METHOD:
+        from jevmahjong.policy.closed import request_eligible as closed_eligible
+        return closed_eligible(request)
+    if method==KAN_METHOD:
+        from jevmahjong.policy.kan import request_eligible as kan_eligible
+        return kan_eligible(request)
+    if method==METHOD:
+        if not is_defense_request(request):raise ValueError('Defense input required')
+        return request_eligible(request)
+    from jevmahjong.policy.routing import is_call_request
+    if method!=CALL_METHOD or not is_call_request(request):raise ValueError('Pure calling input required')
+    return list(range(len(request['questions']['action']['criteria'])))
 
 
 def decision_records(payload):
-    return payload['decisions'] if payload.get('collection_method')==METHOD else payload['games']
+    return payload['decisions'] if payload.get('collection_method') in INPUT_METHODS else payload['games']
 
 
 def validate(payload,seed,config):
-    if payload.get('collection_method')!=METHOD or payload['seed']!=seed:raise ValueError('Wrong native-state source')
+    method=payload.get('collection_method')
+    if method not in INPUT_METHODS or payload['seed']!=seed:raise ValueError('Wrong native-state source')
     controls={r['seat']:r for r in payload['controls']}
     if len(payload['controls'])!=4 or len(controls)!=4 or set(controls)!=set(range(4)):raise ValueError('Four native controls required')
     for game in controls.values():
@@ -31,9 +51,9 @@ def validate(payload,seed,config):
         seen.add(key);public.add(identity);meta=decisions[key]
         if (len(key)!=3 or key[2]<0 or (meta['seed'],meta['seat'],meta['replica'])!=key
                 or row['public_request']['state']['seat']!=key[1]):raise ValueError('Native decision identity differs')
-        if (not is_defense_request(row['public_request']) or row['scope']!='ordinary'
+        if (row['scope']!=('calling' if method==CALL_METHOD else 'ordinary')
                 or request_hash(row['public_request'])!=row['request_sha256']
-                or row['eligible']!=request_eligible(row['public_request'])):raise ValueError('Defense input or action set differs')
+                or row['eligible']!=input_eligible(row['public_request'],method)):raise ValueError('Native input or action set differs')
         q=row['reference'];eligible=row['eligible']
         if (q.ndim!=1 or len(q)!=len(row['action_keys']) or len(q)!=len(row['public_request']['questions']['action']['criteria'])
                 or row['decide'].ndim!=1 or row['options'].ndim!=2 or row['options'].shape!=(len(q),len(row['decide']))

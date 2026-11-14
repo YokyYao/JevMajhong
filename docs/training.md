@@ -189,3 +189,26 @@ Progress v1的192场开发净得点差0，96场候选的全部事件日志都与
 4. 主指标为相对Play v1的平均净得点，按整牌山聚合四座和三类对手计算配对区间。独立确认区间下界为正才宣称该模拟协议内改善。同时报告名次、和牌、放铳、速度及各操作的机会与选择数。内部损失、更频繁鸣牌或更高一致率都不能代替实力结果。
 
 开发无改善就分析原因、调整方案；不为同一失败配方继续长训或反复跑大规模确认。完整对局与几秒钟的回归检查是不同任务，见[开发说明](development.md)。
+
+
+## Play 实战鸣牌修复动作头
+
+[登记方案](experiments/plans/play-call-routes-20261112.md)从Call v1出发训练524800参数的原指针动作头，采用完整候选收益目标及仅来自旧训练状态的参考KL约束。数据检查完成后运行：
+
+```bash
+python tools/run_experiment.py train-call-head --config configs/training/play-call-routes-fit.json
+python tools/run_experiment.py audit-call-head --config configs/training/play-call-routes-fit-audit.json
+python tools/run_experiment.py evaluate --config configs/evaluation/play-call-routes-development.json
+```
+
+计划排队后再执行时，先对每条命令加`--prepare-only`固定源码与配置，正式执行用`--registered`。这不会启动模型训练，也不会向训练模块传`--resume`。开发入口需要完整匹配的权重检查结果；实际改选无净点收益或门清吃牌子组未恢复时，跳过完整比赛。旧数据原始轨迹和新权重保持私有。
+
+
+## 用户进一步明确：本局先和优先
+
+当前奖励与评测目标见[先和牌方案](experiments/plans/play-own-win-20261112.md)。Call Win v1将实际自家和牌记为1、未和记为0，和牌后的速度作辅助、放铳扣分；点数不参与奖励。完整对局按单局和牌率比较，净点和名次继续报告。吃牌小子组保留诊断，不再替代整体效果。便携入口与上面的动作头命令一致，分别使用`call-win-fit.json`、`call-win-fit-audit.json`、`call-win-development.json`。
+
+
+### 完整鸣牌窗口的原生输入采样
+
+`collect-call-states`在每场控制比赛中保存所有纯吃碰决策，包括已副露状态；`audit-native-states`逐条重放原生前缀并检查原模型概率。它与原来的防守状态采样共享不可变分片写入和恢复逻辑；旧命令仍可用。新输入没有奖励标签，拟合器会拒绝直接使用。只有匹配来源核验完成后，才允许生成配对未来标签。含杠窗口保持Discard路由。[新数据计划](experiments/plans/play-fresh-call-stream-20261112.md)。

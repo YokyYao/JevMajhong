@@ -16,11 +16,15 @@ def snapshot(config):
             raise ValueError('Incomplete inference model: ' + role)
     result = {'config': config, 'code_sha256': {str(p): digest(p) for p in (ROOT / 'jevmahjong').rglob('*.py')},
         'model_files': models, 'human_test_opened': False}
-    for name in ('initial_heads', 'behavior_heads'):
+    for name in ('initial_heads', 'behavior_heads', 'call_context_baseline'):
         if config.get(name):
             initial = config[name]; path = Path(initial['checkpoint']).resolve()
             if digest(path) != initial['sha256']: raise ValueError(name + ' checkpoint changed')
             result[name] = {'checkpoint': str(path), 'sha256': initial['sha256']}
+    if config.get('matched_context_fit'):
+        spec=config['matched_context_fit'];path=Path(spec['config']).resolve()
+        if digest(path)!=spec['sha256']:raise ValueError('Matched context configuration changed')
+        result['matched_context_fit']={'config':str(path),'sha256':spec['sha256']}
     return result
 
 
@@ -32,8 +36,12 @@ def verify(protocol):
         for path, expected in files.items():
             if digest(Path(path)) != expected:
                 raise ValueError('Registered model changed: ' + path)
-    for name in ('initial_heads', 'behavior_heads'):
+    for name in ('initial_heads', 'behavior_heads', 'call_context_baseline'):
         if protocol.get(name):
             initial = protocol[name]
             if digest(Path(initial['checkpoint'])) != initial['sha256']:
                 raise ValueError(name + ' checkpoint changed')
+    if protocol.get('matched_context_fit'):
+        spec=protocol['matched_context_fit']
+        if digest(Path(spec['config']))!=spec['sha256']:
+            raise ValueError('Matched context configuration changed')

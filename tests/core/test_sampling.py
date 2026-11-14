@@ -4,6 +4,7 @@ import json
 import torch
 from pathlib import Path
 import tempfile
+from unittest.mock import patch
 from tools.run_experiment import freeze_source
 from jevmahjong.training.sampling import stratum, weights
 from jevmahjong.data.native_pairs import ENCODER_FILES, load_sources, select_decisions
@@ -44,6 +45,128 @@ def native_collection(root, start, gamma=.995):
 
 
 class SamplingTests(unittest.TestCase):
+    def test_wall_caps_prevent_dense_early_wall_dominating_reserved_routes(self):
+        from collections import Counter
+        from jevmahjong.training.ev_collect import select_case_plan
+        from tests.core.test_win_context import pair
+        class Head:
+            def __call__(self,decide,options):return torch.tensor([1.,0.])
+        def cases(seeds):
+            result=[]
+            for seed in seeds:
+                for replica in range(20 if seed==seeds[0] else 4):
+                    r=pair(seed);r['episode_key']=(seed,0,replica)
+                    r['request_sha256']=str((seed,replica));result.append(r)
+            return result
+        parts={'train':cases([100,101,102,103]),'held':cases([200,201])}
+        cfg=dict(train_scopes=['calling'],decision_filter='all',max_states=12,
+            max_states_by_split={'train':8,'held':4},canonical_state_only=True,
+            whole_wall_state_cap_by_split={'train':2,'held':2},
+            call_route_reserve_by_split={'train':{'closed_chi_tanyao_gain':3},'held':{'closed_chi_tanyao_gain':2}})
+        classify=lambda gs:{'closed_chi_tanyao_gain':[g for g in gs if g['row']['episode_key'][0]%2==0]}
+        with patch('jevmahjong.training.call_head.route_groups',side_effect=classify):
+            selected=select_case_plan(parts,Head(),cfg)
+            self.assertEqual(Counter(r['episode_key'][0] for r in selected),{s:2 for s in (100,101,102,103,200,201)})
+            for rows in parts.values():
+                rows.reverse()
+                for r in rows:r['training_advantage']*=-1
+            self.assertEqual([r['episode_key'] for r in select_case_plan(parts,Head(),cfg)],
+                [r['episode_key'] for r in selected])
+            cfg['whole_wall_state_cap_by_split']['train']=1
+            with self.assertRaisesRegex(ValueError,'whole-wall-balanced'):
+                select_case_plan(parts,Head(),cfg)
+            cfg['whole_wall_state_cap_by_split']['train']=True
+            with self.assertRaisesRegex(ValueError,'Whole-wall caps'):
+                select_case_plan(parts,Head(),cfg)
+
+    def test_stronger_call_baseline_is_used_when_selecting_future_controls(self):
+        from jevmahjong.training.ev_collect import select_case_plan
+        from jevmahjong.policy.kan_context import feature_names
+        from jevmahjong.policy.kan_progress import VERSION
+        from tests.core.test_win_context import pair
+        class Head:
+            def __call__(self,decide,options):return torch.tensor([2.,0.])
+        names=feature_names(VERSION);coef=torch.zeros(len(names));coef[names.index('pon')]=.5
+        context=dict(version=VERSION,names=list(names),coefficients=coef,reference_prior_strength=.05)
+        cfg=dict(train_scopes=['calling'],decision_filter='all',call_context_baseline={'sha256':'fixed'},max_states=None)
+        parts=dict(train=[pair(100)],held=[])
+        with self.assertRaisesRegex(ValueError,'actual pinned calling context'):select_case_plan(parts,Head(),cfg)
+        row=select_case_plan(parts,Head(),cfg,context)[0]
+        self.assertEqual(row['teacher_action'],1)
+        self.assertEqual(row['action'],0)
+        self.assertGreater(float(row['reference'][1]),.99)
+        self.assertEqual(row['pair_selection'],'original_legal_pair_against_registered_policy_v1')
+
+    def test_public_chi_reserves_keep_negative_examples_and_split_budgets(self):
+        from jevmahjong.training.ev_collect import select_case_plan
+        from tests.core.test_win_context import pair
+        class Head:
+            def __call__(self,decide,options):return torch.tensor([1.,0.])
+        parts=dict(train=[pair(s) for s in range(100,108)],held=[pair(s) for s in range(200,204)])
+        cfg=dict(train_scopes=['calling'],decision_filter='all',max_states=6,
+            max_states_by_split={'train':4,'held':2},canonical_state_only=True,
+            call_route_reserve_by_split={'train':{'closed_chi_tanyao_gain':2},'held':{'closed_chi_tanyao_gain':1}})
+        classify=lambda gs:{'closed_chi_tanyao_gain':[g for g in gs if g['row']['episode_key'][0]%4>=2]}
+        with patch('jevmahjong.training.call_head.route_groups',side_effect=classify):
+            selected=select_case_plan(parts,Head(),cfg)
+            self.assertEqual(len(selected),6)
+            for split,quota in [('train',2),('held',1)]:
+                self.assertGreaterEqual(sum(r['episode_key'][0]%4>=2 for r in selected if r['source_split']==split),quota)
+            for rows in parts.values():
+                for row in rows:row['training_advantage']*=-1
+            self.assertEqual([r['episode_key'] for r in select_case_plan(parts,Head(),cfg)],
+                [r['episode_key'] for r in selected])
+            with self.assertRaisesRegex(ValueError,'Insufficient public call-route'):
+                select_case_plan(dict(train=parts['train'][:2],held=parts['held']),Head(),cfg)
+
+    def test_bounded_future_sampling_covers_rare_open_calls_without_using_outcomes(self):
+        from jevmahjong.training.ev_collect import choose_cases,select_case_plan
+        class Head:
+            def __call__(self,decide,options):return torch.tensor([1.,0.])
+        def case(index,opened):
+            return dict(scope='calling',episode_key=(100,0,index),request_sha256=str(index),
+                teacher_action=0,action=1,eligible=[0,1],decide=torch.zeros(1),options=torch.zeros(2,1),
+                training_advantage=999. if index%2 else -999.,public_request={'state':{
+                    'seat':0,'riichi':[],'melds':[[{'type':1}] if opened else [],[],[],[]]},
+                    'questions':{'action':{'criteria':{'a0':{'type':'none'},'a1':{'type':'chi'}}}}})
+        rows=[case(i,False) for i in range(10)]+[case(10,True)]
+        parts={'train':rows,'held':[]}
+        selected=choose_cases(parts,Head(),2,True,True)
+        self.assertEqual([r['episode_key'][2] for r in selected],[0,10])
+        for r in rows:r['training_advantage']*=-1
+        self.assertEqual([r['episode_key'] for r in choose_cases(parts,Head(),2,True,True)],
+            [r['episode_key'] for r in selected])
+        self.assertEqual([r['episode_key'][2] for r in choose_cases(parts,Head(),2,True)],[0,1])
+        with self.assertRaises(ValueError):choose_cases(parts,Head(),2,True,'yes')
+        held=copy.deepcopy(rows)
+        for r in held:r['episode_key']=(101,0,r['episode_key'][2])
+        cfg=dict(max_states=5,max_states_by_split={'train':3,'held':2},canonical_state_only=True,
+            stratify_call_openness=True)
+        selected=select_case_plan({'train':rows,'held':held},Head(),cfg)
+        self.assertEqual([r['source_split'] for r in selected],['train']*3+['held']*2)
+        self.assertTrue(any(r['episode_key'][2]==10 for r in selected if r['source_split']=='held'))
+        cfg['max_states']=6
+        with self.assertRaises(ValueError):select_case_plan({'train':rows,'held':held},Head(),cfg)
+
+    def test_queued_launch_uses_registered_source_without_resuming_model_state(self):
+        from tools import run_experiment
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);(root/'jevmahjong').mkdir()
+            source=root/'jevmahjong/__init__.py';source.write_text('version = 1\n')
+            cfg=root/'config.json';cfg.write_text(json.dumps({'out':'runs/fit'}))
+            with patch.object(run_experiment,'ROOT',root),patch.object(run_experiment.subprocess,'run') as invoke:
+                with patch('sys.argv',['run_experiment','train-call-head','--config',str(cfg),'--registered']):
+                    with self.assertRaises(ValueError):run_experiment.main()
+                with patch('sys.argv',['run_experiment','train-call-head','--config',str(cfg),'--prepare-only']):
+                    run_experiment.main()
+                invoke.assert_not_called()
+                source.write_text('version = 2\n')
+                with patch('sys.argv',['run_experiment','train-call-head','--config',str(cfg),'--registered']):
+                    run_experiment.main()
+                args=invoke.call_args.args[0]
+                self.assertNotIn('--resume',args)
+                self.assertEqual((Path(args[3])/'jevmahjong/__init__.py').read_text(),'version = 1\n')
+
     def test_future_scope_is_explicit_and_preserves_legacy_kan_default(self):
         from jevmahjong.data.future_pairs import future_scope
         self.assertEqual(future_scope({}),('ordinary','kan_windows'))

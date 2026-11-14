@@ -104,9 +104,13 @@ def collect(cfg,resume=False):
     from jevmahjong.data.future_pairs import future_scope
     if future_scope(cfg) != future_scope(parent_protocol['config']):
         raise ValueError('Expanded alternatives must preserve the parent decision scope')
+    from jevmahjong.policy.call_baseline import identity
+    if identity(cfg)!=identity(parent_protocol['config']):
+        raise ValueError('Expanded alternatives must preserve the parent calling baseline')
     protocol=snapshot(cfg);protocol['collection_method']=METHOD
     if protocol['model_files']!=parent_protocol['model_files']:raise ValueError('Parent baseline model differs')
-    _,hashes,sources=load_sources(parent_result['source_outputs'],protocol['model_files'],cfg['reward'])
+    _,hashes,sources=load_sources(parent_result['source_outputs'],protocol['model_files'],cfg['reward'],
+        expected_call_baseline=cfg.get('call_context_baseline'))
     infos=[]
     for source_index,source in enumerate(sources):
         directory=Path(source['path'])

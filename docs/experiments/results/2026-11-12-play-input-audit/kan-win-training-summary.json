@@ -1,0 +1,166 @@
+{
+  "stage": "development_complete_no_own_win_gain_reference_retained",
+  "snapshot_at": "2026-11-13T16:38:27.838165+00:00",
+  "model_id": "jev-kan-win-v1",
+  "reference": "verified Call Tile Win v1, preserved once",
+  "reference_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+  "fit_source_sha256": "1baa982d80c1d7367a7eee66a3b1d03b29636fecac6390a12b6a69ab29d2ae26",
+  "evaluation_source_sha256": "f8f9fae878f588a7ac9422c9d187537e78549b55d4f617dad4ebccb7a04d11a0",
+  "component": "public-feature kan residual policy, ordinary kan windows only",
+  "trainable_parameters": 10240,
+  "LLM_LoRA_original_heads_and_calling_context_frozen": true,
+  "train_states": 366,
+  "held_states": 91,
+  "train_pairs": 1094,
+  "held_pairs": 302,
+  "paired_futures_per_state": 16,
+  "complete_option_data_audit": {
+    "status": "passed_complete",
+    "role": "data consistency audit, not policy strength",
+    "pairs": 1396,
+    "states": 457,
+    "train_pairs": 1094,
+    "held_pairs": 302,
+    "train_states": 366,
+    "held_states": 91,
+    "worlds_per_state": 16,
+    "prefixes_replayed": 457,
+    "future_walls_rederived": 7312,
+    "arm_records_audited": 44672,
+    "whole_wall_disjoint": true,
+    "cached_head_probability_max_error": 0.0,
+    "new_simulations": 0,
+    "independent_strength_proven": false
+  },
+  "complete_option_rollouts": {
+    "new_native_hand_rollouts": 15024,
+    "reused_control_rollouts": 7312,
+    "reused_branch_rollouts": 7312,
+    "fresh_matches": 0
+  },
+  "epochs": 11,
+  "optimizer_updates": 253,
+  "selected_epoch": 7,
+  "selected_sha256": "9024d80501755c73669a0e3c3ae8db6e0ced69ab1f848db990f8a07c37308db4",
+  "stop_reason": "held_actual_hand_wins_stalled",
+  "fit_audit_status": "passed_complete",
+  "eligible_for_development": true,
+  "selected_validation": {
+    "states": 91,
+    "mean_label_utility_gain_vs_play": 0.00014118486235124042,
+    "mean_sampled_hand_win_gain_per_state": 0.0013736263736263737,
+    "mean_sampled_dealin_change_per_state": 0.0006868131868131869,
+    "mean_sampled_fast_reward_change_per_state": 0.0005647394494049581,
+    "mean_sampled_net_point_gain_per_state": 8.516483516483516,
+    "changed_argmax_states": 6
+  },
+  "metric_reference_note": "Legacy field name vs_play here means the configured verified Call Tile Win v1 reference, not original Play. Values are equal state means over16paired futures, not complete-match win rates or points per match.",
+  "held_kan_routes": {
+    "ankan": {
+      "states": 42,
+      "mean_sampled_hand_win_gain_per_state": 0.0,
+      "mean_sampled_dealin_change_per_state": 0.001488095238095238,
+      "mean_label_utility_gain_vs_play": -0.003199730267433036,
+      "changed_argmax_states": 4
+    },
+    "daiminkan": {
+      "states": 43,
+      "mean_sampled_hand_win_gain_per_state": 0.0,
+      "mean_sampled_dealin_change_per_state": 0.0,
+      "mean_label_utility_gain_vs_play": 0.0,
+      "changed_argmax_states": 1
+    },
+    "kakan": {
+      "states": 6,
+      "mean_sampled_hand_win_gain_per_state": 0.020833333333333332,
+      "mean_sampled_dealin_change_per_state": 0.0,
+      "mean_label_utility_gain_vs_play": 0.02453941561769173,
+      "changed_argmax_states": 1
+    }
+  },
+  "actual_cpu_selected_model_contract": "passed",
+  "actual_gpu_native_parity": "passed_three_routes",
+  "development": {
+    "games": 192,
+    "new_walls": 8,
+    "reference_games_reused": 0,
+    "hand_win_paired": {
+      "gain": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "dealin_rate_paired": {
+      "gain": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "fast_reward_paired": {
+      "gain": -1.9049800196455254e-05,
+      "ci95": [
+        -6.409541972899032e-05,
+        2.5995819336079815e-05
+      ],
+      "unit": "discounted own wins per hand, equal-weight match means, whole-wall paired CI"
+    },
+    "net_points_paired": {
+      "gain": 10.416666666666666,
+      "ci95": [
+        -14.2148359540915,
+        35.048169287424834
+      ],
+      "independent_wall_streams": 8
+    },
+    "eligible_for_confirmation": false,
+    "independent_event_audit": "passed_complete",
+    "four_seat_payment_and_rank_records_audited": 192,
+    "paired_logs_identical": 93,
+    "paired_logs_divergent": 3,
+    "kan_choices": {
+      "reference": {
+        "choices": {
+          "ankan": 1,
+          "daiminkan": 0,
+          "kakan": 0
+        },
+        "opportunities": {
+          "ankan": 10,
+          "daiminkan": 37,
+          "kakan": 10
+        }
+      },
+      "candidate": {
+        "choices": {
+          "ankan": 3,
+          "daiminkan": 1,
+          "kakan": 0
+        },
+        "opportunities": {
+          "ankan": 10,
+          "daiminkan": 37,
+          "kakan": 10
+        }
+      }
+    },
+    "degenerate_interval_note": "All observed paired own-win/deal-in differences are zero in these8wallgroups. The zero-width interval is not proof of equal underlying ability or of no rare effect."
+  },
+  "confirmation": {
+    "started": false,
+    "reason": "No observed own-win improvement; not eligible."
+  },
+  "raw_records_public": false,
+  "weights_public": false,
+  "deployed": false,
+  "strength_improvement_proven": false,
+  "limitations": [
+    "Internal sampled own-win improvement is only0.1374percentage points and is concentrated in one changed kakan validation state.",
+    "Ankan and daiminkan validation subsets have zero sampled own-win gain; calling defects are not solved.",
+    "Small internal signals require new paired full matches and independent event auditing before any strength claim."
+  ],
+  "candidate_adopted": false
+}

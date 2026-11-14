@@ -1,0 +1,9 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "collection": "runs/play-call-exploration-futures-v2",
+  "out": "runs/play-call-exploration-future-audit-v2",
+  "expected": {
+    "worlds_per_state": 32
+  }
+}

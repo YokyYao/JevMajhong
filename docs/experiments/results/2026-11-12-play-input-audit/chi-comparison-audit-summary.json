@@ -1,0 +1,44 @@
+{
+  "stage": "comparison_contract_ready_before_fitting",
+  "core_tests_passed": 127,
+  "candidate_components": [
+    "calling_context_continuation",
+    "calling_pointer_head_continuation_with_fixed_context"
+  ],
+  "checks": [
+    "prescribed reference checkpoint identity",
+    "single context application and replacement semantics",
+    "candidate-only calling scope and activation",
+    "fit and evaluation encoder identities",
+    "exact frozen evaluator source",
+    "candidate selected by prescribed fit before matches"
+  ],
+  "historical_record_regression": {
+    "status": "passed_complete",
+    "games_recounted": 768,
+    "whole_wall_groups": 32,
+    "four_seat_payments_and_ranks_recounted": true,
+    "own_win_dealin_speed_intervals_reproduced": true,
+    "new_simulations": 0,
+    "new_strength_evidence": false
+  },
+  "negative_regression": {
+    "status": "passed_complete",
+    "rejected_cases": [
+      "wrong_activation",
+      "omitted_stronger_reference",
+      "different_existing_evaluator_package",
+      "wrong_candidate_model"
+    ]
+  },
+  "new_candidate_training_started": false,
+  "architecture_superiority_proven": false,
+  "raw_records_public": false,
+  "weights_public": false,
+  "deployed": false,
+  "limitations": [
+    "Historical compatibility regression uses the already completed context candidate and its original Play reference.",
+    "Head and stronger-reference contracts also have targeted unit coverage; actual new fitted candidates still require runtime parity and independent match audits.",
+    "This does not compare LoRA or full-backbone retraining."
+  ]
+}

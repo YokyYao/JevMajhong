@@ -4,14 +4,14 @@ import random
 from pathlib import Path
 import torch
 from jevmahjong.core.io import digest,write
-from jevmahjong.policy.kan_context import VERSION,NAMES
+from jevmahjong.policy.kan_context import VERSION,NAMES,MAX_HIDDEN
 from .context_fit import prepare,encode,prediction_profile
 from .sampling import weights
 from .provenance import verify
 
 
 def make_network(hidden, input_features=len(NAMES)):
-    if not isinstance(hidden,int) or not 1 <= hidden <= 128:raise ValueError('Invalid hidden width')
+    if isinstance(hidden,bool) or not isinstance(hidden,int) or not 1 <= hidden <= MAX_HIDDEN:raise ValueError('Invalid hidden width')
     if not isinstance(input_features,int) or input_features < 1:raise ValueError('Invalid feature count')
     net=torch.nn.Sequential(torch.nn.Linear(input_features,hidden),torch.nn.Tanh(),torch.nn.Linear(hidden,1,bias=False)).double()
     torch.nn.init.zeros_(net[2].weight)

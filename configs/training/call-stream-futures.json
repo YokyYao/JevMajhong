@@ -1,0 +1,35 @@
+{
+  "discard_checkpoint": "models/jev-discard-v1",
+  "call_checkpoint": "models/jev-call-v1",
+  "data": [
+    "runs/play-call-stream-native-v1"
+  ],
+  "out": "runs/play-call-stream-futures-v1",
+  "seed": 2026111242,
+  "worlds": 16,
+  "max_states": 384,
+  "max_states_by_split": {
+    "train": 288,
+    "held": 96
+  },
+  "stratify_call_openness": true,
+  "fast_gamma": 0.995,
+  "game_mode": "4p-red-east",
+  "seed_scheme": "spaced-v1",
+  "reward": {
+    "mode": "own_win_first_v1",
+    "win_weight": 1.0,
+    "fast_weight": 0.25,
+    "dealin_penalty": 2.0,
+    "net_weight": 0.0,
+    "point_scale": 8000.0,
+    "speed_gamma": 0.98
+  },
+  "wall_scope": "unseen",
+  "train_scopes": [
+    "calling"
+  ],
+  "decision_filter": "all",
+  "canonical_state_only": true,
+  "required_native_audit": "runs/play-call-stream-source-audit-v1"
+}

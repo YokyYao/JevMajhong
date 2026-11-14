@@ -8,41 +8,47 @@ from .rewards import hand_outcomes
 from jevmahjong.core.scoring import settlement_ledger
 
 
+def replay_step(env, observations, log, step):
+    """Replay one source action batch; callers capture public inputs beforehand."""
+    current = env.mjai_log
+    pending = log[len(current):]
+    if not pending or env.done(): raise ValueError('Source prefix ended early')
+    # Deferred kan dora can be emitted immediately before the committing
+    # discard. These are engine events, not the player's next action.
+    while pending and pending[0]['type'] in ('dora', 'reach_accepted'):
+        pending = pending[1:]
+    if not pending: raise ValueError('Source has no following decision event')
+    events = []
+    for event in pending:
+        if events and (event['type'] != 'hora' or events[0]['type'] != 'hora'): break
+        events.append(event)
+        if event['type'] != 'hora': break
+    selected = {}
+    for player, obs in observations.items():
+        action = None
+        for event in events:
+            if event.get('actor') == player or (len(observations) == 1 and event['type'] == 'ryukyoku'):
+                action = obs.select_action_from_mjai(json.dumps(event))
+                if action is not None: break
+        if action is None:
+            legal = obs.legal_actions()
+            action = next((a for a in legal if a.action_type == ActionType.PASS), None)
+            if action is None and len(legal) == 1: action = legal[0]
+        if action is None:
+            kinds = sorted({json.loads(a.to_mjai())['type'] for a in obs.legal_actions()})
+            raise ValueError(f'Source action cannot be reconstructed: step={step}, player={player}, '
+                f'next={events[0]["type"]}, actor={events[0].get("actor")}, legal_types={kinds}')
+        selected[player] = action
+    return env.step(selected)
+
+
 def replay_prefix(env, log, steps):
     observations = env.reset()
     current = env.mjai_log
     if current != log[:len(current)]:
         raise ValueError('Initial native log differs from source')
     for _ in range(steps):
-        pending = log[len(current):]
-        if not pending or env.done(): raise ValueError('Source prefix ended early')
-        # Deferred kan dora can be emitted immediately before the committing
-        # discard. These are engine events, not the player's next action.
-        while pending and pending[0]['type'] in ('dora', 'reach_accepted'):
-            pending = pending[1:]
-        if not pending: raise ValueError('Source has no following decision event')
-        events = []
-        for event in pending:
-            if events and (event['type'] != 'hora' or events[0]['type'] != 'hora'): break
-            events.append(event)
-            if event['type'] != 'hora': break
-        selected = {}
-        for player, obs in observations.items():
-            action = None
-            for event in events:
-                if event.get('actor') == player or (len(observations) == 1 and event['type'] == 'ryukyoku'):
-                    action = obs.select_action_from_mjai(json.dumps(event))
-                    if action is not None: break
-            if action is None:
-                legal = obs.legal_actions()
-                action = next((a for a in legal if a.action_type == ActionType.PASS), None)
-                if action is None and len(legal) == 1: action = legal[0]
-            if action is None:
-                kinds = sorted({json.loads(a.to_mjai())['type'] for a in obs.legal_actions()})
-                raise ValueError(f'Source action cannot be reconstructed: step={_}, player={player}, '
-                    f'next={events[0]["type"]}, actor={events[0].get("actor")}, legal_types={kinds}')
-            selected[player] = action
-        observations = env.step(selected)
+        observations = replay_step(env, observations, log, _)
         previous_size = len(current); current = env.mjai_log
         if current[previous_size:] != log[previous_size:len(current)]:
             raise ValueError('Reconstructed actions changed the source event prefix')
