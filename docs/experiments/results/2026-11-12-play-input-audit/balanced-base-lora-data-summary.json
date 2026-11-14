@@ -20,7 +20,7 @@
     "trainable_parameters": 11347456,
     "adapter_tensors": 372
   },
-  "next": "Wait for full final384 development and independent audit; real own-win/risk gates decide confirmation. If unmet, investigate direct own-win counterfactual coverage, especially closed discards, before repeating SFT.",
+  "next": "Monitor same GPU299790 v5 fixed2048 fit after completed prep299789. Same v4 inputs/budget/parent/reward/source-phase loss; only paired-bootstrap MC labels changed. Native540/fresh192/conditional768 gates unchanged; no deployment or verified strength.",
   "phase_mix_not_finalized": false,
   "LoRA_training_started": true,
   "old_pending_kan_fit_chain_cancelled": true,
@@ -3773,7 +3773,7 @@
   },
   "followup_winrisk_v4": {
     "model_id": "jev-unified-winrisk-v4",
-    "status": "training_complete_native_passed_fresh_development_running",
+    "status": "development_complete_not_passed",
     "registered_final_step": 2048,
     "max_gradient_record_exposure": 32768,
     "train_records": 32768,
@@ -3800,7 +3800,7 @@
     "weights_public": false,
     "deployed": false,
     "CPU_preparation_state": "COMPLETED",
-    "GPU_job_state": "RUNNING",
+    "GPU_job_state": "not_in_active_queue_historical_state_unavailable",
     "training_complete": true,
     "completed_optimizer_steps_at_least": 2048,
     "actual_training_records_consumed": 32768,
@@ -4051,9 +4051,82 @@
       "max_abs_probability_difference": 1.0502471059492535e-07
     },
     "development": {
-      "status": "running",
-      "expected_games": 192,
-      "independent_wall_streams": 8
-    }
+      "status": "complete_not_passed",
+      "games": 192,
+      "independent_wall_streams": 8,
+      "hand_win_paired": {
+        "gain": -0.00738223003848004,
+        "ci95": [
+          -0.08820034615049495,
+          0.07343588607353486
+        ],
+        "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+      },
+      "dealin_rate_paired": {
+        "gain": 0.030779145622895625,
+        "ci95": [
+          -0.009100389363108842,
+          0.0706586806089001
+        ],
+        "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+      },
+      "net_points_paired": {
+        "gain": -1717.7083333333333,
+        "ci95": [
+          -5094.316707631042,
+          1658.9000409643756
+        ]
+      },
+      "independent_audit": {
+        "status": "passed_complete",
+        "games": 192,
+        "whole_wall_groups": 8,
+        "four_seat_payment_records": 192,
+        "final_ranks_checked": 192,
+        "han_fu_independently_recalculated": false
+      }
+    },
+    "confirmation_started": false,
+    "summary_path": "docs/experiments/results/2026-11-12-play-input-audit/unified-winrisk-v4-development-summary.json"
+  },
+  "followup_winrisk_v5": {
+    "model_id": "jev-unified-winrisk-v5",
+    "status": "data_ready_GPU_job_running",
+    "training_source_sha256": "89fffa63c1a883ee6f14c9dd7710276a72e0ced8bc9e75aa0fa7badbffe30b28",
+    "training_target_policy": "paired_bootstrap_average_masked_v1",
+    "bootstrap_replicates": 256,
+    "bootstrap_replicates_are_not_new_data": true,
+    "CPU_preparation_job": 299789,
+    "GPU_fit_and_evaluation_job": 299790,
+    "registered_final_step": 2048,
+    "train_records": 32768,
+    "validation_records": 540,
+    "bootstrap_relabel": {
+      "states_checked": 3143,
+      "phase_states": {
+        "open_discard": 243,
+        "call_window": 1980,
+        "closed_discard": 554,
+        "kan_window": 366
+      },
+      "affected_states": {
+        "open_discard": 214,
+        "call_window": 1827,
+        "closed_discard": 317,
+        "kan_window": 330
+      },
+      "argmax_changes": {
+        "open_discard": 9,
+        "call_window": 51,
+        "closed_discard": 24,
+        "kan_window": 14
+      }
+    },
+    "strength_improvement_proven": false,
+    "raw_and_weights_public": false,
+    "deployed": false,
+    "CPU_preparation_state": "COMPLETED",
+    "GPU_job_state": "RUNNING",
+    "actual_tokenized_positions_verified": 160
   }
 }

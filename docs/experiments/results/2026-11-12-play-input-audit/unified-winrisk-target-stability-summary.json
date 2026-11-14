@@ -1,0 +1,94 @@
+{
+  "status": "passed_complete_training_only_stability_audit",
+  "source_sha256": "ab0fb10eea18b7087d77ee6090e806b6802f5a2975aa0b874149ef86a68e53bd",
+  "states_checked": 3143,
+  "summary": {
+    "all": {
+      "positions": 3143,
+      "future_count_histogram": {
+        "16": 2759,
+        "32": 384
+      },
+      "split_half_same_argmax_rate": 0.6315622017181037,
+      "split_half_best_sets_overlap_rate": 0.7403754374801146,
+      "mean_split_half_target_total_variation": 0.3459358717493637,
+      "mean_bootstrap_best_support": 0.8611062778396437,
+      "bootstrap_best_support_below_75pct": 814,
+      "original_target_max_over_90pct": 1723,
+      "confident_original_but_support_below_75pct": 193,
+      "mean_bootstrap_target_total_variation": 0.10564687192471503
+    },
+    "closed_discard": {
+      "positions": 554,
+      "future_count_histogram": {
+        "16": 554
+      },
+      "split_half_same_argmax_rate": 0.6841155234657039,
+      "split_half_best_sets_overlap_rate": 0.8808664259927798,
+      "mean_split_half_target_total_variation": 0.2834796759838051,
+      "mean_bootstrap_best_support": 0.9209442689530686,
+      "bootstrap_best_support_below_75pct": 87,
+      "original_target_max_over_90pct": 96,
+      "confident_original_but_support_below_75pct": 5,
+      "mean_bootstrap_target_total_variation": 0.07885786478803326
+    },
+    "call_window": {
+      "positions": 1980,
+      "future_count_histogram": {
+        "16": 1596,
+        "32": 384
+      },
+      "split_half_same_argmax_rate": 0.6313131313131313,
+      "split_half_best_sets_overlap_rate": 0.7090909090909091,
+      "mean_split_half_target_total_variation": 0.3549008123089896,
+      "mean_bootstrap_best_support": 0.8483408301767676,
+      "bootstrap_best_support_below_75pct": 552,
+      "original_target_max_over_90pct": 1325,
+      "confident_original_but_support_below_75pct": 158,
+      "mean_bootstrap_target_total_variation": 0.11081668835671696
+    },
+    "kan_window": {
+      "positions": 366,
+      "future_count_histogram": {
+        "16": 366
+      },
+      "split_half_same_argmax_rate": 0.5163934426229508,
+      "split_half_best_sets_overlap_rate": 0.6557377049180327,
+      "mean_split_half_target_total_variation": 0.4359948885996228,
+      "mean_bootstrap_best_support": 0.8158832821038251,
+      "bootstrap_best_support_below_75pct": 126,
+      "original_target_max_over_90pct": 165,
+      "confident_original_but_support_below_75pct": 24,
+      "mean_bootstrap_target_total_variation": 0.1353439633288084
+    },
+    "open_discard": {
+      "positions": 243,
+      "future_count_histogram": {
+        "16": 243
+      },
+      "split_half_same_argmax_rate": 0.6872427983539094,
+      "split_half_best_sets_overlap_rate": 0.8024691358024691,
+      "mean_split_half_target_total_variation": 0.2796336082879036,
+      "mean_bootstrap_best_support": 0.8968139146090535,
+      "bootstrap_best_support_below_75pct": 49,
+      "original_target_max_over_90pct": 137,
+      "confident_original_but_support_below_75pct": 6,
+      "mean_bootstrap_target_total_variation": 0.07986801581138053
+    }
+  },
+  "bootstrap_replicates": 256,
+  "held_rollout_payloads_opened": false,
+  "current_evaluation_game_payloads_opened": false,
+  "optimizer_updates": 0,
+  "new_simulations": 0,
+  "causal_explanation_proven": false,
+  "limitations": [
+    "Conditional on stored hidden opponent hands and rollout policy.",
+    "Resampling existing futures does not create new independent evidence.",
+    "Split-half disagreement is a diagnostic, not expert truth."
+  ],
+  "raw_records_public": false,
+  "weights_public": false,
+  "kernel_reproduced_positions": 3143,
+  "continuation_policy_note": "Stored alternatives use frozen hybrid-reference continuation. A unified learner changes later actions; this mismatch is an unproven cause and is not fixed by bootstrap averaging."
+}

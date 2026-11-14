@@ -6,7 +6,7 @@ import sys
 
 def main():
     parser = argparse.ArgumentParser(prog='jevmahjong', add_help=False)
-    parser.add_argument('command', choices=['collect', 'recover-closed-states', 'collect-defense-states', 'collect-call-states', 'collect-kan-states', 'collect-ev', 'audit-defense-states', 'audit-native-states', 'audit-futures', 'audit-context-fit', 'audit-call-head', 'train', 'train-context', 'train-call-head', 'train-base-lora', 'evaluate', 'evaluate-unified', 'audit-unified', 'prepare-data', 'prepare-base-lora-pool', 'extend-base-lora-pool', 'prepare-base-lora-mix', 'relabel-base-lora-targets', 'prepare-prefix-kan', 'audit-prefix-kan', 'reserve-prefix-validation'])
+    parser.add_argument('command', choices=['collect', 'recover-closed-states', 'collect-defense-states', 'collect-call-states', 'collect-kan-states', 'collect-ev', 'audit-defense-states', 'audit-native-states', 'audit-futures', 'audit-context-fit', 'audit-call-head', 'train', 'train-context', 'train-call-head', 'train-base-lora', 'evaluate', 'evaluate-unified', 'audit-unified', 'prepare-data', 'prepare-base-lora-pool', 'extend-base-lora-pool', 'prepare-base-lora-mix', 'relabel-base-lora-targets', 'bootstrap-base-lora-targets', 'prepare-prefix-kan', 'audit-prefix-kan', 'reserve-prefix-validation'])
     if len(sys.argv) == 1 or sys.argv[1] in ('-h', '--help'):
         parser.print_help(); return
     args, rest = parser.parse_known_args()
@@ -16,6 +16,7 @@ def main():
     modules['recover-closed-states']='training.closed_states'
     modules['extend-base-lora-pool']='data.extend_pool'
     modules['relabel-base-lora-targets']='data.relabel_targets'
+    modules['bootstrap-base-lora-targets']='data.bootstrap_targets'
     sys.argv = [sys.argv[0], *rest]
     importlib.import_module('jevmahjong.' + modules[args.command]).main()
 
