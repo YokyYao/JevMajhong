@@ -1993,7 +1993,7 @@
     "confirmation_seed_start": 11960000,
     "development_games": 192,
     "conditional_confirmation_games": 768,
-    "development_submitted": false,
+    "development_submitted": true,
     "training_job": 297949,
     "afterok_native_job": 297951,
     "model_strength_improvement_proven": false,
@@ -2024,7 +2024,15 @@
       "fresh_LoRA_B_now_nonzero": true,
       "head_parameters_changed": true,
       "cached_encoder_features_used": false
-    }
+    },
+    "development_job": 297986,
+    "development_dependency": "afterok:297951",
+    "development_gate": "Recompute complete selected candidate and same-model 352-case zero-game native proof; rescan actual runtime protocols; reject consumed development/confirmation walls and any existing development output. No automatic retry.",
+    "development_independent_audit_job": 297988,
+    "audit_dependency": "afterok:297986",
+    "new_strength_games_at_submission": 0,
+    "conditional_confirmation_submitted": false,
+    "private_admission_checks": "Five wall-overlap checks passed; unfinished training correctly rejected."
   },
   "active_model_id": "jev-balanced-base-lora-v3",
   "top_level_model_training_and_unified_evaluation_fields_are_v1_history": true
