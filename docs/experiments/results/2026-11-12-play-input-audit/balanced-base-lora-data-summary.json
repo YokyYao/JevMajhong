@@ -2697,7 +2697,7 @@
     "causal_explanation_proven": false
   },
   "unified_winrisk_v1_plan": {
-    "status": "data_revision2_verified_fit_registered_not_started",
+    "status": "data_revision2_gradient_training_running",
     "source_sha256": "0e7233d2ed584e5a8a67557964486cec6630d6314d44ec6056845a31d210f1d3",
     "pool_job": 298451,
     "pool_rebuild_complete": true,
@@ -2712,18 +2712,18 @@
     "maximum_gradient_record_exposure": 8192,
     "evaluation_candidate_rule": "final_registered_budget_v1",
     "registered_final_step": 512,
-    "gradient_training_started": false,
+    "gradient_training_started": true,
     "new_strength_games": 0,
     "fitness_gates_unchanged": true,
     "raw_and_weights_private": true,
     "local_core_tests_passed": 204,
     "data_preparation_job": 298542,
-    "training_evaluation_job": null,
+    "training_evaluation_job": 298547,
     "after_complete_data_audit": 298419,
     "all_jobs_serial": true,
-    "new_source_ci_verified": false,
-    "new_source_ci_commit": "97d3781d9bd29553a548b40cd1166c69a36de9dc",
-    "new_source_ci_run": 43576318328,
+    "new_source_ci_verified": true,
+    "new_source_ci_commit": "7b7f880739be2e48d4db5f1f407ae0c3232661fb",
+    "new_source_ci_run": 43581962638,
     "new_source_ci_core": "success",
     "new_source_ci_desktop": "success",
     "data_revision": 2,
@@ -2776,7 +2776,43 @@
       "reward_sign_selection": false,
       "validation_weighted": false
     },
-    "original_expert_validation_preserved": 320
+    "original_expert_validation_preserved": 320,
+    "token_admission": {
+      "requested_records": 32768,
+      "admitted_records": 32768,
+      "rejected_records": 0
+    },
+    "actual_update_proof": {
+      "completed_optimizer_steps_at_least": 8,
+      "continued_LoRA_parameters_changed": true,
+      "head_parameters_changed": true,
+      "cached_encoder_features_used": false
+    },
+    "optimizer_steps_at_least": 68,
+    "initial_validation": {
+      "weighted_target_ce": 1.1796192267823424,
+      "phase_target_ce": {
+        "kan_window": 1.3824032507467694,
+        "call_window": 0.6261385228657183,
+        "closed_discard": 1.5593986035090992,
+        "open_discard": 1.104640679030969
+      },
+      "phase_records": {
+        "kan_window": 128,
+        "call_window": 80,
+        "closed_discard": 144,
+        "open_discard": 48
+      },
+      "expert_accuracy": {
+        "kan_window": 0.4166666666666667,
+        "call_window": 0.7125,
+        "closed_discard": 0.5208333333333334,
+        "open_discard": 0.6041666666666666
+      },
+      "pseudo_labels_are_not_expert_truth": true,
+      "step": 0,
+      "upstream_hard_label_nll": 1.2798378001422344
+    }
   },
   "risk_target_conversion_persisted_revision": {
     "status": "verified_persisted_target_revision",
@@ -2812,5 +2848,5 @@
     ],
     "new_pool_records": 126569
   },
-  "active_experiment_status": "data_revision2_verified_fit_registered_not_started"
+  "active_experiment_status": "data_revision2_gradient_training_running"
 }
