@@ -2697,7 +2697,7 @@
     "causal_explanation_proven": false
   },
   "unified_winrisk_v1_plan": {
-    "status": "fixed512_native_passed_fresh_development_running",
+    "status": "development_passed_independent_confirmation_running",
     "source_sha256": "0e7233d2ed584e5a8a67557964486cec6630d6314d44ec6056845a31d210f1d3",
     "pool_job": 298451,
     "pool_rebuild_complete": true,
@@ -2713,7 +2713,7 @@
     "evaluation_candidate_rule": "final_registered_budget_v1",
     "registered_final_step": 512,
     "gradient_training_started": true,
-    "new_strength_games": 0,
+    "new_strength_games": 192,
     "fitness_gates_unchanged": true,
     "raw_and_weights_private": true,
     "local_core_tests_passed": 210,
@@ -2960,9 +2960,60 @@
       "status": "passed_selected_unified_native_validation"
     },
     "latest_development_progress": {
-      "completed_games": 18,
+      "completed_games": 192,
       "expected_games": 192,
-      "partial_result_used_for_selection": false
+      "independently_audited": true
+    },
+    "development_result_summary": "unified-winrisk-v1-development-summary.json",
+    "development_hand_win_paired": {
+      "gain": 0.042448668229918225,
+      "ci95": [
+        -0.0759986641092398,
+        0.16089600056907624
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "development_dealin_rate_paired": {
+      "gain": 0.008225484006734007,
+      "ci95": [
+        -0.046102855954988566,
+        0.06255382396845657
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "development_net_points_paired": {
+      "gain": 943.7500000000001,
+      "ci95": [
+        -4637.661532894676,
+        6525.161532894676
+      ],
+      "independent_wall_streams": 8
+    },
+    "eligible_for_confirmation": true,
+    "independent_full_match_improvement_proven": false,
+    "confirmation_status": "running_fresh_768",
+    "actual_exposure": {
+      "records": 8192,
+      "expert_records": 7505,
+      "MC_records": 687,
+      "MC_by_phase": {
+        "call_window": 496,
+        "kan_window": 93,
+        "open_discard": 56,
+        "closed_discard": 42
+      },
+      "actual_loss_coefficient_mass": {
+        "expert_replay": 0.7475963753152096,
+        "paired_future_masked": 0.25240362468479044
+      },
+      "physical_reuse": {
+        "parent_actually_seen": 4660,
+        "parent_prepared_but_unseen": 1538,
+        "outside_parent_prepared": 1994
+      },
+      "record_ID_novelty_does_not_prove_physical_novelty": true,
+      "reused_positions_may_have_changed_targets": true,
+      "causal_performance_claim": false
     }
   },
   "risk_target_conversion_persisted_revision": {
@@ -2999,5 +3050,5 @@
     ],
     "new_pool_records": 126569
   },
-  "active_experiment_status": "fixed512_native_passed_fresh_development_running"
+  "active_experiment_status": "development_passed_independent_confirmation_running"
 }
