@@ -3460,7 +3460,7 @@
   },
   "followup_winrisk_v3": {
     "model_id": "jev-unified-winrisk-v3",
-    "status": "audited_development_passed_independent_confirmation_running",
+    "status": "training_and_confirmation_complete_improvement_unproven",
     "training_source_sha256": "ab0fb10eea18b7087d77ee6090e806b6802f5a2975aa0b874149ef86a68e53bd",
     "parent_model_id": "jev-unified-winrisk-v1",
     "parent_checkpoint_step": 512,
@@ -3519,7 +3519,7 @@
     "raw_records_public": false,
     "weights_public": false,
     "CPU_preparation_state": "COMPLETED",
-    "GPU_job_state": "RUNNING",
+    "GPU_job_state": "COMPLETED",
     "all_32768_public_inputs_identical": true,
     "actual_tokenized_inputs_checked": 160,
     "fixed_full_validation_bytes_identical": true,
@@ -3723,6 +3723,83 @@
       "eligible_for_confirmation": true,
       "summary": "docs/experiments/results/2026-11-12-play-input-audit/unified-winrisk-v3-development-summary.json"
     },
-    "independent_confirmation_status": "running"
+    "independent_confirmation_status": "independently_audited_complete",
+    "confirmation": {
+      "games": 768,
+      "reference_games": 384,
+      "candidate_games": 384,
+      "independent_wall_streams": 32,
+      "hand_win_paired": {
+        "gain": 0.006900008267195768,
+        "ci95": [
+          -0.024626194325928084,
+          0.03842621086031962
+        ],
+        "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+      },
+      "dealin_rate_paired": {
+        "gain": -0.0007874503968253978,
+        "ci95": [
+          -0.02148795217393935,
+          0.019913051380288555
+        ],
+        "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+      },
+      "fast_reward_paired": {
+        "gain": 0.000578285876851629,
+        "ci95": [
+          -0.01280086783705894,
+          0.013957439590762198
+        ],
+        "unit": "discounted own wins per hand, equal-weight match means, whole-wall paired CI"
+      },
+      "net_points_paired": {
+        "gain": 742.7083333333333,
+        "ci95": [
+          -672.1705225425828,
+          2157.587189209249
+        ]
+      },
+      "independent_audit": {
+        "status": "passed_complete",
+        "games": 768,
+        "whole_wall_groups": 32,
+        "four_seat_payment_records": 768,
+        "final_ranks_checked": 768,
+        "han_fu_independently_recalculated": false
+      },
+      "summary": "docs/experiments/results/2026-11-12-play-input-audit/unified-winrisk-v3-confirmation-summary.json"
+    }
+  },
+  "followup_winrisk_v4": {
+    "model_id": "jev-unified-winrisk-v4",
+    "status": "GPU_job_running_initialization",
+    "registered_final_step": 2048,
+    "max_gradient_record_exposure": 32768,
+    "train_records": 32768,
+    "train_unique_positions": 32768,
+    "epochs": 1,
+    "expected_relabelled_training_positions_consumed": 215,
+    "expected_changed_argmax_positions_consumed": 65,
+    "same_initialization_data_seed_and_loss_as_v3": true,
+    "budget_changes_derived_LR_schedule_horizon": true,
+    "new_optimizer": true,
+    "new_training_positions": 0,
+    "new_simulations": 0,
+    "CPU_preparation_job": 299445,
+    "GPU_fit_and_evaluation_job": 299448,
+    "optimizer_started": false,
+    "training_source_sha256": "ab0fb10eea18b7087d77ee6090e806b6802f5a2975aa0b874149ef86a68e53bd",
+    "development_games": 192,
+    "conditional_confirmation_games": 768,
+    "strength_improvement_proven": false,
+    "raw_and_weights_public": false,
+    "reason": "Complete one epoch instead of half; v3 confirmation unproven and only99of215 target revisions consumed.",
+    "reward_unchanged": true,
+    "fitness_gates_unchanged": true,
+    "weights_public": false,
+    "deployed": false,
+    "CPU_preparation_state": "COMPLETED",
+    "GPU_job_state": "RUNNING"
   }
 }

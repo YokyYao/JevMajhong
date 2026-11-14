@@ -53,7 +53,7 @@
   "raw_and_weights_public": false,
   "deployed": false,
   "model_id": "jev-unified-winrisk-v3",
-  "status": "audited_development_passed_independent_confirmation_running",
+  "status": "training_and_confirmation_complete_improvement_unproven",
   "training_source_sha256": "ab0fb10eea18b7087d77ee6090e806b6802f5a2975aa0b874149ef86a68e53bd",
   "training_target_policy": "positive_safety_tradeoff_masked_v4",
   "controlled_baseline": "jev-unified-winrisk-v2",
@@ -80,7 +80,7 @@
   "local_core_tests_passed": 223,
   "strength_improvement_proven": false,
   "CPU_preparation_state": "COMPLETED",
-  "GPU_job_state": "RUNNING",
+  "GPU_job_state": "COMPLETED",
   "all_32768_public_inputs_identical": true,
   "actual_tokenized_inputs_checked": 160,
   "all_non_supervision_encoding_fields_identical": true,
@@ -106,5 +106,30 @@
   "development_games_completed": 192,
   "development_independent_wall_streams": 8,
   "eligible_for_confirmation": true,
-  "independent_confirmation_status": "running"
+  "independent_confirmation_status": "independently_audited_complete",
+  "confirmation_games_completed": 768,
+  "confirmation_independent_wall_streams": 32,
+  "confirmation_hand_win_paired": {
+    "gain": 0.006900008267195768,
+    "ci95": [
+      -0.024626194325928084,
+      0.03842621086031962
+    ],
+    "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+  },
+  "confirmation_dealin_rate_paired": {
+    "gain": -0.0007874503968253978,
+    "ci95": [
+      -0.02148795217393935,
+      0.019913051380288555
+    ],
+    "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+  },
+  "confirmation_net_points_paired": {
+    "gain": 742.7083333333333,
+    "ci95": [
+      -672.1705225425828,
+      2157.587189209249
+    ]
+  }
 }
