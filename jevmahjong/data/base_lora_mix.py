@@ -59,7 +59,7 @@ def prepare(cfg):
         if split=='validation' and cfg.get('preserve_validation') is not None:
             from .base_lora_pool import position
             reference=validation_reference(db,cfg['preserve_validation'])
-            selected=reference['records'];frozen_positions=reference['positions'];frozen_count=len(selected)
+            selected=list(reference['records']);frozen_positions=reference['positions'];frozen_count=len(selected)
             used.update(frozen_positions);identities[split].update(frozen_positions)
             for r in selected:
                 groups[split].add(r['_meta']['group_id'])

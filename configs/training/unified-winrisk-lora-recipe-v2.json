@@ -1,9 +1,9 @@
 {
   "model_id": "jev-unified-winrisk-v2",
-  "status": "data_running_cpu_preparation_and_training_queued_by_afterok_dependency",
+  "status": "complete_data_audits_and_preparation_passed_GPU_fit_running",
   "base": "Qwen/Qwen3.5-0.8B",
   "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
-  "training_source_sha256": "f580b8df8828a6edc6a53857575b14969742f566cd9244bf2a14d5d26326424f",
+  "training_source_sha256": "3cbc70fa6260d918abf6701bc62edc7a6b2094ae8d9bab8cd73ff552d633a309",
   "data_source_sha256": "61a3411c21ac0c70a9641712969f727774bc3742fb8cc26950e58cb219678e04",
   "initialization": "continued",
   "parent_model_id": "jev-unified-winrisk-v1",
@@ -16,7 +16,7 @@
   "max_gradient_record_exposure": 16384,
   "train_records": 32768,
   "validation_original_records": 400,
-  "validation_added_records": "actual unique new held positions after audit and canonicalization",
+  "validation_added_records": 140,
   "validation_original_bytes_preserved_as_prefix": true,
   "label_source_gradient_mass": {
     "expert_replay": 0.75,
@@ -60,9 +60,41 @@
   "raw_and_weights_public": false,
   "deployed": false,
   "submitted_job_chain": {
-    "data": 298693,
-    "CPU_preparation_after_data": 298765,
-    "GPU_fit_and_evaluation_after_preparation": 298766
+    "data_completed": 298693,
+    "CPU_preparation_completed": 298949,
+    "GPU_fit_and_evaluation": 298952
   },
-  "optimizer_started": false
+  "optimizer_started": true,
+  "validation_records": 540,
+  "train_unique_positions": 32768,
+  "validation_unique_positions": 540,
+  "train_groups": 3372,
+  "validation_groups": 186,
+  "train_validation_group_overlap": 0,
+  "ancestor_training_validation_group_overlap": 0,
+  "source_counts": {
+    "expert_replay": 29625,
+    "paired_future_masked": 3143
+  },
+  "MC_phase_counts": {
+    "open_discard": 243,
+    "call_window": 1980,
+    "closed_discard": 554,
+    "kan_window": 366
+  },
+  "actual_MC_phase_loss_weights": {
+    "call_window": 1.2412121212121212,
+    "closed_discard": 5.914801444043322,
+    "kan_window": 4.476502732240437,
+    "open_discard": 3.3711934156378605
+  },
+  "actual_max_example_weight": 5.914801444043322,
+  "validation_weighting_note": "No training source/MC-phase coefficient in validation; existing diagnostic phase CE weights remain .45 closed/.2 open/.3 call/.05 kan.",
+  "actual_update_proof": {
+    "completed_optimizer_steps_at_least": 8,
+    "continued_LoRA_parameters_changed": true,
+    "head_parameters_changed": true,
+    "cached_encoder_features_used": false
+  },
+  "strength_improvement_proven": false
 }

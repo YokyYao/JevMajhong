@@ -2167,7 +2167,7 @@
     "reference_calls_per_game": 2.3958333333333335,
     "candidate_calls_per_game": 1.2708333333333333
   },
-  "active_model_id": "jev-unified-winrisk-v1",
+  "active_model_id": "jev-unified-winrisk-v2",
   "top_level_model_training_and_unified_evaluation_fields_are_v1_history": true,
   "followup_warm_v1": {
     "recipe": {
@@ -2340,7 +2340,7 @@
     "audit_pending_cancelled": true,
     "improvement_verified": false
   },
-  "active_source_sha256": "0e7233d2ed584e5a8a67557964486cec6630d6314d44ec6056845a31d210f1d3",
+  "active_source_sha256": "3cbc70fa6260d918abf6701bc62edc7a6b2094ae8d9bab8cd73ff552d633a309",
   "followup_warm_v2": {
     "recipe": {
       "recipe_kind": "verified_complete_parent_LoRA_continuation_requires_registered_wrapper",
@@ -2528,7 +2528,7 @@
     "training_code_unchanged": true,
     "diagnostic_evaluation_code_changed": true
   },
-  "active_evaluation_source_sha256": "7dc1f60c3f25870a12dcab4f36ae6322c8dc64c3fa472ca77fba27daadb63df2",
+  "active_evaluation_source_sha256": "3cbc70fa6260d918abf6701bc62edc7a6b2094ae8d9bab8cd73ff552d633a309",
   "followup_warm_v2_final_probe": {
     "candidate_identity_sha256": "8bcee99f14d7dfa29f857fa20dc4fa67ba6acf0aa4d288d14867aa552df9cd78",
     "original_CE_selected_step": 0,
@@ -3103,10 +3103,10 @@
     ],
     "new_pool_records": 126569
   },
-  "active_experiment_status": "data_labeling_running_conditional_prepare_and_fit_jobs_submitted",
+  "active_experiment_status": "v2_GPU_fit_running_after_complete_data_and_preparation",
   "followup_winrisk_v2": {
     "model_id": "jev-unified-winrisk-v2",
-    "status": "data_labeling_running_conditional_prepare_and_fit_jobs_submitted",
+    "status": "full_data_audits_and_actual_preparation_passed_GPU_fit_running",
     "source_sha256": "61a3411c21ac0c70a9641712969f727774bc3742fb8cc26950e58cb219678e04",
     "new_control_matches": 0,
     "reused_control_walls": 24,
@@ -3130,22 +3130,26 @@
       "open_discard": 0.1
     },
     "phase_weight_implementation_pending": false,
-    "optimizer_started": false,
+    "optimizer_started": true,
     "local_core_tests_passed": 218,
     "raw_and_weights_private": true,
-    "training_source_sha256": "f580b8df8828a6edc6a53857575b14969742f566cd9244bf2a14d5d26326424f",
+    "training_source_sha256": "3cbc70fa6260d918abf6701bc62edc7a6b2094ae8d9bab8cd73ff552d633a309",
     "baseline_input_invariance": {
       "training_records": 32768,
       "actual_tokenized_positions": 160,
       "model_requests_unchanged": true,
       "legacy_source_only_proof_exact": true,
-      "v2_actual_data_must_recheck": true
+      "v2_actual_data_must_recheck": false
     },
     "fixed_validation_reference": {
       "original_records": 400,
       "original_raw_pool_match_verified": true,
       "original_file_prefix_preservation_implemented": true,
-      "v2_actual_file_not_prepared_yet": true
+      "v2_actual_file_not_prepared_yet": false,
+      "original_bytes_preserved_as_prefix": true,
+      "actual_total_records": 540,
+      "new_unique_held_records": 140,
+      "unique_positions": 540
     },
     "native_inputs": {
       "walls": 24,
@@ -3159,14 +3163,137 @@
       "new_control_matches": 0
     },
     "fit_pipeline_submitted": true,
-    "new_training_code_ci_verified": true,
+    "new_training_code_ci_verified": false,
     "data_job": 298693,
-    "CPU_preparation_job": 298765,
-    "GPU_fit_and_evaluation_job": 298766,
+    "CPU_preparation_job": 298949,
+    "GPU_fit_and_evaluation_job": 298952,
     "job_dependencies_afterok": true,
-    "new_training_code_ci_commit": "43233862a1104139c49b1548bc6d464bebc79d3a",
-    "new_training_code_ci_run": 43596433360,
-    "new_training_code_ci_core": "success",
-    "new_training_code_ci_desktop": "success"
+    "new_training_code_ci_commit": null,
+    "new_training_code_ci_run": null,
+    "new_training_code_ci_core": "pending_new_commit",
+    "new_training_code_ci_desktop": "pending_new_commit",
+    "registered_final_step": 1024,
+    "actual_update_proof": {
+      "completed_optimizer_steps_at_least": 8,
+      "continued_LoRA_parameters_changed": true,
+      "head_parameters_changed": true,
+      "cached_encoder_features_used": false
+    },
+    "strength_improvement_proven": false,
+    "deployed": false,
+    "previous_training_code_ci": {
+      "commit": "43233862a1104139c49b1548bc6d464bebc79d3a",
+      "run": 43596433360,
+      "core": "success",
+      "desktop": "success"
+    },
+    "actual_prepared_input_invariance": {
+      "public_requests_identical": 32768,
+      "actual_tokenized_positions": 160,
+      "training_loss_phase_tags_excluded_from_model_inputs": true,
+      "raw_files_unchanged": true
+    },
+    "all_options": {
+      "status": "collection_complete",
+      "method": "paired_future_ev_v1",
+      "original_unique_states": 576,
+      "pairs": 1994,
+      "worlds_per_state": 16,
+      "new_native_hand_rollouts": 22688,
+      "reused_control_rollouts": 9216,
+      "reused_branch_rollouts": 9216,
+      "fresh_matches": 0,
+      "rows_by_category": {
+        "ordinary": 1994
+      },
+      "optimizer_updates": 0,
+      "human_test_opened": false
+    },
+    "all_options_independent_audit": {
+      "status": "passed_complete",
+      "role": "data consistency audit, not policy strength",
+      "pairs": 1994,
+      "states": 576,
+      "train_pairs": 1435,
+      "held_pairs": 559,
+      "train_states": 432,
+      "held_states": 144,
+      "worlds_per_state": 16,
+      "prefixes_replayed": 576,
+      "future_walls_rederived": 9216,
+      "arm_records_audited": 63808,
+      "whole_wall_disjoint": true,
+      "cached_head_probability_max_error": 0.0,
+      "new_simulations": 0,
+      "independent_strength_proven": false
+    },
+    "canonicalization": {
+      "method": "earliest_observed_decision_v1",
+      "train_input_decisions": 432,
+      "train_retained_positions": 427,
+      "held_input_decisions": 144,
+      "held_retained_positions": 140,
+      "duplicate_decisions_omitted": 9,
+      "reward_or_argmax_filtering": false
+    },
+    "actual_balanced_data": {
+      "train_records": 32768,
+      "train_unique_positions": 32768,
+      "train_groups": 3372,
+      "validation_records": 540,
+      "validation_unique_positions": 540,
+      "validation_groups": 186,
+      "source_counts": {
+        "expert_replay": 29625,
+        "paired_future_masked": 3143
+      },
+      "MC_phase_counts": {
+        "open_discard": 243,
+        "call_window": 1980,
+        "closed_discard": 554,
+        "kan_window": 366
+      },
+      "source_gradient_mass": {
+        "expert_replay": 0.75,
+        "paired_future_masked": 0.25
+      },
+      "MC_phase_gradient_mass_within_MC": {
+        "closed_discard": 0.4,
+        "call_window": 0.3,
+        "kan_window": 0.2,
+        "open_discard": 0.1
+      },
+      "actual_MC_phase_loss_weights": {
+        "call_window": 1.2412121212121212,
+        "closed_discard": 5.914801444043322,
+        "kan_window": 4.476502732240437,
+        "open_discard": 3.3711934156378605
+      },
+      "mean_example_weight": 1.0,
+      "copies_added": 0,
+      "reward_sign_selection": false,
+      "ancestor_group_isolation": {
+        "parent_train_groups": 3354,
+        "train_groups": 3372,
+        "validation_groups": 186,
+        "parent_validation_overlap": 0,
+        "train_validation_overlap": 0,
+        "ancestor_train_group_counts": [
+          2169
+        ],
+        "lineage_train_groups": 3399,
+        "ancestor_validation_overlap": 0
+      }
+    },
+    "preparation_recovery": {
+      "metadata_bug": "Shared list made preserved-reference count grow from400 to540; actual400 original bytes remained intact. Copying selection list fixes count.",
+      "regression_reproduced_before_fix": true,
+      "core_tests_after_fix": 218,
+      "raw_train_validation_bytes_identical_after_rebuild": true,
+      "original_pool_reused": true,
+      "original_failed_artifacts_preserved": true,
+      "optimizer_updates_during_recovery": 0
+    },
+    "validation_weighting_note": "No training source/MC-phase coefficient in validation; existing diagnostic phase CE weights remain .45 closed/.2 open/.3 call/.05 kan."
   }
 }

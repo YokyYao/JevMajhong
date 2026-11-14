@@ -34,6 +34,8 @@ class BaseLoraMixTests(unittest.TestCase):
             rows=[json.loads(x) for x in content.decode().splitlines()]
             self.assertEqual(rows[0],json.loads(original));self.assertEqual(rows[1]['_meta']['group_id'],'new-held')
             self.assertEqual(result['files']['validation']['records'],2)
+            self.assertEqual(result['fixed_validation_reference']['records'],1)
+            self.assertEqual(result['fixed_validation_reference']['sha256'],digest(ref))
             self.assertTrue(result['fixed_validation_reference']['original_bytes_preserved_as_prefix'])
             self.assertEqual(result['train_validation_group_overlap'],0)
 
