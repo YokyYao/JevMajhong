@@ -6,9 +6,48 @@ import unittest
 from collections import Counter
 from jevmahjong.core.io import digest
 from jevmahjong.data.base_lora_mix import choose,kan_route,prepare
+from jevmahjong.data.base_lora_pool import position
 
 
 class BaseLoraMixTests(unittest.TestCase):
+    def reference_fixture(self,root):
+        pool=root/'pool';pool.mkdir();db=sqlite3.connect(pool/'pool-private.sqlite')
+        db.execute('CREATE TABLE cases (position TEXT,split TEXT,group_key TEXT,phase TEXT,label_type TEXT,choice TEXT,view TEXT,priority INTEGER,payload TEXT)')
+        records={}
+        for group,split in [('train','train'),('old-held','validation'),('new-held','validation')]:
+            r=dict(state={'seat':0,'hand':[group]},questions={'action':dict(criteria={'a0':{'type':'dahai'},'a1':{'type':'dahai'}},label='a0')},
+                _meta=dict(id=group,group_id=group,phase='closed_discard',label_type='expert_replay',view='native'))
+            db.execute('INSERT INTO cases VALUES (?,?,?,?,?,?,?,?,?)',(position(r,group),split,group,'closed_discard','expert_replay','dahai','native',1,json.dumps(r)))
+            records[group]=r
+        db.commit();db.close();(pool/'result.json').write_text(json.dumps(dict(status='raw_request_pool_ready_not_yet_balanced',requires_masked_soft_target_loss=True)))
+        held=json.loads(json.dumps(records['old-held']));held['_meta'].update(id='frozen-original-id',split='validation')
+        ref=root/'reference.jsonl';ref.write_text(json.dumps(held,separators=(',',':'))+'\n')
+        stratum=dict(phase='closed_discard',label_type='expert_replay',count=1,max_repeats=1)
+        cfg=dict(pool=str(pool),pool_sha256=digest(pool/'pool-private.sqlite'),pool_result_sha256=digest(pool/'result.json'),out=str(root/'data'),seed=99,
+            preserve_validation=dict(path=str(ref),sha256=digest(ref)),mixture={'train':[stratum],'validation':[stratum]})
+        return cfg,ref,records
+
+    def test_validation_extension_preserves_original_bytes_ids_labels_and_excludes_reselection(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);cfg,ref,_=self.reference_fixture(root);original=ref.read_bytes();result=prepare(cfg)
+            content=(root/'data/validation.jsonl').read_bytes();self.assertTrue(content.startswith(original))
+            rows=[json.loads(x) for x in content.decode().splitlines()]
+            self.assertEqual(rows[0],json.loads(original));self.assertEqual(rows[1]['_meta']['group_id'],'new-held')
+            self.assertEqual(result['files']['validation']['records'],2)
+            self.assertTrue(result['fixed_validation_reference']['original_bytes_preserved_as_prefix'])
+            self.assertEqual(result['train_validation_group_overlap'],0)
+
+    def test_validation_reference_cannot_import_training_positions_or_change_labels(self):
+        for mode in ['training','changed-label','repeated']:
+            with tempfile.TemporaryDirectory() as temp:
+                root=Path(temp);cfg,ref,records=self.reference_fixture(root)
+                if mode=='training':ref.write_text(json.dumps(records['train'])+'\n')
+                elif mode=='changed-label':
+                    r=json.loads(ref.read_text());r['questions']['action']['label']='a1';ref.write_text(json.dumps(r)+'\n')
+                else:ref.write_text(ref.read_text()*2)
+                cfg['preserve_validation']['sha256']=digest(ref)
+                with self.assertRaisesRegex(ValueError,'validation reference'):prepare(cfg)
+
     def test_bounded_repetition_is_deterministic_and_never_filters_by_outcome(self):
         rows=[('positive','p'),('negative','n')]
         selected=choose(rows,5,3,19)

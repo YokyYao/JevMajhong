@@ -90,6 +90,8 @@ def train(cfg):
     if not receipt['requires_masked_soft_target_loss'] or args.get('decision_mode','pointer')!='pointer' or args.get('rlcr',False):
         raise ValueError('Pointer SFT with registered masked soft targets required')
     inputs={str(receipt_file):cfg['data_receipt_sha256'],str(trainer_file):cfg['trainer_config_sha256'],**cfg['base_files']}
+    if receipt.get('fixed_validation_reference') is not None:
+        fixed=receipt['fixed_validation_reference'];inputs[fixed['path']]=fixed['sha256']
     for split,key in [('train','data'),('validation','eval_data')]:
         f=receipt['files'][split]
         if Path(args[key]).resolve()!=Path(f['path']).resolve():raise ValueError('Trainer data route differs')
@@ -107,9 +109,11 @@ def train(cfg):
         if package_digest(upstream/'jevany')!=cfg['upstream_source_sha256']:raise ValueError('Upstream source changed')
     verify();out=Path(cfg['out']);out.mkdir(parents=True,exist_ok=False)
     source_balance=None
+    if cfg.get('paired_future_phase_mass') is not None and cfg.get('label_source_gradient_mass') is None:
+        raise ValueError('MC phase mass requires explicit label-source mass')
     if cfg.get('label_source_gradient_mass') is not None:
         from .label_balance import source_weights
-        source_balance=source_weights(args['data'],cfg['label_source_gradient_mass'],receipt['files']['train']['records'])
+        source_balance=source_weights(args['data'],cfg['label_source_gradient_mass'],receipt['files']['train']['records'],cfg.get('paired_future_phase_mass'))
         write(out/'label-source-balance.json',source_balance)
     if Path(args['out']).resolve()!=out.resolve()/'training-run':raise ValueError('Unexpected trainer output route')
     if warm:write(out/'parent-initialization-private.json',parent)
@@ -161,6 +165,10 @@ def train(cfg):
         result=originals['training_requests'](*pos,**kw);report=result[1]
         if report['rejected_records'] or report['admitted_records']!=receipt['files']['train']['records']:
             raise ValueError('Token admission silently dropped prepared data')
+        if source_balance is not None and source_balance.get('MC_phase_loss_weights') is not None:
+            from .label_balance import tag_training_sources
+            tags=tag_training_sources(result[0],source_balance['MC_phase_counts'])
+            write(out/'loss-source-tags.json',tags)
         write(out/'token-admission.json',report);return result
     def evaluate(*pos,**kw):
         step=kw.get('step',pos[5] if len(pos)>5 else None)
@@ -204,7 +212,7 @@ def train(cfg):
     if source_balance is None:trainer.question_loss=question_loss
     else:
         from .label_balance import weighted_loss
-        trainer.question_loss=lambda z,q,dev:weighted_loss(z,q,dev,source_balance['loss_weights'])
+        trainer.question_loss=lambda z,q,dev:weighted_loss(z,q,dev,source_balance['loss_weights'],source_balance.get('MC_phase_loss_weights'))
     trainer.training_requests=admitted;trainer.evaluate_during_training=evaluate;trainer.batch_loss=batch
     if warm:trainer.Checkpoint.warm_start=warm_start
     write(out/'status.json',dict(status='loading_pinned_pretrained_base',LoRA_training_started=False))

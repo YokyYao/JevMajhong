@@ -3103,10 +3103,10 @@
     ],
     "new_pool_records": 126569
   },
-  "active_experiment_status": "v1_confirmation_not_passed_v2_data_breadth_preparation",
+  "active_experiment_status": "native_inputs_audited_future_labeling_running_conditional_fit_pipeline_prepared",
   "followup_winrisk_v2": {
     "model_id": "jev-unified-winrisk-v2",
-    "status": "data_plan_registered_not_training",
+    "status": "native_inputs_audited_future_labeling_running_conditional_fit_pipeline_prepared",
     "source_sha256": "61a3411c21ac0c70a9641712969f727774bc3742fb8cc26950e58cb219678e04",
     "new_control_matches": 0,
     "reused_control_walls": 24,
@@ -3129,9 +3129,36 @@
       "kan_window": 0.2,
       "open_discard": 0.1
     },
-    "phase_weight_implementation_pending": true,
+    "phase_weight_implementation_pending": false,
     "optimizer_started": false,
-    "local_core_tests_passed": 213,
-    "raw_and_weights_private": true
+    "local_core_tests_passed": 218,
+    "raw_and_weights_private": true,
+    "training_source_sha256": "f580b8df8828a6edc6a53857575b14969742f566cd9244bf2a14d5d26326424f",
+    "baseline_input_invariance": {
+      "training_records": 32768,
+      "actual_tokenized_positions": 160,
+      "model_requests_unchanged": true,
+      "legacy_source_only_proof_exact": true,
+      "v2_actual_data_must_recheck": true
+    },
+    "fixed_validation_reference": {
+      "original_records": 400,
+      "original_raw_pool_match_verified": true,
+      "original_file_prefix_preservation_implemented": true,
+      "v2_actual_file_not_prepared_yet": true
+    },
+    "native_inputs": {
+      "walls": 24,
+      "control_matches_reused": 96,
+      "input_windows": 4926,
+      "train_windows": 3725,
+      "held_windows": 1201,
+      "independent_audit": "passed_complete",
+      "prefixes_replayed": 4926,
+      "max_cached_head_probability_error": 5.662441253662109e-07,
+      "new_control_matches": 0
+    },
+    "fit_pipeline_submitted": false,
+    "new_training_code_ci_verified": false
   }
 }
