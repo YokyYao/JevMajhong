@@ -3460,7 +3460,7 @@
   },
   "followup_winrisk_v3": {
     "model_id": "jev-unified-winrisk-v3",
-    "status": "preparation_complete_GPU_job_running_initialization",
+    "status": "GPU_training_actual_updates_verified",
     "training_source_sha256": "ab0fb10eea18b7087d77ee6090e806b6802f5a2975aa0b874149ef86a68e53bd",
     "parent_model_id": "jev-unified-winrisk-v1",
     "parent_checkpoint_step": 512,
@@ -3511,9 +3511,9 @@
     "fitness_gates_unchanged": true,
     "CPU_preparation_job": 299170,
     "GPU_fit_and_evaluation_job": 299193,
-    "optimizer_started": false,
+    "optimizer_started": true,
     "local_core_tests_passed": 223,
-    "new_code_CI_status": "pending_new_commit",
+    "new_code_CI_status": "success",
     "strength_improvement_proven": false,
     "deployed": false,
     "raw_records_public": false,
@@ -3522,6 +3522,16 @@
     "GPU_job_state": "RUNNING",
     "all_32768_public_inputs_identical": true,
     "actual_tokenized_inputs_checked": 160,
-    "fixed_full_validation_bytes_identical": true
+    "fixed_full_validation_bytes_identical": true,
+    "completed_optimizer_steps_at_least": 52,
+    "admitted_training_records": 32768,
+    "rejected_training_records": 0,
+    "parent_exact_loaded_LoRA_tensors": 372,
+    "parent_exact_loaded_head_tensors": 4,
+    "actual_LoRA_and_head_updates_verified": true,
+    "new_code_CI_run": 43623718627,
+    "new_code_CI_core": "success",
+    "new_code_CI_desktop": "success",
+    "new_code_commit": "8ee9104bb6e7ee6ef126ea9e55cdb69ae5eabcb9"
   }
 }
