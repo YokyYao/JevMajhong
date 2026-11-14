@@ -102,6 +102,37 @@ def complete_target(rows,reward,temperature):
     return target,[credits[a] for a in eligible]
 
 
+def verified_prefix_source(dataset,provenance,inputs):
+    """Only independently replayed raw expert data may use the new schema."""
+    directory=Path(dataset['path']).resolve();train=directory/'train.jsonl';file=directory/'provenance.json'
+    for name in dataset.get('audit_receipts',[]):
+        result=Path(name);protocol=result.parent/'protocol.json'
+        if digest(result)!=dataset['audit_sha256'][name]:raise ValueError('Expert prefix audit receipt changed')
+        proof=read(result)
+        if proof.get('audit_kind')!='observed_expert_kan_prefix_v1':continue
+        if (proof.get('status')!='passed_complete' or not proof.get('eligible_for_pool_integration')
+                or not proof.get('all_observed_eligible_windows_enumerated')
+                or not proof.get('inputs_rebuilt_before_label') or not proof.get('alternate_shadow_seed')
+                or not proof.get('censored_passes_excluded') or not proof.get('historical_held_groups_excluded')
+                or proof.get('sealed_test_payloads_opened') is not False):
+            raise ValueError('Complete observed prefix source audit required')
+        if (proof['source_train_sha256']!=digest(train) or proof['source_provenance_sha256']!=digest(file)
+                or proof['counts']['records']!=provenance['counts']['train']
+                or proof['train_groups']!=len(provenance['matches']['train'])
+                or provenance['matches']['validation'] or provenance['matches']['test']):
+            raise ValueError('Audited expert train bytes or grouping differ')
+        p=read(protocol)
+        if Path(p['config']['producer_out']).resolve()!=directory:
+            raise ValueError('Expert source audit targets a different directory')
+        for path,checksum in p['source_files'].items():
+            if digest(Path(path))!=checksum:raise ValueError('Audited expert source changed: '+path)
+            if path in inputs and inputs[path]!=checksum:raise ValueError('Conflicting expert audit inputs')
+            inputs[path]=checksum
+        inputs[str(result)]=digest(result);inputs[str(protocol)]=digest(protocol)
+        return
+    raise ValueError('Complete observed prefix source audit required')
+
+
 def prepare(cfg):
     import torch
     from jevmahjong.training.utility import validate_config
@@ -145,6 +176,10 @@ def prepare(cfg):
             if not d['train_checksum_matches_provenance'] or not d['holdout_group_metadata_present']:
                 raise ValueError('Verified replay checksums and historical split groups required')
             provenance=read(d['provenance'])
+            prefix=provenance.get('schema')=='public-prefix-kan-v1'
+            if prefix:
+                if spec.get('validation'):raise ValueError('Observed prefix source is train-only')
+                verified_prefix_source(d,provenance,inputs)
             for split in ('train','validation') if spec.get('validation') else ('train',):
                 file=Path(d['path'])/(split+'.jsonl');checksum=digest(file)
                 if provenance['files'][split]!=checksum:raise ValueError('Replay file changed')
@@ -155,6 +190,7 @@ def prepare(cfg):
                         r=json.loads(line);m=r['_meta'];schema=m.get('schema')
                         good=(schema=='clean-full-policy-v1' and m.get('call_repair_version')=='public-chi-pon-postcall-v2')
                         good|=(schema=='semantic-v3-reaction-only' and 'censored_or_unresolved_pass' in provenance.get('exclusions',{}))
+                        good|=(prefix and schema=='public-prefix-kan-v1' and split=='train')
                         if not good:stats['unreviewed_replay_schema_rows_quarantined']+=1;continue
                         if m.get('split')!=split:raise ValueError('Replay split declaration differs')
                         if qlabel:=r['questions']['action'].get('label'):

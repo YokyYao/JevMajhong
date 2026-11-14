@@ -50,7 +50,7 @@ def existing_source(root, identity):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=('collect', 'collect-defense-states', 'collect-call-states', 'collect-kan-states', 'collect-ev', 'audit-defense-states', 'audit-native-states', 'audit-futures', 'audit-context-fit', 'audit-call-head', 'train', 'train-context', 'train-call-head', 'train-base-lora', 'evaluate', 'evaluate-unified', 'audit-unified', 'prepare-base-lora-pool', 'prepare-base-lora-mix', 'prepare-prefix-kan'))
+    parser.add_argument('command', choices=('collect', 'collect-defense-states', 'collect-call-states', 'collect-kan-states', 'collect-ev', 'audit-defense-states', 'audit-native-states', 'audit-futures', 'audit-context-fit', 'audit-call-head', 'train', 'train-context', 'train-call-head', 'train-base-lora', 'evaluate', 'evaluate-unified', 'audit-unified', 'prepare-base-lora-pool', 'prepare-base-lora-mix', 'prepare-prefix-kan', 'audit-prefix-kan', 'reserve-prefix-validation'))
     parser.add_argument('--config', type=Path, required=True)
     parser.add_argument('--resume', action='store_true')
     parser.add_argument('--prepare-only', action='store_true', help='Pin source/configuration without starting work')

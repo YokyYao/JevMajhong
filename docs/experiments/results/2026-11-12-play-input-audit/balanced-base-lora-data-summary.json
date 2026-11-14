@@ -1,5 +1,5 @@
 {
-  "stage": "v1_failed_audited_development_v2_broader_data_training_started",
+  "stage": "v2_audited_development_failed_v3_rebalanced_fresh_base_training_running",
   "datasets": 71,
   "replay_jsonl_datasets": 22,
   "native_collection_datasets": 49,
@@ -20,12 +20,12 @@
     "trainable_parameters": 11347456,
     "adapter_tensors": 372
   },
-  "next": "Run fresh unified base-LoRAv2 on broader32768raw records with unchanged256validation; no768confirmation for failedv1.",
+  "next": "monitor fresh v3 raw-input LoRA updates and 352-case native check; then independent fresh-wall hand-win evaluation",
   "phase_mix_not_finalized": false,
   "LoRA_training_started": true,
   "old_pending_kan_fit_chain_cancelled": true,
   "running_evaluation_preserved": true,
-  "core_tests_passed": 178,
+  "core_tests_passed": 183,
   "raw_records_public": false,
   "test_payloads_opened": false,
   "weights_public": false,
@@ -899,7 +899,7 @@
   },
   "followup_v2": {
     "model_id": "jev-balanced-base-lora-v2",
-    "status": "GPU_training_started",
+    "status": "independently_audited_development_failed",
     "recipe": {
       "recipe_kind": "unified_fresh_base_LoRA_training_plan_requires_registered_wrapper",
       "model_id": "jev-balanced-base-lora-v2",
@@ -1164,6 +1164,213 @@
         "pseudo_labels_are_not_expert_truth": true,
         "step": 768,
         "upstream_hard_label_nll": 1.1933410114661551
+      },
+      {
+        "weighted_target_ce": 1.1987255483008703,
+        "phase_target_ce": {
+          "call_window": 0.6839763005116588,
+          "closed_discard": 1.4180109875098774,
+          "kan_window": 2.075814007245162,
+          "open_discard": 1.2581850670283488
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.675,
+          "closed_discard": 0.5208333333333334,
+          "open_discard": 0.6041666666666666
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 896,
+        "upstream_hard_label_nll": 1.278145254623638
+      },
+      {
+        "weighted_target_ce": 1.1171154088305975,
+        "phase_target_ce": {
+          "call_window": 0.6525422662465487,
+          "closed_discard": 1.342684103077854,
+          "kan_window": 1.8187848067590056,
+          "open_discard": 1.1310282111682413
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.6625,
+          "closed_discard": 0.5,
+          "open_discard": 0.6666666666666666
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1024,
+        "upstream_hard_label_nll": 1.1649555301623
+      },
+      {
+        "weighted_target_ce": 1.114228212277436,
+        "phase_target_ce": {
+          "call_window": 0.6461326925178894,
+          "closed_discard": 1.3542617729409951,
+          "kan_window": 1.7457811372236804,
+          "open_discard": 1.1184077491871867
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.6875,
+          "closed_discard": 0.4791666666666667,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1152,
+        "upstream_hard_label_nll": 1.1608962025673577
+      },
+      {
+        "weighted_target_ce": 1.1462035014755467,
+        "phase_target_ce": {
+          "call_window": 0.6564760407660086,
+          "closed_discard": 1.3677506119107405,
+          "kan_window": 1.8913967442955057,
+          "open_discard": 1.1960153833556784
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.675,
+          "closed_discard": 0.4895833333333333,
+          "open_discard": 0.6458333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1280,
+        "upstream_hard_label_nll": 1.1983645024956195
+      },
+      {
+        "weighted_target_ce": 1.1236645488853259,
+        "phase_target_ce": {
+          "call_window": 0.6871364973660398,
+          "closed_discard": 1.3357156504681287,
+          "kan_window": 1.7885698641612018,
+          "open_discard": 1.1351153187839793
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.675,
+          "closed_discard": 0.5,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1408,
+        "upstream_hard_label_nll": 1.1725901230193734
+      },
+      {
+        "weighted_target_ce": 1.088524638696892,
+        "phase_target_ce": {
+          "call_window": 0.6261385228657183,
+          "closed_discard": 1.3151479098983188,
+          "kan_window": 1.7587677315347878,
+          "open_discard": 1.104640679030969
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.7125,
+          "closed_discard": 0.5208333333333334,
+          "open_discard": 0.6041666666666666
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1536,
+        "upstream_hard_label_nll": 1.1372631679474365
+      },
+      {
+        "weighted_target_ce": 1.1060970047928915,
+        "phase_target_ce": {
+          "call_window": 0.6349713619293689,
+          "closed_discard": 1.3247793594692874,
+          "kan_window": 1.8569369080246991,
+          "open_discard": 1.1330401952583333
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.6875,
+          "closed_discard": 0.5104166666666666,
+          "open_discard": 0.6041666666666666
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1664,
+        "upstream_hard_label_nll": 1.163577457181912
+      },
+      {
+        "weighted_target_ce": 1.102675826716279,
+        "phase_target_ce": {
+          "call_window": 0.623860003903532,
+          "closed_discard": 1.3253698736947357,
+          "kan_window": 1.8688680755597347,
+          "open_discard": 1.1282898930230083
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.7,
+          "closed_discard": 0.5208333333333334,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1792,
+        "upstream_hard_label_nll": 1.1633198307582782
+      },
+      {
+        "weighted_target_ce": 1.1062291468938428,
+        "phase_target_ce": {
+          "call_window": 0.6373047337493258,
+          "closed_discard": 1.316414816514116,
+          "kan_window": 1.8832868202633877,
+          "open_discard": 1.1424335916226165
+        },
+        "phase_records": {
+          "call_window": 80,
+          "closed_discard": 96,
+          "kan_window": 32,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "call_window": 0.675,
+          "closed_discard": 0.5208333333333334,
+          "open_discard": 0.6041666666666666
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1920,
+        "upstream_hard_label_nll": 1.1677035469377164
       }
     ],
     "initial_adapter_tensors_equal_v1": true,
@@ -1266,10 +1473,47 @@
       "uses_different_shadow_random_seed": true,
       "checks_shared_public_request_and_features": true,
       "normalizes_nonsemantic_physical_tile_copy_ids": true
-    }
+    },
+    "optimizer_steps": 1920,
+    "selected_step": 1536,
+    "selected_target_ce": 1.088524638696892,
+    "development_games": 192,
+    "independent_wall_groups": 8,
+    "hand_win_paired": {
+      "gain": -0.03482518638768639,
+      "ci95": [
+        -0.13429179039622602,
+        0.06464141762085322
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "dealin_rate_paired": {
+      "gain": 0.0033192791005291003,
+      "ci95": [
+        -0.04410544010493734,
+        0.05074399830599554
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "net_points_paired": {
+      "gain": -2381.25,
+      "ci95": [
+        -5750.28340037627,
+        987.78340037627
+      ],
+      "independent_wall_streams": 8
+    },
+    "eligible_for_confirmation": false,
+    "improvement_verified": false,
+    "reference_calls_per_game": 2.71875,
+    "candidate_calls_per_game": 3.1666666666666665,
+    "native_preflight_records": 256,
+    "native_preflight_passed": true,
+    "failed_results_not_training": true,
+    "scheduler_previous_exit_codes_unavailable": true
   },
   "expert_prefix_kan_candidate_data": {
-    "status": "expert_kan_prefix_extracted_pending_independent_audit",
+    "status": "independently_audited_integrated_reserved_and_used_in_v3",
     "source_sha256": "1e1684f48e73ace5ecaa77b468e86b4585976db0d17376b175ea8dd9dc31c1c9",
     "matches_replayed": 6603,
     "records": 47436,
@@ -1289,16 +1533,499 @@
       2019,
       2026
     ],
-    "training_admitted": false,
-    "independent_source_audit_required": true,
+    "independent_source_audit_required": false,
     "inputs_built_before_label_event": true,
     "censored_passes_excluded": true,
     "all_historical_held_groups_excluded": true,
     "sealed_test_payloads_opened": false,
     "current_v2_training_data_changed": false,
     "raw_records_public": false,
-    "synthetic_tests": "178coretests passed;actual native menus/publicfeatures plus prefix input invariance under later pon/kan choice,observed declined self-kan/pass cases and held-payload exclusion.",
+    "synthetic_tests": "183 core tests passed, including source omission/forgery rejection, catalog preservation, proof-gated pool admission and family-unseen whole-match reservation.",
     "expert_actions_not_guaranteed_optimal": true,
-    "new_strength_evaluation_games": 0
-  }
+    "new_strength_evaluation_games": 0,
+    "producer_self_admitted": false,
+    "source_audit": {
+      "status": "passed_complete",
+      "audit_kind": "observed_expert_kan_prefix_v1",
+      "counts": {
+        "matches_replayed": 6603,
+        "records": 47436,
+        "unique_positions": 47436,
+        "conflicting_position_labels": 0
+      },
+      "action_types": {
+        "none": 15754,
+        "dahai": 24198,
+        "kakan": 2390,
+        "ankan": 3347,
+        "pon": 668,
+        "reach": 487,
+        "daiminkan": 536,
+        "chi": 56
+      },
+      "train_groups": 6437,
+      "source_train_sha256": "cd677ca23e0c4d594f409a53dc30f7224dab3c2fa5a45952c546ff604f5a4267",
+      "source_provenance_sha256": "47a4e86652123b01dce3411377bac0f0b1c15bb747876e0a1db4c6c8a58a998e",
+      "all_observed_eligible_windows_enumerated": true,
+      "inputs_rebuilt_before_label": true,
+      "alternate_shadow_seed": true,
+      "censored_passes_excluded": true,
+      "historical_held_groups_excluded": true,
+      "sealed_test_payloads_opened": false,
+      "eligible_for_pool_integration": true,
+      "training_started": false,
+      "expert_optimality_proven": false,
+      "new_strength_matches": 0
+    },
+    "audit_source_sha256": "339c8eda8cb3cc47ad47c228f197c3706b513610456be2fe35cb3834a4e8d2b9",
+    "pool_source_sha256": "7c148c6cbf0e0dd96f53739c9181423670be36c41d81cd92371341ac68d65434",
+    "used_in_active_v2_training": false,
+    "training_started": true,
+    "pool": {
+      "status": "raw_request_pool_ready_not_yet_balanced",
+      "train_positions": 125129,
+      "validation_positions": 1499,
+      "group_overlap": 0,
+      "strata": [
+        {
+          "split": "train",
+          "phase": "call_window",
+          "label_type": "expert_replay",
+          "choice": "chi",
+          "positions": 3148
+        },
+        {
+          "split": "train",
+          "phase": "call_window",
+          "label_type": "expert_replay",
+          "choice": "none",
+          "positions": 40400
+        },
+        {
+          "split": "train",
+          "phase": "call_window",
+          "label_type": "expert_replay",
+          "choice": "pon",
+          "positions": 5092
+        },
+        {
+          "split": "train",
+          "phase": "call_window",
+          "label_type": "paired_future_masked",
+          "choice": "chi",
+          "positions": 578
+        },
+        {
+          "split": "train",
+          "phase": "call_window",
+          "label_type": "paired_future_masked",
+          "choice": "none",
+          "positions": 859
+        },
+        {
+          "split": "train",
+          "phase": "call_window",
+          "label_type": "paired_future_masked",
+          "choice": "pon",
+          "positions": 543
+        },
+        {
+          "split": "train",
+          "phase": "closed_discard",
+          "label_type": "expert_replay",
+          "choice": "dahai",
+          "positions": 17165
+        },
+        {
+          "split": "train",
+          "phase": "closed_discard",
+          "label_type": "expert_replay",
+          "choice": "reach",
+          "positions": 343
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "expert_replay",
+          "choice": "ankan",
+          "positions": 3347
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "expert_replay",
+          "choice": "chi",
+          "positions": 56
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "expert_replay",
+          "choice": "dahai",
+          "positions": 24198
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "expert_replay",
+          "choice": "daiminkan",
+          "positions": 536
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "expert_replay",
+          "choice": "kakan",
+          "positions": 2390
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "expert_replay",
+          "choice": "none",
+          "positions": 15754
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "expert_replay",
+          "choice": "pon",
+          "positions": 668
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "expert_replay",
+          "choice": "reach",
+          "positions": 485
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "paired_future_masked",
+          "choice": "ankan",
+          "positions": 75
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "paired_future_masked",
+          "choice": "chi",
+          "positions": 5
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "paired_future_masked",
+          "choice": "dahai",
+          "positions": 122
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "paired_future_masked",
+          "choice": "daiminkan",
+          "positions": 45
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "paired_future_masked",
+          "choice": "kakan",
+          "positions": 21
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "paired_future_masked",
+          "choice": "none",
+          "positions": 74
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "paired_future_masked",
+          "choice": "pon",
+          "positions": 22
+        },
+        {
+          "split": "train",
+          "phase": "kan_window",
+          "label_type": "paired_future_masked",
+          "choice": "reach",
+          "positions": 2
+        },
+        {
+          "split": "train",
+          "phase": "open_discard",
+          "label_type": "expert_replay",
+          "choice": "dahai",
+          "positions": 8958
+        },
+        {
+          "split": "train",
+          "phase": "open_discard",
+          "label_type": "paired_future_masked",
+          "choice": "dahai",
+          "positions": 243
+        },
+        {
+          "split": "validation",
+          "phase": "call_window",
+          "label_type": "expert_replay",
+          "choice": "chi",
+          "positions": 74
+        },
+        {
+          "split": "validation",
+          "phase": "call_window",
+          "label_type": "expert_replay",
+          "choice": "none",
+          "positions": 836
+        },
+        {
+          "split": "validation",
+          "phase": "call_window",
+          "label_type": "expert_replay",
+          "choice": "pon",
+          "positions": 114
+        },
+        {
+          "split": "validation",
+          "phase": "closed_discard",
+          "label_type": "expert_replay",
+          "choice": "dahai",
+          "positions": 194
+        },
+        {
+          "split": "validation",
+          "phase": "closed_discard",
+          "label_type": "expert_replay",
+          "choice": "reach",
+          "positions": 2
+        },
+        {
+          "split": "validation",
+          "phase": "kan_window",
+          "label_type": "paired_future_masked",
+          "choice": "ankan",
+          "positions": 14
+        },
+        {
+          "split": "validation",
+          "phase": "kan_window",
+          "label_type": "paired_future_masked",
+          "choice": "dahai",
+          "positions": 27
+        },
+        {
+          "split": "validation",
+          "phase": "kan_window",
+          "label_type": "paired_future_masked",
+          "choice": "daiminkan",
+          "positions": 20
+        },
+        {
+          "split": "validation",
+          "phase": "kan_window",
+          "label_type": "paired_future_masked",
+          "choice": "kakan",
+          "positions": 4
+        },
+        {
+          "split": "validation",
+          "phase": "kan_window",
+          "label_type": "paired_future_masked",
+          "choice": "none",
+          "positions": 19
+        },
+        {
+          "split": "validation",
+          "phase": "kan_window",
+          "label_type": "paired_future_masked",
+          "choice": "pon",
+          "positions": 4
+        },
+        {
+          "split": "validation",
+          "phase": "kan_window",
+          "label_type": "paired_future_masked",
+          "choice": "reach",
+          "positions": 3
+        },
+        {
+          "split": "validation",
+          "phase": "open_discard",
+          "label_type": "expert_replay",
+          "choice": "dahai",
+          "positions": 188
+        }
+      ],
+      "conflicting_expert_positions_quarantined": 16,
+      "statistics": {
+        "conflicting_expert_views": 20,
+        "duplicate_position_rows": 24592,
+        "unreviewed_replay_schema_rows_quarantined": 33792,
+        "future_menu_states": 2680,
+        "future_menu_negative_utility_options": 2516,
+        "future_states_with_unlabelled_legal_options_masked": 471
+      },
+      "new_kan_expert_positions": 47434,
+      "balanced_training_mix_not_yet_created": true
+    },
+    "used_in_current_v2_training": false,
+    "used_in_v3_training": true
+  },
+  "expert_kan_validation_reservation": {
+    "reserved_family_unseen_groups": 512,
+    "group_overlap_with_actual_v1_v2_train_and_validation": 0,
+    "selected_before_v3_fit": true,
+    "expert_positions_moved": 3710,
+    "other_same_match_training_positions_removed": 59,
+    "derived_pool_train_positions": 121360,
+    "derived_pool_validation_positions": 5209,
+    "old_validation_positions_preserved": 1499,
+    "group_overlap": 0,
+    "raw_manifest_public": false
+  },
+  "followup_v3": {
+    "model_id": "jev-balanced-base-lora-v3",
+    "status": "actual_fresh_LoRA_and_pointer_updates_verified",
+    "recipe": {
+      "recipe_kind": "unified_fresh_base_LoRA_training_plan_requires_registered_wrapper",
+      "model_id": "jev-balanced-base-lora-v3",
+      "base": "Qwen/Qwen3.5-0.8B",
+      "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
+      "fresh_LoRA": true,
+      "fresh_pointer_head": true,
+      "pretrained_base_frozen": true,
+      "old_Mahjong_initialization": false,
+      "LoRA_rank": 16,
+      "LoRA_lr": 2e-05,
+      "head_lr": 0.0001,
+      "weight_decay": 0.001,
+      "LoRA_dropout": 0.05,
+      "dtype": "bf16",
+      "micro_batch": 1,
+      "accumulation": 16,
+      "epochs": 1,
+      "max_steps": 2048,
+      "checkpoint_every_steps": 128,
+      "validation_every_steps": 128,
+      "early_stop_patience": 3,
+      "validation_phase_weights": {
+        "closed_discard": 0.45,
+        "open_discard": 0.2,
+        "call_window": 0.3,
+        "kan_window": 0.05
+      },
+      "train_records": 32768,
+      "validation_records": 352,
+      "train_phase_counts": {
+        "closed_discard": 16384,
+        "open_discard": 8192,
+        "call_window": 6728,
+        "kan_window": 1464
+      },
+      "expert_call_counts": {
+        "chi": 348,
+        "pon": 563,
+        "none": 4465
+      },
+      "max_kan_repeat": 1,
+      "soft_target_mode": "outcome_only_win_compatible_masked_v2",
+      "target_temperature": 0.05,
+      "simulated_loss": "conditional CE over evaluated eligible support; unlabelled legal logits excluded from denominator",
+      "expert_loss": "full-menu hard-label CE",
+      "training_entrypoint": "jevmahjong train-base-lora --config GENERATED_PRIVATE_MANIFEST.json",
+      "upstream_source_sha256": "84fe7f0201a8d9928aabe4770912bf25e76c4916c1eded3011cf8f02862b758d",
+      "requires_masked_loss_wrapper": true,
+      "raw_data_and_weights_private": true,
+      "train_unique_positions": 32768,
+      "kan_counts": {
+        "ankan": 688,
+        "daiminkan": 584,
+        "kakan": 192
+      },
+      "reward_unchanged": true,
+      "training_seed": 2026111402,
+      "mixture_seed": 2026111401,
+      "raw_pool_unchanged": false,
+      "optimizer": "AdamW",
+      "learning_rate_schedule": {
+        "type": "OneCycleLR",
+        "total_steps": 2048,
+        "pct_start": 0.1,
+        "listed_LoRA_and_head_lr_are_peak_values": true
+      },
+      "schedule_horizon_changed_from_v1": true,
+      "not_data_only_controlled_comparison": true,
+      "all_kan_training_labels": "independently_audited_expert_observations",
+      "expert_kan_training_choices": {
+        "ankan": 138,
+        "daiminkan": 88,
+        "kakan": 48,
+        "dahai": 682,
+        "none": 432,
+        "pon": 56,
+        "chi": 8,
+        "reach": 12
+      },
+      "family_unseen_validation_groups_reserved": 512,
+      "additional_expert_kan_validation_records": 96,
+      "old256_validation_byte_identical": true,
+      "prior_failed_v2_never_training": true,
+      "validation_sha256": "d9fb77fe0300dda6ce02a0d97ab315adf026dddd19c3a88e73f0cef5bdf3606d",
+      "train_sha256": "673c0caddfa1d1172fc7be4fab96ea48c023ae1c10a121d78fd892100c932bd7",
+      "training_source_sha256": "5a0cd5a00d6cfba4b6425941b53e35d8747522ae2019ecf33db509c862c536bd"
+    },
+    "train_groups": 2934,
+    "validation_groups": 178,
+    "group_overlap": 0,
+    "position_overlap": 0,
+    "new_expert_kan_validation_each_route": {
+      "actual_kan": 16,
+      "decline_kan": 16
+    },
+    "old256_validation_subset_byte_identical": true,
+    "freshness_actual_protocols_checked": 340,
+    "development_seed_start": 11950000,
+    "confirmation_seed_start": 11960000,
+    "development_games": 192,
+    "conditional_confirmation_games": 768,
+    "development_submitted": false,
+    "training_job": 297949,
+    "afterok_native_job": 297951,
+    "model_strength_improvement_proven": false,
+    "deployed": false,
+    "limitations": [
+      "Expert observation is not proof of optimal action.",
+      "Same native rule engine and feature helpers are shared by producer and source audit.",
+      "Expert call prior and kan evidence both changed; this is not a single-factor experiment.",
+      "Validation sample proportions are diagnostic, not an estimate of live action frequency."
+    ],
+    "token_admission": {
+      "requested_records": 32768,
+      "admitted_records": 32768,
+      "rejected_records": 0,
+      "rejected": []
+    },
+    "initialization": {
+      "fresh_lora_B_zero": true,
+      "fresh_lora_A_nonzero": true,
+      "pretrained_base_requires_grad": false,
+      "old_adapters_loaded": false,
+      "external_residual_networks": 0,
+      "trainable_parameters": 11347456,
+      "adapter_tensors": 372
+    },
+    "actual_update_proof": {
+      "completed_optimizer_steps_at_least": 8,
+      "fresh_LoRA_B_now_nonzero": true,
+      "head_parameters_changed": true,
+      "cached_encoder_features_used": false
+    }
+  },
+  "active_model_id": "jev-balanced-base-lora-v3",
+  "top_level_model_training_and_unified_evaluation_fields_are_v1_history": true
 }

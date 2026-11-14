@@ -1,11 +1,11 @@
 """Prefix reconstruction must match actual native decisions, without labels."""
 import copy
 from collections import Counter
-import hashlib
 import io
 import json
 from pathlib import Path
 import sqlite3
+import shutil
 import tarfile
 import tempfile
 import unittest
@@ -17,7 +17,10 @@ import zstandard
 from jevmahjong.core.io import digest
 from jevmahjong.core.state import build_request, legal_candidates
 from jevmahjong.data.replay_prefix import PrefixReplay, action_key, extract, KAN
+from jevmahjong.data.replay_prefix_audit import audit
+from jevmahjong.data.base_lora_pool import verified_prefix_source
 from jevmahjong.evaluation.agents import CallingOpponent, EfficiencyAgent
+from tests.core.test_data_catalog import catalog
 
 
 def normalized(request, label=True):
@@ -126,29 +129,102 @@ class ReplayPrefixTests(unittest.TestCase):
         self.assertNotEqual(a[0]['questions']['action']['label'], b[0]['questions']['action']['label'])
         self.assertEqual(a[0]['_prefix'], b[0]['_prefix'])
 
+    def fixture(self, root):
+        from jevmahjong.training.base_lora import package_digest
+        directory = root/'catalog'; directory.mkdir(); index = directory/'index-private.sqlite'
+        db = sqlite3.connect(index); catalog.initialize(db)
+        db.executemany('INSERT INTO groups VALUES (?,?,?)', [('replay:train','train',0), ('replay:held','train',0), ('replay:held','test',0)])
+        db.execute("CREATE VIEW training_candidates AS SELECT e.* FROM entries e WHERE e.split='train' AND e.schema_valid=1 AND NOT EXISTS(SELECT 1 FROM groups g WHERE g.group_key=e.group_key AND g.split!='train')")
+        db.commit(); db.close()
+        (directory/'sources-private.json').write_text('[]')
+        (directory/'result.json').write_text(json.dumps(dict(private_index_sha256=digest(index))))
+        archive = root / 'raw.tar'
+        raw = ('\n'.join(json.dumps(e) for e in self.first_events) + '\n').encode()
+        with tarfile.open(archive, 'w') as tar:
+            for name, data in [('held', b'invalid zstandard; must not be opened'),
+                               ('train', zstandard.ZstdCompressor().compress(raw))]:
+                item = tarfile.TarInfo(name + '.mjai.json.zst'); item.size = len(data)
+                tar.addfile(item, io.BytesIO(data))
+        cfg = dict(catalog_index=str(index), catalog_index_sha256=digest(index),
+            archives={str(archive):digest(archive)}, out=str(root/'out'), shadow_seed=31)
+        result = extract(cfg)
+        source = root / 'source'; source.mkdir()
+        shutil.copytree(Path(__file__).resolve().parents[2]/'jevmahjong', source/'jevmahjong',
+            ignore=shutil.ignore_patterns('__pycache__', '*.pyc'))
+        launch = root/'launch.json'; launch.write_text(json.dumps(dict(command='prepare-prefix-kan',
+            config=cfg, source=str(source), source_sha256=package_digest(source/'jevmahjong'))))
+        qa = root/'native-qa.json'; qa.write_text(json.dumps(dict(mismatches=[],
+            checks_shared_public_request_and_features=True, uses_different_shadow_random_seed=True,
+            action_opportunities=dict(self.routes))))
+        audit_cfg = dict(producer_out=str(root/'out'),
+            producer_provenance_sha256=digest(root/'out/provenance.json'),
+            producer_result_sha256=digest(root/'out/result.json'), producer_train_sha256=digest(root/'out/train.jsonl'),
+            producer_launch=str(launch), producer_launch_sha256=digest(launch), native_probe=str(qa),
+            native_probe_sha256=digest(qa), out=str(root/'audit'))
+        return result, audit_cfg
+
     def test_extractor_never_opens_held_payload_and_never_self_admits(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp); catalog = root / 'index.sqlite'
-            db = sqlite3.connect(catalog)
-            db.execute('CREATE TABLE groups (group_key TEXT,split TEXT)')
-            db.executemany('INSERT INTO groups VALUES (?,?)', [('replay:train','train'), ('replay:held','train'), ('replay:held','test')])
-            db.commit(); db.close()
-            archive = root / 'raw.tar'
-            raw = ('\n'.join(json.dumps(e) for e in self.first_events) + '\n').encode()
-            with tarfile.open(archive, 'w') as tar:
-                for name, data in [('held', b'invalid zstandard; must not be opened'),
-                                   ('train', zstandard.ZstdCompressor().compress(raw))]:
-                    item = tarfile.TarInfo(name + '.mjai.json.zst'); item.size = len(data)
-                    tar.addfile(item, io.BytesIO(data))
-            cfg = dict(catalog_index=str(catalog), catalog_index_sha256=digest(catalog),
-                archives={str(archive):digest(archive)}, out=str(root/'out'), shadow_seed=31)
-            result = extract(cfg)
+            root = Path(tmp); result, audit_cfg = self.fixture(root)
             self.assertFalse(result['training_admitted']); self.assertEqual(result['failed_matches'], 0)
             self.assertEqual(result['counts']['matches_replayed'], 1)
             provenance = json.loads((root/'out/provenance.json').read_text())
             self.assertEqual(provenance['matches']['train'], ['train'])
             self.assertFalse(provenance['test_payloads_opened'])
             self.assertEqual(provenance['files']['train'], digest(root/'out/train.jsonl'))
+            proof = audit(audit_cfg)
+            self.assertEqual(proof['status'], 'passed_complete')
+            self.assertEqual(proof['counts']['records'], result['counts']['records'])
+            self.assertFalse(proof['training_started'])
+            base = root/'catalog'; before = digest(base/'index-private.sqlite')
+            cfg = dict(input_catalog=str(base),input_result_sha256=digest(base/'result.json'),
+                input_sources_sha256=digest(base/'sources-private.json'),append_replay_source=str(root/'out'),
+                audit_result=str(root/'audit/result.json'),audit_result_sha256=digest(root/'audit/result.json'),
+                audit_protocol=str(root/'audit/protocol.json'),audit_protocol_sha256=digest(root/'audit/protocol.json'),
+                out=str(root/'extended'))
+            appended = catalog.append_replay(cfg)
+            self.assertEqual(appended['appended_audited_records'], result['counts']['records'])
+            self.assertEqual(appended['training_candidates_before_quality_selection']['rows'], result['counts']['records'])
+            self.assertEqual(before, digest(base/'index-private.sqlite'))
+            source = json.loads((root/'extended/sources-private.json').read_text())[0]
+            inputs = {}; verified_prefix_source(source, provenance, inputs)
+            self.assertIn(str(root/'audit/result.json'), inputs)
+            with self.assertRaisesRegex(ValueError,'Complete observed prefix source audit required'):
+                verified_prefix_source(dict(source,audit_receipts=[]),provenance,{})
+            cfg.update(audit_result_sha256='0'*64,out=str(root/'bad'))
+            with self.assertRaisesRegex(ValueError,'Bound catalog/source input changed'):
+                catalog.append_replay(cfg)
+
+    def corrupted_fixture(self, root, drop=False):
+        _, cfg = self.fixture(root)
+        train = root/'out/train.jsonl'; rows = [json.loads(l) for l in train.read_text().splitlines()]
+        if drop:
+            rows.pop(0)
+        else:
+            q = rows[0]['questions']['action']
+            q['label'] = next(k for k in q['criteria'] if k != q['label'])
+        train.write_text(''.join(json.dumps(r)+'\n' for r in rows))
+        provenance = root/'out/provenance.json'; p = json.loads(provenance.read_text())
+        p['files']['train'] = digest(train); p['counts']['train'] = len(rows)
+        provenance.write_text(json.dumps(p))
+        result = root/'out/result.json'; r = json.loads(result.read_text())
+        r['provenance_sha256'] = digest(provenance); r['counts']['records'] = len(rows)
+        result.write_text(json.dumps(r))
+        cfg.update(producer_train_sha256=digest(train), producer_provenance_sha256=digest(provenance),
+            producer_result_sha256=digest(result))
+        return cfg
+
+    def test_independent_raw_audit_rejects_wrong_label_even_with_updated_checksums(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cfg = self.corrupted_fixture(Path(tmp))
+            with self.assertRaisesRegex(ValueError, 'Observed replay choice differs'):
+                audit(cfg)
+
+    def test_independent_raw_audit_rejects_omitted_window_even_with_updated_counts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cfg = self.corrupted_fixture(Path(tmp), drop=True)
+            with self.assertRaisesRegex(ValueError, 'Missing observed prefix record'):
+                audit(cfg)
 
 
 if __name__ == '__main__':

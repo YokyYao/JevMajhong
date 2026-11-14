@@ -287,12 +287,72 @@ def reclassify(config):
     return summary
 
 
+def append_replay(config):
+    """Copy a completed catalog and append one independently audited source."""
+    original=Path(config['input_catalog']);directory=Path(config['append_replay_source']).resolve()
+    index=original/'index-private.sqlite';previous=read(original/'result.json')
+    inputs={str(index):previous['private_index_sha256'],
+        str(original/'result.json'):config['input_result_sha256'],
+        str(original/'sources-private.json'):config['input_sources_sha256'],
+        config['audit_result']:config['audit_result_sha256'],
+        config['audit_protocol']:config['audit_protocol_sha256']}
+    def verify():
+        for name,checksum in inputs.items():
+            if sha(name)!=checksum:raise ValueError('Bound catalog/source input changed: '+name)
+    verify();proof=read(config['audit_result']);audit_protocol=read(config['audit_protocol'])
+    if (proof.get('status')!='passed_complete' or proof.get('audit_kind')!='observed_expert_kan_prefix_v1'
+            or not proof.get('eligible_for_pool_integration') or not proof.get('all_observed_eligible_windows_enumerated')
+            or not proof.get('historical_held_groups_excluded') or proof.get('sealed_test_payloads_opened') is not False):
+        raise ValueError('Complete expert-prefix source audit required')
+    provenance=directory/'provenance.json';train=directory/'train.jsonl'
+    inputs.update({str(provenance):proof['source_provenance_sha256'],str(train):proof['source_train_sha256']})
+    verify()
+    for name,checksum in audit_protocol['source_files'].items():
+        if name in inputs and inputs[name]!=checksum:raise ValueError('Conflicting audit file receipts')
+        inputs[name]=checksum
+    verify()
+    if Path(read(provenance)['config']['catalog_index']).resolve()!=index.resolve():
+        raise ValueError('Producer/audit used a different historical split catalog')
+    datasets=read(original/'sources-private.json')
+    if any(Path(d['path']).resolve()==directory for d in datasets):raise ValueError('Source already catalogued')
+    out=Path(config['out']);out.mkdir(parents=True,exist_ok=False)
+    source=sqlite3.connect('file:'+str(index.resolve())+'?mode=ro',uri=True)
+    db=sqlite3.connect(out/'index-private.sqlite');source.backup(db);source.close()
+    d=dict(kind='replay_jsonl',path=str(directory),workspace=str(Path.cwd()),
+        provenance=str(provenance),provenance_sha256=proof['source_provenance_sha256'],complete=True,
+        audit_receipts=[str(Path(config['audit_result']).resolve())],
+        audit_sha256={str(Path(config['audit_result']).resolve()):config['audit_result_sha256']})
+    scan_replay(db,len(datasets),d)
+    if (d['indexed_train_file_rows']!=proof['counts']['records'] or not d['train_checksum_matches_provenance']
+            or db.execute('SELECT count(*) FROM entries WHERE dataset=? AND (schema_valid!=1 OR phase!=?)',
+                (len(datasets),'kan_window')).fetchone()[0]):
+        raise ValueError('Audited kan source index differs')
+    d['catalog_status']='indexed_not_training_admission';datasets.append(d)
+    def totals(table):
+        return dict(rows=db.execute('SELECT count(*) FROM '+table).fetchone()[0],
+            public_requests=db.execute('SELECT count(DISTINCT request_hash) FROM '+table).fetchone()[0],
+            known_positions=db.execute('SELECT count(DISTINCT position_key) FROM '+table).fetchone()[0])
+    summary=dict(status='catalogued_private_index_not_training_admission',datasets=len(datasets),
+        dataset_statuses=dict(Counter(d['catalog_status'] for d in datasets)),
+        all_indexed=totals('entries'),training_candidates_before_quality_selection=totals('training_candidates'),
+        training_phases=[dict(phase=p,rows=n,requests=k) for p,n,k in db.execute(
+            'SELECT phase,count(*),count(DISTINCT request_hash) FROM training_candidates GROUP BY phase')],
+        cross_split_groups_quarantined=db.execute("SELECT count(*) FROM (SELECT group_key FROM groups GROUP BY group_key HAVING count(DISTINCT split)>1)").fetchone()[0],
+        test_payloads_opened=False,native_validation_payloads_opened=False,source_payloads_changed=False,
+        original_catalog_index_sha256=inputs[str(index)],appended_audited_records=proof['counts']['records'],
+        appended_source_audit_sha256=config['audit_result_sha256'],raw_records_public=False,optimizer_updates=0)
+    db.commit();db.close();verify();summary['private_index_sha256']=sha(out/'index-private.sqlite')
+    write(out/'sources-private.json',datasets);write(out/'append-inputs-private.json',inputs)
+    write(out/'result.json',summary);write(out/'status.json',summary)
+    return summary
+
+
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--config',type=Path,required=True);p.add_argument('--metadata-only',action='store_true');a=p.parse_args();cfg=read(a.config)
     if a.metadata_only:
         result=discover(cfg['roots']);write(cfg['metadata_out'],result)
         print(json.dumps(dict(datasets=len(result),kinds=dict(Counter(d['kind'] for d in result)),complete=sum(d['complete'] for d in result))))
-    else:print(json.dumps(reclassify(cfg) if cfg.get('input_catalog') else run(cfg),ensure_ascii=False))
+    else:print(json.dumps(append_replay(cfg) if cfg.get('append_replay_source') else reclassify(cfg) if cfg.get('input_catalog') else run(cfg),ensure_ascii=False))
 
 
 if __name__=='__main__':main()
