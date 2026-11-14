@@ -3103,10 +3103,10 @@
     ],
     "new_pool_records": 126569
   },
-  "active_experiment_status": "native_inputs_audited_future_labeling_running_conditional_fit_pipeline_prepared",
+  "active_experiment_status": "data_labeling_running_conditional_prepare_and_fit_jobs_submitted",
   "followup_winrisk_v2": {
     "model_id": "jev-unified-winrisk-v2",
-    "status": "native_inputs_audited_future_labeling_running_conditional_fit_pipeline_prepared",
+    "status": "data_labeling_running_conditional_prepare_and_fit_jobs_submitted",
     "source_sha256": "61a3411c21ac0c70a9641712969f727774bc3742fb8cc26950e58cb219678e04",
     "new_control_matches": 0,
     "reused_control_walls": 24,
@@ -3158,7 +3158,15 @@
       "max_cached_head_probability_error": 5.662441253662109e-07,
       "new_control_matches": 0
     },
-    "fit_pipeline_submitted": false,
-    "new_training_code_ci_verified": false
+    "fit_pipeline_submitted": true,
+    "new_training_code_ci_verified": true,
+    "data_job": 298693,
+    "CPU_preparation_job": 298765,
+    "GPU_fit_and_evaluation_job": 298766,
+    "job_dependencies_afterok": true,
+    "new_training_code_ci_commit": "43233862a1104139c49b1548bc6d464bebc79d3a",
+    "new_training_code_ci_run": 43596433360,
+    "new_training_code_ci_core": "success",
+    "new_training_code_ci_desktop": "success"
   }
 }

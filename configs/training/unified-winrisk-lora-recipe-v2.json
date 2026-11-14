@@ -1,6 +1,6 @@
 {
   "model_id": "jev-unified-winrisk-v2",
-  "status": "conditional_fit_prepared_data_labels_still_running",
+  "status": "data_running_cpu_preparation_and_training_queued_by_afterok_dependency",
   "base": "Qwen/Qwen3.5-0.8B",
   "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
   "training_source_sha256": "f580b8df8828a6edc6a53857575b14969742f566cd9244bf2a14d5d26326424f",
@@ -58,5 +58,11 @@
   "confirmation_own_win_CI95_lower_must_be_positive": true,
   "fit_may_start_only_after_complete_audits_and_actual_input_admission": true,
   "raw_and_weights_public": false,
-  "deployed": false
+  "deployed": false,
+  "submitted_job_chain": {
+    "data": 298693,
+    "CPU_preparation_after_data": 298765,
+    "GPU_fit_and_evaluation_after_preparation": 298766
+  },
+  "optimizer_started": false
 }
