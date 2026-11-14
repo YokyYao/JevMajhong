@@ -19,6 +19,18 @@ METHOD='registered_final_training_checkpoint'
 SCHEMA='final-trained-checkpoint-probe-v1'
 
 
+def same_adapter_architecture(before,after):
+    """PEFT serializes its unordered target-module set in process-specific order."""
+    def canonical(path):
+        cfg=read(path);modules=cfg.get('target_modules')
+        if isinstance(modules,list):
+            if any(not isinstance(name,str) for name in modules) or len(set(modules))!=len(modules):
+                raise ValueError('Invalid adapter target module set')
+            cfg['target_modules']=sorted(modules)
+        return cfg
+    return canonical(before)==canonical(after)
+
+
 def _final_candidate(run,base):
     root=Path(run).resolve();fit=read(root/'result.json')
     args=base['training_protocol']['trainer_args'];trainer=Path(args['out']).resolve()
@@ -38,7 +50,9 @@ def _final_candidate(run,base):
     final=trainer/'checkpoints'/f'step-{step:06d}'
     model=bundle(final);initial=trainer/'checkpoints/step-000000' if predeclared else Path(base['model']['directory'])
     initial_model=bundle(initial)
-    for name in ('adapter_config.json','tokenizer.json','tokenizer_config.json','chat_template.jinja'):
+    if not same_adapter_architecture(final/'adapter_config.json',initial/'adapter_config.json'):
+        raise ValueError('Final checkpoint changed adapter architecture')
+    for name in ('tokenizer.json','tokenizer_config.json','chat_template.jinja'):
         if model['files'][name]!=initial_model['files'][name]:
             raise ValueError('Final checkpoint changed adapter architecture or tokenization')
     from safetensors.torch import load_file

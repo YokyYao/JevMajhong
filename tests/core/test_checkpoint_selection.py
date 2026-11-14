@@ -20,7 +20,7 @@ def fixture(root):
         torch.save(dict(base='unit-base',base_revision='revision',lora=1,head_dim=2,head_residual_dim=0,
             head={'q.weight':torch.full((2,2),value),'q.bias':torch.ones(2)}),directory/'head.pt')
         for name in ('adapter_config.json','tokenizer.json','tokenizer_config.json','chat_template.jinja'):
-            (directory/name).write_text('same-'+name)
+            (directory/name).write_text(json.dumps({'r':1,'target_modules':['q_proj','v_proj']}) if name=='adapter_config.json' else 'same-'+name)
     record=dict(_meta=dict(id='held',phase='closed_discard',label_type='expert_replay'),
         questions={'action':dict(criteria={'a0':{'type':'dahai'},'a1':{'type':'dahai'}},label='a0')})
     rows=[dict(id='held',keys=['a0','a1'],p=[.6,.4])];weights={'closed_discard':1.}
@@ -40,6 +40,23 @@ def fixture(root):
 
 
 class CheckpointSelectionTests(unittest.TestCase):
+    def test_target_module_order_is_not_architecture_but_membership_and_tokenizer_are(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);run,base,final=fixture(root)
+            (final/'adapter_config.json').write_text(json.dumps({'r':1,'target_modules':['v_proj','q_proj']}))
+            with patch('jevmahjong.evaluation.checkpoint_selection.checked_candidate',return_value=base):
+                self.assertEqual(declare_final_candidate(run,root/'good.json',[root/'runs'])['step'],384)
+                (final/'adapter_config.json').write_text(json.dumps({'r':1,'target_modules':['v_proj','k_proj']}))
+                with self.assertRaisesRegex(ValueError,'adapter architecture'):
+                    declare_final_candidate(run,root/'bad-module.json',[root/'runs'])
+                (final/'adapter_config.json').write_text(json.dumps({'r':2,'target_modules':['q_proj','v_proj']}))
+                with self.assertRaisesRegex(ValueError,'adapter architecture'):
+                    declare_final_candidate(run,root/'bad-rank.json',[root/'runs'])
+                (final/'adapter_config.json').write_text(json.dumps({'r':1,'target_modules':['q_proj','v_proj']}))
+                (final/'tokenizer.json').write_text('changed')
+                with self.assertRaisesRegex(ValueError,'tokenization'):
+                    declare_final_candidate(run,root/'bad-tokenizer.json',[root/'runs'])
+
     def test_exact_predeclared_budget_can_use_final_even_when_ce_selected_it(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);run,base,final=fixture(root);target=root/'decl.json'

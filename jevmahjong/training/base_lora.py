@@ -163,9 +163,12 @@ def train(cfg):
             raise ValueError('Token admission silently dropped prepared data')
         write(out/'token-admission.json',report);return result
     def evaluate(*pos,**kw):
-        summary=originals['evaluate_during_training'](*pos,**kw)
         step=kw.get('step',pos[5] if len(pos)>5 else None)
         directory=Path(kw.get('out_dir',pos[4] if len(pos)>4 else ''))
+        from .finalization import initial_snapshot
+        initial_snapshot(kw.get('model',pos[0] if pos else None),
+            kw.get('tok',pos[1] if len(pos)>1 else None),args,trainer,directory,step)
+        summary=originals['evaluate_during_training'](*pos,**kw)
         rows=read(directory/'training_eval'/f'step-{step:06d}'/'development'/'rows.json')
         metrics=validation_profile(records,rows,cfg['validation_phase_weights'])
         metrics.update(step=step,upstream_hard_label_nll=summary['clean']['nll'])
@@ -207,14 +210,16 @@ def train(cfg):
     write(out/'status.json',dict(status='loading_pinned_pretrained_base',LoRA_training_started=False))
     try:
         directory=trainer.main(['--config',str(trainer_file),'--base_load_path',cfg['base_load_path']])
-        selection=read(directory/'selection.json');metrics=read(directory/'training_metrics.json');verify()
-        selected=selection['selected_checkpoint'];checkpoint=(directory/selected).resolve() if selected else None
-        result=dict(status='continued_base_LoRA_training_complete' if warm else 'fresh_base_LoRA_training_complete',model_id=cfg['model_id'],
-            optimizer_steps=metrics['optimizer_steps'],selected_step=selection['step'],
-            selected_checkpoint=str(checkpoint) if checkpoint else None,
-            validation_curve=curve,actual_update_proof=state['gradient_proof_written'],
-            pretrained_base_frozen=True,old_adapters_loaded=warm,external_residual_networks=0,
-            fresh_full_match_improvement_proven=False,deployed=False)
+        from .finalization import fixed_budget_selection,completed_result
+        metrics=read(directory/'training_metrics.json');verify()
+        selection_file=directory/'selection.json'
+        if selection_file.exists():selection=read(selection_file)
+        else:
+            selection=fixed_budget_selection(cfg,args,metrics,curve)
+            from jevmahjong.evaluation.unified_contract import bundle
+            bundle(directory/selection['selected_checkpoint'])
+            with selection_file.open('x') as stream:json.dump(selection,stream,indent=2)
+        result=completed_result(cfg,metrics,selection,curve,state['gradient_proof_written'])
         write(out/'result.json',result);write(out/'status.json',result)
     finally:
         for name,original in originals.items():setattr(trainer,name,original)
