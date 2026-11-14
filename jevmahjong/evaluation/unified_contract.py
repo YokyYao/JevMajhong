@@ -50,6 +50,15 @@ def checked_candidate(run):
     check_initialization(cfg,fit,initialization,proof,parent)
     if admission['rejected_records'] or admission['admitted_records']!=admission['requested_records']:
         raise ValueError('Token admission unverified')
+    source_balance=None
+    if cfg.get('label_source_gradient_mass') is not None:
+        from jevmahjong.training.label_balance import source_weights
+        source_balance=source_weights(protocol['trainer_args']['data'],cfg['label_source_gradient_mass'],admission['admitted_records'])
+        if (protocol.get('label_source_balance')!=source_balance
+                or read(root/'label-source-balance.json')!=source_balance
+                or digest(package/'training/label_balance.py')!=old.get('training/label_balance.py')):
+            raise ValueError('Registered label-source gradient balance differs')
+    elif protocol.get('label_source_balance') is not None:raise ValueError('Unexpected training source balance')
     trainer=Path(protocol['trainer_args']['out']).resolve();selection=read(trainer/'selection.json')
     if warm:
         from safetensors.torch import load_file
@@ -81,6 +90,7 @@ def checked_candidate(run):
         raise ValueError('Selected new adapter/head base identity differs')
     files={str(root/name):digest(root/name) for name in ('result.json','protocol.json','initialization-audit.json','token-admission.json','actual-update-proof.json','validation-curve.json')}
     files[str(trainer/'selection.json')]=digest(trainer/'selection.json')
+    if source_balance is not None:files[str(root/'label-source-balance.json')]=digest(root/'label-source-balance.json')
     if warm:files[str(root/'parent-initialization-private.json')]=digest(root/'parent-initialization-private.json')
     files.update({str(selected/name):h for name,h in model['files'].items()})
     return dict(model_id=fit['model_id'],initialization_mode='continued' if warm else 'fresh',model=model,training_config=cfg,training_protocol=protocol,

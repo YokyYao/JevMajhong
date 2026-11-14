@@ -1,7 +1,8 @@
 """Explicit pre-game declaration of one completed final checkpoint.
 
 The training run's CE selection is preserved. This diagnostic selector is
-only available when CE selected step zero and no full match has tested the fit.
+available for CE-selected zero, or an exact final budget registered in the
+training configuration. No full match may already have tested the fit.
 Game promotion still uses the unchanged own-win/risk/confirmation protocol.
 """
 import datetime
@@ -23,15 +24,22 @@ def _final_candidate(run,base):
     args=base['training_protocol']['trainer_args'];trainer=Path(args['out']).resolve()
     metrics_file=trainer/'training_metrics.json';metrics=read(metrics_file)
     step=fit['optimizer_steps']
-    if base['selected_step']!=0 or not isinstance(step,int) or step<=0 or metrics['optimizer_steps']!=step:
+    cfg=base['training_config'];rule=cfg.get('evaluation_candidate_rule');predeclared=rule=='final_registered_budget_v1'
+    if rule is not None and not predeclared:raise ValueError('Unknown predeclared evaluation rule')
+    if predeclared and (isinstance(cfg.get('registered_final_step'),bool)
+            or not isinstance(cfg.get('registered_final_step'),int) or cfg['registered_final_step']!=step
+            or args.get('max_steps')!=step or args.get('early_stop_patience',0)!=0):
+        raise ValueError('Completed final step differs from the registered fixed training budget')
+    if (not predeclared and base['selected_step']!=0) or not isinstance(step,int) or step<=0 or metrics['optimizer_steps']!=step:
         raise ValueError('Only an untested fit with CE-selected zero and a completed final step may be declared')
     curve=read(root/'validation-curve.json')
     if not curve or curve[-1]['step']!=step or max(r['step'] for r in curve)!=step:
         raise ValueError('Final step differs from the completed validation trace')
     final=trainer/'checkpoints'/f'step-{step:06d}'
-    model=bundle(final);initial=Path(base['model']['directory'])
+    model=bundle(final);initial=trainer/'checkpoints/step-000000' if predeclared else Path(base['model']['directory'])
+    initial_model=bundle(initial)
     for name in ('adapter_config.json','tokenizer.json','tokenizer_config.json','chat_template.jinja'):
-        if model['files'][name]!=base['model']['files'][name]:
+        if model['files'][name]!=initial_model['files'][name]:
             raise ValueError('Final checkpoint changed adapter architecture or tokenization')
     from safetensors.torch import load_file
     old=load_file(str(initial/'adapter_model.safetensors'),device='cpu')
@@ -55,9 +63,10 @@ def _final_candidate(run,base):
     if len(recorded)!=1 or any(recorded[0][k]!=v for k,v in actual.items()):
         raise ValueError('Final validation prediction profile differs')
     files=dict(base['receipt']);files.update({str(final/name):value for name,value in model['files'].items()})
+    if predeclared:files.update({str(initial/name):value for name,value in initial_model['files'].items()})
     files.update({str(metrics_file):digest(metrics_file),str(rows_file):digest(rows_file)})
     declaration=dict(schema=SCHEMA,method=METHOD,run=str(root),step=step,
-        training_validation_selected_step=0,model=model,inputs=files,
+        training_validation_selected_step=base['selected_step'],model=model,inputs=files,
         validation_profile=actual,selection_code_sha256=digest(Path(__file__)))
     return declaration,rows
 
@@ -102,4 +111,4 @@ def candidate_for_evaluation(cfg):
     return dict(base,model=declared['model'],selected_step=declared['step'],
         selected_validation=dict(step=declared['step'],**declared['validation_profile']),
         selected_validation_rows=rows,receipt=files,eligible_for_development=True,
-        selection_method=METHOD,training_validation_selected_step=0)
+        selection_method=METHOD,training_validation_selected_step=declared['training_validation_selected_step'])

@@ -2672,5 +2672,53 @@
     "reward_unchanged": true,
     "optimizer_updates": 0,
     "raw_private": true
+  },
+  "risk_target_conversion_audit": {
+    "status": "complete_read_only_train_target_audit",
+    "job": 298433,
+    "states_checked": 2589,
+    "phase_states": {
+      "call_window": 1980,
+      "kan_window": 366,
+      "open_discard": 243
+    },
+    "positive_equal_win_lower_dealin_action_comparisons_previously_clipped": {
+      "call_window": 164,
+      "kan_window": 109,
+      "open_discard": 61
+    },
+    "total_affected_action_comparisons": 334,
+    "counts_are_not_independent_states_or_games": true,
+    "held_payloads_opened": false,
+    "optimizer_updates": 0,
+    "causal_explanation_proven": false
+  },
+  "unified_winrisk_v1_plan": {
+    "status": "risk_targets_rebuilt_waiting_for_new_closed_all_option_audit",
+    "source_sha256": "721d5d32c3ce12529c1aae837d59d63c68ceba68d872537c5043fe4b36087f22",
+    "pool_job": 298451,
+    "pool_rebuild_complete": true,
+    "planned_train_records": 32768,
+    "planned_validation_records": 400,
+    "planned_mc_train_records": 2717,
+    "label_source_loss_mass": {
+      "expert_replay": 0.75,
+      "paired_future_masked": 0.25
+    },
+    "max_steps": 512,
+    "maximum_gradient_record_exposure": 8192,
+    "evaluation_candidate_rule": "final_registered_budget_v1",
+    "registered_final_step": 512,
+    "gradient_training_started": false,
+    "new_strength_games": 0,
+    "fitness_gates_unchanged": true,
+    "raw_and_weights_private": true,
+    "local_core_tests_passed": 203,
+    "data_preparation_job": 298461,
+    "training_evaluation_job": 298462,
+    "after_complete_data_audit": 298419,
+    "all_jobs_serial": true,
+    "pool_scheduler_exit_code": "0:0",
+    "new_source_ci_verified": false
   }
 }

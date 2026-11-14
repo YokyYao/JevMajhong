@@ -40,6 +40,20 @@ def fixture(root):
 
 
 class CheckpointSelectionTests(unittest.TestCase):
+    def test_exact_predeclared_budget_can_use_final_even_when_ce_selected_it(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);run,base,final=fixture(root);target=root/'decl.json'
+            base['training_config'].update(evaluation_candidate_rule='final_registered_budget_v1',registered_final_step=384)
+            base['training_protocol']['trainer_args'].update(max_steps=384,early_stop_patience=0)
+            base.update(selected_step=384,model=bundle(final))
+            with patch('jevmahjong.evaluation.checkpoint_selection.checked_candidate',return_value=base):
+                d=declare_final_candidate(run,target,[root/'runs'])
+                cfg=dict(candidate_run=str(run),candidate_selection=dict(method=METHOD,manifest=str(target),sha256=digest(target)))
+                self.assertEqual(candidate_for_evaluation(cfg)['training_validation_selected_step'],384)
+                self.assertEqual(d['step'],384)
+                base['training_config']['registered_final_step']=512
+                with self.assertRaisesRegex(ValueError,'registered fixed training budget'):candidate_for_evaluation(cfg)
+
     def test_declared_final_probe_preserves_ce_parent_and_uses_real_final_rows(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);run,base,_=fixture(root);target=root/'declaration.json'

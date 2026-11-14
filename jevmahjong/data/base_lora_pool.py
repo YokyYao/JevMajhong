@@ -59,20 +59,24 @@ def normalized_request(request,group,label_type,ordinal):
     return enrich_request(result)
 
 
-def soft_target(credits,temperature):
+def soft_target(credits,temperature,allow_risk_only=False):
     """Outcome-only win-compatible target; no inherited never-call prior."""
     if not math.isfinite(temperature) or temperature<=0:raise ValueError('Positive temperature required')
     values=[]
     for c in credits:
         u,w,s=(c[k] for k in ('utility','own_win','fast_reward'))
         if not all(math.isfinite(x) for x in (u,w,s)):raise ValueError('Finite target credits required')
-        if u>0 and not (w>1e-12 or (abs(w)<=1e-12 and s>1e-12)):u=0.
+        d=c.get('dealin') if allow_risk_only else 0.
+        if allow_risk_only and (not isinstance(d,(int,float)) or not math.isfinite(d)):
+            raise ValueError('Finite deal-in credit required for risk-compatible targets')
+        compatible=w>1e-12 or (abs(w)<=1e-12 and (s>1e-12 or (allow_risk_only and d<-1e-12)))
+        if u>0 and not compatible:u=0.
         values.append(u/temperature)
     maximum=max(values);raw=[math.exp(x-maximum) for x in values];total=sum(raw)
     return [x/total for x in raw]
 
 
-def complete_target(rows,reward,temperature):
+def complete_target(rows,reward,temperature,allow_risk_only=False):
     """Use every labelled action; unknown legal actions receive an explicit mask.
 
     Zero entries outside eligible mean UNLABELLED, not negative supervision.
@@ -95,7 +99,7 @@ def complete_target(rows,reward,temperature):
         delta={k:means['branch'][k]-means['control'][k] for k in zero}
         credits[row['action']]=delta
     if set(credits)!=set(eligible):raise ValueError('Incomplete labelled future menu')
-    probability=soft_target([credits[a] for a in eligible],temperature)
+    probability=soft_target([credits[a] for a in eligible],temperature,allow_risk_only)
     target={k:0. for k in keys}
     for action,p in zip(eligible,probability):target[keys[action]]=p
     if any(p<=0 for p in probability):raise ValueError('Labelled target probability underflow')
@@ -138,7 +142,8 @@ def prepare(cfg):
     from jevmahjong.training.utility import validate_config
     validate_config(cfg['reward'])
     if cfg['reward']['mode']!='own_win_first_v1':raise ValueError('Registered own-win reward required')
-    if cfg.get('soft_target_mode')!='outcome_only_win_compatible_masked_v2':raise ValueError('Explicit masked outcome-only target required')
+    if cfg.get('soft_target_mode') not in ('outcome_only_win_compatible_masked_v2','outcome_only_win_risk_compatible_masked_v3'):
+        raise ValueError('Explicit masked outcome-only target required')
     torch.set_num_threads(4)
     catalog=Path(cfg['catalog']);index=catalog/'index-private.sqlite'
     if (digest(index)!=cfg['catalog_index_sha256'] or digest(catalog/'result.json')!=cfg['catalog_result_sha256']
@@ -216,7 +221,8 @@ def prepare(cfg):
                     row=dict(raw);row.update(_source_reward=source_cfg['reward'],_source_config=source_cfg)
                     buckets[(row['episode_key'][0],row['episode_key'][1],row['request_sha256'])].append(row)
                 for number,rows in enumerate(buckets.values()):
-                    target,credits=complete_target(rows,cfg['reward'],cfg['target_temperature']);r=copy.deepcopy(rows[0]['public_request'])
+                    target,credits=complete_target(rows,cfg['reward'],cfg['target_temperature'],
+                        cfg['soft_target_mode']=='outcome_only_win_risk_compatible_masked_v3');r=copy.deepcopy(rows[0]['public_request'])
                     keys=list(r['questions']['action']['criteria']);r['questions']['action'].update(target=target,label=max(keys,key=lambda k:target[k]),src='paired_future_masked')
                     stats['future_menu_states']+=1;stats['future_menu_negative_utility_options']+=sum(c['utility']<0 for c in credits)
                     if any(p==0 for p in target.values()):stats['future_states_with_unlabelled_legal_options_masked']+=1

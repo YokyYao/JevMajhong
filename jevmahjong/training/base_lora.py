@@ -106,6 +106,11 @@ def train(cfg):
             if digest(Path(name))!=checksum:raise ValueError('Registered training input changed: '+name)
         if package_digest(upstream/'jevany')!=cfg['upstream_source_sha256']:raise ValueError('Upstream source changed')
     verify();out=Path(cfg['out']);out.mkdir(parents=True,exist_ok=False)
+    source_balance=None
+    if cfg.get('label_source_gradient_mass') is not None:
+        from .label_balance import source_weights
+        source_balance=source_weights(args['data'],cfg['label_source_gradient_mass'],receipt['files']['train']['records'])
+        write(out/'label-source-balance.json',source_balance)
     if Path(args['out']).resolve()!=out.resolve()/'training-run':raise ValueError('Unexpected trainer output route')
     if warm:write(out/'parent-initialization-private.json',parent)
     write(out/'protocol.json',dict(config=cfg,trainer_args=args,input_sha256=inputs,
@@ -114,7 +119,7 @@ def train(cfg):
             'pinned pretrained base with freshly initialized LoRA and pointer'),
         selection='minimum phase-weighted hard/masked-soft target CE; fresh match verification required',
         code_sha256={str(p):digest(p) for p in Path(__file__).resolve().parents[1].rglob('*.py')},
-        test_payloads_opened=False,deployed=False))
+        label_source_balance=source_balance,test_payloads_opened=False,deployed=False))
     sys.path.insert(0,str(upstream));from jevany import train as trainer
     if not Path(trainer.__file__).resolve().is_relative_to(upstream):raise ValueError('Unpinned upstream trainer imported')
     records=[json.loads(line) for line in Path(args['eval_data']).read_text().splitlines() if line.strip()]
@@ -192,7 +197,11 @@ def train(cfg):
                 completed_optimizer_steps_at_least=steps,training_seconds=time.monotonic()-training_clock[0],
                 actual_update_proof=state['gradient_proof_written'],max_steps=args['max_steps']))
         return originals['batch_loss'](*pos,**kw)
-    trainer.DecisionModel=construct;trainer.question_loss=question_loss
+    trainer.DecisionModel=construct
+    if source_balance is None:trainer.question_loss=question_loss
+    else:
+        from .label_balance import weighted_loss
+        trainer.question_loss=lambda z,q,dev:weighted_loss(z,q,dev,source_balance['loss_weights'])
     trainer.training_requests=admitted;trainer.evaluate_during_training=evaluate;trainer.batch_loss=batch
     if warm:trainer.Checkpoint.warm_start=warm_start
     write(out/'status.json',dict(status='loading_pinned_pretrained_base',LoRA_training_started=False))

@@ -11,6 +11,21 @@ from jevmahjong.training.base_lora import question_loss,target_cross_entropy,val
 
 
 class BaseLoraPoolTests(unittest.TestCase):
+    def test_risk_compatible_version_keeps_equal_win_safer_action_and_preserves_legacy(self):
+        zero=dict(utility=0.,own_win=0.,fast_reward=0.,dealin=0.)
+        safer=dict(utility=.125,own_win=0.,fast_reward=0.,dealin=-.0625)
+        self.assertEqual(soft_target([zero,safer],.05),[.5,.5])
+        self.assertGreater(soft_target([zero,safer],.05,True)[1],.9)
+        slower=dict(safer,utility=.12,fast_reward=-.02)
+        self.assertGreater(soft_target([zero,slower],.05,True)[1],.9)
+        loses_wins=dict(safer,own_win=-.0625)
+        self.assertEqual(soft_target([zero,loses_wins],.05,True),[.5,.5])
+        no_risk_gain=dict(safer,dealin=0.)
+        self.assertEqual(soft_target([zero,no_risk_gain],.05,True),[.5,.5])
+        bad=dict(utility=-.125,own_win=0.,fast_reward=0.,dealin=.0625)
+        self.assertGreater(soft_target([zero,bad],.05,True)[0],.9)
+        with self.assertRaisesRegex(ValueError,'deal-in'):soft_target([dict(safer,dealin=float('nan'))],.05,True)
+
     def test_outcome_target_prefers_pass_over_negative_calls_and_has_no_never_call_prior(self):
         zero=dict(utility=0.,own_win=0.,fast_reward=0.)
         bad=dict(utility=-.2,own_win=.1,fast_reward=.1)
