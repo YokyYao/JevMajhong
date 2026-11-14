@@ -1,5 +1,5 @@
 {
-  "stage": "v3_early_stopped_selected256_native352_passed_development_running",
+  "stage": "v3_development_failed_verified_parent_warm_LoRA_training_running",
   "datasets": 71,
   "replay_jsonl_datasets": 22,
   "native_collection_datasets": 49,
@@ -20,12 +20,12 @@
     "trainable_parameters": 11347456,
     "adapter_tensors": 372
   },
-  "next": "monitor fresh v3 raw-input LoRA updates and 352-case native check; then independent fresh-wall hand-win evaluation",
+  "next": "Monitor verified-parent warm LoRA and linked native/development/audit; promote only after new independently confirmed own-hand-win improvement and unchanged risk gate.",
   "phase_mix_not_finalized": false,
   "LoRA_training_started": true,
   "old_pending_kan_fit_chain_cancelled": true,
   "running_evaluation_preserved": true,
-  "core_tests_passed": 183,
+  "core_tests_passed": 188,
   "raw_records_public": false,
   "test_payloads_opened": false,
   "weights_public": false,
@@ -1890,7 +1890,7 @@
   },
   "followup_v3": {
     "model_id": "jev-balanced-base-lora-v3",
-    "status": "training_complete_native_passed_development_running",
+    "status": "independently_audited_development_failed",
     "recipe": {
       "recipe_kind": "unified_fresh_base_LoRA_training_plan_requires_registered_wrapper",
       "model_id": "jev-balanced-base-lora-v3",
@@ -2118,9 +2118,9 @@
     "native_max_abs_probability_difference": 9.083013663424566e-08,
     "native_is_not_strength_evaluation": true,
     "actual_freshness_protocols_checked": 342,
-    "development_status": "evaluating_unified_policy",
-    "development_completed_games_at_snapshot": 44,
-    "snapshot_utc": "2026-11-14T01:29:03.778788+00:00",
+    "development_status": "independently_audited_complete",
+    "development_completed_games_at_snapshot": 192,
+    "snapshot_utc": "2026-11-14T02:05:32.374745+00:00",
     "selected_checkpoint_new_expert_kan_positive_choices": {
       "ankan": 1,
       "daiminkan": 0,
@@ -2129,8 +2129,192 @@
     "new_expert_kan_positive_records_each": 16,
     "selected_checkpoint_new_expert_decline_kan_choices": 0,
     "new_expert_decline_kan_records": 48,
-    "kan_strategy_solved": false
+    "kan_strategy_solved": false,
+    "independent_wall_groups": 8,
+    "hand_win_paired": {
+      "gain": -0.10055953884078883,
+      "ci95": [
+        -0.17086297878074444,
+        -0.030256098900833223
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "dealin_rate_paired": {
+      "gain": 0.010420424482924483,
+      "ci95": [
+        -0.041175204266317614,
+        0.06201605323216658
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "fast_reward_paired": {
+      "gain": -0.0438507297087052,
+      "ci95": [
+        -0.07419064719686275,
+        -0.01351081222054764
+      ],
+      "unit": "discounted own wins per hand, equal-weight match means, whole-wall paired CI"
+    },
+    "net_points_paired": {
+      "gain": -4787.5,
+      "ci95": [
+        -9023.800929801488,
+        -551.1990701985123
+      ],
+      "independent_wall_streams": 8
+    },
+    "eligible_for_confirmation": false,
+    "reference_calls_per_game": 2.3958333333333335,
+    "candidate_calls_per_game": 1.2708333333333333
   },
-  "active_model_id": "jev-balanced-base-lora-v3",
-  "top_level_model_training_and_unified_evaluation_fields_are_v1_history": true
+  "active_model_id": "jev-unified-warm-lora-v1",
+  "top_level_model_training_and_unified_evaluation_fields_are_v1_history": true,
+  "followup_warm_v1": {
+    "recipe": {
+      "recipe_kind": "verified_complete_parent_LoRA_continuation_requires_registered_wrapper",
+      "model_id": "jev-unified-warm-lora-v1",
+      "base": "Qwen/Qwen3.5-0.8B",
+      "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
+      "fresh_LoRA": false,
+      "fresh_pointer_head": false,
+      "pretrained_base_frozen": true,
+      "old_Mahjong_initialization": true,
+      "LoRA_rank": 16,
+      "LoRA_lr": 2e-06,
+      "head_lr": 1e-05,
+      "weight_decay": 0.001,
+      "LoRA_dropout": 0.05,
+      "dtype": "bf16",
+      "micro_batch": 1,
+      "accumulation": 16,
+      "epochs": 1,
+      "max_steps": 2048,
+      "checkpoint_every_steps": 128,
+      "validation_every_steps": 128,
+      "early_stop_patience": 3,
+      "validation_phase_weights": {
+        "closed_discard": 0.45,
+        "open_discard": 0.2,
+        "call_window": 0.3,
+        "kan_window": 0.05
+      },
+      "train_records": 32768,
+      "validation_records": 352,
+      "train_phase_counts": {
+        "closed_discard": 16384,
+        "open_discard": 8192,
+        "call_window": 6728,
+        "kan_window": 1464
+      },
+      "expert_call_counts": {
+        "chi": 1075,
+        "pon": 1075,
+        "none": 3226
+      },
+      "max_kan_repeat": 1,
+      "soft_target_mode": "outcome_only_win_compatible_masked_v2",
+      "target_temperature": 0.05,
+      "simulated_loss": "conditional CE over evaluated eligible support; unlabelled legal logits excluded from denominator",
+      "expert_loss": "full-menu hard-label CE",
+      "training_entrypoint": "jevmahjong train-base-lora --config GENERATED_PRIVATE_MANIFEST.json",
+      "upstream_source_sha256": "84fe7f0201a8d9928aabe4770912bf25e76c4916c1eded3011cf8f02862b758d",
+      "requires_masked_loss_wrapper": true,
+      "raw_data_and_weights_private": true,
+      "train_unique_positions": 32768,
+      "kan_counts": {
+        "ankan": 688,
+        "daiminkan": 584,
+        "kakan": 192
+      },
+      "reward_unchanged": true,
+      "training_seed": 2026111402,
+      "mixture_seed": 2026111401,
+      "raw_pool_unchanged": false,
+      "optimizer": "AdamW",
+      "learning_rate_schedule": {
+        "type": "OneCycleLR",
+        "total_steps": 2048,
+        "pct_start": 0.1,
+        "listed_LoRA_and_head_lr_are_peak_values": true
+      },
+      "schedule_horizon_changed_from_v1": true,
+      "not_data_only_controlled_comparison": true,
+      "all_kan_training_labels": "independently_audited_expert_observations",
+      "expert_kan_training_choices": {
+        "ankan": 138,
+        "daiminkan": 88,
+        "kakan": 48,
+        "dahai": 682,
+        "none": 432,
+        "pon": 56,
+        "chi": 8,
+        "reach": 12
+      },
+      "family_unseen_validation_groups_reserved": 512,
+      "additional_expert_kan_validation_records": 96,
+      "old256_validation_byte_identical": true,
+      "prior_failed_v2_never_training": true,
+      "validation_sha256": "d9fb77fe0300dda6ce02a0d97ab315adf026dddd19c3a88e73f0cef5bdf3606d",
+      "train_sha256": "93094f92cd88d828513c2cfa4886b7a479fd782a348c7aaa9b14579d092d33a2",
+      "training_source_sha256": "fdd0fffdcb4d84ffe5f279d94ae1cfe7b7645dccb2f60b1e7c1f587f8e46713f",
+      "initialization": "continued",
+      "parent_model_id": "jev-balanced-base-lora-v2",
+      "parent_selected_step": 1536,
+      "parent_identity_sha256": "cbb72f970c1a681a792a600957bf1bb91a53f09b2d4e20e28c72f9a8bfe35092",
+      "parent_verifier_source_sha256": "ec7c2afde9e42bb3def2a1e11678a7bbd17e9945a98ae9c23ba7c394f41a5384",
+      "new_optimizer": true,
+      "resume_optimizer": false,
+      "new_development_seed_start": 11970000,
+      "conditional_confirmation_seed_start": 11980000,
+      "external_residual_networks": 0
+    },
+    "status": "actual_LoRA_and_pointer_updates_verified",
+    "train_groups": 2940,
+    "validation_groups": 178,
+    "parent_train_validation_group_overlap": 0,
+    "train_validation_group_overlap": 0,
+    "all372_adapter_and4_head_tensors_match_parent": true,
+    "old256_initial_probability_difference": 0.0,
+    "training_job": 298034,
+    "native_job": 298036,
+    "development_job": 298038,
+    "independent_audit_job": 298039,
+    "all_jobs_serial": true,
+    "actual_update_proof": {
+      "completed_optimizer_steps_at_least": 8,
+      "continued_LoRA_parameters_changed": true,
+      "head_parameters_changed": true,
+      "cached_encoder_features_used": false
+    },
+    "initial_validation": {
+      "weighted_target_ce": 1.0695736208094526,
+      "phase_target_ce": {
+        "kan_window": 1.3797473737859962,
+        "call_window": 0.6261385228657183,
+        "closed_discard": 1.3151479098983188,
+        "open_discard": 1.104640679030969
+      },
+      "phase_records": {
+        "kan_window": 128,
+        "call_window": 80,
+        "closed_discard": 96,
+        "open_discard": 48
+      },
+      "expert_accuracy": {
+        "kan_window": 0.4166666666666667,
+        "call_window": 0.7125,
+        "closed_discard": 0.5208333333333334,
+        "open_discard": 0.6041666666666666
+      },
+      "pseudo_labels_are_not_expert_truth": true,
+      "step": 0,
+      "upstream_hard_label_nll": 1.1689388279262445
+    },
+    "freshness_actual_protocols_checked": 344,
+    "complete_new_strength_games": 0,
+    "strength_improvement_proven": false,
+    "deployed": false,
+    "serialized_step0_tensors_verified": true
+  },
+  "active_source_sha256": "fdd0fffdcb4d84ffe5f279d94ae1cfe7b7645dccb2f60b1e7c1f587f8e46713f"
 }

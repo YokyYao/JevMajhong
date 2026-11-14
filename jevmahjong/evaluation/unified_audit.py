@@ -92,6 +92,8 @@ def audit(cfg):
     if native['candidate_identity_sha256']!=candidate['model']['identity_sha256'] or any(n<1 for n in native['routes'].values()):
         raise ValueError('Actual unified native coverage missing')
     result=read(out/'evaluation-result.json');raw=out/'games-private.jsonl';raw_sha=digest(raw)
+    component='unified_continued_adapter_and_pointer_head' if candidate.get('initialization_mode')=='continued' else 'unified_new_adapter_and_pointer_head'
+    if result.get('candidate_component')!=component:raise ValueError('Candidate initialization component differs')
     completion=read(out/'audit.json')
     if (completion['status']!='evaluation_complete_independent_audit_pending'
             or completion['games_sha256']!=raw_sha or completion['candidate_identity_sha256']!=candidate['model']['identity_sha256']):
@@ -114,7 +116,7 @@ def audit(cfg):
         raise ValueError('Model or games changed during independent audit')
     proof=dict(status='passed_complete',games=len(rows),games_sha256=raw_sha,
         candidate_identity_sha256=candidate['model']['identity_sha256'],selected_step=candidate['selected_step'],
-        candidate_component='unified_new_adapter_and_pointer_head',whole_wall_groups=ecfg['seeds'],
+        candidate_component=component,whole_wall_groups=ecfg['seeds'],
         manual_four_seat_payment_records=len(rows),manual_final_ranks_checked=len(rows),
         paired_outcomes=outcomes,reference_games_reused=0,independent_strength_improvement_verified=verified,
         han_fu_independently_recalculated=False,new_simulations=0,evaluation_config_sha256=digest(evaluation_file),

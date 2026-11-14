@@ -8,7 +8,7 @@ from jevmahjong.core.io import digest
 MODEL_FILES=('adapter_model.safetensors','adapter_config.json','head.pt',
     'tokenizer.json','tokenizer_config.json','chat_template.jinja')
 FORMAT_FILES=('data/base_lora_pool.py','policy/call_features.py','policy/call_helpers.py',
-    'policy/routing.py','core/state.py','training/base_lora.py')
+    'policy/routing.py','core/state.py','training/base_lora.py','training/initialization.py')
 
 
 def read(path):return json.loads(Path(path).read_text())
@@ -30,9 +30,11 @@ def checked_candidate(run):
     import torch
     from jevmahjong.training.base_lora import package_digest,validation_profile
     root=Path(run).resolve();fit=read(root/'result.json');protocol=read(root/'protocol.json');cfg=protocol['config']
-    if (fit['status']!='fresh_base_LoRA_training_complete' or fit['model_id']!=cfg['model_id']
-            or not fit['actual_update_proof'] or fit['old_adapters_loaded'] or fit['external_residual_networks']):
-        raise ValueError('Completed unified fresh-base LoRA required')
+    warm=cfg.get('initialization','fresh')=='continued'
+    status='continued_base_LoRA_training_complete' if warm else 'fresh_base_LoRA_training_complete'
+    if (fit['status']!=status or fit['model_id']!=cfg['model_id']
+            or not fit['actual_update_proof'] or fit['old_adapters_loaded']!=warm or fit['external_residual_networks']):
+        raise ValueError('Completed explicitly initialized unified LoRA required')
     verify_files(protocol['input_sha256']);verify_files(protocol['code_sha256'])
     if package_digest(Path(cfg['upstream_source'])/'jevany')!=cfg['upstream_source_sha256']:
         raise ValueError('Training upstream package changed')
@@ -41,13 +43,20 @@ def checked_candidate(run):
     for name in FORMAT_FILES:
         if digest(package/name)!=old.get(name):raise ValueError('Training/serving format or loss differs: '+name)
     initialization=read(root/'initialization-audit.json');admission=read(root/'token-admission.json');proof=read(root/'actual-update-proof.json')
-    if (not initialization['fresh_lora_B_zero'] or not initialization['fresh_lora_A_nonzero']
-            or initialization['pretrained_base_requires_grad'] or initialization['old_adapters_loaded']
-            or initialization['external_residual_networks'] or admission['rejected_records']
-            or admission['admitted_records']!=admission['requested_records']
-            or not proof['fresh_LoRA_B_now_nonzero'] or not proof['head_parameters_changed']):
-        raise ValueError('Fresh initialization, token admission or actual updates unverified')
+    from jevmahjong.training.initialization import bind_parent,check_initialization
+    parent=bind_parent(cfg,protocol['trainer_args']) if warm else None
+    if warm and (read(root/'parent-initialization-private.json')!=parent or protocol.get('parent_initialization')!=parent):
+        raise ValueError('Recorded parent initialization differs')
+    check_initialization(cfg,fit,initialization,proof,parent)
+    if admission['rejected_records'] or admission['admitted_records']!=admission['requested_records']:
+        raise ValueError('Token admission unverified')
     trainer=Path(protocol['trainer_args']['out']).resolve();selection=read(trainer/'selection.json')
+    if warm:
+        from safetensors.torch import load_file
+        from jevmahjong.training.initialization import exact_loaded_tensors
+        initial=trainer/'checkpoints/step-000000'
+        exact_loaded_tensors(load_file(str(initial/'adapter_model.safetensors'),device='cpu'),
+            torch.load(initial/'head.pt',map_location='cpu',weights_only=True)['head'],parent['model']['directory'])
     selected=(trainer/selection['selected_checkpoint']).resolve()
     if not selected.is_relative_to(trainer/'checkpoints') or str(selected)!=fit['selected_checkpoint']:
         raise ValueError('Selected complete checkpoint route differs')
@@ -72,8 +81,9 @@ def checked_candidate(run):
         raise ValueError('Selected new adapter/head base identity differs')
     files={str(root/name):digest(root/name) for name in ('result.json','protocol.json','initialization-audit.json','token-admission.json','actual-update-proof.json','validation-curve.json')}
     files[str(trainer/'selection.json')]=digest(trainer/'selection.json')
+    if warm:files[str(root/'parent-initialization-private.json')]=digest(root/'parent-initialization-private.json')
     files.update({str(selected/name):h for name,h in model['files'].items()})
-    return dict(model_id=fit['model_id'],model=model,training_config=cfg,training_protocol=protocol,
+    return dict(model_id=fit['model_id'],initialization_mode='continued' if warm else 'fresh',model=model,training_config=cfg,training_protocol=protocol,
         validation_records=records,selected_validation=best,selected_step=best['step'],receipt=files,
         selected_validation_rows=read(trainer/'training_eval'/f"step-{best['step']:06d}"/'development/rows.json'),
         eligible_for_development=best['step']>0 and best['weighted_target_ce']<recomputed[0]['weighted_target_ce'])

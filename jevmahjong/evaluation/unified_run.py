@@ -115,7 +115,8 @@ def run(cfg,resume=False):
     result=summarize(games,cfg);verify(proto);verify_files(proto['source_files']);verify_files(proto['fit_receipt'])
     verify_files(proto['native_preflight_receipt']);verify_files(proto.get('development_receipt',{}))
     if bundle(candidate['model']['directory'])!=candidate['model']:raise ValueError('Adapter/head changed during matches')
-    result.update(candidate_identity_sha256=candidate['model']['identity_sha256'],candidate_component='unified_new_adapter_and_pointer_head',
+    component='unified_continued_adapter_and_pointer_head' if candidate.get('initialization_mode')=='continued' else 'unified_new_adapter_and_pointer_head'
+    result.update(candidate_identity_sha256=candidate['model']['identity_sha256'],candidate_component=component,
         reference_games_reused=0,new_games_simulated=len(games),independent_audit_required=True)
     write(out/'evaluation-result.json',result);write(out/'audit.json',dict(status='evaluation_complete_independent_audit_pending',games=len(games),games_sha256=digest(raw),candidate_identity_sha256=candidate['model']['identity_sha256'],
         native_files={str(out/name):digest(out/name) for name in ('native-preflight.json','native-rows-private.json')}))
