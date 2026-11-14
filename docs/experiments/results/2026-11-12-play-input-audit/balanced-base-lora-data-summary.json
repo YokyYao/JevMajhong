@@ -2167,7 +2167,7 @@
     "reference_calls_per_game": 2.3958333333333335,
     "candidate_calls_per_game": 1.2708333333333333
   },
-  "active_model_id": "jev-unified-warm-lora-v2",
+  "active_model_id": "jev-unified-winrisk-v1",
   "top_level_model_training_and_unified_evaluation_fields_are_v1_history": true,
   "followup_warm_v1": {
     "recipe": {
@@ -2340,7 +2340,7 @@
     "audit_pending_cancelled": true,
     "improvement_verified": false
   },
-  "active_source_sha256": "fdd0fffdcb4d84ffe5f279d94ae1cfe7b7645dccb2f60b1e7c1f587f8e46713f",
+  "active_source_sha256": "0e7233d2ed584e5a8a67557964486cec6630d6314d44ec6056845a31d210f1d3",
   "followup_warm_v2": {
     "recipe": {
       "recipe_kind": "verified_complete_parent_LoRA_continuation_requires_registered_wrapper",
@@ -2627,7 +2627,7 @@
     }
   },
   "closed_win_data_recovery_v1": {
-    "status": "submitted_serial",
+    "status": "all_options_and_independent_audit_complete",
     "source_sha256": "61bcad97f78a546e9faf1e267353775de6cbe795e278069f8440336b56571bb3",
     "source_control_collection": "kan-win-native-v2",
     "reused_wall_groups": 8,
@@ -2671,7 +2671,10 @@
     "all_alternatives_before_training": true,
     "reward_unchanged": true,
     "optimizer_updates": 0,
-    "raw_private": true
+    "raw_private": true,
+    "raw_decision_windows": 176,
+    "action_pairs": 756,
+    "unique_physical_positions": 175
   },
   "risk_target_conversion_audit": {
     "status": "complete_read_only_train_target_audit",
@@ -2694,13 +2697,13 @@
     "causal_explanation_proven": false
   },
   "unified_winrisk_v1_plan": {
-    "status": "risk_targets_rebuilt_waiting_for_new_closed_all_option_audit",
-    "source_sha256": "721d5d32c3ce12529c1aae837d59d63c68ceba68d872537c5043fe4b36087f22",
+    "status": "data_revision2_verified_fit_registered_not_started",
+    "source_sha256": "0e7233d2ed584e5a8a67557964486cec6630d6314d44ec6056845a31d210f1d3",
     "pool_job": 298451,
     "pool_rebuild_complete": true,
     "planned_train_records": 32768,
     "planned_validation_records": 400,
-    "planned_mc_train_records": 2717,
+    "planned_mc_train_records": 2716,
     "label_source_loss_mass": {
       "expert_replay": 0.75,
       "paired_future_masked": 0.25
@@ -2713,17 +2716,67 @@
     "new_strength_games": 0,
     "fitness_gates_unchanged": true,
     "raw_and_weights_private": true,
-    "local_core_tests_passed": 203,
-    "data_preparation_job": 298461,
-    "training_evaluation_job": 298462,
+    "local_core_tests_passed": 204,
+    "data_preparation_job": 298542,
+    "training_evaluation_job": null,
     "after_complete_data_audit": 298419,
     "all_jobs_serial": true,
-    "pool_scheduler_exit_code": "0:0",
-    "new_source_ci_verified": true,
+    "new_source_ci_verified": false,
     "new_source_ci_commit": "97d3781d9bd29553a548b40cd1166c69a36de9dc",
     "new_source_ci_run": 43576318328,
     "new_source_ci_core": "success",
-    "new_source_ci_desktop": "success"
+    "new_source_ci_desktop": "success",
+    "data_revision": 2,
+    "retired_failed_preparation_job": 298461,
+    "retired_fit_job_cancelled": 298462,
+    "physical_position_canonicalization": {
+      "method": "earliest_observed_decision_v1",
+      "raw_decision_windows": 176,
+      "unique_physical_positions": 175,
+      "new_train_positions": 127,
+      "new_validation_positions": 48,
+      "collisions_with_parent_pool": 0,
+      "repeated_train_positions_omitted": 1,
+      "omission_based_on_reward": false,
+      "raw_source_and_audit_unchanged": true
+    },
+    "pool_rebuild_scheduler_exit_code": "0:0",
+    "actual_train": {
+      "sha256": "e235337f94853190a760be9650279063355e1da498dfb724533627a7d052b489",
+      "records": 32768,
+      "groups": 3354,
+      "unique_positions": 32768
+    },
+    "actual_validation": {
+      "sha256": "d3b73ac2ee7757d0b87cb08ebbf7b3e671112c38cdfa8066bd3be134ed1d12a1",
+      "records": 400,
+      "groups": 180,
+      "unique_positions": 400
+    },
+    "actual_label_source_balance": {
+      "records": 32768,
+      "counts": {
+        "expert_replay": 30052,
+        "paired_future_masked": 2716
+      },
+      "target_mass": {
+        "expert_replay": 0.75,
+        "paired_future_masked": 0.25
+      },
+      "loss_weights": {
+        "paired_future_masked": 3.01620029455081,
+        "expert_replay": 0.8177825103154532
+      },
+      "actual_weighted_mass": {
+        "paired_future_masked": 0.25,
+        "expert_replay": 0.75
+      },
+      "mean_example_weight": 1.0,
+      "copies_added": 0,
+      "reward_sign_selection": false,
+      "validation_weighted": false
+    },
+    "original_expert_validation_preserved": 320
   },
   "risk_target_conversion_persisted_revision": {
     "status": "verified_persisted_target_revision",
@@ -2758,5 +2811,6 @@
       }
     ],
     "new_pool_records": 126569
-  }
+  },
+  "active_experiment_status": "data_revision2_verified_fit_registered_not_started"
 }

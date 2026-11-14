@@ -1,6 +1,6 @@
 {
   "schema": "unified-winrisk-lora-v1",
-  "source_sha256": "721d5d32c3ce12529c1aae837d59d63c68ceba68d872537c5043fe4b36087f22",
+  "source_sha256": "0e7233d2ed584e5a8a67557964486cec6630d6314d44ec6056845a31d210f1d3",
   "model_id": "jev-unified-winrisk-v1",
   "base": "Qwen/Qwen3.5-0.8B",
   "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
@@ -27,13 +27,13 @@
       {
         "phase": "closed_discard",
         "label_type": "expert_replay",
-        "count": 15096,
+        "count": 15097,
         "max_repeats": 1
       },
       {
         "phase": "closed_discard",
         "label_type": "paired_future_masked",
-        "count": 128,
+        "count": 127,
         "max_repeats": 1
       },
       {
@@ -301,5 +301,11 @@
   },
   "data_readiness": "requires completed full-menu independent audit, preserved family holdout and actual count/hash/group checks before any optimizer step",
   "experimental_weights_public": false,
-  "automatic_retry": false
+  "automatic_retry": false,
+  "data_revision": 2,
+  "physical_position_canonicalization": "earliest_observed_decision_v1",
+  "new_closed_raw_decision_windows": 176,
+  "new_closed_unique_physical_positions": 175,
+  "new_closed_train_positions": 127,
+  "new_closed_validation_positions": 48
 }
