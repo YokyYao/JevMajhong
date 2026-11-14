@@ -1,5 +1,5 @@
 {
-  "stage": "v3_development_failed_verified_parent_warm_LoRA_training_running",
+  "stage": "warm_v1_no_new_learning_warm_v2_kan_balanced_training_running",
   "datasets": 71,
   "replay_jsonl_datasets": 22,
   "native_collection_datasets": 49,
@@ -2167,7 +2167,7 @@
     "reference_calls_per_game": 2.3958333333333335,
     "candidate_calls_per_game": 1.2708333333333333
   },
-  "active_model_id": "jev-unified-warm-lora-v1",
+  "active_model_id": "jev-unified-warm-lora-v2",
   "top_level_model_training_and_unified_evaluation_fields_are_v1_history": true,
   "followup_warm_v1": {
     "recipe": {
@@ -2268,7 +2268,7 @@
       "conditional_confirmation_seed_start": 11980000,
       "external_residual_networks": 0
     },
-    "status": "actual_LoRA_and_pointer_updates_verified",
+    "status": "completed_no_validation_learning_selected_parent",
     "train_groups": 2940,
     "validation_groups": 178,
     "parent_train_validation_group_overlap": 0,
@@ -2314,7 +2314,170 @@
     "complete_new_strength_games": 0,
     "strength_improvement_proven": false,
     "deployed": false,
-    "serialized_step0_tensors_verified": true
+    "serialized_step0_tensors_verified": true,
+    "optimizer_steps": 384,
+    "selected_step": 0,
+    "validation_curve": [
+      {
+        "step": 0,
+        "weighted_target_ce": 1.0695736208094526
+      },
+      {
+        "step": 128,
+        "weighted_target_ce": 1.0784065976010333
+      },
+      {
+        "step": 256,
+        "weighted_target_ce": 1.0875857445030934
+      },
+      {
+        "step": 384,
+        "weighted_target_ce": 1.090245875093426
+      }
+    ],
+    "native_status": "skipped_no_validation_learning",
+    "development_status": "admission_rejected_no_validation_learning",
+    "audit_pending_cancelled": true,
+    "improvement_verified": false
   },
-  "active_source_sha256": "fdd0fffdcb4d84ffe5f279d94ae1cfe7b7645dccb2f60b1e7c1f587f8e46713f"
+  "active_source_sha256": "fdd0fffdcb4d84ffe5f279d94ae1cfe7b7645dccb2f60b1e7c1f587f8e46713f",
+  "followup_warm_v2": {
+    "recipe": {
+      "recipe_kind": "verified_complete_parent_LoRA_continuation_requires_registered_wrapper",
+      "model_id": "jev-unified-warm-lora-v2",
+      "base": "Qwen/Qwen3.5-0.8B",
+      "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
+      "fresh_LoRA": false,
+      "fresh_pointer_head": false,
+      "pretrained_base_frozen": true,
+      "old_Mahjong_initialization": true,
+      "LoRA_rank": 16,
+      "LoRA_lr": 2e-06,
+      "head_lr": 1e-05,
+      "weight_decay": 0.001,
+      "LoRA_dropout": 0.05,
+      "dtype": "bf16",
+      "micro_batch": 1,
+      "accumulation": 16,
+      "epochs": 1,
+      "max_steps": 2048,
+      "checkpoint_every_steps": 128,
+      "validation_every_steps": 128,
+      "early_stop_patience": 3,
+      "validation_phase_weights": {
+        "closed_discard": 0.45,
+        "open_discard": 0.2,
+        "call_window": 0.3,
+        "kan_window": 0.05
+      },
+      "train_records": 32768,
+      "validation_records": 352,
+      "train_phase_counts": {
+        "closed_discard": 15224,
+        "open_discard": 8192,
+        "call_window": 6728,
+        "kan_window": 2624
+      },
+      "expert_call_counts": {
+        "chi": 1075,
+        "pon": 1075,
+        "none": 3226
+      },
+      "max_kan_repeat": 1,
+      "soft_target_mode": "outcome_only_win_compatible_masked_v2",
+      "target_temperature": 0.05,
+      "simulated_loss": "conditional CE over evaluated eligible support; unlabelled legal logits excluded from denominator",
+      "expert_loss": "full-menu hard-label CE",
+      "training_entrypoint": "jevmahjong train-base-lora --config GENERATED_PRIVATE_MANIFEST.json",
+      "upstream_source_sha256": "84fe7f0201a8d9928aabe4770912bf25e76c4916c1eded3011cf8f02862b758d",
+      "requires_masked_loss_wrapper": true,
+      "raw_data_and_weights_private": true,
+      "train_unique_positions": 32768,
+      "kan_counts": {
+        "ankan": 1312,
+        "daiminkan": 960,
+        "kakan": 352
+      },
+      "reward_unchanged": true,
+      "training_seed": 2026111402,
+      "mixture_seed": 2026111401,
+      "raw_pool_unchanged": false,
+      "optimizer": "AdamW",
+      "learning_rate_schedule": {
+        "type": "OneCycleLR",
+        "total_steps": 2048,
+        "pct_start": 0.1,
+        "listed_LoRA_and_head_lr_are_peak_values": true
+      },
+      "schedule_horizon_changed_from_v1": true,
+      "not_data_only_controlled_comparison": true,
+      "all_kan_training_labels": "independently_audited_expert_observations",
+      "expert_kan_training_choices": {
+        "ankan": 656,
+        "daiminkan": 480,
+        "kakan": 176,
+        "dahai": 820,
+        "none": 420,
+        "pon": 52,
+        "chi": 8,
+        "reach": 12
+      },
+      "family_unseen_validation_groups_reserved": 512,
+      "additional_expert_kan_validation_records": 96,
+      "old256_validation_byte_identical": true,
+      "prior_failed_v2_never_training": true,
+      "validation_sha256": "d9fb77fe0300dda6ce02a0d97ab315adf026dddd19c3a88e73f0cef5bdf3606d",
+      "train_sha256": "44d8897f8c4798d1a35e03f82bb9865ae1ada80f9171315e9aa99c8bb5c76e40",
+      "training_source_sha256": "fdd0fffdcb4d84ffe5f279d94ae1cfe7b7645dccb2f60b1e7c1f587f8e46713f",
+      "initialization": "continued",
+      "parent_model_id": "jev-balanced-base-lora-v2",
+      "parent_selected_step": 1536,
+      "parent_identity_sha256": "cbb72f970c1a681a792a600957bf1bb91a53f09b2d4e20e28c72f9a8bfe35092",
+      "parent_verifier_source_sha256": "ec7c2afde9e42bb3def2a1e11678a7bbd17e9945a98ae9c23ba7c394f41a5384",
+      "new_optimizer": true,
+      "resume_optimizer": false,
+      "new_development_seed_start": 11990000,
+      "conditional_confirmation_seed_start": 12000000,
+      "external_residual_networks": 0,
+      "observed_kan_selected": 1312,
+      "observed_kan_declined": 1312,
+      "each_public_kan_route_chosen_vs_declined": "50:50",
+      "train_groups": 3458,
+      "validation_groups": 178,
+      "extra_kan_reward": false,
+      "parent_initialization_and_optimizer_unchanged_from_warm_v1": true
+    },
+    "status": "actual_parameter_updates_verified",
+    "train_groups": 3458,
+    "validation_groups": 178,
+    "all_validation_bytes_unchanged": true,
+    "parent_train_validation_overlap": 0,
+    "train_validation_overlap": 0,
+    "token_admission": {
+      "requested_records": 32768,
+      "admitted_records": 32768,
+      "rejected_records": 0,
+      "rejected": []
+    },
+    "actual_update_proof": {
+      "completed_optimizer_steps_at_least": 8,
+      "continued_LoRA_parameters_changed": true,
+      "head_parameters_changed": true,
+      "cached_encoder_features_used": false
+    },
+    "training_job": 298056,
+    "native_job": 298057,
+    "development_job": 298058,
+    "independent_audit_job": 298059,
+    "all_jobs_serial": true,
+    "freshness_protocols_checked": 346,
+    "code_unchanged": true,
+    "last_code_CI_commit": "997f8086768a364034c0353cd056d7c464da8d45",
+    "last_code_CI_run": 43544794810,
+    "last_code_CI_core": "success",
+    "last_code_CI_desktop": "success",
+    "strength_improvement_proven": false,
+    "complete_new_strength_games": 0,
+    "deployed": false
+  }
 }
