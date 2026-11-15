@@ -1,0 +1,22 @@
+{
+  "status": "passed_all_32768_train_inputs_and_served_label_conditioning",
+  "counts": {
+    "records": 32768,
+    "changed_records": 243,
+    "preferred_changes": 70,
+    "open_mc": 243,
+    "remaining_unknown_served_actions": 0
+  },
+  "fixed_validation_records": 540,
+  "fixed_validation_bytes_identical": true,
+  "expert_and_other_training_bytes_identical": true,
+  "public_model_inputs_identical": true,
+  "new_simulations": 0,
+  "optimizer_updates": 0,
+  "policy": "open_mc_served_support_conditioning_v1",
+  "limitations": [
+    "Existing targets are conditioned on the serving candidates, without new value estimates.",
+    "Legacy future continuation still used its expanded defense admission.",
+    "No playing-strength improvement has been established."
+  ]
+}
