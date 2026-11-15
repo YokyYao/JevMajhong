@@ -1,5 +1,5 @@
 {
-  "status": "closed_pilot_audited_open_pilot_and_full_inputs_running",
+  "status": "both_future_cost_pilots_complete_full_native_audit_running",
   "native_input_pilot": {
     "walls": 12,
     "control_matches": 48,
@@ -31,14 +31,43 @@
   "full_input_control_matches_planned": 384,
   "new_full_training_records_planned": 640,
   "new_full_validation_records_planned": 80,
-  "local_core_checks": 250,
+  "local_core_checks": 253,
   "v7_optimizer_updates": 0,
   "playing_strength_improvement_verified": false,
   "raw_records_public": false,
   "limitations": [
-    "Only the closed half of the future cost pilot is complete.",
+    "Full input native replay audit and complete future labels are not finished.",
+    "Cost pilot selected early windows; full selection now uses a public hash order, so runtime estimate is approximate.",
     "Audits verify data and target computation, not policy strength.",
     "Bootstrap averaging adds no independent futures.",
     "Continuation uses the fixed reference policy and fixed concealed hands."
-  ]
+  ],
+  "open_future_pilot": {
+    "status": "passed_complete",
+    "states": 12,
+    "train_states": 8,
+    "held_states": 4,
+    "pairs": 38,
+    "worlds_per_state": 16,
+    "prefixes_replayed": 12,
+    "future_walls_rederived": 192,
+    "arm_records_audited": 1216,
+    "whole_wall_disjoint": true
+  },
+  "all_pilot_target_verification": {
+    "states": 24,
+    "maximum_absolute_probability_error": 0.0,
+    "independent_event_walker": true,
+    "independent_bootstrap_formula": true
+  },
+  "full_inputs": {
+    "walls": 96,
+    "control_matches": 384,
+    "states": 17641,
+    "train_states": 13266,
+    "held_states": 4375,
+    "native_audit": "running"
+  },
+  "cost_pilot_seconds": 1895.3044960609986,
+  "estimated_full_future_gpu_hours": 17.111186089603386
 }

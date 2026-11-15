@@ -77,6 +77,11 @@ def select_case_plan(partitions,head,config,baseline_context=None):
     limits=config.get('max_states_by_split')
     wall_caps=config.get('whole_wall_state_cap_by_split')
     options=(config.get('canonical_state_only',False),config.get('stratify_call_openness',False))
+    public_order=config.get('public_state_order')
+    if public_order is not None and (public_order!='seeded_public_hash_v1'
+            or config.get('decision_filter') not in ('attacking_closed_discard','attacking_open_discard')
+            or limits is None or wall_caps is None or not options[0]):
+        raise ValueError('Public hash ordering requires canonical attacking states and explicit split/wall budgets')
     if config.get('call_context_baseline') and config.get('train_scopes')==['calling'] and baseline_context is None:
         raise ValueError('Pure-call selection requires the actual pinned calling context')
     reserve=config.get('call_route_reserve_by_split')
@@ -104,6 +109,12 @@ def select_case_plan(partitions,head,config,baseline_context=None):
                 or sum(requested.values())>limits[split]):
             raise ValueError('Positive public call-route reserves must fit each split budget')
         candidates=choose_cases({split:partitions[split]},head,None,*options,baseline_context)
+        if public_order is not None:
+            # Only origin identity and its public request hash influence order.
+            # Avoid selecting the earliest turn of every wall by construction.
+            candidates.sort(key=lambda row:hashlib.sha256(
+                (str(config['seed'])+'|'+split+'|'+str(row['episode_key'][0])+'|'
+                 +str(row['episode_key'][1])+'|'+row['request_sha256']).encode()).hexdigest())
         from .call_head import route_groups
         routes=route_groups([{'row':r} for r in candidates]) if requested else {};chosen={}
         if wall_caps is not None:

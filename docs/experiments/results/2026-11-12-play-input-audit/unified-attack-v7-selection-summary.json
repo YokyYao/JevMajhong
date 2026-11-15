@@ -1,0 +1,157 @@
+{
+  "status": "passed_public_hash_ordered_full_selection_preview",
+  "sampling": "seeded_public_hash_v1_with_whole_wall_caps",
+  "source_sha256": "46d052fdd2a7e251ddea88eec8f711897311a33e8aea7cd5ddc2a52e81012730",
+  "summary": {
+    "closed": {
+      "train": {
+        "states": 384,
+        "walls": 72,
+        "maximum_per_wall": 6,
+        "hand_index_histogram": {
+          "0": 80,
+          "3": 65,
+          "4": 46,
+          "2": 61,
+          "1": 70,
+          "5": 29,
+          "6": 16,
+          "7": 8,
+          "8": 4,
+          "9": 2,
+          "10": 2,
+          "11": 1
+        },
+        "minimum_shanten_histogram": {
+          "1": 84,
+          "5": 4,
+          "4": 29,
+          "3": 104,
+          "2": 143,
+          "0": 20
+        },
+        "first_hand_first_draw": 3,
+        "later_than_first_hand": 304,
+        "more_than_eight_table_draws": 278
+      },
+      "held": {
+        "states": 48,
+        "walls": 24,
+        "maximum_per_wall": 2,
+        "hand_index_histogram": {
+          "3": 8,
+          "2": 13,
+          "1": 9,
+          "5": 2,
+          "6": 3,
+          "0": 9,
+          "4": 4
+        },
+        "minimum_shanten_histogram": {
+          "1": 20,
+          "2": 14,
+          "3": 11,
+          "4": 2,
+          "0": 1
+        },
+        "first_hand_first_draw": 0,
+        "later_than_first_hand": 39,
+        "more_than_eight_table_draws": 37
+      }
+    },
+    "open": {
+      "train": {
+        "states": 256,
+        "walls": 70,
+        "maximum_per_wall": 4,
+        "hand_index_histogram": {
+          "2": 52,
+          "4": 28,
+          "1": 52,
+          "3": 39,
+          "5": 13,
+          "0": 46,
+          "8": 5,
+          "7": 5,
+          "9": 3,
+          "6": 11,
+          "10": 2
+        },
+        "minimum_shanten_histogram": {
+          "2": 65,
+          "1": 129,
+          "0": 43,
+          "4": 2,
+          "3": 17
+        },
+        "first_hand_first_draw": 0,
+        "later_than_first_hand": 210,
+        "more_than_eight_table_draws": 232
+      },
+      "held": {
+        "states": 32,
+        "walls": 24,
+        "maximum_per_wall": 2,
+        "hand_index_histogram": {
+          "3": 7,
+          "1": 9,
+          "4": 6,
+          "2": 2,
+          "5": 4,
+          "0": 3,
+          "7": 1
+        },
+        "minimum_shanten_histogram": {
+          "1": 15,
+          "0": 2,
+          "2": 12,
+          "3": 3
+        },
+        "first_hand_first_draw": 0,
+        "later_than_first_hand": 29,
+        "more_than_eight_table_draws": 29
+      }
+    }
+  },
+  "seat_histograms": {
+    "closed": {
+      "train": {
+        "2": 98,
+        "3": 89,
+        "0": 86,
+        "1": 111
+      },
+      "held": {
+        "2": 10,
+        "0": 10,
+        "3": 16,
+        "1": 12
+      }
+    },
+    "open": {
+      "train": {
+        "3": 73,
+        "0": 66,
+        "2": 53,
+        "1": 64
+      },
+      "held": {
+        "1": 7,
+        "3": 14,
+        "0": 5,
+        "2": 6
+      }
+    }
+  },
+  "prior_closed_cost_pilot": {
+    "states": 12,
+    "all_first_hand": true,
+    "all_seat_zero": true,
+    "first_table_draw": 11
+  },
+  "reward_payloads_used_for_selection": false,
+  "optimizer_updates": 0,
+  "new_simulations": 0,
+  "raw_records_public": false,
+  "independent_strength_proven": false
+}
