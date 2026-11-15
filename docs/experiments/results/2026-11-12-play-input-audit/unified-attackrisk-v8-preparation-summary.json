@@ -1,0 +1,124 @@
+{
+  "model_id": "jev-unified-attackrisk-v8",
+  "status": "all_targets_verified_fixed_full_fit_actually_updating",
+  "source_sha256": "13138ac58cbc4ff95f3aafdf813c50f2b0f42c70b989dfe57377ae57e94d7752",
+  "parent_model": "jev-unified-attack-v7",
+  "parent_checkpoint": 2088,
+  "parent_identity_sha256": "39f354f82260f0f5fab825df1f00db65c92a72118f9045f7671f5e13ff3758cf",
+  "parent_is_experimental_not_promoted": true,
+  "records": {
+    "train": 33408,
+    "validation": 620,
+    "expert_train": 29625,
+    "simulated_train": 3783,
+    "unique_train_positions": 33408
+  },
+  "parent_reward": {
+    "mode": "own_win_first_v1",
+    "win_weight": 1.0,
+    "fast_weight": 0.25,
+    "dealin_penalty": 1.0,
+    "net_weight": 0.0,
+    "point_scale": 8000.0,
+    "speed_gamma": 0.98
+  },
+  "reward": {
+    "mode": "own_win_first_v1",
+    "win_weight": 1.0,
+    "fast_weight": 0.25,
+    "dealin_penalty": 1.5,
+    "net_weight": 0.0,
+    "point_scale": 8000.0,
+    "speed_gamma": 0.98
+  },
+  "phase_states": {
+    "call_window": 1980,
+    "kan_window": 366,
+    "open_discard": 499,
+    "closed_discard": 938
+  },
+  "affected_targets": {
+    "call_window": 1713,
+    "kan_window": 299,
+    "open_discard": 260,
+    "closed_discard": 621
+  },
+  "argmax_changes": {
+    "call_window": 92,
+    "kan_window": 17,
+    "open_discard": 21,
+    "closed_discard": 39
+  },
+  "maximum_parent_target_reproduction_error": 4.6629367034256575e-15,
+  "maximum_independent_outcome_error": 0.0,
+  "expert_bytes_unchanged": true,
+  "public_model_inputs_unchanged": true,
+  "validation_bytes_unchanged": true,
+  "new_simulations": 0,
+  "held_rollout_payloads_opened": false,
+  "current_evaluation_game_payloads_opened": false,
+  "whole_group_isolation": {
+    "parent_train_groups": 3444,
+    "train_groups": 3444,
+    "validation_groups": 210,
+    "parent_validation_overlap": 0,
+    "train_validation_overlap": 0,
+    "ancestor_train_group_counts": [
+      3372,
+      3372,
+      3354,
+      2169
+    ],
+    "lineage_train_groups": 3489,
+    "ancestor_validation_overlap": 0
+  },
+  "bootstrap_replicates": 256,
+  "training": {
+    "planned_steps": 2088,
+    "epochs": 1,
+    "LoRA_rank": 16,
+    "batch": 1,
+    "accumulation": 16,
+    "lr": 2e-06,
+    "head_lr": 1e-05,
+    "new_optimizer": true,
+    "same_LoRA_and_action_head": true,
+    "external_residual_networks": 0,
+    "validation_every_steps": 256,
+    "unique_match_candidate": "registered_final_step2088",
+    "loss_source_mass": {
+      "expert": 0.75,
+      "simulated": 0.25
+    },
+    "simulated_phase_mass": {
+      "closed_discard": 0.4,
+      "call_window": 0.3,
+      "kan_window": 0.2,
+      "open_discard": 0.1
+    },
+    "GPU_job_started": true,
+    "optimizer_updates_observed": true,
+    "completed_optimizer_steps_at_least_at_publication": 12,
+    "actual_LoRA_and_head_update_proof_passed": true
+  },
+  "evaluation": {
+    "planned_development_games": 192,
+    "planned_confirmation_games": 768,
+    "confirmation_conditional_on_development": true,
+    "max_dealin_rate_increase": 0.01,
+    "require_positive_hand_win_95CI_lower": true,
+    "completed_games": 0
+  },
+  "improvement_verified": false,
+  "deployed": false,
+  "raw_records_public": false,
+  "weights_public": false,
+  "limitations": [
+    "Target-implied changes under stored futures are not candidate match predictions.",
+    "Stored hidden hands and reference continuation remain conditional approximations.",
+    "Paired resampling does not add independent observations.",
+    "Reward and continued initialization change together; no single-factor causal claim.",
+    "Validation keeps the previous target definition; CE is diagnostic only.",
+    "Preparing data or starting a Slurm GPU job does not itself establish optimizer updates."
+  ]
+}
