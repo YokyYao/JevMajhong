@@ -1,6 +1,6 @@
 {
   "model_id": "jev-unified-attackrisk-v8",
-  "status": "all_targets_verified_fixed_full_fit_actually_updating",
+  "status": "fit2088_full33408_native620_development192_audited_confirmation_started",
   "source_sha256": "13138ac58cbc4ff95f3aafdf813c50f2b0f42c70b989dfe57377ae57e94d7752",
   "parent_model": "jev-unified-attack-v7",
   "parent_checkpoint": 2088,
@@ -98,8 +98,14 @@
     },
     "GPU_job_started": true,
     "optimizer_updates_observed": true,
-    "completed_optimizer_steps_at_least_at_publication": 12,
-    "actual_LoRA_and_head_update_proof_passed": true
+    "actual_LoRA_and_head_update_proof_passed": true,
+    "observed_start_snapshot_steps": 12,
+    "optimizer_steps": 2088,
+    "full_training_positions_consumed": 33408,
+    "full_training_exposure_verified": true,
+    "final_validation_ce": 1.1979515291426053,
+    "initial_validation_ce": 1.2113366910604275,
+    "training_validation_minimum_step_diagnostic_only": 1536
   },
   "evaluation": {
     "planned_development_games": 192,
@@ -107,7 +113,12 @@
     "confirmation_conditional_on_development": true,
     "max_dealin_rate_increase": 0.01,
     "require_positive_hand_win_95CI_lower": true,
-    "completed_games": 0
+    "completed_games": 192,
+    "completed_development_games": 192,
+    "development_independent_audit_passed": true,
+    "eligible_for_confirmation": true,
+    "confirmation_admitted": true,
+    "confirmation_started": true
   },
   "improvement_verified": false,
   "deployed": false,
@@ -120,5 +131,21 @@
     "Reward and continued initialization change together; no single-factor causal claim.",
     "Validation keeps the previous target definition; CE is diagnostic only.",
     "Preparing data or starting a Slurm GPU job does not itself establish optimizer updates."
-  ]
+  ],
+  "candidate_identity_sha256": "5ebce6af3777854cbec55ba29db2dc90be0f959193114bb3154179c5552370fa",
+  "native_preflight": {
+    "status": "passed_selected_unified_native_validation",
+    "records": 620,
+    "routes": {
+      "closed_discard": 332,
+      "open_discard": 80,
+      "call_window": 80,
+      "ankan": 44,
+      "daiminkan": 46,
+      "kakan": 38
+    },
+    "selected_step": 2088,
+    "max_abs_probability_difference": 1.166854519674132e-07,
+    "complete_matches_simulated": 0
+  }
 }
