@@ -20,7 +20,7 @@
     "trainable_parameters": 11347456,
     "adapter_tensors": 372
   },
-  "next": "Monitor same v5 evaluation-only recovery GPU299917: final2048 full32768/2688/98 verified, same candidate c5b991 preserved, native540 passed, fresh192 development running. Original fit299790 ended after completed training at stale config filename guard; recovery performs zero optimizer updates. Unchanged own-win/risk gates decide conditional768. No strength claim/deployment.",
+  "next": "Monitor SAME evalGPU299917 v5 independent768 confirmation; complete192+audit admitted, ownwin+0.3526pp/risk-2.3789pp/net+1080.21 mean but wideCIs. Samefinal2048c5b991 candidate, new32wholewalls, no reuse/rescue/deployment. Fullconfirmationaudit and unchanged lower95%ownwin/risk gate required.",
   "phase_mix_not_finalized": false,
   "LoRA_training_started": true,
   "old_pending_kan_fit_chain_cancelled": true,
@@ -4091,7 +4091,7 @@
   },
   "followup_winrisk_v5": {
     "model_id": "jev-unified-winrisk-v5",
-    "status": "training_complete_native_passed_fresh_development_running",
+    "status": "development_passed_independent_confirmation_running",
     "training_source_sha256": "89fffa63c1a883ee6f14c9dd7710276a72e0ced8bc9e75aa0fa7badbffe30b28",
     "training_target_policy": "paired_bootstrap_average_masked_v1",
     "bootstrap_replicates": 256,
@@ -4388,9 +4388,47 @@
       "max_abs_probability_difference": 1.385489835081799e-07
     },
     "development": {
+      "status": "passed_complete_audit_and_fitness_admission",
+      "games": 192,
+      "independent_wall_streams": 8,
+      "hand_win_paired": {
+        "gain": 0.0035259589947089953,
+        "ci95": [
+          -0.07075423488158901,
+          0.07780615287100699
+        ],
+        "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+      },
+      "dealin_rate_paired": {
+        "gain": -0.023788855820105818,
+        "ci95": [
+          -0.09824825148689245,
+          0.05067053984668082
+        ],
+        "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+      },
+      "net_points_paired": {
+        "gain": 1080.2083333333333,
+        "ci95": [
+          -2910.8664345042453,
+          5071.283101170912
+        ]
+      },
+      "independent_audit": {
+        "status": "passed_complete",
+        "games": 192,
+        "whole_wall_groups": 8,
+        "four_seat_payment_records": 192,
+        "final_ranks_checked": 192,
+        "han_fu_independently_recalculated": false
+      }
+    },
+    "development_summary_path": "docs/experiments/results/2026-11-12-play-input-audit/unified-winrisk-v5-development-summary.json",
+    "confirmation": {
       "status": "running",
-      "expected_games": 192,
-      "independent_wall_streams": 8
+      "expected_games": 768,
+      "independent_wall_streams": 32,
+      "reference_games_reused": 0
     }
   }
 }

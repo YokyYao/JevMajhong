@@ -60,7 +60,7 @@
   "epochs": 1,
   "new_optimizer": true,
   "model_id": "jev-unified-winrisk-v5",
-  "status": "training_complete_native_passed_fresh_development_running",
+  "status": "development_passed_independent_confirmation_running",
   "training_source_sha256": "89fffa63c1a883ee6f14c9dd7710276a72e0ced8bc9e75aa0fa7badbffe30b28",
   "training_target_policy": "paired_bootstrap_average_masked_v1",
   "bootstrap_replicates": 256,
@@ -129,5 +129,34 @@
   "final_validation_CE": 1.169589790073975,
   "native_records_passed": 540,
   "native_max_probability_difference": 1.385489835081799e-07,
-  "development_status": "running"
+  "development_status": "passed_independent_audit_and_fitness_admission",
+  "development_games_completed": 192,
+  "development_independent_wall_streams": 8,
+  "development_summary": "docs/experiments/results/2026-11-12-play-input-audit/unified-winrisk-v5-development-summary.json",
+  "hand_win_paired": {
+    "gain": 0.0035259589947089953,
+    "ci95": [
+      -0.07075423488158901,
+      0.07780615287100699
+    ],
+    "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+  },
+  "dealin_rate_paired": {
+    "gain": -0.023788855820105818,
+    "ci95": [
+      -0.09824825148689245,
+      0.05067053984668082
+    ],
+    "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+  },
+  "net_points_paired": {
+    "gain": 1080.2083333333333,
+    "ci95": [
+      -2910.8664345042453,
+      5071.283101170912
+    ]
+  },
+  "confirmation_status": "running",
+  "confirmation_started": true,
+  "confirmation_independent_wall_streams": 32
 }
