@@ -1,0 +1,537 @@
+{
+  "model_id": "jev-unified-winrisk-v6",
+  "checkpoint": 2048,
+  "training_validation_selected_step": 1536,
+  "candidate_identity_sha256": "828f415ecf3411fee55d106b1be4945557e6d993bbb0390f3920dc0f4a220404",
+  "stage": "development",
+  "games": 192,
+  "reference_games": 96,
+  "candidate_games": 96,
+  "independent_wall_streams": 8,
+  "policies": {
+    "reference": {
+      "games": 96,
+      "mean_net_points": 1334.375,
+      "first_rate": 0.3125,
+      "top2_rate": 0.5416666666666666,
+      "fourth_rate": 0.21875,
+      "mean_rank": 2.3645833333333335,
+      "hand_win_rate": 0.23588039867109634,
+      "dealin_rate": 0.08471760797342193,
+      "dealin_event_rate": 0.08637873754152824,
+      "calls_per_game": 2.6666666666666665,
+      "discounted_own_wins_per_hand": 0.09400968991793882,
+      "mean_table_draws_when_winning": 47.021126760563384,
+      "mean_match_hand_win_rate": 0.2319617303992304,
+      "mean_point_components": {
+        "draw_settlement": 526.0416666666666,
+        "final_unclaimed_pool": 93.75,
+        "riichi_deposits": -1500,
+        "ron_payments": -4270.833333333333,
+        "tsumo_payments": -3002.0833333333335,
+        "win_income": 9487.5
+      },
+      "kan_opportunities": {
+        "ankan": 22,
+        "daiminkan": 45,
+        "kakan": 14
+      },
+      "kan_choices": {
+        "ankan": 11,
+        "daiminkan": 0,
+        "kakan": 0
+      }
+    },
+    "candidate": {
+      "games": 96,
+      "mean_net_points": 3869.7916666666665,
+      "first_rate": 0.4166666666666667,
+      "top2_rate": 0.6458333333333334,
+      "fourth_rate": 0.19791666666666666,
+      "mean_rank": 2.1354166666666665,
+      "hand_win_rate": 0.26138279932546377,
+      "dealin_rate": 0.08094435075885328,
+      "dealin_event_rate": 0.08094435075885328,
+      "calls_per_game": 2.8020833333333335,
+      "discounted_own_wins_per_hand": 0.10820486887804918,
+      "mean_table_draws_when_winning": 47.18709677419355,
+      "mean_match_hand_win_rate": 0.2669601521164021,
+      "mean_point_components": {
+        "draw_settlement": 484.375,
+        "final_unclaimed_pool": 187.5,
+        "riichi_deposits": -1802.0833333333333,
+        "ron_payments": -3852.0833333333335,
+        "tsumo_payments": -2777.0833333333335,
+        "win_income": 11629.166666666666
+      },
+      "kan_opportunities": {
+        "ankan": 18,
+        "daiminkan": 46,
+        "kakan": 9
+      },
+      "kan_choices": {
+        "ankan": 17,
+        "daiminkan": 22,
+        "kakan": 4
+      }
+    }
+  },
+  "suites": {
+    "closed": {
+      "policies": {
+        "reference": {
+          "games": 32,
+          "mean_net_points": -956.25,
+          "first_rate": 0.25,
+          "top2_rate": 0.46875,
+          "fourth_rate": 0.28125,
+          "mean_rank": 2.5625,
+          "hand_win_rate": 0.21243523316062177,
+          "dealin_rate": 0.09326424870466321,
+          "dealin_event_rate": 0.09844559585492228,
+          "calls_per_game": 2.40625,
+          "mean_point_components": {
+            "draw_settlement": 312.5,
+            "riichi_deposits": -1500,
+            "ron_payments": -4487.5,
+            "tsumo_payments": -3259.375,
+            "win_income": 7978.125
+          }
+        },
+        "candidate": {
+          "games": 32,
+          "mean_net_points": 4340.625,
+          "first_rate": 0.4375,
+          "top2_rate": 0.71875,
+          "fourth_rate": 0.1875,
+          "mean_rank": 2.03125,
+          "hand_win_rate": 0.273224043715847,
+          "dealin_rate": 0.07650273224043716,
+          "dealin_event_rate": 0.07650273224043716,
+          "calls_per_game": 2.96875,
+          "mean_point_components": {
+            "draw_settlement": 421.875,
+            "final_unclaimed_pool": 250,
+            "riichi_deposits": -1656.25,
+            "ron_payments": -2831.25,
+            "tsumo_payments": -2378.125,
+            "win_income": 10534.375
+          }
+        }
+      },
+      "candidate_minus_reference": {
+        "gain": 5296.875,
+        "ci95": [
+          -502.9616381859232,
+          11096.711638185923
+        ]
+      }
+    },
+    "mixed": {
+      "policies": {
+        "reference": {
+          "games": 32,
+          "mean_net_points": 3778.125,
+          "first_rate": 0.34375,
+          "top2_rate": 0.5625,
+          "fourth_rate": 0.15625,
+          "mean_rank": 2.25,
+          "hand_win_rate": 0.23902439024390243,
+          "dealin_rate": 0.05853658536585366,
+          "dealin_event_rate": 0.05853658536585366,
+          "calls_per_game": 2.6875,
+          "mean_point_components": {
+            "draw_settlement": 671.875,
+            "final_unclaimed_pool": 187.5,
+            "riichi_deposits": -1562.5,
+            "ron_payments": -3218.75,
+            "tsumo_payments": -3078.125,
+            "win_income": 10778.125
+          }
+        },
+        "candidate": {
+          "games": 32,
+          "mean_net_points": 5737.5,
+          "first_rate": 0.4375,
+          "top2_rate": 0.71875,
+          "fourth_rate": 0.1875,
+          "mean_rank": 2.03125,
+          "hand_win_rate": 0.24630541871921183,
+          "dealin_rate": 0.06896551724137931,
+          "dealin_event_rate": 0.06896551724137931,
+          "calls_per_game": 2.78125,
+          "mean_point_components": {
+            "draw_settlement": 609.375,
+            "final_unclaimed_pool": 218.75,
+            "riichi_deposits": -1875,
+            "ron_payments": -2740.625,
+            "tsumo_payments": -2656.25,
+            "win_income": 12181.25
+          }
+        }
+      },
+      "candidate_minus_reference": {
+        "gain": 1959.375,
+        "ci95": [
+          -10484.374557032115,
+          14403.124557032115
+        ]
+      }
+    },
+    "strong": {
+      "policies": {
+        "reference": {
+          "games": 32,
+          "mean_net_points": 1181.25,
+          "first_rate": 0.34375,
+          "top2_rate": 0.59375,
+          "fourth_rate": 0.21875,
+          "mean_rank": 2.28125,
+          "hand_win_rate": 0.2549019607843137,
+          "dealin_rate": 0.10294117647058823,
+          "dealin_event_rate": 0.10294117647058823,
+          "calls_per_game": 2.90625,
+          "mean_point_components": {
+            "draw_settlement": 593.75,
+            "final_unclaimed_pool": 93.75,
+            "riichi_deposits": -1437.5,
+            "ron_payments": -5106.25,
+            "tsumo_payments": -2668.75,
+            "win_income": 9706.25
+          }
+        },
+        "candidate": {
+          "games": 32,
+          "mean_net_points": 1531.25,
+          "first_rate": 0.375,
+          "top2_rate": 0.5,
+          "fourth_rate": 0.21875,
+          "mean_rank": 2.34375,
+          "hand_win_rate": 0.26570048309178745,
+          "dealin_rate": 0.0966183574879227,
+          "dealin_event_rate": 0.0966183574879227,
+          "calls_per_game": 2.65625,
+          "mean_point_components": {
+            "draw_settlement": 421.875,
+            "final_unclaimed_pool": 93.75,
+            "riichi_deposits": -1875,
+            "ron_payments": -5984.375,
+            "tsumo_payments": -3296.875,
+            "win_income": 12171.875
+          }
+        }
+      },
+      "candidate_minus_reference": {
+        "gain": 350,
+        "ci95": [
+          -6043.783942411378,
+          6743.783942411378
+        ]
+      }
+    }
+  },
+  "hand_win_paired": {
+    "gain": 0.03499842171717172,
+    "ci95": [
+      -0.04824870227696442,
+      0.11824554571130785
+    ],
+    "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+  },
+  "dealin_rate_paired": {
+    "gain": -0.0031001984126984117,
+    "ci95": [
+      -0.04535601106366676,
+      0.039155614238269944
+    ],
+    "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+  },
+  "fast_reward_paired": {
+    "gain": 0.014195178960110364,
+    "ci95": [
+      -0.01871502390974937,
+      0.047105381829970094
+    ],
+    "unit": "discounted own wins per hand, equal-weight match means, whole-wall paired CI"
+  },
+  "net_points_paired": {
+    "gain": 2535.4166666666665,
+    "ci95": [
+      -5121.250505825548,
+      10192.083839158882
+    ]
+  },
+  "improvement_verified": false,
+  "deployed": false,
+  "reference_games_reused": 0,
+  "fitness_gates_unchanged": true,
+  "independent_audit": {
+    "status": "passed_complete",
+    "games": 192,
+    "whole_wall_groups": 8,
+    "four_seat_payment_records": 192,
+    "final_ranks_checked": 192,
+    "han_fu_independently_recalculated": false
+  },
+  "training": {
+    "optimizer_steps": 2048,
+    "prepared_records": 32768,
+    "consumed_unique_records": 32768,
+    "actual_relabelled_training_exposure": {
+      "records": 32768,
+      "changed_target_positions": 2458,
+      "changed_argmax_positions": 180,
+      "changed_target_by_phase": {
+        "open_discard": 169,
+        "call_window": 1713,
+        "closed_discard": 277,
+        "kan_window": 299
+      }
+    },
+    "validation_records": 540,
+    "validation_curve": [
+      {
+        "weighted_target_ce": 1.169589790073975,
+        "phase_target_ce": {
+          "kan_window": 1.2030266217031258,
+          "call_window": 0.6010201806929166,
+          "closed_discard": 1.5627844360147638,
+          "open_discard": 1.1293970428714994
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5625,
+          "call_window": 0.725,
+          "closed_discard": 0.5104166666666666,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 0,
+        "upstream_hard_label_nll": 1.361093449513795
+      },
+      {
+        "weighted_target_ce": 1.1726686796851005,
+        "phase_target_ce": {
+          "kan_window": 1.2071459107922353,
+          "call_window": 0.595331783745509,
+          "closed_discard": 1.5755325961271742,
+          "open_discard": 1.1236109038230382
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5416666666666666,
+          "call_window": 0.7125,
+          "closed_discard": 0.5104166666666666,
+          "open_discard": 0.6041666666666666
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 256,
+        "upstream_hard_label_nll": 1.381326503291365
+      },
+      {
+        "weighted_target_ce": 1.154227002058323,
+        "phase_target_ce": {
+          "kan_window": 1.1960087465060816,
+          "call_window": 0.6088026630028637,
+          "closed_discard": 1.5300606876401903,
+          "open_discard": 1.11629228197037
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5520833333333334,
+          "call_window": 0.7125,
+          "closed_discard": 0.4895833333333333,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 512,
+        "upstream_hard_label_nll": 1.3676161928089667
+      },
+      {
+        "weighted_target_ce": 1.1741318200966524,
+        "phase_target_ce": {
+          "kan_window": 1.245169992007984,
+          "call_window": 0.6097344948650971,
+          "closed_discard": 1.562560452046929,
+          "open_discard": 1.1290038430780296
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5104166666666666,
+          "call_window": 0.725,
+          "closed_discard": 0.5416666666666666,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 768,
+        "upstream_hard_label_nll": 1.395131975636397
+      },
+      {
+        "weighted_target_ce": 1.1553601362879624,
+        "phase_target_ce": {
+          "kan_window": 1.1973146124344216,
+          "call_window": 0.6004089790596658,
+          "closed_discard": 1.5460048181998451,
+          "open_discard": 1.0983477187920563
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.59375,
+          "call_window": 0.7125,
+          "closed_discard": 0.5833333333333334,
+          "open_discard": 0.6458333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1024,
+        "upstream_hard_label_nll": 1.3523697983775949
+      },
+      {
+        "weighted_target_ce": 1.1561251338626515,
+        "phase_target_ce": {
+          "kan_window": 1.2125899460428238,
+          "call_window": 0.5921967114513389,
+          "closed_discard": 1.5395084859844521,
+          "open_discard": 1.125289022160526
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5729166666666666,
+          "call_window": 0.7125,
+          "closed_discard": 0.5416666666666666,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1280,
+        "upstream_hard_label_nll": 1.3676622219801713
+      },
+      {
+        "weighted_target_ce": 1.14731660762501,
+        "phase_target_ce": {
+          "kan_window": 1.1845595759362568,
+          "call_window": 0.5907415912040771,
+          "closed_discard": 1.5311585957608869,
+          "open_discard": 1.1092239168728752
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5729166666666666,
+          "call_window": 0.7125,
+          "closed_discard": 0.5520833333333334,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1536,
+        "upstream_hard_label_nll": 1.3494846860784
+      },
+      {
+        "weighted_target_ce": 1.1501019929156873,
+        "phase_target_ce": {
+          "kan_window": 1.1868561455183655,
+          "call_window": 0.5898872847257689,
+          "closed_discard": 1.5336844040493987,
+          "open_discard": 1.118175091999045
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5729166666666666,
+          "call_window": 0.725,
+          "closed_discard": 0.5416666666666666,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1792,
+        "upstream_hard_label_nll": 1.3500922952410637
+      },
+      {
+        "weighted_target_ce": 1.1509419409957897,
+        "phase_target_ce": {
+          "kan_window": 1.18511084391409,
+          "call_window": 0.5922745596514548,
+          "closed_discard": 1.5322552889535181,
+          "open_discard": 1.1224457543778275
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5833333333333334,
+          "call_window": 0.725,
+          "closed_discard": 0.5520833333333334,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 2048,
+        "upstream_hard_label_nll": 1.3495475831381694
+      }
+    ],
+    "CE_is_diagnostic_not_policy_strength": true
+  },
+  "native_preflight": {
+    "status": "passed_selected_unified_native_validation",
+    "records": 540,
+    "routes": {
+      "closed_discard": 284,
+      "open_discard": 48,
+      "call_window": 80,
+      "ankan": 44,
+      "daiminkan": 46,
+      "kakan": 38
+    },
+    "max_abs_probability_difference": 1.1500735630498582e-07
+  },
+  "raw_records_public": false,
+  "weights_public": false,
+  "limitations": [
+    "Paired rates use equal-weight match means; pooled hand rates have different denominators.",
+    "192 matches represent 8 independent wall streams, not 192 independent samples.",
+    "Winning-hand draws and kan opportunities depend on policy; counts do not establish causality.",
+    "Ledger audit does not independently reimplement han/fu scoring.",
+    "Bootstrap resamples stored futures; it adds no independent evidence and preserves rollout-policy/hidden-hand limitations.",
+    "Simulation does not establish live human performance.",
+    "Initialization and reward both changed; this is not a single-factor causal test."
+  ],
+  "eligible_for_confirmation": true
+}
