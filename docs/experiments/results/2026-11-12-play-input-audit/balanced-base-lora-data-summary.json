@@ -20,7 +20,7 @@
     "trainable_parameters": 11347456,
     "adapter_tensors": 372
   },
-  "next": "Monitor same GPU299790 v5 fixed2048 fit after completed prep299789. Same v4 inputs/budget/parent/reward/source-phase loss; only paired-bootstrap MC labels changed. Native540/fresh192/conditional768 gates unchanged; no deployment or verified strength.",
+  "next": "Monitor same v5 evaluation-only recovery GPU299917: final2048 full32768/2688/98 verified, same candidate c5b991 preserved, native540 passed, fresh192 development running. Original fit299790 ended after completed training at stale config filename guard; recovery performs zero optimizer updates. Unchanged own-win/risk gates decide conditional768. No strength claim/deployment.",
   "phase_mix_not_finalized": false,
   "LoRA_training_started": true,
   "old_pending_kan_fit_chain_cancelled": true,
@@ -4091,7 +4091,7 @@
   },
   "followup_winrisk_v5": {
     "model_id": "jev-unified-winrisk-v5",
-    "status": "training_fixed2048_actual_updates_verified",
+    "status": "training_complete_native_passed_fresh_development_running",
     "training_source_sha256": "89fffa63c1a883ee6f14c9dd7710276a72e0ced8bc9e75aa0fa7badbffe30b28",
     "training_target_policy": "paired_bootstrap_average_masked_v1",
     "bootstrap_replicates": 256,
@@ -4126,12 +4126,271 @@
     "raw_and_weights_public": false,
     "deployed": false,
     "CPU_preparation_state": "COMPLETED",
-    "GPU_job_state": "RUNNING",
+    "GPU_job_state": "FAILED_after_completed_training_before_first_evaluation_due_to_filename_collision",
     "actual_tokenized_positions_verified": 160,
     "optimizer_started": true,
     "actual_update_proof": true,
     "source_code_CI_run": 43650261560,
     "source_code_CI_status": "success",
-    "initial_540_predictions_and_bundle_verified": true
+    "initial_540_predictions_and_bundle_verified": true,
+    "training_complete": true,
+    "completed_optimizer_steps_at_least": 2048,
+    "actual_training_records_consumed": 32768,
+    "actual_relabelled_training_exposure": {
+      "records": 32768,
+      "changed_target_positions": 2688,
+      "changed_argmax_positions": 98,
+      "changed_target_by_phase": {
+        "open_discard": 214,
+        "call_window": 1827,
+        "closed_discard": 317,
+        "kan_window": 330
+      }
+    },
+    "actual_epoch_at_final_cursor": 1,
+    "actual_next_microbatch_at_final_cursor": 0,
+    "GPU_evaluation_recovery_job": 299917,
+    "GPU_evaluation_recovery_state": "RUNNING",
+    "same_final_candidate_preserved": true,
+    "evaluation_recovery_optimizer_updates": 0,
+    "final_candidate_identity_sha256": "c5b991cc0834739d49ee9108811c3d0049cb669d97d08181bf3618112f6c7ada",
+    "evaluated_checkpoint_step": 2048,
+    "diagnostic_CE_selected_step": 1536,
+    "validation_curve": [
+      {
+        "weighted_target_ce": 1.245697788938394,
+        "phase_target_ce": {
+          "kan_window": 1.2741148614847442,
+          "call_window": 0.641363881828794,
+          "closed_discard": 1.6982374222186754,
+          "open_discard": 1.1268802065855732
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5,
+          "call_window": 0.6625,
+          "closed_discard": 0.4791666666666667,
+          "open_discard": 0.6458333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 0,
+        "upstream_hard_label_nll": 1.4378024426131921
+      },
+      {
+        "weighted_target_ce": 1.2119918199714705,
+        "phase_target_ce": {
+          "kan_window": 1.2733310028754274,
+          "call_window": 0.6237879358561038,
+          "closed_discard": 1.6415574530496946,
+          "open_discard": 1.1124401759925264
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.46875,
+          "call_window": 0.7,
+          "closed_discard": 0.5104166666666666,
+          "open_discard": 0.6041666666666666
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 256,
+        "upstream_hard_label_nll": 1.4383233066649823
+      },
+      {
+        "weighted_target_ce": 1.1792285514295442,
+        "phase_target_ce": {
+          "kan_window": 1.2377246567452356,
+          "call_window": 0.6259163431331498,
+          "closed_discard": 1.5744857997192003,
+          "open_discard": 1.1052440288934864
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5,
+          "call_window": 0.6875,
+          "closed_discard": 0.5104166666666666,
+          "open_discard": 0.6458333333333334
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 512,
+        "upstream_hard_label_nll": 1.3887878196675685
+      },
+      {
+        "weighted_target_ce": 1.200602667832344,
+        "phase_target_ce": {
+          "kan_window": 1.2755275383636042,
+          "call_window": 0.6227053602653925,
+          "closed_discard": 1.6093153676833865,
+          "open_discard": 1.1291138368851108
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.4895833333333333,
+          "call_window": 0.7,
+          "closed_discard": 0.53125,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 768,
+        "upstream_hard_label_nll": 1.4142513383033293
+      },
+      {
+        "weighted_target_ce": 1.1840146579959825,
+        "phase_target_ce": {
+          "kan_window": 1.221610892946413,
+          "call_window": 0.6148913237411089,
+          "closed_discard": 1.5935452341289602,
+          "open_discard": 1.1068568043414857
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5729166666666666,
+          "call_window": 0.7125,
+          "closed_discard": 0.5729166666666666,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1024,
+        "upstream_hard_label_nll": 1.3717710293852752
+      },
+      {
+        "weighted_target_ce": 1.1829025807587905,
+        "phase_target_ce": {
+          "kan_window": 1.2342231775971795,
+          "call_window": 0.607996435553088,
+          "closed_discard": 1.5821465712247968,
+          "open_discard": 1.1341326708092323
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.53125,
+          "call_window": 0.7125,
+          "closed_discard": 0.5520833333333334,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1280,
+        "upstream_hard_label_nll": 1.3851977285624433
+      },
+      {
+        "weighted_target_ce": 1.1682516510801302,
+        "phase_target_ce": {
+          "kan_window": 1.2035740481626764,
+          "call_window": 0.6013277214746984,
+          "closed_discard": 1.5645828457024618,
+          "open_discard": 1.118061758317396
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5520833333333334,
+          "call_window": 0.725,
+          "closed_discard": 0.5104166666666666,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1536,
+        "upstream_hard_label_nll": 1.3635865756315166
+      },
+      {
+        "weighted_target_ce": 1.1697584732029276,
+        "phase_target_ce": {
+          "kan_window": 1.2044039754639773,
+          "call_window": 0.6010131593498976,
+          "closed_discard": 1.5645992592533464,
+          "open_discard": 1.1258232998037678
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5729166666666666,
+          "call_window": 0.725,
+          "closed_discard": 0.5416666666666666,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 1792,
+        "upstream_hard_label_nll": 1.362225448758005
+      },
+      {
+        "weighted_target_ce": 1.169589790073975,
+        "phase_target_ce": {
+          "kan_window": 1.2030266217031258,
+          "call_window": 0.6010201806929166,
+          "closed_discard": 1.5627844360147638,
+          "open_discard": 1.1293970428714994
+        },
+        "phase_records": {
+          "kan_window": 128,
+          "call_window": 80,
+          "closed_discard": 284,
+          "open_discard": 48
+        },
+        "expert_accuracy": {
+          "kan_window": 0.5625,
+          "call_window": 0.725,
+          "closed_discard": 0.5104166666666666,
+          "open_discard": 0.625
+        },
+        "pseudo_labels_are_not_expert_truth": true,
+        "step": 2048,
+        "upstream_hard_label_nll": 1.361093449513795
+      }
+    ],
+    "native_preflight": {
+      "status": "passed_selected_unified_native_validation",
+      "records": 540,
+      "routes": {
+        "closed_discard": 284,
+        "open_discard": 48,
+        "call_window": 80,
+        "ankan": 44,
+        "daiminkan": 46,
+        "kakan": 38
+      },
+      "max_abs_probability_difference": 1.385489835081799e-07
+    },
+    "development": {
+      "status": "running",
+      "expected_games": 192,
+      "independent_wall_streams": 8
+    }
   }
 }
