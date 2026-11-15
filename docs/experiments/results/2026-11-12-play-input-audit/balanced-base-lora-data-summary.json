@@ -4516,7 +4516,10 @@
     "parent_initialization_verified": true,
     "optimizer_started": true,
     "actual_update_proof": true,
-    "initial_complete_bundle_and540_predictions_verified": true
+    "initial_complete_bundle_and540_predictions_verified": true,
+    "source_code_CI_status": "success",
+    "source_code_CI_run": 43668575471,
+    "source_code_CI_commit": "27c2818ea4b349b6a1f034388cdd869bce911569"
   },
   "train_only_reward_tradeoff_diagnostic": {
     "status": "passed_complete_train_only_reward_tradeoff_audit",

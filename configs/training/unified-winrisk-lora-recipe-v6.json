@@ -78,7 +78,7 @@
   "GPU_job_state": "RUNNING",
   "optimizer_started": true,
   "local_core_tests_passed": 234,
-  "source_code_CI_status": "pending",
+  "source_code_CI_status": "success",
   "strength_improvement_proven": false,
   "initialization_and_reward_both_changed_no_single_factor_causal_claim": true,
   "CPU_preparation_state": "COMPLETED",
@@ -116,5 +116,7 @@
   "rejected_training_records": 0,
   "initial_complete_bundle_and540_predictions_verified": true,
   "parent_adapter_tensors_exact": 372,
-  "parent_head_tensors_exact": 4
+  "parent_head_tensors_exact": 4,
+  "source_code_CI_run": 43668575471,
+  "source_code_CI_commit": "27c2818ea4b349b6a1f034388cdd869bce911569"
 }
