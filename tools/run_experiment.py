@@ -50,7 +50,7 @@ def existing_source(root, identity):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=('collect', 'recover-closed-states', 'collect-defense-states', 'collect-call-states', 'collect-kan-states', 'collect-ev', 'audit-defense-states', 'audit-native-states', 'audit-futures', 'audit-context-fit', 'audit-call-head', 'train', 'train-context', 'train-call-head', 'train-base-lora', 'evaluate', 'evaluate-unified', 'audit-unified', 'prepare-base-lora-pool', 'extend-base-lora-pool', 'prepare-base-lora-mix', 'relabel-base-lora-targets', 'bootstrap-base-lora-targets', 'prepare-prefix-kan', 'audit-prefix-kan', 'reserve-prefix-validation'))
+    parser.add_argument('command', choices=('collect', 'recover-closed-states', 'collect-defense-states', 'collect-call-states', 'collect-kan-states', 'collect-attack-states', 'collect-ev', 'audit-defense-states', 'audit-native-states', 'audit-futures', 'audit-context-fit', 'audit-call-head', 'train', 'train-context', 'train-call-head', 'train-base-lora', 'evaluate', 'evaluate-unified', 'audit-unified', 'prepare-base-lora-pool', 'extend-base-lora-pool', 'prepare-base-lora-mix', 'relabel-base-lora-targets', 'bootstrap-base-lora-targets', 'prepare-prefix-kan', 'audit-prefix-kan', 'reserve-prefix-validation'))
     parser.add_argument('--config', type=Path, required=True)
     parser.add_argument('--resume', action='store_true')
     parser.add_argument('--prepare-only', action='store_true', help='Pin source/configuration without starting work')
@@ -58,7 +58,7 @@ def main():
     parser.add_argument('--source-sha', help='For a new launch, reuse a verified existing source snapshot')
     parser.add_argument('--max-walls',type=int)
     args = parser.parse_args(); config = json.loads(args.config.read_text())
-    if args.max_walls is not None and args.command not in ('collect-defense-states','collect-call-states','collect-kan-states'):
+    if args.max_walls is not None and args.command not in ('collect-defense-states','collect-call-states','collect-kan-states','collect-attack-states'):
         raise ValueError('Bounded prefix collection is only supported for native decision states')
     out = (ROOT / config['out']).resolve()
     key = hashlib.sha256(str(out).encode()).hexdigest()

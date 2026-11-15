@@ -1,0 +1,59 @@
+{
+  "status": "passed_training_only_served_guard_support_audit",
+  "phases": {
+    "open_discard": {
+      "records": 243,
+      "all_served_actions_supported": 243,
+      "some_served_actions_unknown": 0,
+      "states_with_labelled_excluded_actions": 243,
+      "preferred_target_excluded": 70,
+      "served_options": 332,
+      "unknown_served_options": 0,
+      "excluded_target_probability_mass_sum": 73.36525492199586,
+      "mean_excluded_target_mass": 0.30191462930862495
+    },
+    "call_window": {
+      "records": 1980,
+      "all_served_actions_supported": 1980,
+      "some_served_actions_unknown": 0,
+      "states_with_labelled_excluded_actions": 0,
+      "preferred_target_excluded": 0,
+      "served_options": 4629,
+      "unknown_served_options": 0,
+      "excluded_target_probability_mass_sum": 0,
+      "mean_excluded_target_mass": 0.0
+    },
+    "closed_discard": {
+      "records": 554,
+      "all_served_actions_supported": 554,
+      "some_served_actions_unknown": 0,
+      "states_with_labelled_excluded_actions": 0,
+      "preferred_target_excluded": 0,
+      "served_options": 2497,
+      "unknown_served_options": 0,
+      "excluded_target_probability_mass_sum": 0,
+      "mean_excluded_target_mass": 0.0
+    },
+    "kan_window": {
+      "records": 366,
+      "all_served_actions_supported": 366,
+      "some_served_actions_unknown": 0,
+      "states_with_labelled_excluded_actions": 0,
+      "preferred_target_excluded": 0,
+      "served_options": 1460,
+      "unknown_served_options": 0,
+      "excluded_target_probability_mass_sum": 0,
+      "mean_excluded_target_mass": 0.0
+    }
+  },
+  "admitted_MC_states": 3143,
+  "held_or_evaluation_payloads_opened": false,
+  "optimizer_updates": 0,
+  "model_or_data_changed": false,
+  "limitations": [
+    "A supported action may still have noisy or biased simulated value.",
+    "Served-action coverage and all-legal-action coverage have different denominators.",
+    "This audit replays the guard from complete public inputs, not whole native games.",
+    "No count or excluded target mass proves a causal explanation of v6 playing strength."
+  ]
+}

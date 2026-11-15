@@ -11,12 +11,16 @@ ENCODER_FILES = ('adapter_model.safetensors', 'adapter_config.json', 'tokenizer.
 
 
 def select_decisions(partitions, mode='all', scopes=None):
-    if mode not in ('all', 'kan_windows', 'open_tenpai_riichi','closed_discard'): raise ValueError('Unknown decision filter')
+    attack_modes=('attacking_closed_discard','attacking_open_discard')
+    if mode not in ('all', 'kan_windows', 'open_tenpai_riichi','closed_discard',*attack_modes): raise ValueError('Unknown decision filter')
     if mode == 'all' and scopes is None: return partitions
     from jevmahjong.policy.kan import is_kan_request
     from jevmahjong.policy.defense import is_defense_request
     from jevmahjong.policy.closed import is_closed_request
-    accepted = is_closed_request if mode=='closed_discard' else is_defense_request if mode == 'open_tenpai_riichi' else is_kan_request
+    from jevmahjong.policy.ordinary import is_attack_request
+    accepted = ((lambda request:is_attack_request(request,opened=mode=='attacking_open_discard'))
+        if mode in attack_modes else is_closed_request if mode=='closed_discard'
+        else is_defense_request if mode == 'open_tenpai_riichi' else is_kan_request)
     return {split:[r for r in rows if (mode == 'all' or accepted(r['public_request']))
         and (scopes is None or r['scope'] in scopes)] for split,rows in partitions.items()}
 

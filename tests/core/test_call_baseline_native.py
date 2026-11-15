@@ -19,6 +19,28 @@ from tests.core.test_kan_context import request
 
 
 class CallingBaselineNativeTests(unittest.TestCase):
+    def test_attacking_workflows_keep_the_pinned_baseline_and_frozen_heads(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);files,saved=models(root)
+            for scope,role in [('ordinary','discard'),('calling','call')]:
+                saved['heads'][scope]=torch.load(root/role/'head.pt',weights_only=True)['head']
+            names=feature_names(VERSION)
+            saved.update(decision_filter='call_windows',kan_context=dict(version=VERSION,
+                names=list(names),coefficients=torch.zeros(len(names)),reference_prior_strength=.05))
+            path=root/'baseline.pt';torch.save(saved,path)
+            spec=dict(checkpoint=str(path),sha256=digest(path))
+            for mode in ('attacking_discard','attacking_closed_discard','attacking_open_discard'):
+                cfg=dict(train_scopes=['ordinary'],decision_filter=mode,call_context_baseline=spec)
+                self.assertEqual(load(cfg,files)['names'],list(names))
+            for scopes,mode in [(['ordinary'],'all'),(['calling'],'attacking_discard')]:
+                with self.assertRaisesRegex(ValueError,'declared ordinary or pure-call'):
+                    load(dict(train_scopes=scopes,decision_filter=mode,call_context_baseline=spec),files)
+            first=next(iter(saved['heads']['ordinary']))
+            saved['heads']['ordinary'][first]=saved['heads']['ordinary'][first]+1
+            torch.save(saved,path);spec['sha256']=digest(path)
+            with self.assertRaisesRegex(ValueError,'both original pointer heads frozen'):
+                load(dict(train_scopes=['ordinary'],decision_filter='attacking_discard',call_context_baseline=spec),files)
+
     def test_audit_replays_stronger_call_distribution_and_rejects_raw_head(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);files,saved=models(root)

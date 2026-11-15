@@ -1,5 +1,6 @@
 # 实验记录
 
+- 最新统一模型：[v6完整独立确认未证明提升](plans/unified-winrisk-lora-v6-20261115.md)；后续[进攻数据与候选范围修正v7](plans/unified-attack-lora-v7-20261115.md)已启动输入采集试跑，尚未训练新权重。正式模型未替换。
 - [Play 实测问题：输入修复与冻结权重复查](results/2026-11-12-play-input-audit/README.md)
 
 保留当时的方案、观察和结果。历史阶段名对应关系见[模型目录](../../weights/README.md)，当前训练入口见[训练说明](../training.md)，新方案见[副露防守训练](plans/discard-defense-20261112.md)。

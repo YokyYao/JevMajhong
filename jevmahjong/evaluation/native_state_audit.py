@@ -8,7 +8,7 @@ from riichienv import GameRule,RiichiEnv
 from jevmahjong.core.io import digest,request_hash,write
 from jevmahjong.core.seeds import engine_seed
 from jevmahjong.core.state import build_request
-from jevmahjong.data.native_states import METHOD,CALL_METHOD,KAN_METHOD,CLOSED_METHOD,INPUT_METHODS,validate
+from jevmahjong.data.native_states import METHOD,CALL_METHOD,KAN_METHOD,CLOSED_METHOD,ATTACK_METHOD,INPUT_METHODS,validate
 from jevmahjong.evaluation.agents import guarded_indices
 from jevmahjong.policy.defense import eligible_indices
 from jevmahjong.policy.routing import make_head
@@ -61,17 +61,21 @@ def audit(cfg):
         if method==CLOSED_METHOD:
             from jevmahjong.training.closed_states import audit_control_coverage
             audit_control_coverage(payload,source_cfg,hashes)
+        if method==ATTACK_METHOD:
+            from jevmahjong.training.attack_states import audit_control_coverage
+            audit_control_coverage(payload,source_cfg)
         if record['rows']!=len(rows) or record['controls']!=4:raise ValueError('Native receipt counts differ')
         meta={tuple(d['episode_key']):d for d in payload['decisions']}
         controls={c['seat']:c for c in payload['controls']}
         for row in rows:
             seat=row['episode_key'][1];decision=meta[tuple(row['episode_key'])]
-            if method==CALL_METHOD:
+            if method in (CALL_METHOD,ATTACK_METHOD):
                 state=row['public_request']['state'];kinds={v['type'] for v in row['public_request']['questions']['action']['criteria'].values()}
                 opened=any(m['type']!=3 for m in state['melds'][seat])
                 coverage['open' if opened else 'closed']+=1
                 coverage['opponent_riichi']+=bool(set(state['riichi'])-{seat})
-                for name in ('chi','pon'):coverage[name]+=name in kinds
+                if method==CALL_METHOD:
+                    for name in ('chi','pon'):coverage[name]+=name in kinds
             elif method==KAN_METHOD:
                 kinds={v['type'] for v in row['public_request']['questions']['action']['criteria'].values()}
                 for name in ('ankan','daiminkan','kakan','pon','chi'):coverage[name]+=name in kinds
@@ -84,7 +88,7 @@ def audit(cfg):
             obs=replay_prefix(env,controls[seat]['mjai_log'],decision['intervention_step'])
             request,actions,features=build_request(obs[seat]);hands=hand_outcomes(env.mjai_log)
             eligible=(sorted(set(guarded_indices(obs[seat],actions,features)) |
-                {i for i,f in enumerate(features) if not f}) if method in (CALL_METHOD,KAN_METHOD,CLOSED_METHOD)
+                {i for i,f in enumerate(features) if not f}) if method in (CALL_METHOD,KAN_METHOD,CLOSED_METHOD,ATTACK_METHOD)
                 else eligible_indices(obs[seat],actions,features))
             if (call_observation_digest(obs)!=row['source_state_digest']
                     or request_hash(request)!=row['request_sha256']
@@ -116,6 +120,9 @@ def audit(cfg):
     elif method==CLOSED_METHOD:
         result.update(all_recovered_opportunities_enumerated=True,original_controls_unchanged=True,
             reused_control_matches=count*4,fresh_control_matches=0)
+    elif method==ATTACK_METHOD:
+        result.update(attack_state_coverage=dict(coverage),all_opportunities_enumerated=True,
+            calling_baseline_sha256=identity(source_cfg))
     write(out/'result.json',result);write(out/'status.json',result);return result
 
 

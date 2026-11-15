@@ -8,10 +8,15 @@ METHOD='native_defense_states_v1'
 CALL_METHOD='native_call_states_v1'
 KAN_METHOD='native_kan_states_v1'
 CLOSED_METHOD='replayed_native_closed_states_v1'
-INPUT_METHODS=(METHOD,CALL_METHOD,KAN_METHOD,CLOSED_METHOD)
+ATTACK_METHOD='native_attacking_discard_states_v1'
+INPUT_METHODS=(METHOD,CALL_METHOD,KAN_METHOD,CLOSED_METHOD,ATTACK_METHOD)
 
 
 def input_eligible(request,method):
+    if method==ATTACK_METHOD:
+        from jevmahjong.policy.ordinary import is_attack_request,request_eligible as ordinary_eligible
+        if not is_attack_request(request):raise ValueError('Non-threat ordinary input required')
+        return ordinary_eligible(request)
     if method==CLOSED_METHOD:
         from jevmahjong.policy.closed import request_eligible as closed_eligible
         return closed_eligible(request)
