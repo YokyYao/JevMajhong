@@ -1,5 +1,5 @@
 {
-  "status": "full_future_and_target_audits_passed_data_ready_gpu_fit_job_started",
+  "status": "fit2088_native620_and_development192_audited_confirmation_started",
   "native_input_pilot": {
     "walls": 12,
     "control_matches": 48,
@@ -35,7 +35,7 @@
   "playing_strength_improvement_verified": false,
   "raw_records_public": false,
   "limitations": [
-    "GPU fit job has started; model training and independent playing-strength evaluation are not complete.",
+    "Training, native validation and audited development are complete; independent confirmation is running and improvement is not established.",
     "The approximate cost estimate used earlier windows than full public hash sampling.",
     "Audits verify data and target computation, not policy strength.",
     "Bootstrap averaging adds no independent futures.",
@@ -129,7 +129,7 @@
     "independent_confirmation_games_if_eligible": 768
   },
   "optimizer_updates_at_data_seal": 0,
-  "optimizer_updates_current": "not_yet_observed",
+  "optimizer_updates_current": 2088,
   "all_full_target_verification": {
     "states": 720,
     "split_counts": {
@@ -155,7 +155,7 @@
   },
   "fit": {
     "model_id": "jev-unified-attack-v7",
-    "job_status": "RUNNING",
+    "job_status": "training_complete_evaluation_running",
     "gpu_model": "NVIDIA RTX 5000 Ada Generation",
     "registered_final_step": 2088,
     "training_records": 33408,
@@ -189,7 +189,47 @@
       "kan_window": 366
     },
     "selected_checkpoint": "registered_final_2088_only",
-    "independent_evaluation_complete": false
+    "independent_evaluation_complete": false,
+    "training_complete": true,
+    "consumed_unique_training_records": 33408,
+    "native_records_checked": 620,
+    "development_evaluation_complete": true,
+    "confirmation_evaluation_complete": false
   },
-  "weights_public": false
+  "weights_public": false,
+  "development": {
+    "games": 192,
+    "independent_wall_streams": 8,
+    "hand_win_paired": {
+      "gain": 0.02628141534391534,
+      "ci95": [
+        -0.02121849553635582,
+        0.0737813262241865
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "dealin_rate_paired": {
+      "gain": -0.004038525132275132,
+      "ci95": [
+        -0.041921215201182825,
+        0.033844164936632566
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "net_points_paired": {
+      "gain": 1079.1666666666667,
+      "ci95": [
+        -1552.2289075296765,
+        3710.5622408630097
+      ]
+    },
+    "eligible_for_confirmation": true,
+    "improvement_verified": false
+  },
+  "confirmation": {
+    "status": "started_after_complete_audited_development",
+    "planned_games": 768,
+    "independent_wall_streams": 32,
+    "complete": false
+  }
 }
