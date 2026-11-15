@@ -1,6 +1,6 @@
 {
   "model_id": "jev-unified-attackrisk-v8",
-  "status": "fit2088_full33408_native620_development192_audited_confirmation_started",
+  "status": "fit2088_full33408_native620_development192_confirmation768_audited_not_promoted",
   "source_sha256": "13138ac58cbc4ff95f3aafdf813c50f2b0f42c70b989dfe57377ae57e94d7752",
   "parent_model": "jev-unified-attack-v7",
   "parent_checkpoint": 2088,
@@ -147,5 +147,8 @@
     "selected_step": 2088,
     "max_abs_probability_difference": 1.166854519674132e-07,
     "complete_matches_simulated": 0
-  }
+  },
+  "confirmation_completed": true,
+  "confirmation_games": 768,
+  "confirmation_audit": "passed_complete"
 }
