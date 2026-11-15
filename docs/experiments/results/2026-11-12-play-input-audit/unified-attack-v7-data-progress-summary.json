@@ -1,0 +1,44 @@
+{
+  "status": "closed_pilot_audited_open_pilot_and_full_inputs_running",
+  "native_input_pilot": {
+    "walls": 12,
+    "control_matches": 48,
+    "states": 2145,
+    "closed_states": 1905,
+    "open_states": 240,
+    "opponent_riichi_states": 0,
+    "independent_native_audit": "passed_complete"
+  },
+  "closed_future_pilot": {
+    "status": "passed_complete",
+    "states": 12,
+    "train_states": 8,
+    "held_states": 4,
+    "pairs": 78,
+    "worlds_per_state": 16,
+    "prefixes_replayed": 12,
+    "future_walls_rederived": 192,
+    "arm_records_audited": 2496,
+    "whole_wall_disjoint": true
+  },
+  "closed_target_verification": {
+    "states": 12,
+    "maximum_absolute_probability_error": 0.0,
+    "independent_event_walker": true,
+    "independent_bootstrap_formula": true
+  },
+  "full_input_walls_planned": 96,
+  "full_input_control_matches_planned": 384,
+  "new_full_training_records_planned": 640,
+  "new_full_validation_records_planned": 80,
+  "local_core_checks": 250,
+  "v7_optimizer_updates": 0,
+  "playing_strength_improvement_verified": false,
+  "raw_records_public": false,
+  "limitations": [
+    "Only the closed half of the future cost pilot is complete.",
+    "Audits verify data and target computation, not policy strength.",
+    "Bootstrap averaging adds no independent futures.",
+    "Continuation uses the fixed reference policy and fixed concealed hands."
+  ]
+}
