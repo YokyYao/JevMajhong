@@ -1,5 +1,5 @@
 {
-  "status": "full_native_audit_passed_two_gpu_future_collection_running",
+  "status": "full_future_and_target_audits_passed_data_ready_gpu_fit_job_started",
   "native_input_pilot": {
     "walls": 12,
     "control_matches": 48,
@@ -32,11 +32,10 @@
   "new_full_training_records_planned": 640,
   "new_full_validation_records_planned": 80,
   "local_core_checks": 253,
-  "v7_optimizer_updates": 0,
   "playing_strength_improvement_verified": false,
   "raw_records_public": false,
   "limitations": [
-    "Complete future labels and model optimization are not finished.",
+    "GPU fit job has started; model training and independent playing-strength evaluation are not complete.",
     "The approximate cost estimate used earlier windows than full public hash sampling.",
     "Audits verify data and target computation, not policy strength.",
     "Bootstrap averaging adds no independent futures.",
@@ -84,7 +83,7 @@
     "cached_head_probability_max_error": 5.364418029785156e-07
   },
   "full_future_collection": {
-    "status": "running",
+    "status": "passed_complete_both_phases",
     "closed_states": 432,
     "closed_train": 384,
     "closed_held": 48,
@@ -95,12 +94,102 @@
     "gpu_count": 2,
     "gpu_model": "NVIDIA RTX 5000 Ada Generation",
     "actual_selected_origins_equal_public_preview": true,
-    "source_sha256": "46d052fdd2a7e251ddea88eec8f711897311a33e8aea7cd5ddc2a52e81012730"
+    "source_sha256": "46d052fdd2a7e251ddea88eec8f711897311a33e8aea7cd5ddc2a52e81012730",
+    "gpu_count_role": "historical parallel label collection",
+    "closed_expanded_audit": {
+      "status": "passed_complete",
+      "states": 432,
+      "train_states": 384,
+      "held_states": 48,
+      "pairs": 2413,
+      "worlds_per_state": 16,
+      "arm_records_audited": 77216,
+      "future_walls_rederived": 6912,
+      "whole_wall_disjoint": true,
+      "cached_head_probability_max_error": 0.0
+    },
+    "open_expanded_audit": {
+      "status": "passed_complete",
+      "states": 288,
+      "train_states": 256,
+      "held_states": 32,
+      "pairs": 966,
+      "worlds_per_state": 16,
+      "arm_records_audited": 30912,
+      "future_walls_rederived": 4608,
+      "whole_wall_disjoint": true,
+      "cached_head_probability_max_error": 0.0
+    }
   },
   "queued_followup": {
-    "data_preparation": "after_both_complete_future_phases",
-    "fit_and_evaluation": "after_successful_data_preparation",
+    "data_preparation": "passed_complete",
+    "fit_and_evaluation": "gpu_job_running",
     "registered_final_training_step": 2088,
-    "optimizer_updates": 0
-  }
+    "development_games": 192,
+    "independent_confirmation_games_if_eligible": 768
+  },
+  "optimizer_updates_at_data_seal": 0,
+  "optimizer_updates_current": "not_yet_observed",
+  "all_full_target_verification": {
+    "states": 720,
+    "split_counts": {
+      "closed/train": 384,
+      "closed/validation": 48,
+      "open/train": 256,
+      "open/validation": 32
+    },
+    "maximum_absolute_probability_error": 0.0,
+    "independent_event_walker": true,
+    "independent_bootstrap_formula": true
+  },
+  "prepared_data": {
+    "status": "passed_full_v7_raw_data_and_independent_targets",
+    "train": 33408,
+    "validation": 620,
+    "source_target_records_checked": 720,
+    "new_training": 640,
+    "new_validation": 80,
+    "whole_group_overlap": 0,
+    "old_training_and_validation_byte_prefixes_identical": true,
+    "actual_public_served_masks_checked": true
+  },
+  "fit": {
+    "model_id": "jev-unified-attack-v7",
+    "job_status": "RUNNING",
+    "gpu_model": "NVIDIA RTX 5000 Ada Generation",
+    "registered_final_step": 2088,
+    "training_records": 33408,
+    "validation_records": 620,
+    "parent": "experimental_v6_final_2048_not_promoted",
+    "same_lora_and_action_head": true,
+    "new_optimizer": true,
+    "reward": {
+      "mode": "own_win_first_v1",
+      "win_weight": 1.0,
+      "fast_weight": 0.25,
+      "dealin_penalty": 1.0,
+      "net_weight": 0.0,
+      "point_scale": 8000.0,
+      "speed_gamma": 0.98
+    },
+    "expert_and_simulation_loss_mass": {
+      "expert_replay": 0.75,
+      "paired_future_masked": 0.25
+    },
+    "simulation_phase_loss_mass": {
+      "closed_discard": 0.4,
+      "call_window": 0.3,
+      "kan_window": 0.2,
+      "open_discard": 0.1
+    },
+    "phase_MC_counts": {
+      "open_discard": 499,
+      "call_window": 1980,
+      "closed_discard": 938,
+      "kan_window": 366
+    },
+    "selected_checkpoint": "registered_final_2088_only",
+    "independent_evaluation_complete": false
+  },
+  "weights_public": false
 }
