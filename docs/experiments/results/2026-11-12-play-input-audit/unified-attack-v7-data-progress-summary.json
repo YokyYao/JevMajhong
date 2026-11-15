@@ -1,5 +1,5 @@
 {
-  "status": "fit2088_native620_and_development192_audited_confirmation_started",
+  "status": "fit2088_native620_development192_confirmation768_audited_risk_gate_not_passed",
   "native_input_pilot": {
     "walls": 12,
     "control_matches": 48,
@@ -231,5 +231,33 @@
     "planned_games": 768,
     "independent_wall_streams": 32,
     "complete": false
+  },
+  "improvement_verified": false,
+  "confirmation_summary": {
+    "games": 768,
+    "hand_win_paired": {
+      "gain": 0.035259683892496396,
+      "ci95": [
+        0.007925715906700166,
+        0.06259365187829263
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "dealin_rate_paired": {
+      "gain": 0.022415467923280422,
+      "ci95": [
+        -0.0036295999088226047,
+        0.04846053575538345
+      ],
+      "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+    },
+    "net_points_paired": {
+      "gain": 1495.5729166666667,
+      "ci95": [
+        -166.23078418400019,
+        3157.3766175173337
+      ]
+    },
+    "not_deployed": true
   }
 }
