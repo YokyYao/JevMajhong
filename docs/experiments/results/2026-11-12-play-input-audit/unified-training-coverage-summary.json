@@ -1,0 +1,449 @@
+{
+  "status": "passed_training_only_diversity_description",
+  "training_model_id": "jev-unified-winrisk-v6",
+  "records": 32768,
+  "unique_public_requests": 32768,
+  "repeated_public_request_records": 0,
+  "source_phase_summary": [
+    {
+      "source": "expert_replay",
+      "phase": "call_window",
+      "records": 4748,
+      "origin_groups": 1660,
+      "descriptive_effective_groups": 1279.572255647633,
+      "largest_group_records": 10,
+      "largest_group_fraction": 0.0021061499578770007,
+      "largest_five_groups_fraction": 0.009688289806234204,
+      "full_positive_menu_records": 0,
+      "legal_kind_position_counts": {
+        "chi": 2962,
+        "none": 4748,
+        "pon": 1894
+      },
+      "positive_target_kind_position_counts": {
+        "chi": 950,
+        "pon": 950,
+        "none": 2848
+      },
+      "mean_target_mass_by_kind": {
+        "chi": 0.2000842459983151,
+        "none": 0.5998315080033698,
+        "pon": 0.2000842459983151
+      },
+      "preferred_kind_counts": {
+        "chi": 950,
+        "pon": 950,
+        "none": 2848
+      },
+      "openness": {
+        "closed": 3858,
+        "open": 890
+      },
+      "threats": {
+        "opponent_riichi": 736,
+        "no_opponent_riichi": 3714,
+        "unknown": 298
+      },
+      "missing_or_null_context_counts": {
+        "honba": 0,
+        "sticks": 0,
+        "scores": 298,
+        "riichi": 298,
+        "dora_indicators": 0,
+        "rivers": 0,
+        "melds": 0,
+        "hand_number": 298,
+        "last_discard": 576,
+        "tsumogiri_flags": 576
+      }
+    },
+    {
+      "source": "expert_replay",
+      "phase": "closed_discard",
+      "records": 14670,
+      "origin_groups": 686,
+      "descriptive_effective_groups": 604.4039340800072,
+      "largest_group_records": 32,
+      "largest_group_fraction": 0.0021813224267212,
+      "largest_five_groups_fraction": 0.01063394683026585,
+      "full_positive_menu_records": 0,
+      "legal_kind_position_counts": {
+        "dahai": 14670,
+        "reach": 714
+      },
+      "positive_target_kind_position_counts": {
+        "dahai": 14382,
+        "reach": 288
+      },
+      "mean_target_mass_by_kind": {
+        "dahai": 0.9803680981595092,
+        "reach": 0.0196319018404908
+      },
+      "preferred_kind_counts": {
+        "dahai": 14382,
+        "reach": 288
+      },
+      "openness": {
+        "closed": 14670
+      },
+      "threats": {
+        "opponent_riichi": 1650,
+        "no_opponent_riichi": 9518,
+        "unknown": 3502
+      },
+      "missing_or_null_context_counts": {
+        "honba": 0,
+        "sticks": 0,
+        "scores": 3502,
+        "riichi": 3502,
+        "dora_indicators": 0,
+        "rivers": 0,
+        "melds": 0,
+        "hand_number": 3502,
+        "last_discard": 7170,
+        "tsumogiri_flags": 6946
+      }
+    },
+    {
+      "source": "expert_replay",
+      "phase": "kan_window",
+      "records": 2258,
+      "origin_groups": 1828,
+      "descriptive_effective_groups": 1551.6019476567255,
+      "largest_group_records": 5,
+      "largest_group_fraction": 0.0022143489813994687,
+      "largest_five_groups_fraction": 0.00974313551815766,
+      "full_positive_menu_records": 0,
+      "legal_kind_position_counts": {
+        "dahai": 1432,
+        "ankan": 1132,
+        "reach": 82,
+        "kakan": 302,
+        "daiminkan": 826,
+        "pon": 826,
+        "none": 826,
+        "chi": 39
+      },
+      "positive_target_kind_position_counts": {
+        "ankan": 565,
+        "dahai": 706,
+        "kakan": 151,
+        "none": 362,
+        "daiminkan": 413,
+        "pon": 44,
+        "reach": 10,
+        "chi": 7
+      },
+      "mean_target_mass_by_kind": {
+        "ankan": 0.25022143489813997,
+        "dahai": 0.312666076173605,
+        "reach": 0.0044286979627989375,
+        "kakan": 0.06687333923826395,
+        "daiminkan": 0.18290522586359612,
+        "pon": 0.01948627103631532,
+        "none": 0.16031886625332153,
+        "chi": 0.003100088573959256
+      },
+      "preferred_kind_counts": {
+        "ankan": 565,
+        "dahai": 706,
+        "kakan": 151,
+        "none": 362,
+        "daiminkan": 413,
+        "pon": 44,
+        "reach": 10,
+        "chi": 7
+      },
+      "openness": {
+        "closed": 1375,
+        "open": 883
+      },
+      "threats": {
+        "opponent_riichi": 447,
+        "no_opponent_riichi": 1811
+      },
+      "missing_or_null_context_counts": {
+        "honba": 0,
+        "sticks": 0,
+        "scores": 0,
+        "riichi": 0,
+        "dora_indicators": 0,
+        "rivers": 0,
+        "melds": 0,
+        "hand_number": 0,
+        "last_discard": 10,
+        "tsumogiri_flags": 0
+      }
+    },
+    {
+      "source": "expert_replay",
+      "phase": "open_discard",
+      "records": 7949,
+      "origin_groups": 644,
+      "descriptive_effective_groups": 607.7913929261935,
+      "largest_group_records": 16,
+      "largest_group_fraction": 0.0020128318027424832,
+      "largest_five_groups_fraction": 0.010064159013712416,
+      "full_positive_menu_records": 0,
+      "legal_kind_position_counts": {
+        "dahai": 7949
+      },
+      "positive_target_kind_position_counts": {
+        "dahai": 7949
+      },
+      "mean_target_mass_by_kind": {
+        "dahai": 1.0
+      },
+      "preferred_kind_counts": {
+        "dahai": 7949
+      },
+      "openness": {
+        "open": 7949
+      },
+      "threats": {
+        "opponent_riichi": 1704,
+        "no_opponent_riichi": 5058,
+        "unknown": 1187
+      },
+      "missing_or_null_context_counts": {
+        "honba": 0,
+        "sticks": 0,
+        "scores": 1187,
+        "riichi": 1187,
+        "dora_indicators": 0,
+        "rivers": 0,
+        "melds": 0,
+        "hand_number": 1187,
+        "last_discard": 2410,
+        "tsumogiri_flags": 2410
+      }
+    },
+    {
+      "source": "paired_future_masked",
+      "phase": "call_window",
+      "records": 1980,
+      "origin_groups": 219,
+      "descriptive_effective_groups": 82.78221208665906,
+      "largest_group_records": 93,
+      "largest_group_fraction": 0.04696969696969697,
+      "largest_five_groups_fraction": 0.18585858585858586,
+      "full_positive_menu_records": 1980,
+      "legal_kind_position_counts": {
+        "chi": 1165,
+        "pon": 1131,
+        "none": 1980
+      },
+      "positive_target_kind_position_counts": {
+        "chi": 1165,
+        "pon": 1131,
+        "none": 1980
+      },
+      "mean_target_mass_by_kind": {
+        "pon": 0.24105788428057884,
+        "chi": 0.2660874132316044,
+        "none": 0.4928547024878168
+      },
+      "preferred_kind_counts": {
+        "pon": 492,
+        "none": 936,
+        "chi": 552
+      },
+      "openness": {
+        "closed": 1345,
+        "open": 635
+      },
+      "threats": {
+        "no_opponent_riichi": 1061,
+        "opponent_riichi": 919
+      },
+      "missing_or_null_context_counts": {
+        "honba": 0,
+        "sticks": 0,
+        "scores": 0,
+        "riichi": 0,
+        "dora_indicators": 0,
+        "rivers": 0,
+        "melds": 0,
+        "hand_number": 0,
+        "last_discard": 0,
+        "tsumogiri_flags": 0
+      }
+    },
+    {
+      "source": "paired_future_masked",
+      "phase": "closed_discard",
+      "records": 554,
+      "origin_groups": 24,
+      "descriptive_effective_groups": 23.929206299703726,
+      "largest_group_records": 24,
+      "largest_group_fraction": 0.04332129963898917,
+      "largest_five_groups_fraction": 0.21660649819494585,
+      "full_positive_menu_records": 43,
+      "legal_kind_position_counts": {
+        "dahai": 554,
+        "reach": 59
+      },
+      "positive_target_kind_position_counts": {
+        "dahai": 554,
+        "reach": 59
+      },
+      "mean_target_mass_by_kind": {
+        "dahai": 0.9472438492512276,
+        "reach": 0.05275615074877413
+      },
+      "preferred_kind_counts": {
+        "dahai": 529,
+        "reach": 25
+      },
+      "openness": {
+        "closed": 554
+      },
+      "threats": {
+        "opponent_riichi": 521,
+        "no_opponent_riichi": 33
+      },
+      "missing_or_null_context_counts": {
+        "honba": 0,
+        "sticks": 0,
+        "scores": 0,
+        "riichi": 0,
+        "dora_indicators": 0,
+        "rivers": 0,
+        "melds": 0,
+        "hand_number": 0,
+        "last_discard": 6,
+        "tsumogiri_flags": 0
+      }
+    },
+    {
+      "source": "paired_future_masked",
+      "phase": "kan_window",
+      "records": 366,
+      "origin_groups": 84,
+      "descriptive_effective_groups": 46.38365650969529,
+      "largest_group_records": 23,
+      "largest_group_fraction": 0.06284153005464481,
+      "largest_five_groups_fraction": 0.22131147540983606,
+      "full_positive_menu_records": 182,
+      "legal_kind_position_counts": {
+        "daiminkan": 146,
+        "pon": 146,
+        "none": 146,
+        "dahai": 220,
+        "reach": 7,
+        "ankan": 172,
+        "kakan": 48,
+        "chi": 10
+      },
+      "positive_target_kind_position_counts": {
+        "daiminkan": 146,
+        "pon": 146,
+        "none": 146,
+        "reach": 7,
+        "ankan": 172,
+        "dahai": 220,
+        "kakan": 48,
+        "chi": 10
+      },
+      "mean_target_mass_by_kind": {
+        "daiminkan": 0.0991086870923769,
+        "pon": 0.09410666945573033,
+        "none": 0.19413607622321125,
+        "ankan": 0.1347521273637067,
+        "dahai": 0.41294058239143155,
+        "reach": 0.006472889467273728,
+        "kakan": 0.04692729695245174,
+        "chi": 0.011555671053818165
+      },
+      "preferred_kind_counts": {
+        "none": 72,
+        "reach": 2,
+        "pon": 28,
+        "ankan": 61,
+        "dahai": 137,
+        "daiminkan": 41,
+        "kakan": 20,
+        "chi": 5
+      },
+      "openness": {
+        "closed": 268,
+        "open": 98
+      },
+      "threats": {
+        "opponent_riichi": 157,
+        "no_opponent_riichi": 209
+      },
+      "missing_or_null_context_counts": {
+        "honba": 0,
+        "sticks": 0,
+        "scores": 0,
+        "riichi": 0,
+        "dora_indicators": 0,
+        "rivers": 0,
+        "melds": 0,
+        "hand_number": 0,
+        "last_discard": 0,
+        "tsumogiri_flags": 0
+      }
+    },
+    {
+      "source": "paired_future_masked",
+      "phase": "open_discard",
+      "records": 243,
+      "origin_groups": 48,
+      "descriptive_effective_groups": 28.762299074525085,
+      "largest_group_records": 21,
+      "largest_group_fraction": 0.08641975308641975,
+      "largest_five_groups_fraction": 0.2962962962962963,
+      "full_positive_menu_records": 0,
+      "legal_kind_position_counts": {
+        "dahai": 243
+      },
+      "positive_target_kind_position_counts": {
+        "dahai": 243
+      },
+      "mean_target_mass_by_kind": {
+        "dahai": 1.0
+      },
+      "preferred_kind_counts": {
+        "dahai": 243
+      },
+      "openness": {
+        "open": 243
+      },
+      "threats": {
+        "opponent_riichi": 243
+      },
+      "missing_or_null_context_counts": {
+        "honba": 0,
+        "sticks": 0,
+        "scores": 0,
+        "riichi": 0,
+        "dora_indicators": 0,
+        "rivers": 0,
+        "melds": 0,
+        "hand_number": 0,
+        "last_discard": 0,
+        "tsumogiri_flags": 0
+      }
+    }
+  ],
+  "independent_recount": {
+    "status": "passed_independent_sql_training_coverage_recount",
+    "training_records": 32768,
+    "strata_verified": 8
+  },
+  "held_or_evaluation_payloads_opened": false,
+  "optimizer_updates": 0,
+  "new_simulations": 0,
+  "model_or_training_changed": false,
+  "raw_records_public": false,
+  "limitations": [
+    "Group concentration is descriptive, not an estimate of independent policy-strength samples.",
+    "Positive MC target support identifies evaluated actions; zero entries remain unknown, not negative labels.",
+    "Expert one-hot labels have different meaning from masked MC support; do not compare their support sizes as quality.",
+    "No coverage count establishes which action should be chosen or predicts playing-strength improvement.",
+    "Missing or null context can reflect upstream source variation; this audit does not establish a preprocessing bug.",
+    "Future collection changes are conditional follow-up work; the registered v6 recipe, candidate and match gates remain unchanged."
+  ]
+}
