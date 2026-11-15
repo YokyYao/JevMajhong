@@ -1,5 +1,5 @@
 {
-  "status": "both_future_cost_pilots_complete_full_native_audit_running",
+  "status": "full_native_audit_passed_two_gpu_future_collection_running",
   "native_input_pilot": {
     "walls": 12,
     "control_matches": 48,
@@ -36,8 +36,8 @@
   "playing_strength_improvement_verified": false,
   "raw_records_public": false,
   "limitations": [
-    "Full input native replay audit and complete future labels are not finished.",
-    "Cost pilot selected early windows; full selection now uses a public hash order, so runtime estimate is approximate.",
+    "Complete future labels and model optimization are not finished.",
+    "The approximate cost estimate used earlier windows than full public hash sampling.",
     "Audits verify data and target computation, not policy strength.",
     "Bootstrap averaging adds no independent futures.",
     "Continuation uses the fixed reference policy and fixed concealed hands."
@@ -66,8 +66,41 @@
     "states": 17641,
     "train_states": 13266,
     "held_states": 4375,
-    "native_audit": "running"
+    "native_audit": "passed_complete",
+    "closed_states": 15412,
+    "open_states": 2229,
+    "opponent_riichi_states": 0
   },
   "cost_pilot_seconds": 1895.3044960609986,
-  "estimated_full_future_gpu_hours": 17.111186089603386
+  "estimated_full_future_gpu_hours": 17.111186089603386,
+  "full_native_audit": {
+    "status": "passed_complete",
+    "walls": 96,
+    "control_matches_audited": 384,
+    "states": 17641,
+    "prefixes_replayed": 17641,
+    "whole_wall_disjoint": true,
+    "all_opportunities_enumerated": true,
+    "cached_head_probability_max_error": 5.364418029785156e-07
+  },
+  "full_future_collection": {
+    "status": "running",
+    "closed_states": 432,
+    "closed_train": 384,
+    "closed_held": 48,
+    "open_states": 288,
+    "open_train": 256,
+    "open_held": 32,
+    "worlds_per_state": 16,
+    "gpu_count": 2,
+    "gpu_model": "NVIDIA RTX 5000 Ada Generation",
+    "actual_selected_origins_equal_public_preview": true,
+    "source_sha256": "46d052fdd2a7e251ddea88eec8f711897311a33e8aea7cd5ddc2a52e81012730"
+  },
+  "queued_followup": {
+    "data_preparation": "after_both_complete_future_phases",
+    "fit_and_evaluation": "after_successful_data_preparation",
+    "registered_final_training_step": 2088,
+    "optimizer_updates": 0
+  }
 }
