@@ -20,7 +20,7 @@
     "trainable_parameters": 11347456,
     "adapter_tensors": 372
   },
-  "next": "Monitor SAME evalGPU299917 v5 independent768 confirmation; complete192+audit admitted, ownwin+0.3526pp/risk-2.3789pp/net+1080.21 mean but wideCIs. Samefinal2048c5b991 candidate, new32wholewalls, no reuse/rescue/deployment. Fullconfirmationaudit and unchanged lower95%ownwin/risk gate required.",
+  "next": "v6 CPU300012 completed0:0; all3143newrewardtargets independently reproduced, 2458targetchanges/180argmax,32768publicinputs+160encodings invariant, v5completeparent verified,393freshprotocols0overlap. SameGPU300013 runsnewfull2048continuation. No strengthclaim/deploy; native540/fresh192/conditional768 gates unchanged.",
   "phase_mix_not_finalized": false,
   "LoRA_training_started": true,
   "old_pending_kan_fit_chain_cancelled": true,
@@ -4091,7 +4091,7 @@
   },
   "followup_winrisk_v5": {
     "model_id": "jev-unified-winrisk-v5",
-    "status": "development_passed_independent_confirmation_running",
+    "status": "independent_confirmation_complete_improvement_unproven",
     "training_source_sha256": "89fffa63c1a883ee6f14c9dd7710276a72e0ced8bc9e75aa0fa7badbffe30b28",
     "training_target_policy": "paired_bootstrap_average_masked_v1",
     "bootstrap_replicates": 256,
@@ -4150,7 +4150,7 @@
     "actual_epoch_at_final_cursor": 1,
     "actual_next_microbatch_at_final_cursor": 0,
     "GPU_evaluation_recovery_job": 299917,
-    "GPU_evaluation_recovery_state": "RUNNING",
+    "GPU_evaluation_recovery_state": "COMPLETED",
     "same_final_candidate_preserved": true,
     "evaluation_recovery_optimizer_updates": 0,
     "final_candidate_identity_sha256": "c5b991cc0834739d49ee9108811c3d0049cb669d97d08181bf3618112f6c7ada",
@@ -4425,10 +4425,440 @@
     },
     "development_summary_path": "docs/experiments/results/2026-11-12-play-input-audit/unified-winrisk-v5-development-summary.json",
     "confirmation": {
-      "status": "running",
-      "expected_games": 768,
+      "status": "completed_unproven",
+      "games": 768,
       "independent_wall_streams": 32,
-      "reference_games_reused": 0
-    }
+      "hand_win_paired": {
+        "gain": 0.009295363201613201,
+        "ci95": [
+          -0.02012425399944511,
+          0.03871498040267151
+        ],
+        "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+      },
+      "dealin_rate_paired": {
+        "gain": -0.000912339974839974,
+        "ci95": [
+          -0.022307684871022693,
+          0.020483004921342744
+        ],
+        "unit": "equal-weight match-level per-hand rates, paired by whole wall"
+      },
+      "net_points_paired": {
+        "gain": 165.36458333333337,
+        "ci95": [
+          -1767.0242083209018,
+          2097.753374987569
+        ]
+      },
+      "independent_audit": {
+        "status": "passed_complete",
+        "games": 768,
+        "whole_wall_groups": 32,
+        "four_seat_payment_records": 768,
+        "final_ranks_checked": 768,
+        "han_fu_independently_recalculated": false
+      }
+    },
+    "confirmation_summary_path": "docs/experiments/results/2026-11-12-play-input-audit/unified-winrisk-v5-confirmation-summary.json"
+  },
+  "followup_winrisk_v6": {
+    "model_id": "jev-unified-winrisk-v6",
+    "status": "training_fixed2048_actual_updates_verified",
+    "training_source_sha256": "3539b2b6f29ef41e9a6bb53af645f2f413b2d7a4331db98f951ff2ea89cae5db",
+    "training_target_policy": "paired_bootstrap_reward_revision_masked_v1",
+    "parent_model_id": "jev-unified-winrisk-v5",
+    "parent_checkpoint_step": 2048,
+    "parent_identity_sha256": "c5b991cc0834739d49ee9108811c3d0049cb669d97d08181bf3618112f6c7ada",
+    "parent_is_experimental_not_promoted": true,
+    "reward": {
+      "own_win": 1.0,
+      "discounted_own_win": 0.25,
+      "dealin": -1.0,
+      "net_points": 0.0,
+      "speed_gamma": 0.98
+    },
+    "CPU_preparation_job": 300012,
+    "GPU_fit_and_evaluation_job": 300013,
+    "registered_final_step": 2048,
+    "train_records": 32768,
+    "validation_records": 540,
+    "new_training_positions": 0,
+    "new_simulations": 0,
+    "expected_revised_MC_argmax_positions": 180,
+    "strength_improvement_proven": false,
+    "raw_and_weights_public": false,
+    "deployed": false,
+    "CPU_preparation_state": "COMPLETED",
+    "GPU_job_state": "RUNNING",
+    "bootstrap_relabel": {
+      "states_checked": 3143,
+      "phase_states": {
+        "open_discard": 243,
+        "call_window": 1980,
+        "closed_discard": 554,
+        "kan_window": 366
+      },
+      "affected_states": {
+        "open_discard": 169,
+        "call_window": 1713,
+        "closed_discard": 277,
+        "kan_window": 299
+      },
+      "argmax_changes": {
+        "open_discard": 11,
+        "call_window": 130,
+        "closed_discard": 17,
+        "kan_window": 22
+      }
+    },
+    "actual_tokenized_positions_verified": 160,
+    "parent_initialization_verified": true,
+    "optimizer_started": true,
+    "actual_update_proof": true,
+    "initial_complete_bundle_and540_predictions_verified": true
+  },
+  "train_only_reward_tradeoff_diagnostic": {
+    "status": "passed_complete_train_only_reward_tradeoff_audit",
+    "actual_v5_positions_reproduced": 3143,
+    "current_penalty": 2.0,
+    "summary": {
+      "0.5": {
+        "phases": {
+          "closed_discard": {
+            "positions": 554,
+            "argmax_changes": 31,
+            "old_top_action_counts": {
+              "dahai": 529,
+              "reach": 25
+            },
+            "new_top_action_counts": {
+              "dahai": 528,
+              "reach": 26
+            },
+            "mean_label_expected_own_win_gain": 0.0010042973075748034,
+            "mean_label_expected_dealin_gain": 0.007376230150914116,
+            "changed_argmax_to_higher_own_win": 27,
+            "changed_argmax_to_higher_dealin": 27
+          },
+          "call_window": {
+            "positions": 1980,
+            "argmax_changes": 231,
+            "old_top_action_counts": {
+              "chi": 546,
+              "none": 963,
+              "pon": 471
+            },
+            "new_top_action_counts": {
+              "chi": 571,
+              "none": 895,
+              "pon": 514
+            },
+            "mean_label_expected_own_win_gain": 0.008919416296374308,
+            "mean_label_expected_dealin_gain": 0.011868882898034585,
+            "changed_argmax_to_higher_own_win": 226,
+            "changed_argmax_to_higher_dealin": 227
+          },
+          "kan_window": {
+            "positions": 366,
+            "argmax_changes": 33,
+            "old_top_action_counts": {
+              "daiminkan": 39,
+              "dahai": 137,
+              "ankan": 62,
+              "pon": 28,
+              "none": 74,
+              "chi": 5,
+              "kakan": 19,
+              "reach": 2
+            },
+            "new_top_action_counts": {
+              "daiminkan": 44,
+              "dahai": 136,
+              "ankan": 62,
+              "pon": 29,
+              "kakan": 20,
+              "none": 68,
+              "chi": 5,
+              "reach": 2
+            },
+            "mean_label_expected_own_win_gain": 0.005010478162015769,
+            "mean_label_expected_dealin_gain": 0.011360876319026323,
+            "changed_argmax_to_higher_own_win": 27,
+            "changed_argmax_to_higher_dealin": 30
+          },
+          "open_discard": {
+            "positions": 243,
+            "argmax_changes": 20,
+            "old_top_action_counts": {
+              "dahai": 243
+            },
+            "new_top_action_counts": {
+              "dahai": 243
+            },
+            "mean_label_expected_own_win_gain": 0.011817614122679562,
+            "mean_label_expected_dealin_gain": 0.011511988696861146,
+            "changed_argmax_to_higher_own_win": 18,
+            "changed_argmax_to_higher_dealin": 19
+          }
+        },
+        "phase_weighted_label_expected_own_win_gain": 0.005261400856613324,
+        "phase_weighted_label_expected_dealin_gain": 0.009934531063267402
+      },
+      "1.0": {
+        "phases": {
+          "closed_discard": {
+            "positions": 554,
+            "argmax_changes": 17,
+            "old_top_action_counts": {
+              "dahai": 529,
+              "reach": 25
+            },
+            "new_top_action_counts": {
+              "dahai": 529,
+              "reach": 25
+            },
+            "mean_label_expected_own_win_gain": 0.0006565045625610756,
+            "mean_label_expected_dealin_gain": 0.003167589964121042,
+            "changed_argmax_to_higher_own_win": 15,
+            "changed_argmax_to_higher_dealin": 15
+          },
+          "call_window": {
+            "positions": 1980,
+            "argmax_changes": 130,
+            "old_top_action_counts": {
+              "chi": 546,
+              "none": 963,
+              "pon": 471
+            },
+            "new_top_action_counts": {
+              "chi": 552,
+              "none": 936,
+              "pon": 492
+            },
+            "mean_label_expected_own_win_gain": 0.005860407988783037,
+            "mean_label_expected_dealin_gain": 0.0055053884817941965,
+            "changed_argmax_to_higher_own_win": 129,
+            "changed_argmax_to_higher_dealin": 129
+          },
+          "kan_window": {
+            "positions": 366,
+            "argmax_changes": 22,
+            "old_top_action_counts": {
+              "daiminkan": 39,
+              "dahai": 137,
+              "ankan": 62,
+              "pon": 28,
+              "none": 74,
+              "chi": 5,
+              "kakan": 19,
+              "reach": 2
+            },
+            "new_top_action_counts": {
+              "daiminkan": 41,
+              "dahai": 137,
+              "ankan": 61,
+              "pon": 28,
+              "kakan": 20,
+              "none": 72,
+              "chi": 5,
+              "reach": 2
+            },
+            "mean_label_expected_own_win_gain": 0.0034394023296203213,
+            "mean_label_expected_dealin_gain": 0.005038285638525836,
+            "changed_argmax_to_higher_own_win": 19,
+            "changed_argmax_to_higher_dealin": 19
+          },
+          "open_discard": {
+            "positions": 243,
+            "argmax_changes": 11,
+            "old_top_action_counts": {
+              "dahai": 243
+            },
+            "new_top_action_counts": {
+              "dahai": 243
+            },
+            "mean_label_expected_own_win_gain": 0.007828736946693374,
+            "mean_label_expected_dealin_gain": 0.0058884317862583505,
+            "changed_argmax_to_higher_own_win": 11,
+            "changed_argmax_to_higher_dealin": 11
+          }
+        },
+        "phase_weighted_label_expected_own_win_gain": 0.003491478382252743,
+        "phase_weighted_label_expected_dealin_gain": 0.004515152836517678
+      },
+      "1.5": {
+        "phases": {
+          "closed_discard": {
+            "positions": 554,
+            "argmax_changes": 6,
+            "old_top_action_counts": {
+              "dahai": 529,
+              "reach": 25
+            },
+            "new_top_action_counts": {
+              "dahai": 528,
+              "reach": 26
+            },
+            "mean_label_expected_own_win_gain": 0.0003037509837653009,
+            "mean_label_expected_dealin_gain": 0.0011353117309612123,
+            "changed_argmax_to_higher_own_win": 4,
+            "changed_argmax_to_higher_dealin": 4
+          },
+          "call_window": {
+            "positions": 1980,
+            "argmax_changes": 38,
+            "old_top_action_counts": {
+              "chi": 546,
+              "none": 963,
+              "pon": 471
+            },
+            "new_top_action_counts": {
+              "chi": 546,
+              "none": 954,
+              "pon": 480
+            },
+            "mean_label_expected_own_win_gain": 0.002767017141012836,
+            "mean_label_expected_dealin_gain": 0.002091847712446571,
+            "changed_argmax_to_higher_own_win": 38,
+            "changed_argmax_to_higher_dealin": 38
+          },
+          "kan_window": {
+            "positions": 366,
+            "argmax_changes": 5,
+            "old_top_action_counts": {
+              "daiminkan": 39,
+              "dahai": 137,
+              "ankan": 62,
+              "pon": 28,
+              "none": 74,
+              "chi": 5,
+              "kakan": 19,
+              "reach": 2
+            },
+            "new_top_action_counts": {
+              "daiminkan": 39,
+              "dahai": 135,
+              "ankan": 62,
+              "pon": 27,
+              "kakan": 21,
+              "none": 75,
+              "chi": 5,
+              "reach": 2
+            },
+            "mean_label_expected_own_win_gain": 0.0016822881322291192,
+            "mean_label_expected_dealin_gain": 0.0018600848749151671,
+            "changed_argmax_to_higher_own_win": 5,
+            "changed_argmax_to_higher_dealin": 5
+          },
+          "open_discard": {
+            "positions": 243,
+            "argmax_changes": 4,
+            "old_top_action_counts": {
+              "dahai": 243
+            },
+            "new_top_action_counts": {
+              "dahai": 243
+            },
+            "mean_label_expected_own_win_gain": 0.0037834763640853795,
+            "mean_label_expected_dealin_gain": 0.0023940687406300335,
+            "changed_argmax_to_higher_own_win": 4,
+            "changed_argmax_to_higher_dealin": 4
+          }
+        },
+        "phase_weighted_label_expected_own_win_gain": 0.0016664107986643331,
+        "phase_weighted_label_expected_dealin_gain": 0.001693102855164493
+      },
+      "2.0": {
+        "phases": {
+          "closed_discard": {
+            "positions": 554,
+            "argmax_changes": 0,
+            "old_top_action_counts": {
+              "dahai": 529,
+              "reach": 25
+            },
+            "new_top_action_counts": {
+              "dahai": 529,
+              "reach": 25
+            },
+            "mean_label_expected_own_win_gain": -3.4443967934557544e-20,
+            "mean_label_expected_dealin_gain": -2.5441949459473593e-20,
+            "changed_argmax_to_higher_own_win": 0,
+            "changed_argmax_to_higher_dealin": 0
+          },
+          "call_window": {
+            "positions": 1980,
+            "argmax_changes": 0,
+            "old_top_action_counts": {
+              "chi": 546,
+              "none": 963,
+              "pon": 471
+            },
+            "new_top_action_counts": {
+              "chi": 546,
+              "none": 963,
+              "pon": 471
+            },
+            "mean_label_expected_own_win_gain": 1.6255834987979792e-19,
+            "mean_label_expected_dealin_gain": -6.224395488821633e-21,
+            "changed_argmax_to_higher_own_win": 0,
+            "changed_argmax_to_higher_dealin": 0
+          },
+          "kan_window": {
+            "positions": 366,
+            "argmax_changes": 0,
+            "old_top_action_counts": {
+              "daiminkan": 39,
+              "dahai": 137,
+              "ankan": 62,
+              "pon": 28,
+              "none": 74,
+              "chi": 5,
+              "kakan": 19,
+              "reach": 2
+            },
+            "new_top_action_counts": {
+              "daiminkan": 39,
+              "dahai": 137,
+              "ankan": 62,
+              "pon": 28,
+              "none": 74,
+              "chi": 5,
+              "kakan": 19,
+              "reach": 2
+            },
+            "mean_label_expected_own_win_gain": -3.9872455983627123e-19,
+            "mean_label_expected_dealin_gain": -3.743607911143596e-20,
+            "changed_argmax_to_higher_own_win": 0,
+            "changed_argmax_to_higher_dealin": 0
+          },
+          "open_discard": {
+            "positions": 243,
+            "argmax_changes": 0,
+            "old_top_action_counts": {
+              "dahai": 243
+            },
+            "new_top_action_counts": {
+              "dahai": 243
+            },
+            "mean_label_expected_own_win_gain": -6.149810255241417e-20,
+            "mean_label_expected_dealin_gain": 9.465398878303848e-20,
+            "changed_argmax_to_higher_own_win": 0,
+            "changed_argmax_to_higher_dealin": 0
+          }
+        },
+        "phase_weighted_label_expected_own_win_gain": -5.0904804432379307e-20,
+        "phase_weighted_label_expected_dealin_gain": -1.0065915374419272e-20
+      }
+    },
+    "causal_explanation_proven": false,
+    "current_training_or_evaluation_modified": false,
+    "raw_diagnostics_public": false,
+    "limitations": [
+      "These are target-implied conditional effects under stored reference continuation, not candidate win-rate predictions.",
+      "Existing paired futures and opponent hands are reused; uncertainty and continuation mismatch remain.",
+      "No new reward or next training plan is selected before full v5 independent confirmation."
+    ]
   }
 }

@@ -14,6 +14,18 @@ from .base_lora_pool import position
 from .relabel_targets import bind, materialize
 
 POLICY = 'paired_bootstrap_average_masked_v1'
+REWARD_POLICY = 'paired_bootstrap_reward_revision_masked_v1'
+
+
+def validate_reward_revision(parent_reward, reward):
+    """Stored speed credits may be reused only when the deal-in weight changes."""
+    from jevmahjong.training.utility import validate_config
+    validate_config(parent_reward)
+    validate_config(reward)
+    if (parent_reward['mode'] != 'own_win_first_v1' or reward['mode'] != 'own_win_first_v1'
+            or set(parent_reward) != set(reward)
+            or {k for k in reward if reward[k] != parent_reward[k]} != {'dealin_penalty'}):
+        raise ValueError('Only the explicitly declared deal-in coefficient may change')
 
 
 def bootstrap_probabilities(deltas, *, seed, temperature=.05, replicates=256):
@@ -44,10 +56,29 @@ def bootstrap_probabilities(deltas, *, seed, temperature=.05, replicates=256):
     return probabilities
 
 
+def revised_reward_bootstrap_probabilities(deltas, *, parent_reward, reward, **kwargs):
+    """Recompute utility from audited outcomes before paired resampling."""
+    validate_reward_revision(parent_reward, reward)
+    values = np.asarray(deltas, dtype=np.float64)
+    if values.ndim != 3 or values.shape[2] != 4 or not np.isfinite(values).all():
+        raise ValueError('Finite paired utility/win/speed/deal-in outcomes required')
+    expected = values[..., 1] + parent_reward['fast_weight']*values[..., 2] - parent_reward['dealin_penalty']*values[..., 3]
+    if not np.allclose(values[..., 0], expected, rtol=0., atol=1e-12):
+        raise ValueError('Stored parent utility differs from its declared outcome reward')
+    revised = values.copy()
+    revised[..., 0] = values[..., 1] + reward['fast_weight']*values[..., 2] - reward['dealin_penalty']*values[..., 3]
+    return bootstrap_probabilities(revised, **kwargs)
+
+
 def prepare(cfg):
     """Apply a complete, hash-bound training-only bootstrap derivation."""
-    if cfg['policy'] != POLICY:
+    if cfg['policy'] not in (POLICY, REWARD_POLICY):
         raise ValueError('Explicit paired bootstrap policy required')
+    revised_reward = cfg['policy'] == REWARD_POLICY
+    if revised_reward:
+        validate_reward_revision(cfg['parent_reward'], cfg['reward'])
+    elif 'parent_reward' in cfg or 'reward' in cfg:
+        raise ValueError('Reward changes require the explicit reward-revision policy')
     inputs = {}
     parent_path = bind(inputs, cfg['parent_data_receipt'], cfg['parent_data_receipt_sha256'])
     parent = json.loads(parent_path.read_text())
@@ -57,10 +88,14 @@ def prepare(cfg):
         bind(inputs, record['path'], record['sha256'])
     audit_path = bind(inputs, cfg['audit_receipt'], cfg['audit_receipt_sha256'])
     audit = json.loads(audit_path.read_text())
-    if (audit['status'] != 'passed_complete_training_only_stability_audit'
+    expected_audit = ('passed_complete_training_only_reward_revision_audit' if revised_reward
+                      else 'passed_complete_training_only_stability_audit')
+    if (audit['status'] != expected_audit
             or audit['held_rollout_payloads_opened'] or audit['current_evaluation_game_payloads_opened']
             or audit['optimizer_updates'] or audit['new_simulations'] or audit['bootstrap_replicates'] != 256):
         raise ValueError('Complete train-only audit without optimizer or new simulation required')
+    if revised_reward and any(audit.get(k) != cfg[k] for k in ('parent_reward', 'reward')):
+        raise ValueError('Declared reward revision differs from actual future derivation')
     for path, checksum in audit['inputs'].items():
         bind(inputs, path, checksum)
     train = Path(parent['files']['train']['path']).resolve()
@@ -70,11 +105,15 @@ def prepare(cfg):
     targets = json.loads(target_path.read_text())
     kernel_path = bind(inputs, cfg['kernel_verification_receipt'], cfg['kernel_verification_receipt_sha256'])
     proof = json.loads(kernel_path.read_text())
-    if (proof['status'] != 'passed_all_admitted_bootstrap_kernel_targets'
+    expected_proof = ('passed_all_admitted_bootstrap_reward_targets' if revised_reward
+                      else 'passed_all_admitted_bootstrap_kernel_targets')
+    if (proof['status'] != expected_proof
             or proof['states_checked'] != audit['states_checked']
             or proof['bootstrap_targets_sha256'] != audit['bootstrap_targets_sha256']
             or proof['kernel_source_sha256'] != digest(Path(__file__))):
         raise ValueError('Actual paired-future kernel reproduction required')
+    if revised_reward and any(proof.get(k) != cfg[k] for k in ('parent_reward', 'reward')):
+        raise ValueError('Independent kernel proof used a different reward revision')
     for path, checksum in proof['inputs'].items():
         bind(inputs, path, checksum)
     rows = [json.loads(line) for line in train.read_text().splitlines() if line.strip()]
@@ -110,16 +149,18 @@ def prepare(cfg):
             raise ValueError('Input changed during materialization')
     stats = dict(states_checked=len(used), phase_states=dict(phases), affected_states=dict(changed), argmax_changes=dict(argmax))
     result = copy.deepcopy(parent)
-    result.update(config=cfg, files=files, training_target_policy=POLICY, bootstrap_relabel=stats,
+    result.update(config=cfg, files=files, training_target_policy=cfg['policy'], bootstrap_relabel=stats,
         training_position_order_and_IDs_preserved=True, expert_labels_changed=False,
         validation_targets_changed=False, unknown_actions_are_not_negative_labels=True,
         raw_records_public=False, optimizer_updates=0, new_simulations=0)
+    if revised_reward:
+        result.update(training_reward=cfg['reward'], parent_training_reward=cfg['parent_reward'])
     result['fixed_full_validation'] = dict(path=parent['files']['validation']['path'],
         sha256=files['validation']['sha256'], records=files['validation']['records'], bytes_identical=True)
     write(out / 'inputs-private.json', inputs)
     result['target_derivation_inputs_sha256'] = digest(out / 'inputs-private.json')
     write(out / 'result.json', result)
-    write(out / 'status.json', dict(status='balanced_raw_data_ready', target_policy=POLICY, **stats))
+    write(out / 'status.json', dict(status='balanced_raw_data_ready', target_policy=cfg['policy'], **stats))
     return result
 
 

@@ -1,7 +1,8 @@
 import unittest
 import numpy as np
 
-from jevmahjong.data.bootstrap_targets import bootstrap_probabilities
+from jevmahjong.data.bootstrap_targets import (bootstrap_probabilities,
+    revised_reward_bootstrap_probabilities, validate_reward_revision)
 
 
 class PairedBootstrapTargetsTests(unittest.TestCase):
@@ -41,6 +42,47 @@ class PairedBootstrapTargetsTests(unittest.TestCase):
         for n in [0, True, 1.5]:
             with self.assertRaises(ValueError):
                 bootstrap_probabilities(np.zeros((2, 2, 4)), seed=1, replicates=n)
+
+
+class RewardRevisionTests(unittest.TestCase):
+    def setUp(self):
+        self.old = dict(mode='own_win_first_v1', win_weight=1., fast_weight=.25,
+                        dealin_penalty=2., net_weight=0., point_scale=8000., speed_gamma=.98)
+        self.new = dict(self.old, dealin_penalty=1.)
+
+    def test_lower_risk_cost_changes_win_risk_choice_without_mutating_outcomes(self):
+        values = np.tile([[0., 0., 0., 0.], [-.1, .2, 0., .15]], (16, 1, 1))
+        saved = values.copy()
+        before = bootstrap_probabilities(values, seed=1).mean(axis=0)
+        after = revised_reward_bootstrap_probabilities(values, parent_reward=self.old,
+                                                      reward=self.new, seed=1).mean(axis=0)
+        self.assertLess(before[1], .2)
+        self.assertGreater(after[1], .7)
+        np.testing.assert_array_equal(values, saved)
+
+    def test_rejects_changed_speed_gamma_with_unrecomputed_speed_credits(self):
+        with self.assertRaises(ValueError):
+            validate_reward_revision(self.old, dict(self.new, speed_gamma=.95))
+
+    def test_rejects_changed_win_weight_and_reward_mode(self):
+        for reward in [dict(self.new, win_weight=2.), dict(self.new, mode='risk_adjusted_fast_win_v1')]:
+            with self.assertRaises(ValueError):
+                validate_reward_revision(self.old, reward)
+
+    def test_rejects_missing_or_undisclosed_reward_fields(self):
+        for reward in [self.old, dict(self.new, extra_weight=1.)]:
+            with self.assertRaises(ValueError):
+                validate_reward_revision(self.old, reward)
+
+    def test_rejects_inconsistent_parent_utility_before_resampling(self):
+        values = np.tile([[0., 0., 0., 0.], [1., .2, 0., .15]], (16, 1, 1))
+        with self.assertRaises(ValueError):
+            revised_reward_bootstrap_probabilities(values, parent_reward=self.old, reward=self.new, seed=1)
+
+    def test_rejects_nonfinite_or_negative_new_risk_cost(self):
+        for penalty in [float('nan'), -1.]:
+            with self.assertRaises(ValueError):
+                validate_reward_revision(self.old, dict(self.old, dealin_penalty=penalty))
 
 
 if __name__ == '__main__':
