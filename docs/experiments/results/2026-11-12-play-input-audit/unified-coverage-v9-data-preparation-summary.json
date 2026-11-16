@@ -1,0 +1,210 @@
+{
+  "model_id": "jev-unified-coverage-v9",
+  "stage": "complete_input_audit_and_public_selection_passed_gpu_future_jobs_started",
+  "observed_utc": "2026-11-16T04:54:13.612736+00:00",
+  "source_sha256": "46d052fdd2a7e251ddea88eec8f711897311a33e8aea7cd5ddc2a52e81012730",
+  "input_audit": {
+    "status": "passed_complete",
+    "walls": 384,
+    "control_matches_audited": 1536,
+    "states": 70517,
+    "state_splits": {
+      "train": 53313,
+      "held": 17204
+    },
+    "prefixes_replayed": 70517,
+    "cached_head_probability_max_error": 6.258487701416016e-07,
+    "whole_wall_disjoint": true,
+    "attack_state_coverage": {
+      "closed": 61843,
+      "opponent_riichi": 0,
+      "open": 8674
+    },
+    "all_opportunities_enumerated": true
+  },
+  "public_sampling": {
+    "closed": {
+      "train": {
+        "states": 768,
+        "walls": 288,
+        "maximum_per_wall": 3,
+        "seat_histogram": {
+          "0": 186,
+          "3": 199,
+          "1": 199,
+          "2": 184
+        },
+        "hand_index_histogram": {
+          "3": 147,
+          "1": 130,
+          "4": 89,
+          "0": 149,
+          "6": 24,
+          "5": 62,
+          "2": 141,
+          "8": 9,
+          "7": 11,
+          "11": 1,
+          "9": 4,
+          "10": 1
+        },
+        "minimum_shanten_histogram": {
+          "3": 179,
+          "4": 57,
+          "1": 214,
+          "2": 273,
+          "0": 35,
+          "5": 9,
+          "6": 1
+        },
+        "first_hand_first_draw": 1,
+        "later_than_first_hand": 619,
+        "more_than_eight_table_draws": 568
+      },
+      "held": {
+        "states": 96,
+        "walls": 96,
+        "maximum_per_wall": 1,
+        "seat_histogram": {
+          "0": 24,
+          "3": 16,
+          "1": 29,
+          "2": 27
+        },
+        "hand_index_histogram": {
+          "4": 13,
+          "1": 13,
+          "3": 20,
+          "7": 2,
+          "6": 2,
+          "2": 22,
+          "0": 17,
+          "5": 6,
+          "10": 1
+        },
+        "minimum_shanten_histogram": {
+          "2": 25,
+          "4": 7,
+          "3": 28,
+          "1": 29,
+          "0": 7
+        },
+        "first_hand_first_draw": 0,
+        "later_than_first_hand": 79,
+        "more_than_eight_table_draws": 73
+      }
+    },
+    "open": {
+      "train": {
+        "states": 512,
+        "walls": 286,
+        "maximum_per_wall": 2,
+        "seat_histogram": {
+          "1": 116,
+          "2": 125,
+          "0": 119,
+          "3": 152
+        },
+        "hand_index_histogram": {
+          "3": 92,
+          "6": 23,
+          "4": 64,
+          "0": 98,
+          "2": 83,
+          "5": 34,
+          "1": 94,
+          "7": 18,
+          "8": 4,
+          "9": 2
+        },
+        "minimum_shanten_histogram": {
+          "1": 269,
+          "2": 118,
+          "0": 101,
+          "4": 8,
+          "3": 16
+        },
+        "first_hand_first_draw": 2,
+        "later_than_first_hand": 414,
+        "more_than_eight_table_draws": 468
+      },
+      "held": {
+        "states": 64,
+        "walls": 64,
+        "maximum_per_wall": 1,
+        "seat_histogram": {
+          "1": 18,
+          "2": 24,
+          "3": 12,
+          "0": 10
+        },
+        "hand_index_histogram": {
+          "0": 11,
+          "5": 5,
+          "3": 12,
+          "4": 10,
+          "2": 13,
+          "6": 2,
+          "1": 10,
+          "8": 1
+        },
+        "minimum_shanten_histogram": {
+          "0": 15,
+          "2": 16,
+          "1": 26,
+          "3": 7
+        },
+        "first_hand_first_draw": 0,
+        "later_than_first_hand": 53,
+        "more_than_eight_table_draws": 58
+      }
+    }
+  },
+  "selection_uses_future_rewards": false,
+  "original_unique_positions": 1440,
+  "worlds_per_position": 16,
+  "source_binding_correction": {
+    "reason": "Original frozen package lacked the already implemented public hash sampler",
+    "changed_package_files": [
+      "training/ev_collect.py"
+    ],
+    "original_inputs_and_audit_preserved": true,
+    "original_failure_before_future_generation": true,
+    "actual_repaired_selection_independently_checked": true,
+    "existing_sampling_unit_tests_passed": 3,
+    "model_and_reward_implementation_unchanged": true
+  },
+  "execution": {
+    "gpu_future_segments": 4,
+    "parallel_chains": 2,
+    "maximum_segment_hours": 24,
+    "actual_registered_job_states": {
+      "RUNNING": 2,
+      "PENDING": 4
+    },
+    "actual_commands_and_dependencies_verified": true,
+    "data_preparation_queued": true,
+    "fit_queued": true
+  },
+  "planned_training": {
+    "train_records": 34688,
+    "validation_records": 780,
+    "final_step": 2168,
+    "new_train_records": 1280,
+    "new_validation_records": 160,
+    "same_LoRA_and_action_head": true,
+    "reward_and_fitness_gates_unchanged": true
+  },
+  "complete_future_labels_available": false,
+  "optimizer_updates": 0,
+  "improvement_verified": false,
+  "deployed": false,
+  "raw_records_public": false,
+  "weights_public": false,
+  "not_a_strength_evaluation": true,
+  "limitations": [
+    "Future labels remain conditional on fixed hidden hands and reference continuation policy.",
+    "Input and sampling checks do not establish correct choices or stronger live play.",
+    "Training remains dependent on complete future generation and independent target verification."
+  ]
+}
