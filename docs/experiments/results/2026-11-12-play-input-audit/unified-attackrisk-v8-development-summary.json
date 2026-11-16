@@ -577,5 +577,22 @@
     "Reward revision and continued initialization were evaluated together; this does not isolate a single cause.",
     "Validation retains the v7 target definition; CE is diagnostic, not the new reward itself."
   ],
-  "eligible_for_confirmation": true
+  "eligible_for_confirmation": true,
+  "experimental_reference": {
+    "policy_id": "jev-play-v1-plus-call-tile-win-v1",
+    "components": [
+      "jev-discard-v1",
+      "jev-call-v1",
+      "jev-call-tile-win-v1"
+    ],
+    "call_context_checkpoint_sha256": "82b8843c6520dfb0b56f8df82c1410bc623d6f88db3a99aa9078f2c38bf8a021",
+    "published_desktop_policy_id": "jev-play-v1",
+    "published_desktop_components": [
+      "jev-discard-v1",
+      "jev-call-v1"
+    ],
+    "same_as_published_desktop_v0_3_0": false,
+    "direct_comparison_with_unmodified_published_desktop_performed": false,
+    "interpretation": "Reported gains use the registered experimental reference, not the unmodified published desktop policy; gains from separate experiments must not be added."
+  }
 }
