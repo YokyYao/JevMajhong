@@ -1,5 +1,8 @@
 name: Build Windows app
 on:
+  push:
+    branches: [release/jev-play-v2]
+    paths: [desktop/release-request.json]
   workflow_dispatch:
     inputs:
       publish:
@@ -12,7 +15,7 @@ concurrency:
   group: windows-desktop-release
   cancel-in-progress: true
 env:
-  RELEASE_TAG: desktop-v0.3.0
+  RELEASE_TAG: desktop-v0.4.0
   HF_HUB_DISABLE_XET: '1'
   HF_HUB_DISABLE_TELEMETRY: '1'
 jobs:
@@ -24,6 +27,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Verify the requested Jev Play v2 release identity
+        run: |
+          python -c "import json; from pathlib import Path; r=json.loads(Path('desktop/release-request.json').read_text()); i=json.loads(Path('desktop/jev_sidecar/play_v2_identity.json').read_text()); m=json.loads(Path('weights/jev-play-v2/manifest.json').read_text()); assert r['version']=='0.4.0' and r['model_id']==i['model_id']==m['model_id']=='jev-play-v2'; assert r['identity_sha256']==i['identity_sha256']; assert r['archive_sha256']==m['archive_sha256']; assert i['source_step']==2088 and i['parameter_values_unchanged']"
       - name: Install frozen-app build dependencies
         run: |
           python -m unittest tests.desktop.test_archives
@@ -31,9 +37,10 @@ jobs:
           python -m pip install --no-cache-dir torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
           python -m pip install --no-cache-dir -r desktop/requirements-model.txt "pyinstaller>=6.22,<7"
           python -m unittest tests.desktop.test_call_policy
+          python -m unittest tests.desktop.test_unified_policy tests.desktop.test_kans
       - name: Prepare verified model and local recognition assets
         run: |
-          python tools/prepare_models.py
+          python tools/prepare_models.py --profile play-v2
           python desktop/fetch_assets.py
           python -c "import os; from pathlib import Path; from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen3.5-0.8B', revision='2fc06364715b967f1860aea9cf38778875588b17', local_dir=Path(os.environ['LOCALAPPDATA'])/'JevMahjong-build-base', allow_patterns=['*.json','*.safetensors','*.jinja','*.model','LICENSE*'])"
       - name: Build Windows executable and bundled CUDA runtime
@@ -50,6 +57,8 @@ jobs:
           if ($p.ExitCode -ne 0) { Get-Content "$env:LOCALAPPDATA/JevMahjong/error.log" -ErrorAction SilentlyContinue; throw 'Frozen EXE failed' }
           $result = Get-Content frozen-selftest.json | ConvertFrom-Json
           if (!$result.model -or !$result.frozen_exe -or !$result.counters) { throw 'Actual model test did not run' }
+          if ($result.model_id -ne 'jev-play-v2' -or $result.source_step -ne 2088) { throw 'Frozen EXE loaded the wrong model' }
+          if (@($result.decisions.PSObject.Properties).Count -ne 7) { throw 'Incomplete action-path model checks' }
           Get-Content frozen-selftest.json
       - name: Build automatic runtime downloader installer
         run: |
@@ -73,7 +82,7 @@ jobs:
           $server = Start-Process (Get-Command python).Source -ArgumentList '-m','http.server','8765','--bind','127.0.0.1','--directory','release' -PassThru
           try {
             Start-Sleep -Seconds 2
-            $p = Start-Process -FilePath release/JevMahjong-Setup-0.3.0-win-x64.exe -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/DIR=$target",'/RUNTIMEURL=http://127.0.0.1:8765',"/LOG=$pwd/install.log" -Wait -PassThru
+            $p = Start-Process -FilePath release/JevMahjong-Setup-0.4.0-win-x64.exe -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART',"/DIR=$target",'/RUNTIMEURL=http://127.0.0.1:8765',"/LOG=$pwd/install.log" -Wait -PassThru
             if ($p.ExitCode -ne 0) { Get-Content install.log -Tail 80; throw 'Installer failed' }
             $env:JEV_BASE_MODEL_DIR = Join-Path $env:LOCALAPPDATA 'JevMahjong-build-base'
             $env:PATH = "$env:SystemRoot\System32;$env:SystemRoot"
@@ -81,6 +90,8 @@ jobs:
             if ($p.ExitCode -ne 0) { Get-Content "$env:LOCALAPPDATA/JevMahjong/error.log" -ErrorAction SilentlyContinue; throw 'Installed EXE failed' }
             $result = Get-Content installed-selftest.json | ConvertFrom-Json
             if (!$result.model -or !$result.frozen_exe -or !$result.counters) { throw 'Installed model test did not run' }
+            if ($result.model_id -ne 'jev-play-v2' -or $result.source_step -ne 2088) { throw 'Installed EXE loaded the wrong model' }
+            if (@($result.decisions.PSObject.Properties).Count -ne 7) { throw 'Incomplete installed action-path checks' }
             Get-Content installed-selftest.json
           } finally { Stop-Process -Id $server.Id -ErrorAction SilentlyContinue }
       - uses: actions/upload-artifact@v4
@@ -89,14 +100,14 @@ jobs:
           path: release/
           if-no-files-found: error
       - name: Publish tested Windows release
-        if: ${{ inputs.publish }}
+        if: ${{ inputs.publish || github.event_name == 'push' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           $existing = gh release view $env:RELEASE_TAG --json isDraft --jq '.isDraft' 2>$null
           if ($LASTEXITCODE -eq 0 -and $existing -ne 'true') { throw 'Never overwrite a published release' }
           if ($LASTEXITCODE -ne 0) {
-            gh release create $env:RELEASE_TAG --draft --target $env:GITHUB_SHA --title 'Jev Mahjong 0.3.0 - Jev Play v1' --notes 'Uses the Jev Call v1 LoRA and pointer head for chi/pon/pass, with Jev Discard v1 for ordinary actions. Both parameter sets and shared pinned base are verified. Simulated East-match score improvement does not establish screenshot or human-player win rate. Download and double-click JevMahjong-Setup-0.3.0-win-x64.exe only. Setup automatically downloads and SHA256-verifies the Runtime ZIP components, then installs Python, CUDA libraries, confirmed model and screen recognition privately. No Python/pip/CUDA Toolkit setup required. First application launch also downloads the pinned Qwen base. Frozen EXE and installed CPU model inference verified on Windows; NVIDIA GPU needs local driver/hardware. Runtime archives are split by files to respect the GitHub 2GiB asset limit; no manual ZIP handling is needed.'
+            gh release create $env:RELEASE_TAG --draft --prerelease --target $env:GITHUB_SHA --title 'Jev Play v2 - Windows 0.4.0' --notes-file desktop/RELEASE_NOTES.md
           }
           $assets = (Get-ChildItem release -File).FullName
           gh release upload $env:RELEASE_TAG @assets --clobber

@@ -344,7 +344,11 @@ class Adviser:
         from jevany.checkpoint import LoadOptions
         from jevany.inference import InferenceOptions
         checkpoint = Path(checkpoint)
-        from .model_identity import validate_checkpoint
+        unified = checkpoint.name == 'jev-play-v2' or (checkpoint / 'play-v2-identity.json').is_file()
+        if unified:
+            from .unified_policy import validate_checkpoint
+        else:
+            from .model_identity import validate_checkpoint
         validate_checkpoint(checkpoint)
         manifest = checkpoint / 'manifest.json'
         if manifest.is_file():
@@ -359,6 +363,11 @@ class Adviser:
         torch.backends.cudnn.allow_tf32 = False
         torch.backends.cuda.enable_flash_sdp(False)
         torch.backends.cuda.enable_mem_efficient_sdp(False)
+        if device == 'cpu':
+            import inspect
+            from transformers.models.qwen3_5 import modeling_qwen3_5 as qwen
+            for name in ('torch_chunk_gated_delta_rule', 'torch_recurrent_gated_delta_rule'):
+                setattr(qwen, name, inspect.unwrap(getattr(qwen, name)))
         def load(path):
             return JevModel.from_pretrained(str(path), device=device, dtype=dtype,
                 options=LoadOptions(merge=False, temperature=1., compile_mode=None, cuda_graphs=False,
@@ -367,7 +376,11 @@ class Adviser:
                                                   max_packed_tokens=8192, prefix_cache_size=0))
         ordinary = load(checkpoint)
         call_checkpoint = checkpoint.parent / 'jev-call-v1'
-        if call_checkpoint.is_dir():
+        if unified:
+            from .unified_policy import MODEL_NAME, UnifiedPolicyClient
+            self.model = UnifiedPolicyClient(ordinary)
+            self.policy_name = MODEL_NAME
+        elif call_checkpoint.is_dir():
             from .call_policy import CallPolicyClient, validate_call_checkpoint
             validate_call_checkpoint(call_checkpoint)
             calling = load(call_checkpoint)

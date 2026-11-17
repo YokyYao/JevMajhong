@@ -5,6 +5,22 @@ from pathlib import Path
 import time
 
 
+def model_cases():
+    from .engine import Board, parse_melds
+    from .tiles import parse
+    def board(hand, **kwargs):
+        return Board(parse(hand), rivers=[[], [], [], []], metadata_confirmed=True, **kwargs)
+    return {
+        'closed_discard': board('12389m278p589s457z'),
+        'open_discard': board('123m123p123s56z', melds=[parse_melds('777z'), [], [], []]),
+        'chi': board('123456m345p67s11z', reaction={'tile': '5s', 'seat': 3, 'offered': ['chi']}),
+        'pon': board('123m123p123s1166z', reaction={'tile': '6z', 'seat': 1, 'offered': ['pon']}),
+        'ankan': board('0555m123p123s1122z', self_kan_available=True),
+        'daiminkan': board('123m123p123s1666z', reaction={'tile': '6z', 'seat': 1, 'offered': ['daiminkan']}),
+        'kakan': board('123m123p123s56z', melds=[parse_melds('555z'), [], [], []], self_kan_available=True),
+    }
+
+
 def run(report, model_test=False):
     from PySide6.QtWidgets import QApplication
     from PIL import Image, ImageDraw, ImageFont
@@ -44,19 +60,24 @@ def run(report, model_test=False):
     panel.timer.stop()
     panel.close()
     if model_test:
+        import math
+        from .unified_policy import UnifiedPolicyClient, default_checkpoint, identity
         adviser = Adviser()
-        adviser.load(ROOT / 'models/jev-discard-v1', device='cpu')
-        board = Board(parse('12389m278p589s457z'), rivers=[[], [], [], []], metadata_confirmed=True)
-        prediction = adviser.recommend(board, use_model=True)
-        assert sum(v['eligible'] for v in prediction['all_candidates']) >= 2
-        assert prediction['top3'][0]['tile'] in board.hand
-        from .call_policy import CallPolicyClient
-        assert isinstance(adviser.model, CallPolicyClient), 'Jev Call v1 adapter missing from release'
-        call_board = Board(parse('123456m345p67s11z'), rivers=[[], [], [], []], metadata_confirmed=True,
-            reaction={'tile': '5s', 'seat': 3, 'offered': ['chi']})
-        call_prediction = adviser.recommend(call_board, use_model=True)
-        assert call_prediction['reaction'] and len(call_prediction['all_candidates']) >= 2
-        result.update(model=True, chosen=prediction['top3'][0]['tile'], device='cpu',
-            call_model='jev-call-v1', ordinary_model='jev-discard-v1',
-            call_choice=call_prediction['top3'][0]['action'])
+        adviser.load(default_checkpoint(ROOT), device='cpu')
+        assert isinstance(adviser.model, UnifiedPolicyClient), 'Jev Play v2 single policy missing from release'
+        decisions = {}
+        for case, board in model_cases().items():
+            prediction = adviser.recommend(board, use_model=True)
+            options = prediction['all_candidates']
+            probabilities = [v['preference'] for v in options]
+            assert all(math.isfinite(p) and p >= 0 for p in probabilities)
+            assert abs(sum(probabilities) - 1) < 1e-5
+            assert prediction['model_input']['route'] == 'unified'
+            assert prediction['engine'] == 'Jev Play v2'
+            if case in ('chi', 'pon', 'ankan', 'daiminkan', 'kakan'):
+                assert any(v.get('action', {}).get('type') == case for v in options), case
+            decisions[case] = prediction['top3'][0].get('action', {'type': 'dahai', 'tile': prediction['top3'][0]['tile']})
+        result.update(model=True, model_id='jev-play-v2', device='cpu',
+            source_model=identity()['source_model_id'], source_step=identity()['source_step'],
+            model_identity_sha256=identity()['identity_sha256'], decisions=decisions)
     Path(report).write_text(json.dumps(result, indent=2), encoding='utf-8')

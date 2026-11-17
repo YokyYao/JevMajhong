@@ -1,0 +1,48 @@
+{
+  "records": 33408,
+  "counts": {
+    "expert_replay": 29625,
+    "paired_future_masked": 3783
+  },
+  "target_mass": {
+    "expert_replay": 0.75,
+    "paired_future_masked": 0.25
+  },
+  "loss_weights": {
+    "expert_replay": 0.8457721518987342,
+    "paired_future_masked": 2.2077716098334657
+  },
+  "actual_weighted_mass": {
+    "expert_replay": 0.75,
+    "paired_future_masked": 0.25
+  },
+  "mean_example_weight": 1.0,
+  "copies_added": 0,
+  "reward_sign_selection": false,
+  "validation_weighted": false,
+  "MC_phase_counts": {
+    "open_discard": 499,
+    "call_window": 1980,
+    "closed_discard": 938,
+    "kan_window": 366
+  },
+  "target_MC_phase_mass": {
+    "closed_discard": 0.4,
+    "call_window": 0.3,
+    "kan_window": 0.2,
+    "open_discard": 0.1
+  },
+  "MC_phase_loss_weights": {
+    "call_window": 1.2654545454545454,
+    "closed_discard": 3.561620469083156,
+    "kan_window": 4.563934426229508,
+    "open_discard": 1.67374749498998
+  },
+  "actual_weighted_mass_by_MC_phase": {
+    "call_window": 0.075,
+    "closed_discard": 0.1,
+    "kan_window": 0.05,
+    "open_discard": 0.025
+  },
+  "training_source_tag_schema": "loss_only_source_phase_v1"
+}

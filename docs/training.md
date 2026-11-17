@@ -1,5 +1,7 @@
 # 训练与评测
 
+Jev Play v2（v8末步2088）的[训练／验证数据与配比](../datasets/jev-play-v2/README.md)已公开；使用 `python tools/prepare_training_data.py` 恢复。以下为各轮实验历史记录，私有状态按具体实验时间解释。
+
 目标是提高完整东风净得点，当前安装包使用 **Jev Play v1**。**Jev Call Uniform v1** 的32新牌山768场独立确认已完成并通过支付／顺位／配对区间审计：相对Play v1为−377.34点／场，95%区间[−1229.63，474.94]，未采用。**Jev Discard Defense v1** 与 **Jev Call Coverage v1** 已早停。现在优先[Play 真人实测问题复查](experiments/results/2026-11-12-play-input-audit/README.md)；下面的开发与确认启动描述为阶段记录，最终结果以上述结论为准。
 
 ## 已完成的副露防守训练

@@ -37,10 +37,22 @@ def prepare(original, target):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--profile', choices=('play-v1', 'play-v2'), default='play-v2')
     parser.add_argument('--original', type=Path, default=ROOT / 'runs/release-original')
-    parser.add_argument('--out', type=Path, default=ROOT / 'models/jev-discard-v1')
+    parser.add_argument('--out', type=Path)
     parser.add_argument('--call-out', type=Path, default=ROOT / 'models/jev-call-v1')
     args = parser.parse_args()
+    if args.profile == 'play-v2':
+        target = args.out or ROOT / 'models/jev-play-v2'
+        from desktop.jev_sidecar.unified_policy import identity, validate_checkpoint
+        if not target.exists():
+            subprocess.run([sys.executable, str(ROOT / 'tools/restore_weights.py'),
+                str(ROOT / 'weights/jev-play-v2/manifest.json'), '--out', str(target)], check=True)
+        proof = validate_checkpoint(target)
+        (target / 'manifest.json').write_text(json.dumps(identity()['files'], indent=2) + '\n')
+        print(json.dumps(proof))
+        sys.exit(0)
+    args.out = args.out or ROOT / 'models/jev-discard-v1'
     if not args.original.exists():
         subprocess.run([sys.executable, str(ROOT / 'tools/restore_weights.py'),
                         str(ROOT / 'weights/jev-supervised-v1/manifest.json'), '--out', str(args.original)], check=True)

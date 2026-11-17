@@ -1,0 +1,41 @@
+{
+  "model_id": "jev-play-v2",
+  "display_name": "Jev Play v2",
+  "source_model_id": "jev-unified-attackrisk-v8",
+  "source_step": 2088,
+  "source_identity_sha256": "5ebce6af3777854cbec55ba29db2dc90be0f959193114bb3154179c5552370fa",
+  "source_head_sha256": "03a63159c8fd70218aee25b1b7550fdf6cc7dfb0314b46953bf1b4b208ba671b",
+  "identity_sha256": "a6c7c27205fef0647a9990b3b2dcd42edd643cae5068fbeb270d6de226e7098a",
+  "files": {
+    "adapter_model.safetensors": "acfef83ec1ea91c5c929114d1f3fae1292ccce9930a20f70bd78b4ef379ac65a",
+    "adapter_config.json": "372210475d6e99face2d6bce7103bf9b17157a56cd4f64ac72ace47f72e74d65",
+    "head.pt": "7345a25b48b266bb77227b06d9b2695dc0663ce1a082fc8a609b0331b2f0b8aa",
+    "tokenizer.json": "a5cd9732badce41de57e6efce8302930ded1c1188c5f81feb2bd6c24c4a1941f",
+    "tokenizer_config.json": "e50492ec49b138a18ea6a3b85a6a8765c856fa2e10297ebfbbeb96e27405bf68",
+    "chat_template.jinja": "273d8e0e683b885071fb17e08d71e5f2a5ddfb5309756181681de4f5a1822d80"
+  },
+  "runtime": {
+    "base": "Qwen/Qwen3.5-0.8B",
+    "base_revision": "2fc06364715b967f1860aea9cf38778875588b17",
+    "lora": 16,
+    "special_embeddings": false,
+    "backbone_adapter": "text",
+    "multimodal": false,
+    "head_dim": 256,
+    "head_residual_dim": 0,
+    "head_type": "linear",
+    "option_isolation": false,
+    "branch_mode": "rows",
+    "decision_mode": "pointer",
+    "verbalizers": [],
+    "temperature": 1.0,
+    "weights_dtype": "bf16",
+    "tokenizer_saved": true
+  },
+  "head_tensor_sha256": "2569a706de18cb1f1b920524fb94bdf50cc4562f260479d6bc6cad536d94756e",
+  "policy_instruction": "Choose the best legal action in four-player Mahjong Soul East-only riichi mahjong. Prioritize winning the current hand and winning sooner while avoiding deal-ins. Consider legal yaku, open or closed hand structure, scores, dealer, honba and riichi sticks. sh=shanten (lower is closer to tenpai); ukeire=visible remaining improving tiles; safe=opponent seats for which this tile is genbutsu. Probabilities are action preferences.",
+  "single_policy_for_all_actions": true,
+  "inference_only_export": true,
+  "parameter_values_unchanged": true,
+  "independent_improvement_verified": false
+}

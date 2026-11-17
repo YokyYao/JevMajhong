@@ -1,18 +1,16 @@
 # Windows 桌面工具
 
-[下载 JevMahjong-Setup-0.3.0-win-x64.exe](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.3.0/JevMahjong-Setup-0.3.0-win-x64.exe)，双击安装即可。安装程序自动下载并核对运行组件，无需自行安装 Python、pip 或 CUDA Toolkit。使用 NVIDIA GPU 需要本机显卡驱动。
+[下载 JevMahjong-Setup-0.4.0-win-x64.exe](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.4.0/JevMahjong-Setup-0.4.0-win-x64.exe)，双击安装即可。安装程序自动下载并核对运行组件，无需自行安装 Python、pip 或 CUDA Toolkit。使用 NVIDIA GPU 需要本机显卡驱动。
 
 首次启动会下载固定版本底座。之后在本机识别截图和运行推荐；首次使用需在设置中校准牌桌区域。工具可以读取本场数、立直棒数，并区分普通出牌与鸣牌窗口。
 
 ## 推荐模型
 
-当前发布包对应 **Jev Play v1**：普通决策使用 **Jev Discard v1**，纯吃／碰／跳过使用 **Jev Call v1**。两套参数分别加载，每次决策选择其中一套执行。模型偏好数字不能当作和牌概率。
+新版默认 **Jev Play v2**：同一套 LoRA 与动作头处理普通出牌、吃、碰、暗杠、大明杠和加杠。来源为 v8 最终 2,088 步，导出只删除训练元数据，参数值不变。模型偏好数字不能当作和牌概率。
 
-源码统一使用新名称和目录；0.3.0 安装包保留发布时的界面名称，行为和参数对应上述模型。[身份及历史名称对照](../weights/README.md)
+这是按用户要求准备的试用版本，尚未证明优于原版 Jev Play v1 或真人胜率提升。[发布说明](RELEASE_NOTES.md) · [模型身份](../weights/jev-play-v2/README.md)。安装包构建成功后才会出现在下载链接；旧 0.3.0 版本使用 Discard v1＋Call v1 组合。
 
-当前源码能生成大明杠、自摸暗杠和加杠候选；有杠候选的决策使用 Discard v1。单一暗杠／加杠选项已接入点击规划与杠后状态跟踪，多种杠法的二次选择界面仍未支持。已完成回归与GPU候选复现，尚未验证真人杠执行。已发布的0.3.0安装包不自动包含本次源码修复。[操作覆盖检查](../docs/experiments/results/2026-11-11-kan-policy-audit/README.md)
-
-最近[真人实测与服务器交接](../docs/experiments/results/2026-11-12-windows-live-test/README.md)包含压缩截图、31次全部跳过的吃碰推荐，以及“对手立直后重新比较有役加速与防守路线”的待实现要求；没有替换模型或启动训练。
+源码包含本场数、立直棒识别，以及暗杠／加杠候选和单一选项的点击规划。多种杠法的二次选择界面仍未支持。实际截图和 NVIDIA GPU 效果仍需本机验证。
 
 ## 从源码运行
 
@@ -28,6 +26,6 @@ python desktop/launcher.py
 
 ## 构建
 
-Windows 构建入口为 `desktop/windows/Build-Exe.ps1`。GitHub 的 Windows 构建工作流改为手动触发；仓库整理不会自动重发安装包。构建会执行冻结 EXE、安装后推理和文件校验，详见[开发说明](../docs/development.md)。
+Windows 构建入口为 `desktop/windows/Build-Exe.ps1`。GitHub Windows 工作流支持手动触发；发布分支更新 release-request.json 时会启动构建。构建会执行冻结 EXE、安装后推理和文件校验，详见[开发说明](../docs/development.md)。
 
 桌面许可见 [LICENSE](LICENSE)，第三方说明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

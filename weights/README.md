@@ -8,7 +8,8 @@
 | `jev-discard-v1` | 基础出牌策略 | 从监督模型及校准配方恢复；负责普通决策和杠 |
 | `jev-call-v0` | 初始鸣牌特征模型 | 历史版本，已由 v1 接替 |
 | `jev-call-v1` | 吃碰策略 | 独立的 LoRA 与动作头；负责吃／碰／跳过 |
-| `jev-play-v1` | 当前推荐组合 | Discard v1＋Call v1，共用相同底座版本，分别加载 |
+| `jev-play-v2` | 新版统一策略 | v8 最终2,088步；普通出牌、吃碰及三种杠共用一套模型，0.4.0试用 |
+| `jev-play-v1` | 历史组合 | Discard v1＋Call v1，共用相同底座版本，分别加载 |
 | `jev-tempo-v1` | 原配比快和实验 | 更新两个动作头；底座与 LoRA 冻结，未部署 |
 | `jev-tempo-balanced-v1` | 动作配比修正实验 | 五种操作分层加权的后续候选，未部署 |
 | `jev-tempo-rank-v1` | 直接动作排序实验 | 纯快和开发得点下降，未采用 |
@@ -38,10 +39,10 @@
 ## 恢复
 
 ```bash
-python tools/prepare_models.py
+python tools/prepare_models.py --profile play-v2
 ```
 
-恢复到 `models/jev-discard-v1` 和 `models/jev-call-v1`。程序核对归档、文件及动作头张量，拒绝覆盖已有目录。冻结的底座需另行下载，桌面程序会自动准备它。
+默认恢复到 `models/jev-play-v2`。旧版组合使用 `--profile play-v1` 恢复。程序核对归档、文件及动作头张量，拒绝覆盖已有目录。冻结的底座需另行下载，桌面程序会自动准备它。
 
 公开参数位于 [Jev Supervised v1](jev-supervised-v1/README.md)、[Jev Call v1](jev-call-v1/README.md)；Jev Discard v1 使用[恢复配方](jev-discard-v1/recipe.json)。目录迁移和命名调整不改变模型参数。中间第600步快照已移出当前分支，可从历史提交追溯。
 

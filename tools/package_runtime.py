@@ -11,14 +11,11 @@ sys.path.insert(0, str(ROOT))
 
 
 def package(target):
-    from desktop.jev_sidecar.model_identity import validate_checkpoint
+    from desktop.jev_sidecar.unified_policy import validate_checkpoint
     if not (target / 'JevMahjong.exe').is_file():
         raise ValueError('Build the Windows EXE first')
-    validate_checkpoint(ROOT / 'models/jev-discard-v1')
-    from desktop.jev_sidecar.call_policy import validate_call_checkpoint
-    validate_call_checkpoint(ROOT / 'models/jev-call-v1')
-    shutil.copytree(ROOT / 'models/jev-discard-v1', target / 'models/jev-discard-v1')
-    shutil.copytree(ROOT / 'models/jev-call-v1', target / 'models/jev-call-v1')
+    validate_checkpoint(ROOT / 'models/jev-play-v2')
+    shutil.copytree(ROOT / 'models/jev-play-v2', target / 'models/jev-play-v2')
     (target / 'assets').mkdir()
     for name in ['tiles.onnx', 'NotoSansSC.ttf']:
         shutil.copy2(ROOT / 'assets' / name, target / 'assets' / name)

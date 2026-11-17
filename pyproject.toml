@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "jevmahjong"
-version = "0.3.0"
+version = "0.4.0"
 description = "Local Mahjong Soul adviser and native riichi training tools"
 requires-python = ">=3.12"
 dependencies = ["riichienv==0.4.11", "numpy", "huggingface-hub", "zstandard"]
