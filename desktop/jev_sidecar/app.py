@@ -26,6 +26,7 @@ from .screen_state import ScreenStateReader
 from .window_capture import CaptureUnavailable, GameWindowCapture
 from .dataset import DecisionRecorder
 from .autoplay import AutoPlayer, RiichiFlow, plan_click, escape_pressed
+from .unified_policy import MODEL_ID, MODEL_NAME, default_checkpoint
 
 ROOT = Path(sys.executable).parent if getattr(sys, 'frozen', False) else Path(__file__).resolve().parents[2]
 CONFIG = Path(os.environ.get('LOCALAPPDATA', Path.home() / '.config')) / 'JevMahjong' / 'settings.json'
@@ -379,12 +380,12 @@ class Sidecar(QMainWindow):
         self.monitor.hide()
         settings.addWidget(QLabel('截图来源：自动连接雀魂窗口，切换到其他应用仍继续捕获'))
         self.mode = QComboBox()
-        self.mode.addItems(['牌理引擎', 'Jev Play v1（GPU）'])
+        self.mode.addItems(['牌理引擎', MODEL_NAME + '（GPU）'])
         self.mode.setCurrentIndex(1)
         self.mode.currentIndexChanged.connect(self.invalidate)
         settings.addWidget(QLabel('推荐引擎'))
         settings.addWidget(self.mode)
-        checkpoint = ROOT / 'models/jev-discard-v1'
+        checkpoint = default_checkpoint(ROOT)
         self.checkpoint = QLineEdit(str(checkpoint))
         settings.addWidget(QLabel('本地Jev检查点目录'))
         settings.addWidget(self.checkpoint)
@@ -1034,6 +1035,7 @@ class Sidecar(QMainWindow):
         CONFIG.write_text(json.dumps({'regions': self.regions, 'capture_rect': self.capture_rect,
             'window_table_rect': self.window_table_rect,
             'monitor': self.monitor.currentIndex(), 'checkpoint': self.checkpoint.text(),
+            'model_id': MODEL_ID,
             'detector': self.detector_path.text()}, ensure_ascii=False, indent=2), encoding='utf-8')
 
     def load_settings(self):
@@ -1044,7 +1046,8 @@ class Sidecar(QMainWindow):
             if 'hand' in self.regions:
                 self.regions['hand'] = include_drawn_tile(self.regions['hand'])
             self.monitor.setCurrentIndex(min(data.get('monitor', 0), self.monitor.count() - 1))
-            if Path(data.get('checkpoint', '')).is_dir():
+            if (Path(data.get('checkpoint', '')).is_dir()
+                    and Path(data['checkpoint']).name not in ('jev-discard-v1', 'jev-call-v1')):
                 self.checkpoint.setText(data['checkpoint'])
             if Path(data.get('detector', '')).is_file():
                 self.detector_path.setText(data['detector'])

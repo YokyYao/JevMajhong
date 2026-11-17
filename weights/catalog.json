@@ -798,6 +798,16 @@
         474.9397316799666
       ],
       "independent_confirmation_audit": "passed-all768four-seat-ledgers-ranks-and32whole-wall-CIs"
+    },
+    "jev-play-v2": {
+      "role": "unified-all-actions",
+      "status": "desktop-preview",
+      "archive": "jev-play-v2/manifest.json",
+      "local_path": "models/jev-play-v2",
+      "source_model_id": "jev-unified-attackrisk-v8",
+      "source_step": 2088,
+      "identity_sha256": "a6c7c27205fef0647a9990b3b2dcd42edd643cae5068fbeb270d6de226e7098a",
+      "independent_improvement_verified": false
     }
   },
   "legacy_aliases": {

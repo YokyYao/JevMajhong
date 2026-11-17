@@ -2,14 +2,15 @@
 
 雀魂四人立直麻将的本地出牌与鸣牌推荐工具，以及配套的模拟训练代码。
 
-[下载 Windows 安装程序](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.3.0/JevMahjong-Setup-0.3.0-win-x64.exe) · [桌面使用说明](desktop/README.md) · [模型目录](weights/README.md) · [训练与评测](docs/training.md) · [实验记录](docs/experiments/README.md)
+[下载 Windows 安装程序](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.4.0/JevMahjong-Setup-0.4.0-win-x64.exe) · [桌面使用说明](desktop/README.md) · [模型目录](weights/README.md) · [训练与评测](docs/training.md) · [实验记录](docs/experiments/README.md)
 
 ## 模型
 
 | 名称 | 用途 | 状态 |
 | --- | --- | --- |
-| **Jev Discard v1** | 普通出牌及杠等决策 | 当前基础策略 |
-| **Jev Call v1** | 吃、碰、跳过 | 当前鸣牌策略 |
+| **Jev Play v2** | 出牌、吃、碰及三种杠使用同一模型 | Windows 0.4.0 试用模型，来源 v8 最终 2,088 步 |
+| **Jev Discard v1** | 普通出牌及杠等决策 | 历史基础策略 |
+| **Jev Call v1** | 吃、碰、跳过 | 历史鸣牌策略 |
 | **Jev Play v1** | 上面两套策略的组合 | Windows 0.3.0 使用的组合 |
 | **Jev Call Uniform v1** | 局面等权的普通吃碰残差组件 | 独立确认−377.34点／场、区间跨零，未采用 |
 
@@ -21,7 +22,7 @@ Jev Play v1 在固定东风模拟中，相对仅使用 Jev Discard v1 提高 **1
 
 完整实验版本及未采用原因见[模型目录](weights/README.md)；后续候选尚未确认优于Play v1。
 
-权重参数保持原样，模型目录、加载路径和源码界面已使用上述名称。历史报告中的编号对应关系见[模型索引](weights/README.md)。已发布的安装包保持原版本。
+权重参数保持原样，模型目录、加载路径和源码界面已使用上述名称。历史报告中的编号对应关系见[模型索引](weights/README.md)。Jev Play v2 推理权重公开；0.4.0 安装包通过 Windows 构建检查后发布。尚未证明 v2 优于原版安装包或真人胜率提升。
 
 ## 目录
 
@@ -29,6 +30,7 @@ Jev Play v1 在固定东风模拟中，相对仅使用 Jev Discard v1 提高 **1
 | --- | --- |
 | `desktop/` | Windows 界面、截图识别与打包配置 |
 | `jevmahjong/` | 可复用的牌局状态、策略、数据、训练和评测 |
+| `datasets/` | 已公开模型的整理训练／验证数据及校验清单 |
 | `weights/` | 模型清单、公开权重和恢复配方 |
 | `configs/` | 当前训练／评测模板与环境锁定记录 |
 | `tools/`、`cluster/` | 权重恢复、资源准备、打包和通用作业入口 |
@@ -47,6 +49,6 @@ python tools/prepare_models.py
 python -m jevmahjong --help
 ```
 
-训练数据、逐场日志、运行目录和新实验权重保存在本地。快速回归检查与完整对局评测分开，见[开发说明](docs/development.md)。
+Jev Play v2 的[训练／验证数据](datasets/jev-play-v2/README.md)和推理权重已整理公开；原始逐场日志、运行目录及其他实验权重仍在本地。快速回归检查与完整对局评测分开，见[开发说明](docs/development.md)。
 
 第三方来源和许可见 [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt) 与 [桌面许可](desktop/LICENSE)。本项目基于开放的 JevAny，不包含 TypeSafe Jev 的私有权重。

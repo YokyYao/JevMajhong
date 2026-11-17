@@ -1,5 +1,8 @@
 This repository contains project-specific orchestration and evaluation code.
-Third-party source code, datasets and model weights are not bundled.
+Third-party source code and base model weights are downloaded separately.
+Project LoRA exports are under weights/. Derived expert decision samples under
+datasets/jev-play-v2 retain the upstream attribution and CC BY 4.0 license; see
+the dataset README for sources, transformations and scope.
 
 JevAny — SimpleJev / Tianxin Wei
 https://github.com/SimpleJev/JevAny

@@ -1,0 +1,98 @@
+{
+  "format": "jevmahjong-jsonl-gzip-parts-v1",
+  "model_id": "jev-play-v2",
+  "source_model_id": "jev-unified-attackrisk-v8",
+  "optimizer_step": 2088,
+  "inputs_and_targets_unchanged": true,
+  "metadata_transform": "id and group_id replaced by deterministic SHA256; JSON whitespace compacted",
+  "train_validation_group_overlap": 0,
+  "splits": {
+    "train": {
+      "records": 33408,
+      "bytes": 71366651,
+      "sha256": "b462fbacdf2b4cbad9517d096bc1418638b2ddfed866060562c4f2dc2d2d295f",
+      "archive_bytes": 8438544,
+      "archive_sha256": "a60cb5ac990f1f373f19400e3c54691141add911e5d6769a2da40dacef9e709f",
+      "original_file_sha256": "16b3d5b3946b6e2552bf454f5923b150e4dfad2ebd503732484fda607abfb64b",
+      "phases": {
+        "closed_discard": 15608,
+        "open_discard": 8448,
+        "call_window": 6728,
+        "kan_window": 2624
+      },
+      "sources": {
+        "expert_replay": 29625,
+        "paired_future_masked": 3783
+      },
+      "groups": 3444,
+      "parts": [
+        {
+          "name": "train.jsonl.gz.part000",
+          "bytes": 524288,
+          "sha256": "a3ebe315ef9e0b2c7b718ef823eea1a1c4f222dc805e20dfdf4bf0c75391a958"
+        },
+        {
+          "name": "train.jsonl.gz.part001",
+          "bytes": 524288,
+          "sha256": "1fcb1b2daf52bb2cf09beaab959c6494af35331d2f15d908ca617bb3dcf89cf6"
+        },
+        {
+          "name": "train.jsonl.gz.part002",
+          "bytes": 524288,
+          "sha256": "eb2646c2e53bb9ebdb6ea768f82fc10eaa6f39a60daaf92a2b1e9448549ad932"
+        },
+        {
+          "name": "train.jsonl.gz.part003",
+          "bytes": 524288,
+          "sha256": "c310fc757aa26e2b37c60c2b2bac98a9b5d3b968299fc84bbb2c36c8c7803cc5"
+        },
+        {
+          "name": "train.tail000",
+          "bytes": 2097152,
+          "sha256": "21467cacc3c3069dded212a0a3d63ba2112a4d9b1496751a08b2d04afb8e818f"
+        },
+        {
+          "name": "train.tail001",
+          "bytes": 2097152,
+          "sha256": "f7a3ecff008a11532b915cff85bc43de16547a6beb0d7cd8e1ad1d90f8990768"
+        },
+        {
+          "name": "train.tail002",
+          "bytes": 2097152,
+          "sha256": "98da3798cbbcfc0e6fd408037933a8bf8f83e29fc266875b8220bb771af8bc72"
+        },
+        {
+          "name": "train.tail003",
+          "bytes": 49936,
+          "sha256": "f941addf34001547577e3225dda4bcd276ad8020c5c46e8a98104b9fc185803e"
+        }
+      ]
+    },
+    "validation": {
+      "records": 620,
+      "bytes": 1345865,
+      "sha256": "1179bb4a26a6fe5b01cd13dcaeec46cd9d67adbc1b1deddb306c60f5d52d3540",
+      "archive_bytes": 160732,
+      "archive_sha256": "42d8326b8fa64a717a43670d0fd02f052c153142d7f414faa083627c349198c6",
+      "original_file_sha256": "6e46f772f993af5e53eef92c33e25da9f2f9b60f7d44756bd078c5e67a956d21",
+      "phases": {
+        "kan_window": 128,
+        "call_window": 80,
+        "closed_discard": 332,
+        "open_discard": 80
+      },
+      "sources": {
+        "expert_replay": 320,
+        "paired_future_masked": 300
+      },
+      "groups": 210,
+      "parts": [
+        {
+          "name": "validation.tail000",
+          "bytes": 160732,
+          "sha256": "42d8326b8fa64a717a43670d0fd02f052c153142d7f414faa083627c349198c6"
+        }
+      ]
+    }
+  }
+}
