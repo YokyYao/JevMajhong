@@ -53,12 +53,6 @@ Jev Play v2 将专家牌谱模仿与模拟动作比较结合。从 v7 的 LoRA �
 
 参照为 Discard v1 + Call v1 + Call Tile Win v1 的**实验组合**，与原版 Jev Play v1 安装包不同。净得点差为 **+1,288.54 点／场**，95% 配对区间 **[−298.74，+2,875.83]**；和牌率差为 **+2.50 个百分点**，区间 **[−0.56，+5.55]**。两项区间均跨零，尚未证明稳定提升，也没有证明优于原版安装包或真人胜率提高。768 场来自 32 个独立牌山组，不能当作 768 个独立样本。[完整确认摘要](docs/experiments/results/2026-11-12-play-input-audit/unified-attackrisk-v8-confirmation-summary.json)
 
-### 使用范围与历史版本
-
-模型可以处理吃碰杠候选，但能处理某类动作不代表每次判断都正确。桌面端多种杠法的二次选择界面仍有限制；截图识别、模型选择和实际点击的验证需分别看待。[当前使用说明](desktop/README.md) · [0.4.2 发布记录](https://github.com/YokyYao/JevMajhong/releases/tag/desktop-v0.4.2)
-
-Jev Play v1 是 Discard v1 与 Call v1 的历史组合，旧报告中的 **+1,045.83 点／场**属于该组合相对单独 Discard v1 的结果，不是 Jev Play v2 的成绩。其他实验模型、未采用原因与名称对应关系见[模型目录](weights/README.md)和[实验记录](docs/experiments/README.md)。
-
 ## 目录
 
 | 目录 | 内容 |
@@ -86,4 +80,24 @@ python -m jevmahjong --help
 
 Jev Play v2 的[训练／验证数据](datasets/jev-play-v2/README.md)和推理权重已整理公开；原始逐场日志、运行目录及其他实验权重仍在本地。快速回归检查与完整对局评测分开，见[开发说明](docs/development.md)。
 
-第三方来源和许可见 [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt) 与 [桌面许可](desktop/LICENSE)。本项目基于开放的 JevAny，不包含 TypeSafe Jev 的私有权重。
+## 引用与致谢
+
+本项目的决策接口、训练和推理集成基于 **[JevAny](https://github.com/SimpleJev/JevAny)**，作者 **Tianxin Wei**，采用 Apache-2.0 许可。本项目固定使用提交 [c740121](https://github.com/SimpleJev/JevAny/tree/c740121a4532592b09b6272104d5f29a94c232e5)。感谢 JevAny 提供开放的决策模型基础设施。
+
+依据该版本的 [CITATION.cff](https://github.com/SimpleJev/JevAny/blob/c740121a4532592b09b6272104d5f29a94c232e5/CITATION.cff)，使用本项目中基于 JevAny 的工作时，请引用 JevAny，并保留其上游来源署名：
+
+```bibtex
+@software{wei2026jevany,
+  author  = {Wei, Tianxin},
+  title   = {JevAny},
+  version = {0.3.0},
+  date    = {2026-09-30},
+  year    = {2026},
+  url     = {https://github.com/SimpleJev/JevAny},
+  license = {Apache-2.0}
+}
+```
+
+JevAny 的基础设施包含由 **Jared Palmer** 创建的 [Kev](https://github.com/jaredpalmer/kev) 的修改代码（Apache-2.0）；其相关组件还署名 [Hugging Face Transformers](https://github.com/huggingface/transformers)、[Cygnet](https://github.com/blockbrain-ai/cygnet-recipe) 与 [NInfer](https://github.com/igorls/ninfer)。完整的方法、模型及素材来源见上游 [ACKNOWLEDGEMENTS.md](https://github.com/SimpleJev/JevAny/blob/c740121a4532592b09b6272104d5f29a94c232e5/ACKNOWLEDGEMENTS.md) 与 [NOTICE](https://github.com/SimpleJev/JevAny/blob/c740121a4532592b09b6272104d5f29a94c232e5/NOTICE)；其中的其他适配器或素材不表示已用于本项目的麻将模型。
+
+本项目使用的 Qwen 基座、RiichiEnv 和专家牌谱数据的来源与许可，见 [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt)、[数据说明](datasets/jev-play-v2/README.md)及[桌面许可](desktop/LICENSE)。本项目不包含 TypeSafe Jev 的私有权重。
