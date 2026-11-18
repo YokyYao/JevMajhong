@@ -10,7 +10,7 @@ import traceback
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("stage", choices=("collect", "label", "prepare", "fit"))
+    parser.add_argument("stage", choices=("collect", "label", "prepare", "fit", "evaluate"))
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--limit", type=int)
     args = parser.parse_args()
@@ -31,9 +31,12 @@ def main():
         elif args.stage == "prepare":
             from jevmahjong.endgame.prepare import prepare
             result = prepare(config)
-        else:
+        elif args.stage == "fit":
             from jevmahjong.endgame.fit import fit
             result = fit(config)
+        else:
+            from jevmahjong.endgame.evaluate import evaluate
+            result = evaluate(config)
         print(json.dumps(result, indent=2), flush=True)
     except BaseException as error:
         write(Path(config["out"]) / (args.stage + "-error-private.json"),
