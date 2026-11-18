@@ -6,6 +6,7 @@ from pathlib import Path
 import time
 
 import numpy as np
+from PIL import Image
 
 from .engine import Board, parse_melds, reaction_candidates, self_kan_candidates
 from .tiles import mjai, normal, parse
@@ -49,6 +50,13 @@ def riichi_selection_overlay(image):
     return float(gold.mean()) > .035 and gold[:, :edge].mean() > .04 and gold[:, -edge:].mean() > .04
 
 
+def pon_button_color(image, center):
+    area = crop(image, (center - .062, .703, .124, .10)).convert('RGB')
+    red, green, blue = np.asarray(area, dtype=float).transpose(2, 0, 1)
+    cyan = (green > 100) & (blue > 150) & (green - red > 43) & (blue - green > 12) & (blue - green < 105)
+    return cyan.mean() > .095
+
+
 class ScreenStateReader:
     def __init__(self, state_path=None):
         self.ocr = None
@@ -87,6 +95,7 @@ class ScreenStateReader:
     def buttons(self, image):
         if image.width > 1280:
             image = image.resize((1280, round(image.height * 1280 / image.width)))
+        pon_visible = any(pon_button_color(image, center) for center in (.53, .40, .27))
         self.ocr_engine()
         area = crop(image, (.35, .57, .64, .27))
         if area.width > 640:
@@ -96,11 +105,11 @@ class ScreenStateReader:
         skip_image = crop(image, (.63, .70, .13, .095))
         skip_text, _ = self.ocr(np.asarray(skip_image), use_det=False, use_cls=False)
         labels += ''.join(item[0] for item in skip_text or [])
-        # A skip button distinguishes a live reaction overlay from table labels.
-        if not any(word in labels for word in ('跳过', '跳過', '取消')):
+        # A skip label or the cyan pon badge distinguishes a live reaction overlay.
+        if not pon_visible and not any(word in labels for word in ('跳过', '跳過', '取消')):
             return []
         # Stylized green 吃 is sometimes omitted by text-box detection. Read
-        # action label slots directly once the skip button proves an overlay.
+        # action label slots directly once an overlay is confirmed.
         for center in (.53, .40, .27):
             label_image = crop(image, (center - .04, .70, .08, .095))
             text, _ = self.ocr(np.asarray(label_image), use_det=False, use_cls=False)
@@ -109,7 +118,7 @@ class ScreenStateReader:
         labels = labels.replace('红直', '立直').replace('紅直', '立直')
         return (['reach_select'] if '取消' in labels and '立直' not in labels and riichi_selection_overlay(image) else []) + [kind for text, kind in [('吃', 'chi'), ('碰', 'pon'), ('杠', 'daiminkan'),
                                        ('槓', 'daiminkan'), ('和', 'hora'), ('胡', 'hora'), ('立直', 'reach')]
-                if text in labels]
+                if text in labels or (kind == 'pon' and pon_visible)]
 
     def read(self, image, regions, detector, found):
         hand = [d.tile for d in found.get('hand', [])]
@@ -158,8 +167,17 @@ class ScreenStateReader:
             if len(self.melds) == meld_count:
                 melds = self.melds
             else:
-                region = regions.get('meld0', {'rect': [.77, .79, .23, .20]})
-                detected = detector.detect(crop(image, region['rect']))
+                # Open groups extend left as calls accumulate. Keep the default
+                # crop clear of the concealed hand, which gets shorter by three.
+                left = .89 - .155 * meld_count
+                region = regions.get('meld0', {'rect': [left, .84, .98 - left, .14]})
+                board_image = image
+                if image.width > 1280:
+                    board_image = image.resize((1280, round(image.height * 1280 / image.width)), Image.Resampling.LANCZOS)
+                area = crop(board_image, region['rect'])
+                detected = detector.detect(area)
+                if 'meld0' not in regions and len(detected) < 3 * meld_count:
+                    detected = detector.detect(area, confidence=.30)
                 detected.sort(key=lambda d: d.box[0])
                 melds = split_melds([d.tile for d in detected], meld_count)
         elif meld_count == 0:
@@ -217,7 +235,10 @@ class ScreenStateReader:
         reaction = None
         if calls:
             offered = calls
-            reaction = self.highlighted_reaction(image, regions, detector, found, offered)
+            if calls == ['pon']:
+                reaction = self.marked_pon(image, regions, detector, hand)
+            if reaction is None:
+                reaction = self.highlighted_reaction(image, regions, detector, found, offered)
             possible = [self.last_discard] if self.last_discard else []
             possible += [(seat, values[-1]) for seat, values in self.rivers.items() if seat != 0 and values]
             valid = {}
@@ -261,6 +282,74 @@ class ScreenStateReader:
                 'self_kan_available': self_kan_available,
                 'own_riichi': self.own_riichi,
                 'counters': self.counter_reader.read(image, regions.get('counters'), self.ocr_engine)}
+
+    def marked_pon(self, image, regions, detector, hand):
+        allowed = [tile for tile, count in Counter(map(normal, hand)).items() if count >= 2]
+        if not allowed:
+            return None
+        if image.width > 1280:
+            image = image.resize((1280, round(image.height * 1280 / image.width)), Image.Resampling.LANCZOS)
+        markers = []
+        for seat in (1, 2, 3):
+            region = regions.get(f'river{seat}')
+            if region is None:
+                continue
+            area = crop(image, region['rect'])
+            red, green, blue = np.asarray(area.convert('RGB'), dtype=float).transpose(2, 0, 1)
+            glow = (green > 96) & (green > red * 1.25) & (green > blue * .90)
+            for tile in detector.detect(area, confidence=.12):
+                x, y, right, bottom = map(round, tile.box)
+                width, height = right - x, bottom - y
+                if width < image.width * .014 or height < image.height * .02:
+                    continue
+                # The left outline stays visible longer than the flashing arrow.
+                strip = glow[y + round(height * .20):bottom - round(height * .10),
+                             max(0, x - round(width * .27)):x + round(width * .08)]
+                if strip.size and strip.mean(axis=0).max() >= .42:
+                    markers.append((int(strip.any(axis=1).sum()), seat, tile, region))
+        markers.sort(key=lambda marker: marker[0], reverse=True)
+        if not markers:
+            return None
+        strength, seat, tile, region = markers[0]
+        if strength < image.height * .016 or (len(markers) > 1 and strength < 1.30 * markers[1][0]):
+            return None
+        if normal(tile.tile) not in allowed:
+            # The outline supplies position independently of the face classifier.
+            # Re-read that exact face at another scale and orientation.
+            x, y, _, _ = region['rect']
+            face = tile.tile
+            left, top, right, bottom = tile.box
+            ox, oy = round(x * image.width), round(y * image.height)
+            cx, cy = ox + (left + right) / 2, oy + (top + bottom) / 2
+            glyph = image.crop((round(ox + left + (right - left) * .12),
+                                round(oy + top + (bottom - top) * .10),
+                                round(ox + right - (right - left) * .12),
+                                round(oy + bottom - (bottom - top) * .22)))
+            width, height = round(image.width * 300 / 1280), round(image.width * 200 / 1280)
+            x, y = round(cx - width / 2), round(cy - height / 2)
+            area = image.crop((x, y, x + width, y + height))
+            choices = []
+            for angle in (0, 90, 180, 270):
+                rotated = area.rotate(angle, expand=True)
+                for candidate in detector.detect(rotated, confidence=.008, allowed_tiles=allowed):
+                    x1, y1, x2, y2 = candidate.box
+                    if x1 <= rotated.width / 2 <= x2 and y1 <= rotated.height / 2 <= y2:
+                        choices.append(candidate)
+            if not choices:
+                return None
+            # A foreshortened circle face can get the same-rank bamboo label.
+            circle = face[0] + 'p'
+            red, green, blue = np.asarray(glyph.convert('RGB'), dtype=float).transpose(2, 0, 1)
+            green_ink = (green > red * 1.14) & (green > blue * 1.08) & (green - red > 13)
+            circle_reads = [candidate for candidate in choices if candidate.tile == circle]
+            if face.endswith('s') and face[0] >= '2' and green_ink.mean() < .02 and circle_reads:
+                choices = circle_reads
+            else:
+                choices = [candidate for candidate in choices if candidate.confidence >= .04]
+            if not choices:
+                return None
+            tile = max(choices, key=lambda candidate: candidate.confidence)
+        return {'seat': seat, 'tile': tile.tile, 'offered': ['pon']}
 
     def highlighted_reaction(self, image, regions, detector, found, offered):
         """The green last-discard marker identifies the tile the buttons refer to."""

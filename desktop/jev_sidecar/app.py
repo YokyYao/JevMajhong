@@ -169,6 +169,7 @@ class Sidecar(QMainWindow):
         self.last_capture = None
         self.last_update = None
         self.frame_started = None
+        self.recognized_frame_started = None
         self.last_latency = None
         self.screen_reader = ScreenStateReader(CONFIG.parent / 'screen-state.json')
         self.reaction = None
@@ -183,6 +184,8 @@ class Sidecar(QMainWindow):
         self.latest_detections = []
         self.latest_screen = {}
         self.auto_ready_after = 0.
+        self.discard_observation = None
+        self.discard_agreed = False
         self.strategy_hand_id = None
         self.current_decision = None
         self.pending_vision = None
@@ -468,6 +471,7 @@ class Sidecar(QMainWindow):
         self.activity.setText(f'最近截图：{self.last_capture or "尚未截图"} · 最近推荐：{self.last_update or "尚未生成"}{timing}')
 
     def wait_for_frame(self, title, detail):
+        self.discard_observation = None
         if self.hero.text() != title:
             self.invalidate()
         self.hero.setText(title)
@@ -488,6 +492,10 @@ class Sidecar(QMainWindow):
             return
         task = Task(kind, fn, self.generation)
         task.frame_started = self.frame_started
+        if kind == 'analysis':
+            task.action_frame = self.recognized_frame_started
+            task.action_hand = tuple(d.tile for d in self.latest_detections)
+            task.action_screen = repr(self.latest_screen)
         task.sample_id = self.current_sample
         self.jobs.add(task)
         self.busy.add(kind)
@@ -523,6 +531,7 @@ class Sidecar(QMainWindow):
             return
         if kind == 'vision' and message['generation'] == self.generation:
             self.frame_started = message['task'].frame_started
+            self.recognized_frame_started = self.frame_started
             self.recognized(message['result'])
         elif kind == 'load':
             self.load_button.setEnabled(True)
@@ -537,9 +546,15 @@ class Sidecar(QMainWindow):
         elif kind == 'analysis' and message['generation'] == self.generation:
             started = getattr(message['task'], 'frame_started', None)
             self.last_latency = time.monotonic() - started if started is not None else None
-            self.show_result(message['result'])
+            self.show_result(message['result'], message['task'])
             if self.recorder and message['task'].sample_id:
                 self.recorder.prediction(message['task'].sample_id, message['result'], self.last_latency)
+            self.try_auto_execute()
+            if (message['result'].get('reaction') and self.auto_execute.isChecked()
+                    and self.recognized_frame_started == message['task'].action_frame
+                    and 'vision' not in self.busy and self.pending_vision is None):
+                # A call window may expire before the one-second capture timer fires again.
+                QTimer.singleShot(0, self.tick)
 
     def screen_image(self):
         return self.window_capture.snapshot()
@@ -875,13 +890,11 @@ class Sidecar(QMainWindow):
             signature = decision_identity(board, self.mode.currentIndex())
             if signature == self.last_analyzed:
                 return
-            same_advice = signature == self.last_analyzed and self.results.rowCount() > 0
             self.last_analyzed = signature
             use_model = self.mode.currentIndex() == 1
-            if not same_advice:
+            if not self.results.rowCount():
                 self.hero.setText('Jev 运算中' if use_model else '牌理分析中')
-            self.status.setText('后台更新中 · 当前建议仍适用' if same_advice else
-                                '手牌已识别，正在用 Jev 计算推荐…' if use_model else '手牌已识别，正在分析…')
+                self.status.setText('手牌已识别，正在用 Jev 计算推荐…' if use_model else '手牌已识别，正在分析…')
             self.start('analysis', lambda: self.adviser.recommend(board, use_model))
         except Exception as error:
             if automatic:
@@ -889,52 +902,79 @@ class Sidecar(QMainWindow):
             else:
                 self.status.setText(str(error))
 
-    def show_result(self, result):
+    def show_result(self, result, task=None):
         self.auto_result = result
-        self.auto_hand = tuple(d.tile for d in self.latest_detections)
-        self.auto_screen = repr(self.latest_screen)
-        self.auto_ready_after = time.monotonic()
+        self.auto_hand = task.action_hand if task else tuple(d.tile for d in self.latest_detections)
+        self.auto_screen = task.action_screen if task else repr(self.latest_screen)
+        self.auto_ready_after = (task.action_frame if task else None) or time.monotonic()
         top = result['top3'][0]
-        self.hero.setText(('建议：' if result.get('reaction') else '建议打 ') + top['name'])
+        self.discard_agreed = False
+        if task and task.action_frame is not None and not result.get('reaction') and top.get('action', {}).get('type', 'dahai') == 'dahai':
+            previous = self.discard_observation
+            tile = top['tile']
+            if previous:
+                frame, hand, screen, previous_tile = previous
+                self.discard_agreed = (
+                    0 < task.action_frame - frame <= 2.5 and screen == task.action_screen
+                    and previous_tile == tile and len(hand) == len(task.action_hand)
+                    and hand.count(tile) == task.action_hand.count(tile)
+                    and sum(a != b for a, b in zip(hand, task.action_hand)) <= 1
+                )
+            self.discard_observation = (task.action_frame, task.action_hand, task.action_screen, tile)
+        else:
+            self.discard_observation = None
+        hero = ('建议：' if result.get('reaction') else '建议打 ') + top['name']
         if top.get('action', {}).get('type') == 'reach':
-            self.hero.setText(top['name'])
+            hero = top['name']
         elif result.get('riichi_selecting'):
-            self.hero.setText('立直选牌 → 打 ' + top['name'])
+            hero = '立直选牌 → 打 ' + top['name']
         device = ' · ' + self.adviser.device.upper() if self.adviser.device and result['engine'].startswith('Jev') else ''
-        self.engine_label.setText(result['engine'] + device + ' · ' + datetime.now().strftime('%H:%M:%S'))
+        engine = result['engine'] + device
+        changed = not self.engine_label.text().startswith(engine + ' · ')
         safe = '，对立直家现物' if set(top['safe']) & {i for i, c in enumerate(self.reach) if c.isChecked()} else ''
-        self.explanation.setText('Jev 已比较当前吃碰与跳过选项；操作后自动识别副露并继续推荐弃牌。' if result.get('reaction')
-                                 else f'弃牌后{top["sh"]}向听，{top["ukeire"]}枚可见剩余进张{safe}。')
+        explanation = ('Jev 已比较当前吃碰与跳过选项；操作后自动识别副露并继续推荐弃牌。' if result.get('reaction')
+                       else f'弃牌后{top["sh"]}向听，{top["ukeire"]}枚可见剩余进张{safe}。')
         if top.get('action', {}).get('type') == 'reach':
-            self.explanation.setText('先点击游戏的“立直”，再单击推荐牌；选牌画面自动继续识别。')
+            explanation = '先点击游戏的“立直”，再单击推荐牌；选牌画面自动继续识别。'
         elif result.get('riichi_selecting'):
-            self.explanation.setText('已进入立直选牌，只推荐能听牌的弃牌；单击推荐牌完成立直。')
+            explanation = '已进入立直选牌，只推荐能听牌的弃牌；单击推荐牌完成立直。'
         if result.get('direction'):
             text = '整体策略（牌理参考）：' + result['direction']
             if self.overall_strategy.text() != text:
                 self.overall_strategy.setText(text)
+                changed = True
         if result.get('decision'):
             self.current_decision = result['decision']
-            self.explanation.setText('当前决策：' + self.current_decision)
-        self.results.setRowCount(len(result['top3']))
+            explanation = '当前决策：' + self.current_decision
+        if self.results.rowCount() != len(result['top3']):
+            self.results.setRowCount(len(result['top3']))
+            changed = True
         for row, candidate in enumerate(result['top3']):
             items = [candidate['name'], str(candidate['sh']) if candidate['sh'] is not None else '—',
                      str(candidate['ukeire']) if candidate['ukeire'] is not None else '—',
                      f'{candidate["preference"]:.1%}' if 'preference' in candidate else '—']
             for col, value in enumerate(items):
-                self.results.setItem(row, col, QTableWidgetItem(value))
+                existing = self.results.item(row, col)
+                if existing is None or existing.text() != value:
+                    self.results.setItem(row, col, QTableWidgetItem(value))
+                    changed = True
         notes = result['notes'] + ['模型偏好分不是胜率。赤五为色彩估计，可点击校正。']
         if result['winning_shape']:
-            self.hero.setText('和牌形 · 检查自摸')
-            self.explanation.setText('若游戏提供自摸/和牌按钮，请先确认。未满足役等条件时，可参考下方弃牌候选。')
+            hero = '和牌形 · 检查自摸'
+            explanation = '若游戏提供自摸/和牌按钮，请先确认。未满足役等条件时，可参考下方弃牌候选。'
             notes.insert(0, '当前是和牌形：先检查游戏是否提供自摸/和牌按钮。')
-        self.notes.setText('\n'.join(notes))
-        self.last_update = datetime.now().strftime('%H:%M:%S')
+        for widget, value in ((self.hero, hero), (self.explanation, explanation), (self.notes, '\n'.join(notes))):
+            if widget.text() != value:
+                widget.setText(value)
+                changed = True
         self.debug_event('recommendation', hand=self.hand.text(), engine=result['engine'], latency=self.last_latency,
                          top3=result['top3'], strategy=result.get('strategy'),
                          direction=result.get('direction'), decision=result.get('decision'))
-        self.update_activity()
-        self.status.setText('建议已更新 · 监测出牌完成，下一次决策自动刷新' if self.live.isChecked() else '建议已更新 · 手动模式')
+        if changed:
+            self.last_update = datetime.now().strftime('%H:%M:%S')
+            self.engine_label.setText(engine + ' · ' + self.last_update)
+            self.update_activity()
+            self.status.setText('建议已更新 · 监测出牌完成，下一次决策自动刷新' if self.live.isChecked() else '建议已更新 · 手动模式')
 
     def check_auto_stop(self):
         if self.auto_execute.isChecked() and sys.platform == 'win32' and escape_pressed():
@@ -944,19 +984,22 @@ class Sidecar(QMainWindow):
     def try_auto_execute(self):
         if not self.auto_execute.isChecked() or not self.live.isChecked() or not self.auto_result:
             return
-        if self.frame_started is None or self.frame_started <= self.auto_ready_after:
-            return  # Verify a frame captured after inference completed before input.
+        if self.recognized_frame_started is None or (
+            self.recognized_frame_started <= self.auto_ready_after and not self.discard_agreed
+        ):
+            return  # Require a newer matching frame or two independent recommendations for the same discard.
         hand = tuple(d.tile for d in self.latest_detections)
         if hand != self.auto_hand or repr(self.latest_screen) != self.auto_screen:
             return
         # A completed discard/call ends this decision. A later identical draw
         # receives a fresh key after invalidate clears the previous result.
-        key = (self.generation, hand, self.auto_screen, repr(self.auto_result['top3'][0]))
+        top = self.auto_result['top3'][0]
+        key = (self.generation, hand, self.auto_screen, repr(top.get('action')), top.get('tile'))
         try:
             plan = plan_click(self.auto_result, self.latest_detections, self.latest_screen,
                               self.regions['hand']['rect'], self.latest_image_size)
             if self.autoplayer.execute(key, plan, self.window_capture, self.window_table_rect):
-                top = self.auto_result['top3'][0]
+                self.discard_observation = None
                 if top.get('action', {}).get('type') == 'reach':
                     self.riichi_flow.begin(hand, top['tile'])
                     self.screen_reader.expected_riichi_hand = list(hand)
@@ -968,8 +1011,10 @@ class Sidecar(QMainWindow):
                 self.debug_event('auto_click', hand=list(hand), action=plan.label, x=plan.x, y=plan.y)
             elif plan is None:
                 self.status.setText('该动作需要选择吃碰组合，自动点击等待')
+                self.debug_event('auto_click_wait', reason='no_click_plan', recommendation=top.get('name'))
         except RuntimeError as error:
             self.status.setText(str(error))
+            self.debug_event('auto_click_wait', reason=str(error), recommendation=top.get('name'))
 
     def try_riichi_selection(self):
         flow = self.riichi_flow

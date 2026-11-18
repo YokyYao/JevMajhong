@@ -109,7 +109,7 @@ class AutoPlayer:
         return '点击后画面已变化：' + label
 
     def execute(self, key, plan, capture, table_rect=None):
-        if plan is None or key == self.executed or time.monotonic() - self.last_click < .6:
+        if plan is None or self.pending is not None or key == self.executed or time.monotonic() - self.last_click < .6:
             return False
         self.clicker(capture, plan.x, plan.y, table_rect)
         self.executed = key

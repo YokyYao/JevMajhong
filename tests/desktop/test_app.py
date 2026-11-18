@@ -129,6 +129,20 @@ class TileTests(unittest.TestCase):
         self.assertEqual(result['reaction']['tile'], '5m')
         self.assertEqual(result['reaction']['seat'], 3)
 
+    def test_pon_badge_recovers_missing_ocr_in_single_and_mixed_menus(self):
+        from unittest.mock import Mock
+        from desktop.jev_sidecar.screen_state import ScreenStateReader
+        reader = ScreenStateReader()
+        table = Image.new('RGB', (1280, 800), (60, 84, 138))
+        reader.ocr = Mock(return_value=([], None))
+        self.assertEqual(reader.buttons(table), [])
+
+        reaction = table.copy()
+        ImageDraw.Draw(reaction).rectangle((641, 574, 714, 596), fill=(30, 147, 214))
+        self.assertEqual(reader.buttons(reaction), ['pon'])
+        reader.ocr.side_effect = [([(None, '吃跳过')], None)] + [([], None)] * 4
+        self.assertEqual(reader.buttons(reaction), ['chi', 'pon'])
+
     def test_strategy_describes_direction_and_actual_tenpai_waits(self):
         result = Adviser().recommend(Board(parse('123456m345p67s115z')))
         self.assertIn('立直', result['strategy'])
@@ -325,6 +339,60 @@ class VisionTests(unittest.TestCase):
 
 
 class InterfaceTests(unittest.TestCase):
+    def test_repeated_advice_uses_already_recognized_confirmation_frame(self):
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        from desktop.jev_sidecar.app import Sidecar
+        with tempfile.TemporaryDirectory() as temporary, patch('desktop.jev_sidecar.app.CONFIG', Path(temporary) / 'settings.json'):
+            panel = Sidecar()
+            panel.timer.stop()
+            panel.live.setChecked(True)
+            panel.auto_execute.setChecked(True)
+            panel.regions['hand'] = {'rect': (0, 0, 1, 1)}
+            panel.latest_image_size = (1280, 741)
+            panel.autoplayer.clicker = Mock()
+            reaction = {'tile': '7z', 'seat': 3, 'offered': ['pon']}
+            for call, hand in [(reaction, parse('123m123p123s1177z')), (None, parse('12389m278p589s457z'))]:
+                with self.subTest(reaction=call):
+                    panel.autoplayer.reset()
+                    panel.autoplayer.last_click = 0
+                    panel.autoplayer.clicker.reset_mock()
+                    panel.latest_screen = {'reaction': call, 'offered': ['pon'] if call else [], 'melds': []}
+                    panel.latest_detections = [Detection(tile, 1, (0, 0, 20, 30)) for tile in hand]
+                    result = Adviser().recommend(Board(hand, reaction=call))
+                    if call:
+                        result['top3'] = [next(option for option in result['all_candidates'] if option['action']['type'] == 'pon')]
+                    task = SimpleNamespace(action_frame=10, action_hand=tuple(hand), action_screen=repr(panel.latest_screen))
+                    panel.recognized_frame_started = 10
+                    panel.show_result(result, task)
+                    panel.try_auto_execute()
+                    panel.autoplayer.clicker.assert_not_called()
+
+                    cell = panel.results.item(0, 0)
+                    panel.recognized_frame_started = 11
+                    panel.show_result(result, task)
+                    panel.try_auto_execute()
+                    self.assertIs(panel.results.item(0, 0), cell)
+                    self.assertEqual(panel.autoplayer.clicker.call_count, 1)
+                    panel.show_result(result, task)
+                    panel.try_auto_execute()
+                    self.assertEqual(panel.autoplayer.clicker.call_count, 1)
+
+            panel.autoplayer.reset()
+            panel.autoplayer.last_click = 0
+            panel.autoplayer.clicker.reset_mock()
+            panel.discard_observation = None
+            jittered = ['3m', *hand[1:]]
+            self.assertNotEqual(hand[0], result['top3'][0]['tile'])
+            for frame, tiles in [(20, hand), (21, jittered)]:
+                panel.recognized_frame_started = frame
+                panel.latest_detections = [Detection(tile, 1, (0, 0, 20, 30)) for tile in tiles]
+                task = SimpleNamespace(action_frame=frame, action_hand=tuple(tiles), action_screen=repr(panel.latest_screen))
+                panel.show_result(result, task)
+                panel.try_auto_execute()
+                self.assertEqual(panel.autoplayer.clicker.call_count, frame - 20)
+            panel.close()
+
     def test_known_opponent_riichi_is_retained_without_global_confirmation(self):
         from desktop.jev_sidecar.app import Sidecar
         with tempfile.TemporaryDirectory() as temporary, patch('desktop.jev_sidecar.app.CONFIG', Path(temporary) / 'settings.json'):
