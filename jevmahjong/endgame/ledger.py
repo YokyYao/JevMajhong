@@ -52,3 +52,4 @@ def hand_score_history(log):
     close()
     return {"hands": rows, "final_scores": scores, "final_ranks": placements(scores),
             "unclaimed_sticks": sticks}
+

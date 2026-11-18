@@ -76,6 +76,7 @@ def target_from_utilities(values, temperature=0.25):
     return [v / sum(weights) for v in weights]
 
 
+
 def terminal_training_target(criteria, utilities, temperature=0.25):
     """Keep neutral legal wins; do not train uniform targets on unidentified menus."""
     keys = list(criteria)
@@ -104,3 +105,4 @@ def annotate_record(record):
     result["questions"]["action"]["instructions"] = INSTRUCTION
     result["questions"]["action"]["criteria"] = payload["questions"]["action"]["criteria"]
     return result
+

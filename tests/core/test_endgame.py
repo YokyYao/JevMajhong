@@ -64,6 +64,7 @@ class EndgameContextTests(unittest.TestCase):
             {"a": {"type": "dahai"}, "b": {"type": "dahai"}}, [.5, .5])
         self.assertIsNone(target)
 
+
 class EndgameLedgerTests(unittest.TestCase):
     def test_records_deposits_settlement_and_next_hand(self):
         from jevmahjong.endgame.ledger import hand_score_history
@@ -125,5 +126,7 @@ class EndgameWinPathTests(unittest.TestCase):
         model.system_one.assert_not_called()
 
 
+
 if __name__ == "__main__":
     unittest.main()
+

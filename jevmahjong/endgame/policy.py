@@ -39,3 +39,4 @@ class ModelAgent:
         chosen = max(eligible, key=lambda i: probabilities[i])
         self.choices[json.loads(actions[chosen].to_mjai())["type"]] += 1
         return actions[chosen]
+

@@ -122,3 +122,4 @@ def collect(config):
     write(out / "collection-result-private.json", result)
     write(out / "collection-status-private.json", result)
     return result
+
