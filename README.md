@@ -1,5 +1,7 @@
 # Jev Mahjong
 
+**简体中文** | [English](README.en.md)
+
 雀魂四人立直麻将的本地出牌与鸣牌推荐工具，以及配套的模拟训练代码。
 
 [下载 Windows 安装程序](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.4.2/JevMahjong-Setup-0.4.2-win-x64.exe) · [桌面使用说明](desktop/README.md) · [模型目录](weights/README.md) · [训练与评测](docs/training.md) · [实验记录](docs/experiments/README.md)
