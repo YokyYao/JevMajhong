@@ -27,31 +27,5 @@
       "bytes": 178624146,
       "installed_bytes": 451812466
     }
-  ],
-  "legacy_test_installation": {
-    "tag": "desktop-v0.3.0",
-    "repository": "YokyYao/JevMajhong",
-    "archives": [
-      {
-        "name": "JevMahjong-Runtime-0.3.0-01.zip",
-        "bytes": 1029976354,
-        "sha256": "e1103bbc463e9784e6011219f75a24e9db2cdb80e1b16d90219e6ca7085100f0"
-      },
-      {
-        "name": "JevMahjong-Runtime-0.3.0-02.zip",
-        "bytes": 1063098372,
-        "sha256": "ee49e6e4bf38df6e2a3625d63304da6a4227e0791d9fb0e2d29e1ab2ab33e102"
-      },
-      {
-        "name": "JevMahjong-Runtime-0.3.0-03.zip",
-        "bytes": 896147103,
-        "sha256": "8f9139ffcceedfcd92f39ed9c7b2716200079904a23be2a5d6f10b47e3eaefac"
-      },
-      {
-        "name": "JevMahjong-Runtime-0.3.0-04.zip",
-        "bytes": 206078261,
-        "sha256": "8b1282a1bfde94bd376dd5c9742d0f8835c83aa2d4fe861856856cd631d8880b"
-      }
-    ]
-  }
+  ]
 }
