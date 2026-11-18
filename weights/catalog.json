@@ -212,8 +212,8 @@
       "checkpoint_sha256": "d16c4c2a31e80d719701464f28092ac5553ea79e0c8fb6e63cba9a71a37f63d1",
       "development_net_gain_vs_play_v1": 0,
       "development_ci95": [
-        0.0,
-        0.0
+        0,
+        0
       ],
       "independent_confirmation_run": false
     },
@@ -378,7 +378,7 @@
       "new_original_pairs_for_future_revaluation": 184,
       "new_paired_futures_per_pair": 16,
       "native_source_audit": "passed-complete-grid-ledgers-frozen-inputs",
-      "native_cached_head_probability_max_error": 4.172325134277344e-07,
+      "native_cached_head_probability_max_error": 4.172325134277344e-7,
       "selected_epoch": 1,
       "epochs_run": 5,
       "optimizer_updates": 75,
@@ -396,8 +396,8 @@
       "sampled_state_points_not_full_match_points": true,
       "development_net_gain_vs_play_v1": 0,
       "development_ci95": [
-        0.0,
-        0.0
+        0,
+        0
       ],
       "development_games": 192,
       "development_candidate_games": 96,
@@ -481,8 +481,8 @@
       "legacy_feature_prefix_unchanged": true,
       "development_net_gain_vs_play_v1": 0,
       "development_ci95": [
-        0.0,
-        0.0
+        0,
+        0
       ],
       "development_games": 192,
       "development_candidate_games": 96,
@@ -625,10 +625,10 @@
       "reference_prior_strength": 0.05,
       "reward": {
         "mode": "net_points_with_fast_support_v1",
-        "net_weight": 1.0,
+        "net_weight": 1,
         "fast_weight": 0.1,
         "dealin_penalty": 0.4,
-        "point_scale": 8000.0
+        "point_scale": 8000
       },
       "train_rows": 581,
       "held_rows": 193,
@@ -679,10 +679,10 @@
       "reference_prior_strength": 0.05,
       "reward": {
         "mode": "net_points_with_fast_support_v1",
-        "net_weight": 1.0,
+        "net_weight": 1,
         "fast_weight": 0.1,
         "dealin_penalty": 0.4,
-        "point_scale": 8000.0
+        "point_scale": 8000
       },
       "selection_validation": "all_sources",
       "artifact_exists": true,
@@ -801,7 +801,7 @@
     },
     "jev-play-v2": {
       "role": "unified-all-actions",
-      "status": "desktop-preview",
+      "status": "deployed-unified",
       "archive": "jev-play-v2/manifest.json",
       "local_path": "models/jev-play-v2",
       "source_model_id": "jev-unified-attackrisk-v8",
