@@ -2,10 +2,10 @@
 
 雀魂四人立直麻将的本地出牌与鸣牌推荐工具，以及配套的模拟训练代码。
 
-[下载 Windows 安装程序](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.4.1/JevMahjong-Setup-0.4.1-win-x64.exe) · [桌面使用说明](desktop/README.md) · [模型目录](weights/README.md) · [训练与评测](docs/training.md) · [实验记录](docs/experiments/README.md)
+[下载 Windows 安装程序](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.4.2/JevMahjong-Setup-0.4.2-win-x64.exe) · [桌面使用说明](desktop/README.md) · [模型目录](weights/README.md) · [训练与评测](docs/training.md) · [实验记录](docs/experiments/README.md)
 
 
-Windows 0.4.1 支持复用已安装的运行环境：覆盖安装时只下载变更的程序和模型，保留截图校准及基座缓存；环境缺失或损坏时自动补齐。[升级说明](desktop/README.md)
+Windows 0.4.2 支持复用已安装的运行环境：覆盖安装时只下载变更的程序和模型，保留截图校准及基座缓存；环境缺失或损坏时自动补齐。[升级说明](desktop/README.md)
 
 ## 模型
 

@@ -1,6 +1,6 @@
 # Windows 桌面工具
 
-[下载 JevMahjong-Setup-0.4.1-win-x64.exe](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.4.1/JevMahjong-Setup-0.4.1-win-x64.exe)，双击安装即可。安装程序自动下载并核对运行组件，无需自行安装 Python、pip 或 CUDA Toolkit。使用 NVIDIA GPU 需要本机显卡驱动。
+[下载 JevMahjong-Setup-0.4.2-win-x64.exe](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.4.2/JevMahjong-Setup-0.4.2-win-x64.exe)，双击安装即可。安装程序自动下载并核对运行组件，无需自行安装 Python、pip 或 CUDA Toolkit。使用 NVIDIA GPU 需要本机显卡驱动。
 
 升级时直接运行新版安装程序并使用原安装目录，**不要先卸载旧版**。安装器会校验并复用已有 Python／PyTorch／CUDA 运行环境；程序与模型分别更新，模型相同时也不重复下载。首次安装、换到空目录或运行环境缺失／损坏时，才下载完整运行组件。截图校准及已下载的 Qwen 基座缓存会保留。
 
