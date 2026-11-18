@@ -52,6 +52,10 @@ The four-player East-only confirmation evaluation used **32 new wall groups, 3 o
 
 The reference is the **experimental combination** of Discard v1 + Call v1 + Call Tile Win v1, which differs from the original Jev Play v1 desktop release. The net-point difference is **+1,288.54 points per match**, with a paired 95% interval of **[−298.74, +2,875.83]**. The hand-win-rate difference is **+2.50 percentage points**, with an interval of **[−0.56, +5.55]**. Both intervals include zero, so a consistent improvement has not been established. These results also do not establish superiority over the original desktop release or improved win rates against human players. The 768 matches come from 32 independent wall groups and must not be treated as 768 independent samples. [Full confirmation summary](docs/experiments/results/2026-11-12-play-input-audit/unified-attackrisk-v8-confirmation-summary.json)
 
+### Planned training requirement: endgame placement
+
+Record all four players' scores and placements after each hand. In the endgame, choose comeback or placement-preserving lines using actual settlement, score gaps, and continuation or extension rules. This requires terminal-match placement targets and corresponding changes to the desktop win/pass path. This feature is not yet implemented. [Requirement and training plan](docs/experiments/plans/endgame-placement-20261119.md)
+
 ## Repository layout
 
 | Directory | Contents |
