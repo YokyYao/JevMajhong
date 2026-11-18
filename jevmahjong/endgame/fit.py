@@ -2,6 +2,7 @@
 from collections import Counter, defaultdict
 import copy
 import json
+import math
 from pathlib import Path
 import sys
 import time
@@ -45,6 +46,12 @@ def fit(config):
     original_admit = trainer.training_requests
     curve, state = [], {}
     weights = proof["loss_source_weights"]
+    lr = config.get("learning_rate", 2e-6)
+    head_lr = config.get("head_learning_rate", 1e-5)
+    evaluation_every = config.get("evaluation_every_steps", 16)
+    if (any(not math.isfinite(x) or x <= 0 for x in (lr, head_lr))
+            or type(evaluation_every) is not int or not 1 <= evaluation_every <= proof["max_steps"]):
+        raise ValueError("Invalid registered learning rate or evaluation cadence")
 
     def loss(logits, question, device):
         source = question["src"]
@@ -114,11 +121,20 @@ def fit(config):
         replay_ce = sum(replay) / len(replay)
         if step == 0:
             state["initial_replay_ce"] = replay_ce
-        guard_passed = replay_ce <= state["initial_replay_ce"] + 0.10
+        strata = {k: sum(v) / len(v) for k, v in utilities.items()}
+        if step == 0:
+            state["initial_strata"] = strata
+        replay_guard = replay_ce <= state["initial_replay_ce"] + 0.10
+        placement_guard = (not config.get("enforce_placement_strata_guard", False)
+            or (strata["third"] >= state["initial_strata"]["third"] - 1e-12
+                and strata["fourth"] >= state["initial_strata"]["fourth"] - 1e-12
+                and strata["hold"] >= state["initial_strata"]["hold"] - .02 - 1e-12))
+        guard_passed = replay_guard and placement_guard
         selection_metric = -utility if guard_passed else 1e6 + replay_ce
         item = {"step": step, "endgame_validation_terminal_utility": utility,
-            "utility_by_stratum": {k: sum(v) / len(v) for k, v in utilities.items()},
-            "replay_target_ce": replay_ce, "replay_guard_passed": guard_passed,
+            "utility_by_stratum": strata,
+            "replay_target_ce": replay_ce, "replay_guard_passed": replay_guard,
+            "placement_strata_guard_passed": placement_guard, "all_guards_passed": guard_passed,
             "selection_metric_negative_terminal_utility": selection_metric,
             "target_ce_by_source": {k: sum(v) / len(v) for k, v in ce.items()},
             "validation_is_not_independent_strength_confirmation": True}
@@ -161,10 +177,10 @@ def fit(config):
         "--lora", "16", "--lora_targets", "all", "--lora_dropout", "0.05",
         "--head_dim", "256", "--decision_mode", "pointer", "--branch_mode", "rows",
         "--backbone_adapter", "text", "--epochs", "1", "--max_steps", str(proof["max_steps"]),
-        "--lr", "2e-6", "--head_lr", "1e-5", "--weight_decay", "0.001",
+        "--lr", str(lr), "--head_lr", str(head_lr), "--weight_decay", "0.001",
         "--batch", "1", "--accum", "16", "--checkpointing", "1",
-        "--checkpoint_every_steps", "16", "--eval_before_start",
-        "--eval_every_steps", "16", "--early_stop_patience", "2",
+        "--checkpoint_every_steps", str(evaluation_every), "--eval_before_start",
+        "--eval_every_steps", str(evaluation_every), "--early_stop_patience", "2",
         "--early_stop_metric", "development_nll", "--early_stop_min_delta", "0.0001",
         "--p_none", "0", "--p_none_distract", "0", "--p_distract", "0", "--p_none_pair", "0",
         "--max_state", "4096", "--max_branch", "8192", "--max_packed", "8192",

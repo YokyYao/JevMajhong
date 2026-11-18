@@ -103,6 +103,27 @@ class EndgameLedgerTests(unittest.TestCase):
         self.assertEqual(len(result["hands"]), 1)
 
 
+class EndgameLossMixTests(unittest.TestCase):
+    def test_more_win_positions_do_not_take_mass_from_pursuit_and_guard(self):
+        from jevmahjong.endgame.prepare import loss_recipe
+        counts = {"replay_expert": 384, "replay_masked": 128,
+                  "endgame_terminal_win": 94, "endgame_terminal_third": 29,
+                  "endgame_terminal_fourth": 23, "endgame_terminal_hold": 23}
+        mass, weights = loss_recipe(counts, .2, True)
+        self.assertAlmostEqual(mass["replay_expert"], .6)
+        self.assertAlmostEqual(mass["replay_masked"], .2)
+        for source in counts:
+            self.assertAlmostEqual(counts[source] * weights[source] / sum(counts.values()), mass[source])
+        self.assertAlmostEqual(mass["endgame_terminal_win"], mass["endgame_terminal_third"])
+
+    def test_missing_stratum_and_unbounded_weights_are_rejected(self):
+        from jevmahjong.endgame.prepare import loss_recipe
+        with self.assertRaises(ValueError):
+            loss_recipe({"endgame_terminal": 100, "replay_expert": 512}, .2)
+        with self.assertRaises(ValueError):
+            loss_recipe({"endgame_terminal": 1, "replay_expert": 384, "replay_masked": 128}, .5)
+
+
 class EndgameWinPathTests(unittest.TestCase):
     def test_late_win_and_pass_reach_the_model(self):
         import json

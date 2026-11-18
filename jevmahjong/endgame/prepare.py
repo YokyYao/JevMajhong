@@ -28,6 +28,25 @@ def jsonl(path, rows):
     temporary.replace(path)
 
 
+def loss_recipe(counts, new_mass=.5, balanced=False):
+    if not math.isfinite(new_mass) or not 0 < new_mass < 1:
+        raise ValueError("New terminal loss mass must be strictly between zero and one")
+    mass = {"replay_expert": (1 - new_mass) * .75,
+            "replay_masked": (1 - new_mass) * .25}
+    if balanced:
+        mass.update({"endgame_terminal_" + bucket: new_mass / 4
+                     for bucket in ("win", "third", "fourth", "hold")})
+    else:
+        mass["endgame_terminal"] = new_mass
+    if set(counts) != set(mass) or any(n <= 0 for n in counts.values()):
+        raise ValueError("Missing or unexpected training loss source")
+    total = sum(counts.values())
+    weights = {key: mass[key] * total / counts[key] for key in mass}
+    if max(weights.values()) > 8:
+        raise ValueError("Pilot mixture would over-amplify a small source")
+    return mass, weights
+
+
 def prepare(config):
     if (config.get("training_objective") != "top2_primary_v1"
             or config.get("terminal_utility") != [1.1, 1.0, 0.0, -0.05]):
@@ -149,23 +168,27 @@ def prepare(config):
     val_ids = {r["_meta"]["id"] for r in splits["validation"]}
     if len(train_ids) != len(splits["train"]) or len(val_ids) != len(splits["validation"]) or train_ids & val_ids:
         raise ValueError("Repeated record identity")
+    if config.get("balance_endgame_buckets", False):
+        for record in splits["train"]:
+            q = record["questions"]["action"]
+            if q["src"] == "endgame_terminal":
+                q["src"] += "_" + record["_meta"]["bucket"]
     for split, rows in splits.items():
         rows.sort(key=lambda r: digest(["endgame-train-order-v1", r["_meta"]["id"]]))
         jsonl(out / (split + ".jsonl"), rows)
     counts = Counter(r["questions"]["action"]["src"] for r in splits["train"])
     total = len(splits["train"])
-    mass = {"endgame_terminal": .5, "replay_expert": .375, "replay_masked": .125}
-    if set(counts) != set(mass):
-        raise ValueError("Missing training loss source")
-    weights = {key: mass[key] * total / counts[key] for key in mass}
-    if max(weights.values()) > 8:
-        raise ValueError("Pilot mixture would over-amplify a small source")
+    mass, weights = loss_recipe(counts, config.get("new_terminal_loss_mass", .5),
+                               config.get("balance_endgame_buckets", False))
+    max_steps = min(math.ceil(total / 16), config.get("max_optimizer_steps", math.ceil(total / 16)))
+    if not isinstance(max_steps, int) or isinstance(max_steps, bool) or max_steps < 3:
+        raise ValueError("Short fit budget must be at least three optimizer updates")
     result = {"status": "complete_terminal_dataset_ready", "new_strata": dict(new_counts),
         "objective": "top2_primary_v1", "terminal_utility": [1.1, 1.0, 0.0, -0.05],
         "admitted_new_strata": dict(admitted_counts), "neutral_menu_handling": dict(neutral_counts),
         "records": {s: len(r) for s, r in splits.items()},
         "group_overlap": 0, "loss_source_counts": dict(counts), "loss_source_mass": mass,
-        "loss_source_weights": weights, "max_steps": math.ceil(total / 16),
+        "loss_source_weights": weights, "max_steps": max_steps,
         "replay_inputs": replay_sources, "replay_admission": replay_admission,
         "validation_replay": "16 expert examples per phase; no fictitious call-window MC validation",
         "files": {s: {"path": str(out / (s + ".jsonl")),
