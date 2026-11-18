@@ -1,0 +1,32 @@
+{
+  "schema": "endgame-reference-constrained-short-fit-v1",
+  "out": "runs/endgame-placement-v3",
+  "checkpoint": "models/jev-play-v2",
+  "upstream_source": "vendor/JevAny",
+  "base_load_path": "models/base-model",
+  "replay_train": "data/jev-play-v2/train.jsonl",
+  "replay_validation": "data/jev-play-v2/validation.jsonl",
+  "source_group_ranges": [
+    {"seed_start": 2026111900, "groups": 48, "train_groups": 36},
+    {"seed_start": 2026113900, "groups": 96, "train_groups": 72}
+  ],
+  "future_worlds": 4,
+  "training_objective": "top2_primary_v1",
+  "terminal_utility": [1.1, 1.0, 0.0, -0.05],
+  "terminal_step_cap": 30000,
+  "target_temperature": 0.25,
+  "new_terminal_loss_mass": 0.2,
+  "balance_endgame_buckets": true,
+  "reference_regularization": true,
+  "reference_temperature": 0.1,
+  "reference_exploration": 0.1,
+  "reference_kl_guard": 0.05,
+  "max_optimizer_steps": 24,
+  "learning_rate": 1e-6,
+  "head_learning_rate": 2e-6,
+  "evaluation_every_steps": 8,
+  "enforce_placement_strata_guard": true,
+  "development_groups": 8,
+  "development_seed_start": 2026112900,
+  "raw_publication": false
+}

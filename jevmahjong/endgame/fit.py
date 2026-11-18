@@ -38,6 +38,10 @@ def fit(config):
         raise ValueError("Unexpected upstream trainer")
     records = read_jsonl(out / "validation.jsonl")
     by_id = {r["_meta"]["id"]: r for r in records}
+    reference_rows = None
+    if config.get("reference_regularization", False):
+        from .reference import load_reference
+        reference_rows = load_reference(config, read_jsonl(out / "train.jsonl") + records)["rows"]
     expected = {str(out / (s + ".jsonl")): proof["files"][s]["sha256"] for s in ("train", "validation")}
     original_loss = trainer.question_loss
     original_eval = trainer.evaluate_during_training
@@ -101,7 +105,7 @@ def fit(config):
         rows = json.loads((directory / "training_eval" / ("step-%06d" % step) / "development/rows.json").read_text())
         if len(rows) != len(records) or {r["id"] for r in rows} != set(by_id):
             raise ValueError("Validation dropped or duplicated records")
-        utilities, ce = defaultdict(list), defaultdict(list)
+        utilities, ce, reference_kl = defaultdict(list), defaultdict(list), []
         for prediction in rows:
             record = by_id[prediction["id"]]
             question = record["questions"]["action"]
@@ -110,6 +114,10 @@ def fit(config):
                 raise ValueError("Validation legal menu differs")
             source = question["src"]
             ce[source].append(target_ce(question, probabilities))
+            if reference_rows is not None and source.startswith("replay_"):
+                p = reference_rows[record["_meta"]["id"]]["probabilities"]
+                reference_kl.append(sum(v * math.log(max(v, 1e-30) / max(probabilities[k], 1e-30))
+                                        for k, v in p.items() if v > 0))
             if source == "endgame_terminal":
                 chosen = max(probabilities, key=probabilities.get)
                 utilities[record["_meta"]["bucket"]].append(record["_meta"]["expected_terminal_utilities"][chosen])
@@ -129,12 +137,15 @@ def fit(config):
             or (strata["third"] >= state["initial_strata"]["third"] - 1e-12
                 and strata["fourth"] >= state["initial_strata"]["fourth"] - 1e-12
                 and strata["hold"] >= state["initial_strata"]["hold"] - .02 - 1e-12))
-        guard_passed = replay_guard and placement_guard
+        mean_reference_kl = sum(reference_kl) / len(reference_kl) if reference_kl else None
+        reference_guard = mean_reference_kl is None or mean_reference_kl <= config["reference_kl_guard"]
+        guard_passed = replay_guard and placement_guard and reference_guard
         selection_metric = -utility if guard_passed else 1e6 + replay_ce
         item = {"step": step, "endgame_validation_terminal_utility": utility,
             "utility_by_stratum": strata,
             "replay_target_ce": replay_ce, "replay_guard_passed": replay_guard,
             "placement_strata_guard_passed": placement_guard, "all_guards_passed": guard_passed,
+            "replay_reference_kl": mean_reference_kl, "reference_guard_passed": reference_guard,
             "selection_metric_negative_terminal_utility": selection_metric,
             "target_ce_by_source": {k: sum(v) / len(v) for k, v in ce.items()},
             "validation_is_not_independent_strength_confirmation": True}

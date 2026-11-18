@@ -76,6 +76,46 @@ class EndgameContextTests(unittest.TestCase):
         self.assertGreater(placement_objective(2), one_second_three_fourths)
 
 
+class EndgameReferenceTests(unittest.TestCase):
+    def test_equal_returns_keep_frozen_policy_instead_of_uniform_targets(self):
+        from jevmahjong.endgame.reference import improvement_target
+        p = {"a": .9, "b": .1}
+        self.assertEqual(improvement_target(p, {"a": 1., "b": 1.}), p)
+
+    def test_lower_probability_comeback_can_overcome_a_reference_preference(self):
+        from jevmahjong.endgame.reference import improvement_target
+        p = {"win": .99, "continue": .01}
+        q = improvement_target(p, {"win": 0., "continue": .5}, .1, .1)
+        self.assertGreater(q["continue"], q["win"])
+        self.assertAlmostEqual(sum(q.values()), 1.)
+
+    def test_exploration_does_not_worsen_expected_labeled_utility(self):
+        from jevmahjong.endgame.reference import improvement_target
+        p = {"a": 1., "b": 0.}
+        values = {"a": .99, "b": .98}
+        q = improvement_target(p, values, .1, .1)
+        self.assertGreaterEqual(sum(q[k] * values[k] for k in p), .99 - 1e-12)
+
+    def test_teacher_input_excludes_targets_and_future_metadata(self):
+        from jevmahjong.endgame.reference import inference_request
+        record = {"state": {"scores": [25000] * 4}, "_meta": {"future": [1, 2]},
+                  "questions": {"action": {"type": "choice", "criteria": {"a": {}},
+                    "instructions": "test", "label": "a", "target": {"a": 1.}, "src": "private"}}}
+        payload = inference_request(record)
+        self.assertNotIn("_meta", payload)
+        self.assertEqual(set(payload["questions"]["action"]), {"type", "instructions", "criteria"})
+
+    def test_reference_replay_has_registered_mass_without_reintroducing_hard_labels(self):
+        from jevmahjong.endgame.prepare import loss_recipe
+        counts = {"replay_reference": 512, "endgame_terminal_win": 94,
+                  "endgame_terminal_third": 29, "endgame_terminal_fourth": 23,
+                  "endgame_terminal_hold": 23}
+        mass, weights = loss_recipe(counts, .2, True, True)
+        self.assertAlmostEqual(mass["replay_reference"], .8)
+        self.assertAlmostEqual(sum(mass.values()), 1.)
+        self.assertLess(max(weights.values()), 8)
+
+
 class EndgameLedgerTests(unittest.TestCase):
     def test_records_deposits_settlement_and_next_hand(self):
         from jevmahjong.endgame.ledger import hand_score_history

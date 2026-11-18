@@ -10,7 +10,7 @@ import traceback
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("stage", choices=("collect", "label", "prepare", "fit", "evaluate"))
+    parser.add_argument("stage", choices=("collect", "label", "prepare", "reference", "fit", "evaluate"))
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--limit", type=int)
     args = parser.parse_args()
@@ -34,6 +34,9 @@ def main():
         elif args.stage == "fit":
             from jevmahjong.endgame.fit import fit
             result = fit(config)
+        elif args.stage == "reference":
+            from jevmahjong.endgame.reference import build_reference
+            result = build_reference(config)
         else:
             from jevmahjong.endgame.evaluate import evaluate
             result = evaluate(config)

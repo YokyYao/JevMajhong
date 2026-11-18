@@ -28,11 +28,13 @@ def jsonl(path, rows):
     temporary.replace(path)
 
 
-def loss_recipe(counts, new_mass=.5, balanced=False):
+def loss_recipe(counts, new_mass=.5, balanced=False, reference=False):
     if not math.isfinite(new_mass) or not 0 < new_mass < 1:
         raise ValueError("New terminal loss mass must be strictly between zero and one")
     mass = {"replay_expert": (1 - new_mass) * .75,
             "replay_masked": (1 - new_mass) * .25}
+    if reference:
+        mass = {"replay_reference": 1 - new_mass}
     if balanced:
         mass.update({"endgame_terminal_" + bucket: new_mass / 4
                      for bucket in ("win", "third", "fourth", "hold")})
@@ -168,6 +170,10 @@ def prepare(config):
     val_ids = {r["_meta"]["id"] for r in splits["validation"]}
     if len(train_ids) != len(splits["train"]) or len(val_ids) != len(splits["validation"]) or train_ids & val_ids:
         raise ValueError("Repeated record identity")
+    reference_receipt = None
+    if config.get("reference_regularization", False):
+        from .reference import apply_reference
+        reference_receipt = apply_reference(config, splits)
     if config.get("balance_endgame_buckets", False):
         for record in splits["train"]:
             q = record["questions"]["action"]
@@ -179,7 +185,8 @@ def prepare(config):
     counts = Counter(r["questions"]["action"]["src"] for r in splits["train"])
     total = len(splits["train"])
     mass, weights = loss_recipe(counts, config.get("new_terminal_loss_mass", .5),
-                               config.get("balance_endgame_buckets", False))
+                               config.get("balance_endgame_buckets", False),
+                               config.get("reference_regularization", False))
     max_steps = min(math.ceil(total / 16), config.get("max_optimizer_steps", math.ceil(total / 16)))
     if not isinstance(max_steps, int) or isinstance(max_steps, bool) or max_steps < 3:
         raise ValueError("Short fit budget must be at least three optimizer updates")
@@ -190,6 +197,7 @@ def prepare(config):
         "group_overlap": 0, "loss_source_counts": dict(counts), "loss_source_mass": mass,
         "loss_source_weights": weights, "max_steps": max_steps,
         "replay_inputs": replay_sources, "replay_admission": replay_admission,
+        "reference_regularization": reference_receipt,
         "validation_replay": "16 expert examples per phase; no fictitious call-window MC validation",
         "files": {s: {"path": str(out / (s + ".jsonl")),
                      "sha256": checksum(out / (s + ".jsonl"))} for s in splits},
