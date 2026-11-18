@@ -1046,9 +1046,11 @@ class Sidecar(QMainWindow):
             if 'hand' in self.regions:
                 self.regions['hand'] = include_drawn_tile(self.regions['hand'])
             self.monitor.setCurrentIndex(min(data.get('monitor', 0), self.monitor.count() - 1))
-            if (Path(data.get('checkpoint', '')).is_dir()
-                    and Path(data['checkpoint']).name not in ('jev-discard-v1', 'jev-call-v1')):
-                self.checkpoint.setText(data['checkpoint'])
+            checkpoint = data.get('checkpoint')
+            if (isinstance(checkpoint, str) and checkpoint.strip()
+                    and Path(checkpoint).is_dir()
+                    and Path(checkpoint).name not in ('jev-discard-v1', 'jev-call-v1')):
+                self.checkpoint.setText(checkpoint)
             if Path(data.get('detector', '')).is_file():
                 self.detector_path.setText(data['detector'])
         except (FileNotFoundError, ValueError):

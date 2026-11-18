@@ -1,9 +1,11 @@
 {
-  "version": "0.4.0",
+  "version": "0.4.1",
   "model_id": "jev-play-v2",
   "display_name": "Jev Play v2",
   "identity_sha256": "a6c7c27205fef0647a9990b3b2dcd42edd643cae5068fbeb270d6de226e7098a",
   "archive_sha256": "2288e73b4618ebea5b8962f8054fc9e83e73a64401facdad6625d24ca994e170",
   "publish_after_windows_checks": true,
-  "prerelease": false
+  "prerelease": false,
+  "build_revision": 4,
+  "upgrade_mode": "reuse-verified-runtime"
 }

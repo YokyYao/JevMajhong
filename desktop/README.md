@@ -1,6 +1,8 @@
 # Windows 桌面工具
 
-[下载 JevMahjong-Setup-0.4.0-win-x64.exe](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.4.0/JevMahjong-Setup-0.4.0-win-x64.exe)，双击安装即可。安装程序自动下载并核对运行组件，无需自行安装 Python、pip 或 CUDA Toolkit。使用 NVIDIA GPU 需要本机显卡驱动。
+[下载 JevMahjong-Setup-0.4.1-win-x64.exe](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.4.1/JevMahjong-Setup-0.4.1-win-x64.exe)，双击安装即可。安装程序自动下载并核对运行组件，无需自行安装 Python、pip 或 CUDA Toolkit。使用 NVIDIA GPU 需要本机显卡驱动。
+
+升级时直接运行新版安装程序并使用原安装目录，**不要先卸载旧版**。安装器会校验并复用已有 Python／PyTorch／CUDA 运行环境；程序与模型分别更新，模型相同时也不重复下载。首次安装、换到空目录或运行环境缺失／损坏时，才下载完整运行组件。截图校准及已下载的 Qwen 基座缓存会保留。
 
 首次启动会下载固定版本底座。之后在本机识别截图和运行推荐；首次使用需在设置中校准牌桌区域。工具可以读取本场数、立直棒数，并区分普通出牌与鸣牌窗口。
 
@@ -29,3 +31,5 @@ python desktop/launcher.py
 Windows 构建入口为 `desktop/windows/Build-Exe.ps1`。GitHub Windows 工作流支持手动触发；发布分支更新 release-request.json 时会启动构建。构建会执行冻结 EXE、安装后推理和文件校验，详见[开发说明](../docs/development.md)。
 
 桌面许可见 [LICENSE](LICENSE)，第三方说明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+
+维护说明：当前首次安装／修复以 desktop-v0.4.0 的四个 Runtime 附件为基线，请保留这些已发布附件。构建使用锁定运行库版本；新版程序与基线不同的文件进入 Application 更新包，模型单独打包。发布前会实际测试 0.4.0 覆盖升级、全新安装、重复安装及损坏修复，并记录下载请求，禁止完整环境重复下载。更换运行库时须同步维护基线和升级测试。
