@@ -78,8 +78,9 @@ def evaluate(config):
     learner = ModelAgent(load_model(candidate), placement_aware=True)
     groups = config.get("development_groups", 8)
     seed_start = config.get("development_seed_start", 2026112900)
-    if not (seed_start >= config["seed_start"] + config["source_groups"]
-            or seed_start + groups <= config["seed_start"]):
+    fitted_sources = json.loads((out / "selected-positions-private.json").read_text())
+    fitted_seeds = {row["seed"] for row in fitted_sources}
+    if fitted_seeds & set(range(seed_start, seed_start + groups)):
         raise ValueError("Development source seeds overlap training/validation")
     directory = out / "development"
     directory.mkdir(exist_ok=True)

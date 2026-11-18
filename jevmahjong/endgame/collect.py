@@ -22,7 +22,9 @@ def write(path, value):
     temporary.replace(path)
 
 
-def native_match(seed, per_group=4):
+def native_match(seed, per_group=4, extra_trailing_wins=0):
+    if not isinstance(extra_trailing_wins, int) or not 0 <= extra_trailing_wins <= 4:
+        raise ValueError("Extra trailing win windows must be between zero and four")
     env = RiichiEnv(game_mode="4p-red-east", rule=GameRule.default_mjsoul(),
                    seed=engine_seed(seed, "spaced-v1"))
     observations = env.reset()
@@ -75,7 +77,19 @@ def native_match(seed, per_group=4):
                 used.add(row["request_sha256"])
                 break
     chosen = chosen[:per_group]
+    # Supplement scarce comeback examples using only current public placement.
+    # Hash selection never uses terminal counterfactual rewards or hidden hands.
+    added = 0
+    for row in sorted(pools["win"], key=lambda x: x["selection_key"]):
+        if added >= extra_trailing_wins:
+            break
+        if (row["request"]["state"]["endgame_context"]["placement"] >= 3
+                and row["request_sha256"] not in used):
+            chosen.append(row)
+            used.add(row["request_sha256"])
+            added += 1
     return {"schema": "endgame-native-source-v1", "seed": seed,
+        "extra_trailing_wins": extra_trailing_wins,
         "source_policy": "three-efficiency-plus-one-calling-rule-opponent",
         "selected_before_future_labels": True, "selected": chosen,
         "bucket_opportunities": {k: len(v) for k, v in pools.items()},
@@ -95,12 +109,15 @@ def collect(config):
         file = out / "sources" / (str(seed) + ".json")
         if file.exists():
             source = json.loads(file.read_text())
-            if source["seed"] != seed or source["schema"] != "endgame-native-source-v1":
+            if (source["seed"] != seed or source["schema"] != "endgame-native-source-v1"
+                    or source.get("extra_trailing_wins", 0) != config.get("extra_trailing_wins", 0)):
                 raise ValueError("Existing source identity mismatch")
         else:
-            source = native_match(seed)
+            source = native_match(seed, extra_trailing_wins=config.get("extra_trailing_wins", 0))
             write(file, source)
         for row in source["selected"]:
+            if row["bucket"] not in config.get("selected_buckets", ("win", "third", "fourth", "hold")):
+                continue
             row = dict(row, split=split, group_id="endgame-native:" + str(seed))
             rows.append(row)
             key = split + ":" + row["bucket"]
