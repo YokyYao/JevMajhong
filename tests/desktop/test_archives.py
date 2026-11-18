@@ -53,6 +53,7 @@ class ComponentUpgradeRoundTrip(unittest.TestCase):
             baseline, source, output = root / 'baseline', root / 'app', root / 'release'
             previous = {'JevMahjong.exe': b'old exe',
                         '_internal/shared.dll': b'large shared runtime',
+                        '_internal/package-2.dist-info/METADATA': b'new dependency metadata',
                         '_internal/changed.dll': b'old runtime data',
                         '_internal/base_library.zip': b'old generated stdlib',
                         '_internal/desktop/identity.json': b'app-owned data',
@@ -70,11 +71,16 @@ class ComponentUpgradeRoundTrip(unittest.TestCase):
                     {name: hashlib.sha256(data).hexdigest() for name, data in files.items()}))
             config = {'tag': 'desktop-v0.4.0', 'archives': [
                 {'name': 'baseline.zip', 'sha256': '0' * 64, 'installed_bytes': 100}]}
-            result = package_upgrade(source, output, baseline, config, '0.4.1', group_limit=10000)
+            legacy_manifest = root / 'legacy.json'
+            legacy_manifest.write_text(json.dumps({name: hashlib.sha256(data).hexdigest()
+                for name, data in previous.items() if 'dist-info' not in name}))
+            result = package_upgrade(source, output, baseline, config, '0.4.1', group_limit=10000,
+                                     compatible_manifests=[legacy_manifest])
             self.assertEqual(set(result['required_runtime_files']), {'_internal/shared.dll'})
             self.assertFalse(result['model_in_baseline'])
             self.assertEqual(set(result['model_files']), {'models/jev-play-v2/head.pt'})
             self.assertIn('_internal/changed.dll', result['application_files'])
+            self.assertIn('_internal/package-2.dist-info/METADATA', result['application_files'])
             self.assertIn('_internal/desktop/identity.json', result['application_files'])
             self.assertIn('_internal/base_library.zip', result['application_files'])
             target = root / 'upgraded'

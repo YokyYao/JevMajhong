@@ -63,9 +63,12 @@ jobs:
       - name: Build automatic runtime downloader installer
         run: |
           New-Item release -ItemType Directory -Force | Out-Null
+          python tools/fetch_runtime_baseline.py --legacy --manifest-only --cache runs/legacy-manifest-downloads --out runs/legacy-file-manifest.json
+          if ($LASTEXITCODE -ne 0) { throw 'Legacy file index verification failed' }
+          Remove-Item runs/legacy-manifest-downloads -Recurse -Force
           python tools/fetch_runtime_baseline.py
           if ($LASTEXITCODE -ne 0) { throw 'Baseline verification failed' }
-          python tools/package_runtime_archives.py --baseline runs/runtime-baseline --version 0.4.1
+          python tools/package_runtime_archives.py --baseline runs/runtime-baseline --version 0.4.1 --compatible-manifest runs/legacy-file-manifest.json
           if ($LASTEXITCODE -ne 0) { throw 'Runtime archive build failed' }
           python -c "import json; from pathlib import Path; m=json.loads(Path('release/runtime-manifest.json').read_text()); print({k:v for k,v in m.items() if k not in ('required_runtime_files','application_files','model_files')}); assert m['application_download_bytes'] < 200000000, 'Unexpected full-runtime update'"
           $compiler = 'C:/Program Files (x86)/Inno Setup 6/ISCC.exe'
@@ -99,10 +102,11 @@ jobs:
           path: windows-upgrade-results/
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: windows-build
           path: release/
-          if-no-files-found: error
+          if-no-files-found: ignore
       - name: Publish tested Windows release
         if: ${{ inputs.publish || github.event_name == 'push' }}
         env:

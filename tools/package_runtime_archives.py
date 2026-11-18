@@ -68,7 +68,8 @@ def write_checks(path, hashes):
                     encoding='utf-8')
 
 
-def package_upgrade(source, output, baseline, baseline_config, version, group_limit=1_500_000_000):
+def package_upgrade(source, output, baseline, baseline_config, version, group_limit=1_500_000_000,
+                    compatible_manifests=()):
     source, output, baseline = Path(source), Path(output), Path(baseline)
     output.mkdir(parents=True, exist_ok=True)
     previous = json.loads((baseline / 'SHA256SUMS.json').read_text(encoding='utf-8'))
@@ -80,7 +81,10 @@ def package_upgrade(source, output, baseline, baseline_config, version, group_li
     if current != installed_manifest:
         raise ValueError('Frozen application does not match its file manifest')
     current['SHA256SUMS.json'] = sha256(source / 'SHA256SUMS.json')
-    common = {n: h for n, h in current.items() if runtime_file(n) and previous.get(n) == h}
+    compatible = [previous] + [json.loads(Path(path).read_text(encoding='utf-8'))
+                               for path in compatible_manifests]
+    common = {n: h for n, h in current.items()
+              if runtime_file(n) and all(index.get(n) == h for index in compatible)}
     models = {n: h for n, h in current.items() if n.startswith('models/')}
     app = {n: h for n, h in current.items() if n not in common and n not in models}
     if not common:
@@ -147,10 +151,12 @@ if __name__ == '__main__':
     parser.add_argument('--baseline', type=Path)
     parser.add_argument('--baseline-config', type=Path, default=Path('desktop/windows/runtime-baseline.json'))
     parser.add_argument('--version', default='0.4.1')
+    parser.add_argument('--compatible-manifest', type=Path, action='append', default=[])
     args = parser.parse_args()
     if args.baseline:
         result = package_upgrade(args.source, args.output, args.baseline,
-                                 json.loads(args.baseline_config.read_text(encoding='utf-8')), args.version)
+                                 json.loads(args.baseline_config.read_text(encoding='utf-8')), args.version,
+                                 compatible_manifests=args.compatible_manifest)
         print(json.dumps({k: v for k, v in result.items()
                           if k not in ('required_runtime_files', 'application_files', 'model_files')}, indent=2))
     else:

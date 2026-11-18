@@ -16,7 +16,7 @@ def file_hash(path):
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
-def fetch(config, cache, output):
+def fetch(config, cache, output, manifest_only=False):
     if output.exists():
         raise FileExistsError(output)
     cache.mkdir(parents=True, exist_ok=True)
@@ -44,6 +44,15 @@ def fetch(config, cache, output):
     with ThreadPoolExecutor(max_workers=2) as executor:
         archives = list(executor.map(download, config['archives']))
     output.parent.mkdir(parents=True, exist_ok=True)
+    if manifest_only:
+        for archive in archives:
+            with zipfile.ZipFile(archive) as bundle:
+                if 'SHA256SUMS.json' in bundle.namelist():
+                    data = bundle.read('SHA256SUMS.json')
+                    json.loads(data)
+                    output.write_bytes(data)
+                    return {'baseline': config['tag'], 'manifest_only': True, 'archives_verified': len(archives)}
+        raise ValueError('Baseline file manifest not found')
     with tempfile.TemporaryDirectory(prefix='baseline-', dir=output.parent) as temporary:
         stage = Path(temporary) / 'app'
         stage.mkdir()
@@ -66,8 +75,9 @@ if __name__ == '__main__':
     parser.add_argument('--cache', type=Path, default=Path('runs/baseline-downloads'))
     parser.add_argument('--out', type=Path, default=Path('runs/runtime-baseline'))
     parser.add_argument('--legacy', action='store_true', help='Fetch the pinned 0.3.0 installation for upgrade regression')
+    parser.add_argument('--manifest-only', action='store_true', help='Extract only the verified file index for compatibility comparisons')
     args = parser.parse_args()
     config = json.loads(args.config.read_text(encoding='utf-8'))
     if args.legacy:
         config = config['legacy_test_installation']
-    print(json.dumps(fetch(config, args.cache, args.out)))
+    print(json.dumps(fetch(config, args.cache, args.out, args.manifest_only)))
