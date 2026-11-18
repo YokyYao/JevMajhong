@@ -14,7 +14,6 @@ class ModelAgent:
         self.choices = Counter()
 
     def act(self, obs):
-        from jevany.api import validate_distribution
         actions = legal_candidates(obs)
         if len(actions) == 1:
             return actions[0]
@@ -31,6 +30,7 @@ class ModelAgent:
         else:
             from desktop.jev_sidecar.unified_policy import serving_request as baseline_request
             payload = baseline_request(request)
+        from jevany.api import validate_distribution
         result = self.model.system_one(**payload)
         keys = list(payload["questions"]["action"]["criteria"])
         probabilities, _ = validate_distribution(result["answers"]["action"]["probabilities"], keys)
