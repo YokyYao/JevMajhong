@@ -116,6 +116,21 @@ class EndgameReferenceTests(unittest.TestCase):
         self.assertLess(max(weights.values()), 8)
 
 
+class EndgameEvaluationTests(unittest.TestCase):
+    def test_report_uses_actual_points_and_explicit_dealin_denominator(self):
+        from jevmahjong.endgame.evaluate import point_and_risk_summary
+        rows = [{"seed": 123,
+                 "baseline": {"net_points_from_window": -3000, "own_wins_after_window": 0,
+                              "dealins_after_window": 1, "hands_ended_after_window": 2},
+                 "candidate": {"net_points_from_window": 1000, "own_wins_after_window": 1,
+                               "dealins_after_window": 0, "hands_ended_after_window": 1}}]
+        report = point_and_risk_summary(rows)
+        self.assertEqual(report["source_group_mean_net_point_gain"], 4000)
+        self.assertEqual(report["source_group_bootstrap_net_point_gain_ci95"], [4000, 4000])
+        self.assertEqual(report["per_policy"]["baseline"]["dealin_events_per_completed_hand"], .5)
+        self.assertEqual(report["per_policy"]["candidate"]["windows_with_any_dealin_fraction"], 0)
+
+
 class EndgameLedgerTests(unittest.TestCase):
     def test_records_deposits_settlement_and_next_hand(self):
         from jevmahjong.endgame.ledger import hand_score_history
@@ -196,6 +211,33 @@ class EndgameWinPathTests(unittest.TestCase):
         model.reset_mock()
         self.assertIs(ModelAgent(model, placement_aware=False).act(obs), win)
         model.system_one.assert_not_called()
+        self.assertIs(ModelAgent(model, True, force_all_wins=True).act(obs), win)
+        model.system_one.assert_not_called()
+        payload["state"].update(seat=0, scores=[32000, 25000, 22000, 21000])
+        with patch("jevmahjong.endgame.policy.build_request", return_value=(payload, [win, decline], [{}, {}])):
+            self.assertIs(ModelAgent(model, True, protect_leading_wins=True).act(obs), win)
+        model.system_one.assert_not_called()
+
+    def test_optional_ordinary_guard_preserves_original_discard_eligibility(self):
+        import json, sys
+        from types import SimpleNamespace
+        from unittest.mock import Mock, patch
+        from riichienv import ActionType
+        from jevmahjong.endgame.policy import ModelAgent
+        actions = [SimpleNamespace(action_type=ActionType.DISCARD,
+                   to_mjai=lambda: json.dumps({"type": "dahai"})) for _ in range(2)]
+        obs = SimpleNamespace(round_wind=0, kyoku_index=3)
+        payload = {"state": {}, "questions": {"action": {"criteria": {"a0": {}, "a1": {}}}}}
+        model = Mock()
+        model.system_one.return_value = {"answers": {"action": {"probabilities": {"a0": .9, "a1": .1}}}}
+        api = SimpleNamespace(validate_distribution=lambda *args: ([.9, .1], {}))
+        with patch.dict(sys.modules, {"jevany": SimpleNamespace(__path__=[]), "jevany.api": api}), \
+             patch("jevmahjong.endgame.policy.legal_candidates", return_value=actions), \
+             patch("jevmahjong.endgame.policy.build_request", return_value=(payload, actions, [{"sh": 2}, {"sh": 1}])), \
+             patch("jevmahjong.endgame.policy.model_request", side_effect=lambda x: x), \
+             patch("jevmahjong.endgame.policy.guarded_indices", return_value=[1]):
+            self.assertIs(ModelAgent(model, True).act(obs), actions[0])
+            self.assertIs(ModelAgent(model, True, ordinary_guard=True).act(obs), actions[1])
 
 
 

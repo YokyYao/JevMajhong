@@ -49,6 +49,7 @@ def rollout(env, seat, seed, policy, step_cap):
             "win_opportunities": win_opportunities, "declined_wins": declined_wins,
             "own_wins_after_window": sum(e["type"] == "hora" and e["actor"] == seat for e in suffix),
             "dealins_after_window": sum(e["type"] == "hora" and e["target"] == seat and e["actor"] != seat for e in suffix),
+            "hands_ended_after_window": sum(e["type"] == "end_kyoku" for e in suffix),
             "steps": step + 1, "terminal_ledger_passed": True}
 
 
@@ -56,6 +57,28 @@ def interval(values, seed=2026111907):
     rng = random.Random(seed)
     means = sorted(sum(rng.choices(values, k=len(values))) / len(values) for _ in range(2000))
     return [means[int(.025 * len(means))], means[int(.975 * len(means))]]
+
+
+def point_and_risk_summary(records):
+    if not records:
+        raise ValueError("No paired endgame records")
+    summary = {}
+    for policy in ("baseline", "candidate"):
+        hands = sum(r[policy]["hands_ended_after_window"] for r in records)
+        dealins = sum(r[policy]["dealins_after_window"] for r in records)
+        summary[policy] = {
+            "mean_net_points_from_window": sum(r[policy]["net_points_from_window"] for r in records) / len(records),
+            "own_win_events": sum(r[policy]["own_wins_after_window"] for r in records),
+            "dealin_events": dealins, "completed_hands_after_windows": hands,
+            "dealin_events_per_completed_hand": dealins / hands if hands else None,
+            "windows_with_any_dealin_fraction": sum(r[policy]["dealins_after_window"] > 0 for r in records) / len(records)}
+    by_group = defaultdict(list)
+    for row in records:
+        by_group[row["seed"]].append(row["candidate"]["net_points_from_window"] - row["baseline"]["net_points_from_window"])
+    changes = [sum(v) / len(v) for v in by_group.values()]
+    return {"per_policy": summary, "source_group_mean_net_point_gain": sum(changes) / len(changes),
+            "source_group_bootstrap_net_point_gain_ci95": interval(changes),
+            "scope": "paired late windows; completed hands may be partial at window entry; not full-match-start strength"}
 
 
 def evaluate(config):
@@ -134,6 +157,7 @@ def evaluate(config):
         "paired_positions": len(records), "terminal_continuations": len(records) * 2,
         "terminal_utility_gain": gain, "whole_source_group_paired_bootstrap_ci95": interval(differences),
         "placement_rates": rates, "eligible_for_independent_confirmation": eligible,
+        "points_and_dealins": point_and_risk_summary(records),
         "baseline_identity": baseline_identity, "candidate_identity": candidate_identity,
         "declined_win_counts": {p: sum(r[p]["declined_wins"] for r in records) for p in ("baseline", "candidate")},
         "no_independent_confirmation_yet": True, "deployed": False,

@@ -10,7 +10,7 @@ import traceback
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("stage", choices=("collect", "label", "prepare", "reference", "fit", "evaluate"))
+    parser.add_argument("stage", choices=("collect", "label", "prepare", "reference", "fit", "evaluate", "path-ablation", "path-guards", "input-ablation"))
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--limit", type=int)
     args = parser.parse_args()
@@ -37,6 +37,15 @@ def main():
         elif args.stage == "reference":
             from jevmahjong.endgame.reference import build_reference
             result = build_reference(config)
+        elif args.stage == "path-ablation":
+            from jevmahjong.endgame.ablation import path_ablation
+            result = path_ablation(config)
+        elif args.stage == "path-guards":
+            from jevmahjong.endgame.ablation import guard_ablation
+            result = guard_ablation(config)
+        elif args.stage == "input-ablation":
+            from jevmahjong.endgame.ablation import guard_ablation
+            result = guard_ablation(config, input_only=True)
         else:
             from jevmahjong.endgame.evaluate import evaluate
             result = evaluate(config)
