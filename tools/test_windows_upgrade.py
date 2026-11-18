@@ -90,6 +90,7 @@ def test(release, baseline, cache, base_model, output, label, upgrade_only=False
     env.pop('PYTHONHOME', None)
 
     def install(target, name, expect_success=True):
+        print(f'Starting installer case: {label}/{name}', flush=True)
         start = len(requests)
         log = output / f'{label}-{name}.log'
         execute([installer, '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART',
@@ -102,6 +103,7 @@ def test(release, baseline, cache, base_model, output, label, upgrade_only=False
         text = log.read_text(encoding='utf-8-sig', errors='replace')
         cases[name] = {'requests': observed, 'exit_expected_success': expect_success,
                        'decisions': [line.strip() for line in text.splitlines() if 'JEV_UPDATE ' in line]}
+        print(f'Installer case passed: {label}/{name}; HTTP requests: {len(observed)}', flush=True)
         return observed
 
     def no_baseline(observed):
@@ -110,13 +112,22 @@ def test(release, baseline, cache, base_model, output, label, upgrade_only=False
 
     def infer(target, name):
         report = output / f'{label}-{name}-selftest.json'
-        execute([target / 'JevMahjong.exe', '--self-test', '--model-test', '--report', report],
-                env=env, timeout=900)
+        print(f'Starting installed inference: {label}/{name}', flush=True)
+        try:
+            execute([target / 'JevMahjong.exe', '--self-test', '--model-test', '--report', report],
+                    env=env, timeout=300)
+        except BaseException:
+            error_log = settings.parent / 'error.log'
+            if error_log.is_file():
+                shutil.copy2(error_log, output / f'{label}-{name}-error.log')
+                print(error_log.read_text(encoding='utf-8', errors='replace'), flush=True)
+            raise
         data = json.loads(report.read_text(encoding='utf-8'))
         if not data.get('model') or not data.get('frozen_exe') or data.get('model_id') != 'jev-play-v2':
             raise AssertionError('Installed inference did not run')
         if len(data.get('decisions', {})) != 7:
             raise AssertionError('Incomplete action-path inference')
+        print(f'Installed inference passed: {label}/{name}', flush=True)
         cases[name]['inference'] = data
         # The real app may maintain its own settings; the next installer must preserve this sentinel.
         settings.write_bytes(sentinel)
