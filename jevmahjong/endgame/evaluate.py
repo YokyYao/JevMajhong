@@ -10,7 +10,7 @@ from jevmahjong.core.seeds import engine_seed
 from jevmahjong.core.state import legal_candidates
 from jevmahjong.evaluation.agents import EfficiencyAgent, CallingOpponent
 from .collect import native_match, write
-from .context import placements, terminal_utility
+from .context import placements, placement_objective
 from .futures import bundle_identity
 from .ledger import hand_score_history
 from .policy import ModelAgent
@@ -45,7 +45,7 @@ def rollout(env, seat, seed, policy, step_cap):
         raise ValueError("Evaluation settlement/placement mismatch")
     suffix = env.mjai_log[prefix_size:]
     return {"start_scores": before, "final_scores": scores, "rank": ranks[seat],
-            "utility": terminal_utility(ranks[seat]), "net_points_from_window": scores[seat] - before[seat],
+            "utility": placement_objective(ranks[seat]), "net_points_from_window": scores[seat] - before[seat],
             "win_opportunities": win_opportunities, "declined_wins": declined_wins,
             "own_wins_after_window": sum(e["type"] == "hora" and e["actor"] == seat for e in suffix),
             "dealins_after_window": sum(e["type"] == "hora" and e["target"] == seat and e["actor"] != seat for e in suffix),

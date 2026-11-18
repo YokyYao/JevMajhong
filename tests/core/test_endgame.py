@@ -65,6 +65,17 @@ class EndgameContextTests(unittest.TestCase):
         self.assertIsNone(target)
 
 
+
+    def test_top_two_objective_does_not_prefer_locked_third_over_a_live_comeback(self):
+        from jevmahjong.endgame.context import placement_objective
+        locked_third = placement_objective(3)
+        one_second_three_fourths = (placement_objective(2) + 3 * placement_objective(4)) / 4
+        self.assertGreater(one_second_three_fourths, locked_third)
+        self.assertGreater(placement_objective(3), placement_objective(4))
+        self.assertGreater(placement_objective(1), placement_objective(2))
+        self.assertGreater(placement_objective(2), one_second_three_fourths)
+
+
 class EndgameLedgerTests(unittest.TestCase):
     def test_records_deposits_settlement_and_next_hand(self):
         from jevmahjong.endgame.ledger import hand_score_history
@@ -117,7 +128,7 @@ class EndgameWinPathTests(unittest.TestCase):
         api = SimpleNamespace(validate_distribution=validator)
         with patch.dict(sys.modules, {"jevany": SimpleNamespace(__path__=[]), "jevany.api": api}), \
              patch("jevmahjong.endgame.policy.build_request", return_value=(payload, [win, decline], [{}, {}])), \
-             patch("jevmahjong.endgame.policy.serving_request", side_effect=lambda x: x):
+             patch("jevmahjong.endgame.policy.model_request", side_effect=lambda x: x):
             chosen = ModelAgent(model, placement_aware=True).act(obs)
         self.assertIs(chosen, decline)
         model.system_one.assert_called_once()

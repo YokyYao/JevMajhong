@@ -6,7 +6,8 @@ import math
 from pathlib import Path
 
 from .collect import digest, write
-from .context import annotate_record, target_from_utilities, terminal_training_target
+from .context import (annotate_record, target_from_utilities, terminal_training_target,
+                      placement_objective, placements, terminal_utility)
 
 
 def checksum(path):
@@ -28,6 +29,9 @@ def jsonl(path, rows):
 
 
 def prepare(config):
+    if (config.get("training_objective") != "top2_primary_v1"
+            or config.get("terminal_utility") != [1.1, 1.0, 0.0, -0.05]):
+        raise ValueError("The registered top-two objective and utility must be explicit")
     out = Path(config["out"])
     positions = json.loads((out / "selected-positions-private.json").read_text())
     splits = {"train": [], "validation": []}
@@ -55,6 +59,10 @@ def prepare(config):
                 raise ValueError("Incomplete future worlds")
             if not all(x["ledger_passed"] for x in outcomes):
                 raise ValueError("Unaudited terminal settlement")
+            for outcome in outcomes:
+                if (placements(outcome["scores"]) != outcome["ranks"]
+                        or terminal_utility(outcome["ranks"][row["seat"]]) != outcome["utility"]):
+                    raise ValueError("Source terminal rank or original diagnostic utility differs")
             means.append(sum(x["utility"] for x in outcomes) / len(outcomes))
         target = target_from_utilities(means, config["target_temperature"])
         actual = record["questions"]["action"]["target"]
@@ -62,6 +70,18 @@ def prepare(config):
             raise ValueError("Stored terminal target formula differs")
         if record["_meta"]["expected_terminal_utilities"] != dict(zip(keys, means)):
             raise ValueError("Validation utility annotations differ from raw terminal outcomes")
+        # Preserve the original source diagnostic and rederive the new objective
+        # exclusively from complete terminal ranks, before any optimizer update.
+        record["_meta"]["source_diagnostic_utilities"] = dict(zip(keys, means))
+        means = [sum(placement_objective(x["ranks"][row["seat"]]) for x in outcomes) / len(outcomes)
+                 for outcomes in label["outcomes"]]
+        record["_meta"]["expected_terminal_utilities"] = dict(zip(keys, means))
+        record["_meta"]["terminal_objective"] = "top2_primary_v1"
+        # Targets and future diagnostics are metadata; they never enter the state.
+        probabilities = target_from_utilities(means, config["target_temperature"])
+        record["questions"]["action"]["target"] = dict(zip(keys, probabilities))
+        record["questions"]["action"]["label"] = keys[max(range(len(keys)), key=lambda i: probabilities[i])]
+        record = annotate_record(record)
         split = row["split"]
         new_counts[split + ":" + row["bucket"]] += 1
         admitted_target, basis = terminal_training_target(record["questions"]["action"]["criteria"],
@@ -88,22 +108,29 @@ def prepare(config):
            (("third", 8), ("fourth", 8), ("hold", 8), ("win", 4))):
         raise ValueError("Validation lacks registered endgame coverage")
     replay_sources = {}
+    replay_admission = {}
     for split, key in (("train", "replay_train"), ("validation", "replay_validation")):
         source = Path(config[key])
         old = read_jsonl(source)
         replay_sources[str(source)] = checksum(source)
         pools = {}
+        ineligible = Counter()
         for record in old:
             try:
                 normalized = annotate_record(record)
-            except (ValueError, KeyError, TypeError):
+            except (ValueError, KeyError, TypeError) as error:
+                ineligible[type(error).__name__] += 1
                 continue
             phase = record["_meta"].get("phase")
             label_type = record["_meta"].get("label_type")
             pools.setdefault((phase, label_type), []).append(normalized)
+        replay_admission[split] = {"source_records": len(old),
+            "eligible_records": sum(len(v) for v in pools.values()),
+            "ineligible_for_complete_endgame_context": dict(ineligible),
+            "eligible_strata": {str(k): len(v) for k, v in pools.items()}}
         phases = ("closed_discard", "open_discard", "call_window", "kan_window")
         quota = {"expert_replay": 96, "paired_future_masked": 32} if split == "train" else {
-            "expert_replay": 8, "paired_future_masked": 8}
+            "expert_replay": 16}
         for phase in phases:
             for kind, count in quota.items():
                 pool = pools.get((phase, kind), [])
@@ -134,11 +161,13 @@ def prepare(config):
     if max(weights.values()) > 8:
         raise ValueError("Pilot mixture would over-amplify a small source")
     result = {"status": "complete_terminal_dataset_ready", "new_strata": dict(new_counts),
+        "objective": "top2_primary_v1", "terminal_utility": [1.1, 1.0, 0.0, -0.05],
         "admitted_new_strata": dict(admitted_counts), "neutral_menu_handling": dict(neutral_counts),
         "records": {s: len(r) for s, r in splits.items()},
         "group_overlap": 0, "loss_source_counts": dict(counts), "loss_source_mass": mass,
         "loss_source_weights": weights, "max_steps": math.ceil(total / 16),
-        "replay_inputs": replay_sources,
+        "replay_inputs": replay_sources, "replay_admission": replay_admission,
+        "validation_replay": "16 expert examples per phase; no fictitious call-window MC validation",
         "files": {s: {"path": str(out / (s + ".jsonl")),
                      "sha256": checksum(out / (s + ".jsonl"))} for s in splits},
         "code_sha256": {str(p): checksum(p) for p in Path(__file__).parent.glob("*.py")},

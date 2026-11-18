@@ -72,6 +72,7 @@ class Board:
     riichi_available: bool = False
     riichi_selecting: bool = False
     self_kan_available: bool = False
+    self_win_available: bool = False
     confirmed_metadata: list[str] = field(default_factory=list)
 
     def visible(self):
@@ -217,6 +218,11 @@ def candidates(board):
                    for v in list(values) if v['sh'] == 0]
     if board.self_kan_available and not board.riichi_selecting:
         values += self_kan_candidates(board)
+    if (board.self_win_available and not board.riichi_selecting
+            and shanten(tuple(sorted(index(t) for t in board.hand))) == -1):
+        values.append({'tile': board.drawn or board.hand[-1], 'name': '自摸和牌',
+            'action': {'type': 'hora', 'pai': mjai(board.drawn or board.hand[-1])},
+            'sh': None, 'ukeire': None, 'safe': [], 'red': False, 'dora': 0, 'eligible': True})
     return values
 
 
@@ -325,6 +331,7 @@ class Adviser:
         self.device = None
         self.ready = False
         self.policy_name = 'Jev Discard v1'
+        self.score_history = None
 
     def prepare(self, checkpoint, progress=None):
         """Load and execute a real inference before reporting match readiness."""
@@ -344,8 +351,11 @@ class Adviser:
         from jevany.checkpoint import LoadOptions
         from jevany.inference import InferenceOptions
         checkpoint = Path(checkpoint)
+        endgame = (checkpoint / 'endgame-identity.json').is_file()
         unified = checkpoint.name == 'jev-play-v2' or (checkpoint / 'play-v2-identity.json').is_file()
-        if unified:
+        if endgame:
+            from .endgame_policy import validate_checkpoint
+        elif unified:
             from .unified_policy import validate_checkpoint
         else:
             from .model_identity import validate_checkpoint
@@ -374,12 +384,20 @@ class Adviser:
                                     fused_kernels=False, base_load_path=str(mirror) if mirror.is_dir() else None),
                 inference_options=InferenceOptions(max_state_tokens=4096, max_branch_tokens=8192,
                                                   max_packed_tokens=8192, prefix_cache_size=0))
+        self.score_history = None
         ordinary = load(checkpoint)
         call_checkpoint = checkpoint.parent / 'jev-call-v1'
-        if unified:
+        if endgame:
+            from .endgame_policy import MODEL_NAME, EndgamePolicyClient
+            from .score_history import MatchScoreHistory
+            self.model = EndgamePolicyClient(ordinary)
+            self.policy_name = MODEL_NAME
+            self.score_history = MatchScoreHistory()
+        elif unified:
             from .unified_policy import MODEL_NAME, UnifiedPolicyClient
             self.model = UnifiedPolicyClient(ordinary)
             self.policy_name = MODEL_NAME
+            self.score_history = None
         elif call_checkpoint.is_dir():
             from .call_policy import CallPolicyClient, validate_call_checkpoint
             validate_call_checkpoint(call_checkpoint)
@@ -393,16 +411,29 @@ class Adviser:
         return f'{self.policy_name} · {device.upper()} · {dtype}'
 
     def recommend(self, board, use_model=False):
+        if use_model and self.score_history is not None:
+            self.score_history.observe(request(board, []))
         if board.reaction:
             return self.recommend_reaction(board, use_model)
         values = candidates(board)
         threats = set(board.riichi) - {board.seat}
         trace = None
-        if use_model:
+        payload = request(board, values)
+        compare_all = bool(use_model and self.model is not None and
+            getattr(self.model, 'allow_win_pass', lambda p: False)(payload))
+        if compare_all:
+            for value in values:
+                value['eligible'] = True
+        wins = [v for v in values if v.get('action', {}).get('type') == 'hora']
+        if wins and not compare_all:
+            for value in values:
+                value['preference'] = float(value is wins[0])
+            ranked = sorted([v for v in values if v['eligible']], key=lambda v: -v['preference'])
+        elif use_model:
             if self.model is None:
                 raise RuntimeError('Jev尚未加载，请先在设置中加载模型')
             from jevany.api import validate_distribution
-            result, trace = self._infer(request(board, values))
+            result, trace = self._infer(payload)
             keys = [f'a{i}' for i in range(len(values))]
             probabilities, _ = validate_distribution(result['answers']['action']['probabilities'], keys)
             for value, probability in zip(values, probabilities):
@@ -414,9 +445,11 @@ class Adviser:
                  v['sh'], -v['ukeire'], v['dora'], v['red'], v['tile']))
         return {'top3': ranked[:3], 'all_candidates': values, 'engine': self.policy_name if use_model else '牌理引擎',
                 'notes': board.notes(), 'winning_shape': shanten(tuple(sorted(index(t) for t in board.hand))) == -1,
+                'own_win_available': bool(wins), 'endgame_decision': compare_all,
                 'riichi_selecting': board.riichi_selecting, 'strategy': hand_strategy(board, ranked[0]),
                 'direction': hand_strategy(board, ranked[0], direction_only=True),
-                'decision': decision_description(board, ranked[0]), 'model_input': trace}
+                'decision': ('放弃本次自摸，' if wins and ranked[0].get('action', {}).get('type') != 'hora' else '')
+                    + decision_description(board, ranked[0]), 'model_input': trace}
 
     def _infer(self, payload):
         traced = getattr(self.model, 'system_one_with_trace', None)
@@ -438,7 +471,9 @@ class Adviser:
         payload['questions']['action']['criteria'] = {f'a{i}': v['action'] for i, v in enumerate(values)}
         wins = [v for v in values if v['action']['type'] == 'hora']
         trace = None
-        if wins or locked_pass:
+        compare_win_pass = bool(use_model and self.model is not None and
+            getattr(self.model, 'allow_win_pass', lambda p: False)(payload))
+        if (wins and not compare_win_pass) or locked_pass:
             forced = wins[0] if wins else values[0]
             for value in values:
                 value['preference'] = float(value is forced)

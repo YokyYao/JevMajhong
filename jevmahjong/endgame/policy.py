@@ -4,7 +4,7 @@ from collections import Counter
 from riichienv import ActionType
 from jevmahjong.core.state import build_request, legal_candidates
 from jevmahjong.evaluation.agents import guarded_indices
-from .context import serving_request
+from .context import model_request
 
 
 class ModelAgent:
@@ -26,7 +26,7 @@ class ModelAgent:
         request, actions, feats = build_request(obs)
         request["state"]["hand_number"] = int(obs.kyoku_index) + 1
         if self.placement_aware:
-            payload = serving_request(request)
+            payload = model_request(request)
         else:
             from desktop.jev_sidecar.unified_policy import serving_request as baseline_request
             payload = baseline_request(request)

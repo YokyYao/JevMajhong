@@ -72,7 +72,8 @@ def plan_click(result, detections, screen, hand_rect, image_size):
             return None
         return ClickPlan(.53 - .13 * (len(offered) - 1 - offered.index('daiminkan')), .752, top['name'])
     if action in ('hora', 'chi', 'pon', 'daiminkan'):
-        if action not in offered or not screen.get('reaction'):
+        own_win = action == 'hora' and screen.get('self_win_available')
+        if action not in offered or (not screen.get('reaction') and not own_win):
             return None
         if action in ('chi', 'pon', 'daiminkan'):
             options = [v for v in result['all_candidates'] if v.get('action', {}).get('type') == action]

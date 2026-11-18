@@ -13,6 +13,17 @@ INSTRUCTION = (
 )
 PLACEMENT_UTILITY = (1.0, 0.5, -0.5, -1.0)
 
+TOP2_PLACEMENT_UTILITY = (1.1, 1.0, 0.0, -0.05)
+
+
+def placement_objective(rank):
+    """Top-two success dominates; first and avoiding fourth are small tie-breakers."""
+    if isinstance(rank, bool) or rank not in (1, 2, 3, 4):
+        raise ValueError("Terminal placement must be 1..4")
+    return TOP2_PLACEMENT_UTILITY[rank - 1]
+
+
+
 
 def placements(scores):
     if len(scores) != 4 or any(not isinstance(v, int) for v in scores):
@@ -60,6 +71,54 @@ def serving_request(request):
     return payload
 
 
+
+def _discard_symbol(tile):
+    if isinstance(tile, int) and not isinstance(tile, bool) and 0 <= tile < 136:
+        kind = tile // 4
+        if kind >= 27:
+            return str(kind - 26) + "z"
+        return ("0" if tile in (16, 52, 88) else str(kind % 9 + 1)) + "mps"[kind // 9]
+    if isinstance(tile, str):
+        if tile in ("E", "S", "W", "N", "P", "F", "C"):
+            return str(("E", "S", "W", "N", "P", "F", "C").index(tile) + 1) + "z"
+        if len(tile) == 3 and tile[0] == "5" and tile[1] in "mps" and tile[2] == "r":
+            return "0" + tile[1]
+        if len(tile) == 2 and tile[0] in "0123456789" and tile[1] in "mpsz":
+            return tile
+    return None
+
+
+def model_request(request):
+    """Align native/public screen discards and payer features without future data."""
+    source = copy.deepcopy(request)
+    source["state"].pop("endgame_context", None)
+    payload = serving_request(source)
+    state = payload["state"]
+    actor = tile = None
+    last = state.get("last_discard")
+    if isinstance(last, (list, tuple)) and len(last) == 2:
+        actor, tile = last
+    elif isinstance(last, dict):
+        actor = last.get("actor", last.get("seat", last.get("player")))
+        tile = last.get("tile", last.get("pai"))
+    reaction = state.get("screen_observation", {}).get("reaction")
+    if isinstance(reaction, dict):
+        actor = reaction.get("seat", actor)
+        tile = reaction.get("tile", tile)
+    if actor not in range(4):
+        actor = None
+    symbol = _discard_symbol(tile)
+    state["last_discard"] = {"seat": actor, "tile": symbol} if actor is not None else None
+    kinds = {action["type"] for action in payload["questions"]["action"]["criteria"].values()}
+    hand = state["hand"].split() if isinstance(state["hand"], str) else state["hand"]
+    method = None
+    if "hora" in kinds:
+        method = "tsumo" if len(hand) % 3 == 2 else "ron"
+    state["endgame_context"].update(current_discarder=actor, public_discard_tile=symbol,
+        win_method=method, ron_payer=actor if method == "ron" else None)
+    return payload
+
+
 def terminal_utility(rank):
     if isinstance(rank, bool) or rank not in (1, 2, 3, 4):
         raise ValueError("Terminal placement must be 1..4")
@@ -100,7 +159,7 @@ def settled_placement(scores, deltas, seat):
 def annotate_record(record):
     result = copy.deepcopy(record)
     result["state"].pop("endgame_context", None)
-    payload = serving_request(result)
+    payload = model_request(result)
     result["state"] = payload["state"]
     result["questions"]["action"]["instructions"] = INSTRUCTION
     result["questions"]["action"]["criteria"] = payload["questions"]["action"]["criteria"]
