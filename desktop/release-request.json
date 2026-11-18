@@ -6,6 +6,6 @@
   "archive_sha256": "2288e73b4618ebea5b8962f8054fc9e83e73a64401facdad6625d24ca994e170",
   "publish_after_windows_checks": true,
   "prerelease": false,
-  "build_revision": 2,
+  "build_revision": 3,
   "upgrade_mode": "reuse-verified-runtime"
 }

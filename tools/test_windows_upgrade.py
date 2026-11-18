@@ -93,10 +93,16 @@ def test(release, baseline, cache, base_model, output, label, upgrade_only=False
         print(f'Starting installer case: {label}/{name}', flush=True)
         start = len(requests)
         log = output / f'{label}-{name}.log'
-        execute([installer, '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART',
-                 f'/DIR={target}', f'/RUNTIMEURL={address}/current',
-                 f'/BASELINEURL={address}/baseline', f'/LOG={log}'],
-                expect_success=expect_success, timeout=900 if expect_success else 120)
+        try:
+            execute([installer, '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART',
+                     f'/DIR={target}', f'/RUNTIMEURL={address}/current',
+                     f'/BASELINEURL={address}/baseline', f'/LOG={log}'],
+                    expect_success=expect_success, timeout=900 if expect_success else 120)
+        except BaseException:
+            if log.is_file():
+                print(log.read_text(encoding='utf-8-sig', errors='replace')[-20000:], flush=True)
+            print(json.dumps({'failed_case': name, 'requests': requests[start:]}), flush=True)
+            raise
         if settings.read_bytes() != sentinel:
             raise AssertionError('Installer changed user calibration settings')
         observed = requests[start:]
