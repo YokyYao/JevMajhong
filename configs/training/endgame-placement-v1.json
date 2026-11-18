@@ -1,0 +1,22 @@
+{
+  "schema": "endgame-placement-v1-pilot",
+  "seed_start": 2026111900,
+  "source_groups": 48,
+  "train_groups": 36,
+  "out": "runs/endgame-placement-v1",
+  "checkpoint": "models/jev-play-v2",
+  "upstream_source": "vendor/JevAny",
+  "base_load_path": "models/base-model",
+  "replay_train": "data/jev-play-v2/train.jsonl",
+  "replay_validation": "data/jev-play-v2/validation.jsonl",
+  "future_worlds": 4,
+  "terminal_step_cap": 30000,
+  "target_temperature": 0.25,
+  "placement_utility": [
+    1,
+    0.5,
+    -0.5,
+    -1
+  ],
+  "raw_publication": false
+}
