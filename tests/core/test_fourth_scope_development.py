@@ -1,10 +1,12 @@
 import copy
 import json
 from pathlib import Path
+import tempfile
 import unittest
 from unittest.mock import Mock,patch
 
-from tools.evaluate_fourth_chase_development import validate_config,candidate_agent,summarize,static_path_ablation
+from tools.evaluate_fourth_chase_development import (validate_config,candidate_agent,summarize,
+    static_path_ablation,fitted_source_seeds)
 
 
 def outcome(rank):
@@ -63,6 +65,13 @@ class FourthScopeDevelopmentTests(unittest.TestCase):
         self.assertEqual(result['input_and_win_scope_choice_changes'],51)
         self.assertEqual(result['ordinary_scope_only_choice_changes'],0)
         self.assertEqual(result['arms']['existing_endgame_input_and_guards']['top2'],1.)
+
+    def test_source_isolation_uses_the_existing_native_manifest_loader(self):
+        with tempfile.TemporaryDirectory() as directory:
+            (Path(directory)/'selected-positions-private.json').write_text(json.dumps([{'seed':1},{'seed':2}]))
+            config={'out':directory,'native_context_root':'native-paired-contexts'}
+            with patch('jevmahjong.endgame.native_retention.load_native_pairs',return_value=[{'seed':3},{'seed':3},{'seed':4}]) as loader:
+                self.assertEqual(fitted_source_seeds(config),{1,2,3,4});loader.assert_called_once_with(config)
 
 
 if __name__=='__main__':unittest.main()

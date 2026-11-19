@@ -35,6 +35,14 @@ def candidate_agent(client):
     return agent
 
 
+def fitted_source_seeds(source_config):
+    from jevmahjong.endgame.native_retention import load_native_pairs
+    rows=json.loads((Path(source_config['out'])/'selected-positions-private.json').read_text())
+    seeds={r['seed'] for r in rows}
+    seeds.update(r['seed'] for r in load_native_pairs(source_config))
+    return seeds
+
+
 def static_path_ablation(records,predictions,reference):
     from jevmahjong.endgame.public_policy import action_keys
     from jevmahjong.endgame.fourth_chase import fourth_chase_action_keys
@@ -151,10 +159,7 @@ def evaluate(config):
     for position in selected:entries.append(('targeted',lookup[position['seed']],position,target_dir/'rollouts'))
     paths.update(target_dir/'sources'/f"{s['seed']}.json" for s in target_sources)
     paths.add(target_dir/'selected-positions-private.json')
-    fitted=json.loads((Path(source_config['out'])/'selected-positions-private.json').read_text())
-    fitted_seeds={r['seed'] for r in fitted}
-    native=json.loads((Path(source_config['native_context_root'])/'selected-positions-private.json').read_text())
-    fitted_seeds.update(r['seed'] for r in native)
+    fitted_seeds=fitted_source_seeds(source_config)
     if fitted_seeds&{s['seed'] for _,s,_,_ in entries}:raise ValueError('Consumed development overlaps fitted source groups')
     cached={}
     for cohort,source,position,directory in entries:
