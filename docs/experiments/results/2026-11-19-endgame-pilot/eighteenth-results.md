@@ -17,6 +17,11 @@ These are existing terminal-label averages over51 decision windows, not
 complete-match or human top2/win rates. At round18 completion, step96 had
 not separately undergone normal serving; the newly registered duration
 extension checks96 and128 before selecting its stronger comparison floor.
+That extension preflight (GPU309187) has now loaded both checkpoints and
+made335 requests per checkpoint: BOTH yield22.5490% in normal serving.
+The live unmerged96-step peak23.0392% does not survive the normal inference
+path, so it is not counted as a verified checkpoint gain. The continuation
+uses the actual22.5490% parent floor.
 The original released-input reference is16.6054%, but comparing that with
 the new endgame path confounds input/routing and learned parameter changes.
 
