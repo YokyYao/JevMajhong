@@ -39,9 +39,21 @@ def terminal_floor_guard(step, current, original, initial):
         "zero_step_is_anchor": step == 0}
 
 
+def original_replay_ce(ce):
+    values = [x for source, rows in ce.items()
+              if source.startswith("replay_") and source != "replay_native" for x in rows]
+    if not values:
+        raise ValueError("Original replay validation coverage is missing")
+    return sum(values) / len(values)
+
+
 def fit(config):
     if config.get("fit_registered", True) is not True:
         raise ValueError("This data-audit configuration has no registered fit protocol")
+    if config.get("native_context_root"):
+        native_limit = config.get("native_reference_kl_guard")
+        if type(native_limit) not in (float, int) or not math.isfinite(native_limit) or native_limit <= 0:
+            raise ValueError("Native policy retention requires an explicit positive validation KL limit")
     out = Path(config["out"])
     proof = prepare(config)
     train_dir = out / "training-run"
@@ -127,7 +139,7 @@ def fit(config):
         rows = json.loads((directory / "training_eval" / ("step-%06d" % step) / "development/rows.json").read_text())
         if len(rows) != len(records) or {r["id"] for r in rows} != set(by_id):
             raise ValueError("Validation dropped or duplicated records")
-        utilities, ce, reference_kl = defaultdict(list), defaultdict(list), []
+        utilities, ce, reference_kl, native_reference_kl = defaultdict(list), defaultdict(list), [], []
         fourth_escape, original_fourth_escape, third_pursuit, original_third_pursuit = [], [], [], []
         for prediction in rows:
             record = by_id[prediction["id"]]
@@ -144,8 +156,9 @@ def fit(config):
                     from .public_policy import action_keys
                     from .reference import restrict_distribution
                     current = restrict_distribution(probabilities, action_keys(record))
-                reference_kl.append(sum(v * math.log(max(v, 1e-30) / max(current[k], 1e-30))
-                                        for k, v in p.items() if v > 0))
+                destination = native_reference_kl if source == "replay_native" else reference_kl
+                destination.append(sum(v * math.log(max(v, 1e-30) / max(current[k], 1e-30))
+                                       for k, v in p.items() if v > 0))
             if source == "endgame_terminal":
                 eligible = list(probabilities)
                 from .context import PUBLIC_SETTLEMENT_VERSIONS
@@ -168,8 +181,7 @@ def fit(config):
         if set(utilities) != required:
             raise ValueError("Validation missing registered endgame stratum")
         utility = sum(sum(v) / len(v) for v in utilities.values()) / len(utilities)
-        replay = [x for k, values in ce.items() if k.startswith("replay_") for x in values]
-        replay_ce = sum(replay) / len(replay)
+        replay_ce = original_replay_ce(ce)
         if step == 0:
             state["initial_replay_ce"] = replay_ce
         strata = {k: sum(v) / len(v) for k, v in utilities.items()}
@@ -189,6 +201,14 @@ def fit(config):
             reference_limit += state["initial_reference_kl"]
         reference_guard = mean_reference_kl is None or mean_reference_kl <= reference_limit
         other_guards_passed = replay_guard and placement_guard and reference_guard
+        native_kl = sum(native_reference_kl) / len(native_reference_kl) if native_reference_kl else None
+        native_guard = True
+        if config.get("native_context_root"):
+            if len(native_reference_kl) != 16:
+                raise ValueError("Native context validation must retain all16 frozen-policy examples")
+            # Like the pursuit/escape guard, native alignment determines
+            # nonzero eligibility after exposure; zero stays a valid anchor.
+            native_guard = step == 0 or native_kl <= config["native_reference_kl_guard"]
         win_guard = (not config.get("enforce_win_stratum_guard", False)
                      or strata["win"] >= state["initial_strata"]["win"] - 1e-12)
         escape_guard = third_guard = True
@@ -207,7 +227,7 @@ def fit(config):
                 state["initial_third_pursuit"] = third_audit["candidate"]
         exposure_snapshot = exposure.snapshot()
         exposure_guard = step == 0 or exposure_snapshot["minimum_exposure_met"]
-        guard_passed = other_guards_passed and win_guard and exposure_guard and escape_guard and third_guard
+        guard_passed = other_guards_passed and win_guard and exposure_guard and escape_guard and third_guard and native_guard
         state["evaluation_step"] = step
         state["other_guards_passed"] = other_guards_passed
         state["exposure_met"] = exposure_snapshot["minimum_exposure_met"]
@@ -218,6 +238,8 @@ def fit(config):
             "placement_strata_guard_passed": placement_guard, "all_guards_passed": guard_passed,
             "replay_reference_kl": mean_reference_kl, "reference_guard_passed": reference_guard,
             "reference_kl_guard_limit": reference_limit,
+            "native_reference_kl": native_kl, "native_reference_guard_passed": native_guard,
+            "native_reference_kl_limit": config.get("native_reference_kl_guard"),
             "training_exposure": exposure_snapshot, "exposure_guard_passed": exposure_guard,
             "win_stratum_guard_passed": win_guard,
             "fourth_escape_guard_passed": escape_guard, "fourth_escape_validation": escape_audit,

@@ -34,6 +34,16 @@ def restrict_distribution(probabilities, eligible):
     return {k: probabilities[k] / total if k in eligible else 0. for k in probabilities}
 
 
+def reused_reference_prior(row, payload, teacher, eligible, keys):
+    if (row['request_sha256'] != digest(payload) or row['teacher_request_sha256'] != digest(teacher)
+            or row['teacher_eligible_keys'] != eligible or list(row['probabilities']) != keys):
+        raise ValueError('Cached reference input or ordered action support changed')
+    distribution(row['probabilities'], keys)
+    if any(row['probabilities'][key] != 0 for key in keys if key not in eligible):
+        raise ValueError('Cached original-policy reference escapes its serving support')
+    return dict(row['probabilities'])
+
+
 def improvement_target(reference, utilities, temperature=.1, exploration=.1):
     """Tilt a reference distribution by utility, rather than erase its preferences."""
     keys = list(reference)
@@ -127,6 +137,11 @@ def apply_reference(config, splits):
                 expert_count += 1
                 expert_disagreements += max(p, key=p.get) != q["label"]
             q["src"], q["target"] = "replay_reference", dict(p)
+            if meta.get("native_reference_pending"):
+                if cache["rows"][meta["id"]]["teacher_request_sha256"] != meta["teacher_request_sha256"]:
+                    raise ValueError("Native frozen teacher input changed")
+                meta.pop("native_reference_pending")
+                meta["label_type"] = "frozen_original_v8_policy_retention"
         elif (config.get("reference_mode") == "released_original_policy" and meta["bucket"] == "win"
               and not win_pass_allowed(record)):
             q["src"] = "replay_fixed_win" if config.get("split_fixed_win_reference", False) else "replay_reference"
@@ -156,6 +171,16 @@ def apply_reference(config, splits):
             q["target"] = target
             meta["target_basis"] = "greedy_best_finite_terminal_win_scope" if greedy else "frozen_reference_tilted_by_terminal_utility"
         q["label"] = max(q["target"], key=q["target"].get)
+    for record in splits["validation"]:
+        meta, q = record["_meta"], record["questions"]["action"]
+        if q["src"] == "replay_native":
+            ref = cache["rows"][meta["id"]]
+            if ref["teacher_request_sha256"] != meta["teacher_request_sha256"]:
+                raise ValueError("Native validation teacher input changed")
+            q["target"] = dict(ref["probabilities"])
+            q["label"] = max(q["target"], key=q["target"].get)
+            meta.pop("native_reference_pending")
+            meta["label_type"] = "frozen_original_v8_policy_retention"
     return {"reference_identity_sha256": cache["identity_sha256"],
             "input_version": cache["input_version"], "reference_rows": len(cache["rows"]),
             "mean_training_terminal_target_tv_from_reference": sum(changes) / len(changes),
@@ -170,13 +195,13 @@ def apply_reference(config, splits):
 
 
 def build_reference(config):
-    from .prepare import prepare, read_jsonl
+    from .prepare import prepare, read_jsonl, checksum
     from .futures import bundle_identity
     from desktop.jev_sidecar.unified_policy import identity
     out = Path(config["out"])
     if (out / "training-run").exists() or (out / "reference-targets-private.json").exists():
         raise ValueError("Existing reference or fit output must be inspected before rebuilding")
-    ordinary = dict(config, reference_regularization=False)
+    ordinary = dict(config, reference_regularization=False, internal_reference_preparation=True)
     prepare(ordinary)
     records = read_jsonl(out / "train.jsonl") + read_jsonl(out / "validation.jsonl")
     frozen_identity = bundle_identity(config["checkpoint"])["identity_sha256"]
@@ -185,10 +210,17 @@ def build_reference(config):
     sys.path.insert(0, config["upstream_source"])
     from jevmahjong.policy.routing import load_model
     from jevany.api import validate_distribution
-    model = load_model(config["checkpoint"])
+    model = None
     mode = config.get("reference_mode", "current_input_raw")
     if mode not in ("current_input_raw", "released_original_policy"):
         raise ValueError("Unsupported reference mode")
+    reuse = None
+    if config.get('reference_reuse_from'):
+        reuse = json.loads(Path(config['reference_reuse_from']).read_text())
+        if (reuse.get('status') != 'complete_frozen_reference' or reuse['identity_sha256'] != frozen_identity
+                or reuse['input_version'] != config['input_version'] or reuse['reference_mode'] != mode
+                or not set(reuse['rows']) <= {r['_meta']['id'] for r in records}):
+            raise ValueError('Original reference cache identity, format or source set differs')
     originals = {}
     if mode == "released_original_policy":
         from desktop.jev_sidecar.unified_policy import serving_request
@@ -202,9 +234,15 @@ def build_reference(config):
                     if key in originals and originals[key] != candidate:
                         raise ValueError("Ambiguous original replay input identity")
                     originals[key] = candidate
+        if config.get("native_context_root"):
+            from .native_retention import load_native_pairs
+            for row in load_native_pairs(config):
+                if row["id"] in needed:
+                    originals[row["id"]] = row["raw_request"]
         if set(originals) != needed:
             raise ValueError("Original replay input missing")
     rows = {}
+    reused_count = forced_count = model_queries = 0
     for record in records:
         payload = inference_request(record)
         keys = list(payload["questions"]["action"]["criteria"])
@@ -220,13 +258,23 @@ def build_reference(config):
             if set(teacher["questions"]["action"]["criteria"]) != set(keys):
                 raise ValueError("Original and student legal menus differ")
             eligible = original_policy_keys(teacher)
-        if mode == "released_original_policy" and len(eligible) == 1:
+        key = record['_meta']['id']
+        cached = reuse is not None and key in reuse['rows']
+        if cached:
+            prior = reused_reference_prior(reuse['rows'][key], payload, teacher, eligible, keys)
+            reused_count += 1
+        elif mode == "released_original_policy" and len(eligible) == 1:
             probabilities = [float(k == eligible[0]) for k in keys]
+            prior = dict(zip(keys, probabilities))
+            forced_count += 1
         else:
+            if model is None:
+                model = load_model(config['checkpoint'])
             result = model.system_one(**teacher)
             probabilities, _ = validate_distribution(result["answers"]["action"]["probabilities"], keys)
-        prior = dict(zip(keys, probabilities))
-        if mode == "released_original_policy":
+            prior = dict(zip(keys, probabilities))
+            model_queries += 1
+        if mode == "released_original_policy" and not cached:
             prior = restrict_distribution(prior, eligible)
         rows[record["_meta"]["id"]] = {"request_sha256": digest(payload),
                                         "teacher_request_sha256": digest(teacher),
@@ -241,6 +289,8 @@ def build_reference(config):
              "input_version": config.get("input_version", "endgame-public-v2"), "rows": rows}
     write(out / "reference-targets-private.json", cache)
     result = {k: v for k, v in cache.items() if k != "rows"}
-    result.update(records=len(rows), optimizer_updates=0)
+    result.update(records=len(rows), optimizer_updates=0, reused_reference_rows=reused_count,
+                  forced_original_policy_rows=forced_count, new_model_queries=model_queries,
+                  reused_cache_sha256=checksum(config['reference_reuse_from']) if reuse is not None else None)
     write(out / "reference-status-private.json", result)
     return result

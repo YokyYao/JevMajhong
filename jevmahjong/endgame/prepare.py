@@ -73,7 +73,31 @@ def label_recipe(config, row, file):
     return worlds, temperature, tag
 
 
+def balance_training_sources(records, config):
+    if not config.get("balance_endgame_buckets", False):
+        return
+    for record in records:
+        q = record["questions"]["action"]
+        if q["src"] != "endgame_terminal":
+            continue
+        bucket = record["_meta"]["bucket"]
+        q["src"] += "_" + bucket
+        if (config.get("split_win_by_initial_rank", False) and config.get("reference_regularization", False)
+                and bucket == "win"):
+            rank = placements(record["state"]["scores"])[record["state"]["seat"]]
+            if rank not in (3, 4):
+                raise ValueError("Only trailing active-win positions may receive rank-balanced loss")
+            q["src"] += "_third" if rank == 3 else "_fourth"
+
+
 def prepare(config):
+    if config.get("native_context_root"):
+        from .context import TRAILING_INPUT_VERSION
+        if config.get("reference_mode") != "released_original_policy" or config.get("input_version") != TRAILING_INPUT_VERSION:
+            raise ValueError("Native context retention requires the registered original-policy/scoped-input format")
+        if not config.get("reference_regularization", False):
+            from .native_retention import reference_preparation_only
+            reference_preparation_only(config, {"replay_native": 1})
     if (config.get("training_objective") != "top2_primary_v1"
             or config.get("terminal_utility") != [1.1, 1.0, 0.0, -0.05]):
         raise ValueError("The registered top-two objective and utility must be explicit")
@@ -215,6 +239,13 @@ def prepare(config):
                     record["_meta"]["bucket"] = "replay:" + phase
                     groups[split].add(record["_meta"]["group_id"])
                 splits[split].extend(chosen)
+    native_rows = []
+    if config.get("native_context_root"):
+        from .native_retention import load_native_pairs, native_record
+        native_rows = load_native_pairs(config)
+        for row in native_rows:
+            splits[row["split"]].append(native_record(row))
+            groups[row["split"]].add(row["group_id"])
     if groups["train"] & groups["validation"]:
         raise ValueError("Combined replay/new groups overlap")
     train_ids = {r["_meta"]["id"] for r in splits["train"]}
@@ -225,17 +256,17 @@ def prepare(config):
     if config.get("reference_regularization", False):
         from .reference import apply_reference
         reference_receipt = apply_reference(config, splits)
-    if config.get("balance_endgame_buckets", False):
-        for record in splits["train"]:
-            q = record["questions"]["action"]
-            if q["src"] == "endgame_terminal":
-                q["src"] += "_" + record["_meta"]["bucket"]
+    balance_training_sources(splits["train"], config)
     for split, rows in splits.items():
         rows.sort(key=lambda r: digest(["endgame-train-order-v1", r["_meta"]["id"]]))
         jsonl(out / (split + ".jsonl"), rows)
     counts = Counter(r["questions"]["action"]["src"] for r in splits["train"])
     total = len(splits["train"])
-    mass, weights = loss_recipe(counts, config.get("new_terminal_loss_mass", .5),
+    if native_rows and not config.get("reference_regularization", False):
+        from .native_retention import reference_preparation_only
+        mass, weights = reference_preparation_only(config, counts)
+    else:
+        mass, weights = loss_recipe(counts, config.get("new_terminal_loss_mass", .5),
                                config.get("balance_endgame_buckets", False),
                                config.get("reference_regularization", False),
                                config.get("loss_source_mass") if config.get("reference_regularization", False) else None)
@@ -255,6 +286,8 @@ def prepare(config):
         "loss_source_weights": weights, "max_steps": max_steps, "epochs": epochs,
         "replay_inputs": replay_sources, "replay_admission": replay_admission,
         "reference_regularization": reference_receipt,
+        "native_context_records": dict(Counter(r["split"] for r in native_rows)),
+        "reference_preparation_only": bool(native_rows and not config.get("reference_regularization", False)),
         "validation_replay": "16 expert examples per phase; no fictitious call-window MC validation",
         "files": {s: {"path": str(out / (s + ".jsonl")),
                      "sha256": checksum(out / (s + ".jsonl"))} for s in splits},

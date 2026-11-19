@@ -4,9 +4,18 @@ from riichienv import GameRule,RiichiEnv
 from jevmahjong.core.seeds import engine_seed
 from jevmahjong.endgame.collect import native_match
 from jevmahjong.endgame.native_context import replay_decisions,select_context_rows,phase_for
+from tools.prepare_native_context_replay import allocation_metadata
 
 
 class NativeContextTests(unittest.TestCase):
+    def test_companion_cpu_step_must_have_a_real_parent_gpu_allocation(self):
+        description='JobId=123 JobState=RUNNING NodeList=ws-l3-011 AllocTRES=cpu=4,mem=40G,gres/gpu=1'
+        self.assertEqual(allocation_metadata(description,'ws-l3-011')['JobId'],'123')
+        for bad in (description.replace('gres/gpu=1','gres/gpu=0'),
+                    description.replace('JobState=RUNNING','JobState=COMPLETED'),
+                    description.replace('ws-l3-011','lo-01')):
+            with self.assertRaises(RuntimeError):allocation_metadata(bad,'ws-l3-011')
+
     def test_exact_event_replay_and_initialization_mismatch(self):
         source=native_match(2026111900)
         env=RiichiEnv(game_mode='4p-red-east',rule=GameRule.default_mjsoul(),seed=engine_seed(2026111900,'spaced-v1'))
