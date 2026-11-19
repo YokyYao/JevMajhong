@@ -2,7 +2,7 @@ import copy
 import json
 from pathlib import Path
 import unittest
-from tools.diagnose_endgame_self_continuation import select_manifest,validate_configuration,validate_cached_outcome
+from tools.diagnose_endgame_self_continuation import select_manifest,validate_configuration,validate_cached_outcome,baseline_dependency_matches,REVIEWED_TRAIN_CLI_CHANGE
 
 
 def row(seed,rank,step=0):
@@ -10,6 +10,13 @@ def row(seed,rank,step=0):
 
 
 class ConsumedDiagnosticTests(unittest.TestCase):
+    def test_reviewed_cli_dispatch_does_not_allow_future_runtime_or_cli_changes(self):
+        before,after=REVIEWED_TRAIN_CLI_CHANGE
+        self.assertTrue(baseline_dependency_matches('tools/train_endgame.py',before,after))
+        self.assertFalse(baseline_dependency_matches('tools/train_endgame.py',before,'another-cli'))
+        self.assertFalse(baseline_dependency_matches('jevmahjong/core/state.py',before,after))
+        self.assertTrue(baseline_dependency_matches('jevmahjong/core/state.py',before,before))
+
     def test_public_sampler_preserves_distinct_sources_and_future_outcomes_do_not_select(self):
         rows=[row(1,'first'),row(1,'second'),row(2,'first')]
         selected=select_manifest(rows,{'first':1,'second':1},'fixed')

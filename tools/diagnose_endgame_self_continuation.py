@@ -13,6 +13,20 @@ import sys
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 
+REVIEWED_TRAIN_CLI_CHANGE=(
+    '849149df25a159e6a1a0e1de4ffea5d636c1e30783d6f4de2bae443b9cc03ca6',
+    '31e3250c534ab8ded261c2be8edffd202f09540d6b109d5beb4db15a503d6ab7')
+
+
+def baseline_dependency_matches(path,before,after):
+    if before==after:return True
+    # The reviewed CLI pair adds only reuse-fourth-manifest dispatch. This
+    # executable is not imported by ModelAgent or rollout. Pin both bytes;
+    # further CLI changes still need a separate review.
+    if path=='tools/train_endgame.py':return (before,after)==REVIEWED_TRAIN_CLI_CHANGE
+    reviewed={f'jevmahjong/endgame/{name}.py' for name in ('context','policy','prepare','reference','mix','fit','futures')}
+    return path in reviewed
+
 
 def validate_configuration(config):
     if (config.get('schema')!='consumed-development-self-continuation-diagnostic-v1'
@@ -96,9 +110,11 @@ def audit(config):
     if general['baseline_identity']!=baseline_id or targeted['baseline_identity']!=baseline_id:
         raise ValueError('Cached baseline checkpoint identity changed')
     old_launch=json.loads((old/'fit-launch-protocol-private.json').read_text())
-    reviewed={f'jevmahjong/endgame/{name}.py' for name in ('context','policy','prepare','reference','mix','fit','futures')}
+    reviewed_changes={}
     for path,sha in old_launch['code_sha256'].items():
-        if path not in reviewed and checksum(ROOT/path)!=sha:raise ValueError('Baseline runtime changed: '+path)
+        current=checksum(ROOT/path)
+        if not baseline_dependency_matches(path,sha,current):raise ValueError('Baseline runtime changed: '+path)
+        if current!=sha:reviewed_changes[path]={'original':sha,'current':current}
     source_hashes={};sources={};entries={};public=[]
     target_root=old/'targeted-development'
     target_sources=[]
@@ -177,6 +193,7 @@ def audit(config):
     protocol={'configuration':config,'selected':selected,'control':control,'baseline_identity':baseline_id,
         'candidate_identities':candidate_ids,'scope_evidence':scope,'source_hashes':source_hashes,
         'cache_hashes':cache_hashes,'protected_fit_files':protected,'code_sha256':{str(p):checksum(p) for p in paths},
+        'reviewed_baseline_unaffected_changes':reviewed_changes,
         'versions':{n:importlib.metadata.version(n) for n in ('torch','transformers','peft','riichienv','mahjong')},
         'diagnostic_only':True,'promotion_registered':False,'optimizer_updates':0}
     write(out/'selected-positions-private.json',selected);write(out/'protocol-private.json',protocol)
