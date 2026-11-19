@@ -3,7 +3,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 from riichienv import ActionType
-from jevmahjong.endgame.coverage import DamaAgent, public_stratum, select_cells
+from jevmahjong.endgame.coverage import DamaAgent, public_stratum, select_cells, target_manifest_rows
 
 
 class SourceCoverageTests(unittest.TestCase):
@@ -42,6 +42,17 @@ class SourceCoverageTests(unittest.TestCase):
         for row in rows:
             row['future_outcome'] *= -1
         self.assertEqual([r['selection_key'] for r in select_cells(rows, 1)], ['a', 'c'])
+
+    def test_target_manifest_keeps_split_balance_and_distinct_sources(self):
+        rows = [dict(selection_key=str(i), group_id=group, split=split,
+                     coverage_stratum={'target': target, 'cell': cell})
+                for i, (group, split, cell, target) in enumerate([
+                    ('game1', 'train', 'near3', True), ('game1', 'train', 'near4', True),
+                    ('game2', 'train', 'near4', True), ('game3', 'validation', 'near3', True),
+                    ('game4', 'train', 'near4', False)])]
+        picked = target_manifest_rows(rows, {'train': 2, 'validation': 1})
+        self.assertEqual({r['group_id'] for r in picked}, {'game1', 'game2', 'game3'})
+        self.assertEqual(sum(r['split'] == 'train' for r in picked), 2)
 
 
 if __name__ == '__main__':

@@ -5,6 +5,7 @@ import json
 import multiprocessing
 import os
 from pathlib import Path
+import shutil
 
 from riichienv import ActionType, GameRule, RiichiEnv
 from jevmahjong.core.seeds import engine_seed
@@ -161,8 +162,8 @@ def _collect_group(out, seed, split):
 
 def collect_coverage(config):
     groups = config["source_groups"]
-    if config.get("schema") != SCHEMA or groups not in (64, 256):
-        raise ValueError("Coverage pilot must use registered 64 or 256 paired groups")
+    if config.get("schema") != SCHEMA or groups not in (64, 256, 512):
+        raise ValueError("Coverage pilot must use registered 64, 256 or 512 paired groups")
     workers = config.get("workers", 2)
     if not 1 <= workers <= min(4, int(os.environ.get("SLURM_CPUS_PER_TASK", 1))):
         raise ValueError("Workers exceed registered or allocated CPU resources")
@@ -198,6 +199,64 @@ def collect_coverage(config):
     write(out / "coverage-result-private.json", result)
     write(out / "coverage-status-private.json", result)
     return result
+
+
+def target_manifest_rows(rows, limits):
+    """Balanced public cells, at most one position per original source game."""
+    result = []
+    for split in ("train", "validation"):
+        cells = {}
+        for row in rows:
+            if row["split"] == split and row["coverage_stratum"]["target"]:
+                cells.setdefault(row["coverage_stratum"]["cell"], []).append(row)
+        for cell in cells:
+            cells[cell].sort(key=lambda r: r["selection_key"])
+        used = set()
+        while len(used) < limits[split]:
+            added = False
+            for cell in sorted(cells):
+                while cells[cell] and cells[cell][0]["group_id"] in used:
+                    cells[cell].pop(0)
+                if cells[cell] and len(used) < limits[split]:
+                    row = cells[cell].pop(0)
+                    result.append(row)
+                    used.add(row["group_id"])
+                    added = True
+            if not added:
+                break
+    return result
+
+
+def make_target_manifest(config):
+    coverage = Path(config["coverage_out"])
+    status = json.loads((coverage / "coverage-result-private.json").read_text())
+    if status["status"] != "coverage_complete_no_labels_or_updates" or not status["coverage_threshold_met"]:
+        raise ValueError("Registered source coverage has not passed")
+    if config["future_worlds"] != 16 or config.get("fit_registered") is not False:
+        raise ValueError("This manifest registers 16-world labels, not model fitting")
+    source_rows = json.loads((coverage / "dama/selected-positions-private.json").read_text())
+    rows = target_manifest_rows(source_rows, {"train": 32, "validation": 12})
+    groups = {s: {r["group_id"] for r in rows if r["split"] == s} for s in ("train", "validation")}
+    if groups["train"] & groups["validation"] or len(groups["train"]) < 24 or len(groups["validation"]) < 8:
+        raise ValueError("Target manifest lacks 24/8 distinct isolated source groups")
+    out = Path(config["out"])
+    path = out / "selected-positions-private.json"
+    if path.exists():
+        if json.loads(path.read_text()) != rows:
+            raise ValueError("Existing label manifest differs; do not silently replace it")
+    else:
+        (out / "sources").mkdir(parents=True, exist_ok=True)
+        for row in rows:
+            shutil.copyfile(coverage / "dama/sources" / f"{row['seed']}.json",
+                            out / "sources" / f"{row['seed']}.json")
+        write(path, rows)
+    receipt = {"status": "target_manifest_fixed_before_future_labels",
+        "positions": len(rows), "groups": {s: len(g) for s, g in groups.items()},
+        "positions_sha256": digest(rows), "future_worlds": 16,
+        "public_cell_round_robin_one_per_source": True,
+        "selected_by_future_outcomes": False, "optimizer_updates": 0}
+    write(out / "manifest-status-private.json", receipt)
+    return receipt
 
 
 def _coverage_summary(complete, config):
