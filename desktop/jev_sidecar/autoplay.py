@@ -5,6 +5,9 @@ import ctypes
 from ctypes import wintypes
 import time
 
+from .tiles import mjai
+from .screen_state import crop
+
 
 @dataclass(frozen=True)
 class ClickPlan:
@@ -62,6 +65,8 @@ def plan_click(result, detections, screen, hand_rect, image_size):
     top = result['top3'][0]
     action = top.get('action', {}).get('type', 'dahai')
     offered = screen.get('offered', [])
+    if 'tsumo' in offered:
+        return ClickPlan(.53, .752, '自摸') if action == 'hora' else None
     if action == 'reach':
         return ClickPlan(.53, .752, '立直') if screen.get('riichi_available') else None
     if action == 'none':
@@ -72,12 +77,12 @@ def plan_click(result, detections, screen, hand_rect, image_size):
             return None
         return ClickPlan(.53 - .13 * (len(offered) - 1 - offered.index('daiminkan')), .752, top['name'])
     if action in ('hora', 'chi', 'pon', 'daiminkan'):
-        if action not in offered or not screen.get('reaction'):
+        if action not in offered or (action != 'hora' and not screen.get('reaction')):
             return None
         if action in ('chi', 'pon', 'daiminkan'):
             options = [v for v in result['all_candidates'] if v.get('action', {}).get('type') == action]
-            if len(options) != 1:
-                return None  # Multiple consumed-tile choices need a separate overlay reader.
+            if len(options) != 1 and action not in ('chi', 'pon'):
+                return None
         return ClickPlan(.53 - .13 * (len(offered) - 1 - offered.index(action)), .752, top['name'])
     if len(detections) not in (2, 5, 8, 11, 14) or screen.get('reaction'):
         return None
@@ -85,6 +90,30 @@ def plan_click(result, detections, screen, hand_rect, image_size):
         return None
     # Prefer the separated draw when the same face occurs more than once.
     return tile_click(top.get('tile'), detections, hand_rect, image_size)
+
+
+def call_options_click(image, detector, options, selected, label):
+    """Match the two face-up tiles for each choice in the call selector."""
+    rect = (.17, .62, .66, .19)
+    area = crop(image, rect)
+    tiles = [d for d in detector.detect(area, confidence=.35)
+             if .025 * image.width <= d.box[2] - d.box[0] <= .061 * image.width
+             and .06 * image.height <= d.box[3] - d.box[1] <= .15 * image.height]
+    tiles.sort(key=lambda d: d.box[0])
+    if len(tiles) != 2 * len(options):
+        return None
+    pairs = list(zip(tiles[::2], tiles[1::2]))
+    if any(abs(left.box[1] - right.box[1]) > .025 * image.height
+           or not -.01 * image.width <= right.box[0] - left.box[2] <= .02 * image.width
+           for left, right in pairs):
+        return None
+    keys = [tuple(sorted((mjai(left.tile), mjai(right.tile)))) for left, right in pairs]
+    if set(keys) != options or keys.count(selected) != 1:
+        return None
+    tile = pairs[keys.index(selected)][0]
+    x1, y1, x2, y2 = tile.box
+    return ClickPlan(rect[0] + (x1 + x2) / (2 * image.width),
+                     rect[1] + (y1 + y2) / (2 * image.height), label)
 
 
 class AutoPlayer:

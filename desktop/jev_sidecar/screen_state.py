@@ -63,8 +63,11 @@ class ScreenStateReader:
         self.counter_reader = TableCounterReader()
         self.rivers = {}
         self.last_discard = None
+        self.active_reaction = None
         self.previous_hand = []
         self.previous_reaction = None
+        self.reaction_hand = []
+        self.reaction_seen_at = None
         self.expected_self_kan = None
         self.melds = []
         self.forbidden = []
@@ -80,6 +83,11 @@ class ScreenStateReader:
                 if time.time() - saved['updated'] < 3600:
                     self.previous_hand = saved['hand']
                     self.previous_reaction = saved['reaction']
+                    self.reaction_hand = saved.get('reaction_hand', self.previous_hand)
+                    if self.previous_reaction and time.time() - saved['updated'] <= 8:
+                        self.reaction_seen_at = time.monotonic()
+                    else:
+                        self.previous_reaction = None
                     self.melds = saved['melds']
                     self.forbidden = saved.get('forbidden', [])
             except (ValueError, KeyError, OSError):
@@ -115,14 +123,18 @@ class ScreenStateReader:
             text, _ = self.ocr(np.asarray(label_image), use_det=False, use_cls=False)
             labels += ''.join(item[0] for item in text or [])
         # The orange calligraphy 立 is read as 红 by RapidOCR on this skin.
-        labels = labels.replace('红直', '立直').replace('紅直', '立直')
+        labels = labels.replace('红直', '立直').replace('紅直', '立直').replace('自模', '自摸')
         return (['reach_select'] if '取消' in labels and '立直' not in labels and riichi_selection_overlay(image) else []) + [kind for text, kind in [('吃', 'chi'), ('碰', 'pon'), ('杠', 'daiminkan'),
-                                       ('槓', 'daiminkan'), ('和', 'hora'), ('胡', 'hora'), ('立直', 'reach')]
+                                       ('槓', 'daiminkan'), ('和', 'hora'), ('胡', 'hora'), ('立直', 'reach'),
+                                       ('自摸', 'tsumo')]
                 if text in labels or (kind == 'pon' and pon_visible)]
 
-    def read(self, image, regions, detector, found):
+    def read(self, image, regions, detector, found, force_meld_rescan=False):
         hand = [d.tile for d in found.get('hand', [])]
-        meld_count = (14 - len(hand)) // 3 if len(hand) % 3 == 2 else (13 - len(hand)) // 3
+        valid_size = len(hand) in (1, 2, 4, 5, 7, 8, 10, 11, 13, 14)
+        meld_count = (14 - len(hand)) // 3 if valid_size else None
+        if self.reaction_seen_at is not None and time.monotonic() - self.reaction_seen_at > 8:
+            self.previous_reaction = None
         expected = self.expected_self_kan
         if expected and time.monotonic() - expected['time'] > 12:
             self.expected_self_kan = None
@@ -146,12 +158,17 @@ class ScreenStateReader:
                             break
                 self.expected_self_kan = None
         if self.previous_reaction and meld_count == len(self.melds) + 1:
-            consumed = Counter(self.previous_hand) - Counter(hand)
-            for candidate in reaction_candidates(Board(self.previous_hand, reaction=self.previous_reaction)):
+            original = Counter(self.reaction_hand)
+            current = Counter(hand)
+            consumed = original - current
+            added = current - original
+            for candidate in reaction_candidates(Board(self.reaction_hand, reaction=self.previous_reaction)):
                 action = candidate['action']
                 # Compare portable tile codes, preserving red fives.
                 removed = Counter(mjai(t) for t in consumed.elements())
-                if action['type'] in ('chi', 'pon', 'daiminkan') and removed == Counter(action['consumed']):
+                max_added = 1 if action['type'] == 'daiminkan' else 0
+                if (action['type'] in ('chi', 'pon', 'daiminkan')
+                        and removed == Counter(action['consumed']) and sum(added.values()) <= max_added):
                     tiles = list(consumed.elements()) + [self.previous_reaction['tile']]
                     self.melds += parse_melds(''.join(tiles))
                     called = normal(self.previous_reaction['tile'])
@@ -159,27 +176,40 @@ class ScreenStateReader:
                     used = sorted(int(normal(t)[0]) for t in consumed.elements())
                     if action['type'] == 'chi' and used[1] - used[0] == 1:
                         self.forbidden = [str(n) + called[1] for n in (used[0] - 1, used[1] + 1) if 1 <= n <= 9]
+                    self.previous_reaction = None
                     break
         if len(hand) % 3 == 1:
             self.forbidden = []
         melds = None
-        if 0 < meld_count <= 4:
+        if meld_count is not None and 0 < meld_count <= 4:
             if len(self.melds) == meld_count:
                 melds = self.melds
             else:
                 # Open groups extend left as calls accumulate. Keep the default
                 # crop clear of the concealed hand, which gets shorter by three.
-                left = .89 - .155 * meld_count
-                region = regions.get('meld0', {'rect': [left, .84, .98 - left, .14]})
                 board_image = image
                 if image.width > 1280:
                     board_image = image.resize((1280, round(image.height * 1280 / image.width)), Image.Resampling.LANCZOS)
-                area = crop(board_image, region['rect'])
-                detected = detector.detect(area)
-                if 'meld0' not in regions and len(detected) < 3 * meld_count:
-                    detected = detector.detect(area, confidence=.30)
-                detected.sort(key=lambda d: d.box[0])
-                melds = split_melds([d.tile for d in detected], meld_count)
+                left = .89 - .155 * meld_count
+                rects = [[left, .81, .98 - left, .15], [left - .01, .81, 1.01 - left, .19]]
+                if force_meld_rescan:
+                    rects.reverse()
+                if 'meld0' in regions:
+                    rects.insert(len(rects) if force_meld_rescan else 0, regions['meld0']['rect'])
+                for rect in rects:
+                    area = crop(board_image, rect)
+                    for confidence in (.50, .30):
+                        detected = detector.detect(area, confidence=confidence)
+                        detected = [d for d in detected if d.box[2] - d.box[0] >= board_image.width * .023
+                                    and d.box[3] - d.box[1] >= board_image.height * .038]
+                        detected.sort(key=lambda d: d.box[0])
+                        melds = split_melds([d.tile for d in detected], meld_count)
+                        if melds is not None:
+                            break
+                    if melds is not None:
+                        break
+                if melds is None and len(self.melds) == meld_count:
+                    melds = self.melds
         elif meld_count == 0:
             melds = []
             self.melds = []
@@ -189,6 +219,10 @@ class ScreenStateReader:
         changed = []
         for seat in range(4):
             values = tuple(d.tile for d in found.get(f'river{seat}', []))
+            if seat == 3 and int(regions.get('river3', {}).get('rotation', 0)) % 360 == 270:
+                # The left river runs towards the left after rotation. The
+                # detector returns the newest tiles first in this view.
+                values = values[::-1]
             previous = self.rivers.get(seat)
             if previous is not None and len(values) > len(previous) and values[:len(previous)] == previous:
                 changed.append((seat, values[-1]))
@@ -231,8 +265,10 @@ class ScreenStateReader:
             self.riichi_selecting = bool(selecting or pending_incomplete) and not self.own_riichi
         self._reach_available = available
         self_kan_available = 'daiminkan' in offered and len(hand) % 3 == 2
-        calls = [kind for kind in offered if kind not in ('reach', 'reach_select')] if len(hand) % 3 == 1 else []
+        calls = [kind for kind in offered if kind not in ('reach', 'reach_select', 'tsumo')] if len(hand) % 3 == 1 else []
         reaction = None
+        active_reaction = self.active_reaction
+        self.active_reaction = None
         if calls:
             offered = calls
             if calls == ['pon']:
@@ -267,14 +303,29 @@ class ScreenStateReader:
                         possible_calls.append(event)
                 if len(possible_calls) == 1:
                     reaction = possible_calls[0]
+            # The marker pulses. Keep the last identified tile while the same
+            # prompt and hand are visible, including frames without a marker.
+            if active_reaction and active_reaction[:3] == (self.hand_id, tuple(hand), tuple(calls)):
+                previous = active_reaction[3]
+                arrived = reaction and (reaction['seat'], reaction['tile']) in changed
+                if not arrived or reaction['seat'] == previous['seat']:
+                    reaction = previous
+            if reaction:
+                self.active_reaction = (self.hand_id, tuple(hand), tuple(calls), reaction)
         # Buttons disappear before the call animation removes consumed tiles.
         # Keep that event through unchanged intervening frames.
-        self.previous_reaction = reaction or (self.previous_reaction if hand == self.previous_hand else None)
+        if reaction:
+            self.previous_reaction = reaction
+            self.reaction_hand = hand
+            self.reaction_seen_at = time.monotonic()
+        elif valid_size and hand != self.reaction_hand:
+            self.previous_reaction = None
         self.previous_hand = hand
         if self.state_path and melds is not None and hand:
             self.state_path.parent.mkdir(parents=True, exist_ok=True)
             temporary = self.state_path.with_suffix('.tmp')
-            temporary.write_text(json.dumps({'updated': time.time(), 'hand': hand, 'reaction': self.previous_reaction, 'melds': melds,
+            temporary.write_text(json.dumps({'updated': time.time(), 'hand': hand, 'reaction': self.previous_reaction,
+                                             'reaction_hand': self.reaction_hand, 'melds': melds,
                                              'forbidden': self.forbidden}), encoding='utf-8')
             temporary.replace(self.state_path)
         return {'melds': melds, 'offered': offered, 'reaction': reaction, 'forbidden': self.forbidden, 'hand_id': self.hand_id,

@@ -25,7 +25,7 @@ from .vision import Templates, TileDetector, hand_boxes
 from .screen_state import ScreenStateReader
 from .window_capture import CaptureUnavailable, GameWindowCapture
 from .dataset import DecisionRecorder
-from .autoplay import AutoPlayer, RiichiFlow, plan_click, escape_pressed
+from .autoplay import AutoPlayer, RiichiFlow, plan_click, call_options_click, escape_pressed
 from .unified_policy import MODEL_ID, MODEL_NAME, default_checkpoint
 
 ROOT = Path(sys.executable).parent if getattr(sys, 'frozen', False) else Path(__file__).resolve().parents[2]
@@ -166,6 +166,8 @@ class Sidecar(QMainWindow):
         self.regions, self.capture_rect = {}, None
         self.last_signature, self.stable = None, 0
         self.last_analyzed = None
+        self.meld_mismatch_frames = 0
+        self.meld_rescan_requested = False
         self.last_capture = None
         self.last_update = None
         self.frame_started = None
@@ -189,6 +191,10 @@ class Sidecar(QMainWindow):
         self.strategy_hand_id = None
         self.current_decision = None
         self.pending_vision = None
+        self.call_selection = None
+        self.hand_ending = None
+        self.previous_glare_frame = None
+        self.capture_resume_at = 0.
         self.window_capture = GameWindowCapture()
         self.window_table_rect = None
         self.recorder = DecisionRecorder(os.environ['JEV_DATASET_DIR']) if os.environ.get('JEV_DATASET_DIR') else None
@@ -203,6 +209,10 @@ class Sidecar(QMainWindow):
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.tick)
         self.timer.start()
+        self.capture_resume_timer = QTimer(self)
+        self.capture_resume_timer.setSingleShot(True)
+        self.capture_resume_timer.setTimerType(Qt.TimerType.PreciseTimer)
+        self.capture_resume_timer.timeout.connect(self.tick)
         self.live.setChecked(True)
         if demo:
             self.demo()
@@ -416,6 +426,7 @@ class Sidecar(QMainWindow):
 
     def closeEvent(self, event):
         self.stop_timer.stop()
+        self.capture_resume_timer.stop()
         if hasattr(self, 'timer'):
             self.timer.stop()
         self.pending_vision = None
@@ -452,6 +463,11 @@ class Sidecar(QMainWindow):
         self.results.setRowCount(0)
 
     def live_changed(self, enabled):
+        self.call_selection = None
+        self.hand_ending = None
+        self.previous_glare_frame = None
+        self.meld_mismatch_frames = 0
+        self.meld_rescan_requested = False
         if enabled:
             self.lock.setChecked(False)
         self.invalidate()
@@ -512,6 +528,10 @@ class Sidecar(QMainWindow):
         self.busy.discard(kind)
         if kind == 'vision':
             QTimer.singleShot(0, self.start_pending_vision)
+        if kind in ('vision', 'analysis'):
+            started = getattr(message['task'], 'frame_started', None)
+            if started is not None and started < self.capture_resume_at:
+                return
         if 'error' in message:
             self.debug_event('error', kind=kind, error=message['error'])
             if kind in ['vision', 'analysis'] and message['generation'] != self.generation:
@@ -655,10 +675,22 @@ class Sidecar(QMainWindow):
         self.capture(manual=True)
 
     def capture(self, manual=False):
+        if not manual and time.monotonic() < self.capture_resume_at:
+            return
         try:
             self.frame_started = time.monotonic()
             if self.live.isChecked() or self.image is None or self.image_source != 'file':
+                frame_time = self.window_capture.frame_time
+                if (self.live.isChecked() and frame_time is not None
+                        and self.frame_started - frame_time > 2
+                        and (self.autoplayer.pending is not None or self.meld_mismatch_frames
+                             or self.meld_rescan_requested)):
+                    self.debug_event('capture_reconnect', frame_age=self.frame_started - frame_time)
+                    self.window_capture.stop()
                 self.image = self.crop_screen(self.screen_image())
+                if (not manual and self.capture_resume_at
+                        and (self.window_capture.snapshot_frame_time or 0) < self.capture_resume_at):
+                    return
             if 'hand' not in self.regions:
                 raise ValueError('请先框选自己的手牌区域')
             self.update_preview()
@@ -693,16 +725,36 @@ class Sidecar(QMainWindow):
         image, regions, manual, started = self.pending_vision
         self.pending_vision = None
         self.frame_started = started
-        self.start('vision', lambda: self.recognize_frame(image, regions, manual))
+        rescan = self.meld_rescan_requested
+        self.meld_rescan_requested = False
+        self.start('vision', lambda: self.recognize_frame(image, regions, manual, force_meld_rescan=rescan))
 
     def tick(self):
         if self.live.isChecked():
             self.capture()
 
-    def recognize_frame(self, image, regions, manual):
+    def recognize_frame(self, image, regions, manual, force_meld_rescan=False):
+        selection = self.call_selection
         found = self.detector.regions(image, {k: v for k, v in regions.items() if k not in ('meld0','counters')})
-        found['_screen'] = self.screen_reader.read(image, regions, self.detector, found)
+        previous = self.previous_glare_frame
+        hand = found.get('hand', [])
+        if not manual and 'hand' in regions and hand:
+            region = regions['hand']
+            river = tuple(d.tile for d in found.get('river0', []))
+            now = time.monotonic()
+            self.previous_glare_frame = (now, region, river, image, tuple(hand))
+            if previous and now - previous[0] <= 2.3 and (region, river) == previous[1:3]:
+                self.detector.recheck_hand_glare(image, previous[3], region, hand, previous[4])
+        else:
+            self.previous_glare_frame = None
+        found['_screen'] = self.screen_reader.read(image, regions, self.detector, found,
+                                                  force_meld_rescan=force_meld_rescan)
         found['_image_size'] = image.size
+        if selection:
+            _, _, options, selected, label = selection
+            plan = call_options_click(image, self.detector, options, selected, label)
+            if plan:
+                found['_call_selection'] = (selection, plan)
         if self.recorder and (len(found.get('hand', [])) in (2, 5, 8, 11, 14) or found['_screen']['offered']):
             labels = {'hand': [d.tile for d in found.get('hand', [])], 'screen': found['_screen'],
                       'rivers': {k: [d.tile for d in v] for k, v in found.items() if k.startswith('river')}}
@@ -748,6 +800,17 @@ class Sidecar(QMainWindow):
             if self.autoplayer.pending is None:
                 self.debug_event('auto_click_state_changed', hand=list(signature))
         self.debug_event('recognized', hand=list(signature), screen=screen)
+        if (self.live.isChecked() and self.auto_melds is None
+                and len(detections) in (2, 5, 8, 11)):
+            self.meld_mismatch_frames += 1
+            if self.meld_mismatch_frames >= 2:
+                self.meld_mismatch_frames = 0
+                self.meld_rescan_requested = True
+                self.discard_observation = None
+                self.invalidate()
+                self.debug_event('meld_recovery', hand=list(signature))
+        else:
+            self.meld_mismatch_frames = 0
         self.stable = self.stable + 1 if signature == self.last_signature else 1
         self.last_signature = signature
         if not self.lock.isChecked():
@@ -774,14 +837,26 @@ class Sidecar(QMainWindow):
         if self.lock.isChecked():
             self.status.setText('手动输入模式；勾选“自动运行”恢复每秒自动更新')
             return
-        if self.try_riichi_selection():
+        if self.hand_ending is not None:
+            if hand_id == self.hand_ending:
+                self.status.setText('已点击和牌，等待下一局')
+                return
+            self.hand_ending = None
+        if self.try_call_selection(regions, signature):
+            return
+        if 'tsumo' not in screen.get('offered', []) and self.try_riichi_selection():
             return
         if not detections:
             self.wait_for_frame('正在寻找手牌', '尚未读到手牌，下一秒自动截图重试，无需操作')
             return
+        if (self.live.isChecked() and self.auto_melds is None
+                and len(detections) in (2, 5, 8, 11)
+                and not self.meld_edits[0].text().strip()):
+            self.wait_for_frame('正在核对副露', '手牌可能被动画遮挡，正在重新读取手牌和副露')
+            return
         if len(detections) in (1, 4, 7, 10, 13):
             if screen.get('offered'):
-                if self.reaction:
+                if self.reaction or 'hora' in screen['offered']:
                     self.analyze(automatic=not manual)
                     self.try_auto_execute()
                 else:
@@ -871,7 +946,9 @@ class Sidecar(QMainWindow):
                      forbidden_discards=self.forbidden_discards if self.live.isChecked() else [],
                      riichi_available=self.live.isChecked() and self.screen_riichi.get('riichi_available', False),
                      riichi_selecting=self.live.isChecked() and self.screen_riichi.get('riichi_selecting', False),
-                     self_kan_available=self.live.isChecked() and self.latest_screen.get('self_kan_available', False))
+                     self_kan_available=self.live.isChecked() and self.latest_screen.get('self_kan_available', False),
+                     self_tsumo_available=self.live.isChecked() and 'tsumo' in self.latest_screen.get('offered', []),
+                     screen_ron_available=self.live.isChecked() and 'hora' in self.latest_screen.get('offered', []))
 
     def analyze(self, checked=False, automatic=False):
         if self.busy & {'analysis', 'load'}:
@@ -926,6 +1003,8 @@ class Sidecar(QMainWindow):
         hero = ('建议：' if result.get('reaction') else '建议打 ') + top['name']
         if top.get('action', {}).get('type') == 'reach':
             hero = top['name']
+        elif top.get('action', {}).get('type') == 'hora':
+            hero = '建议：' + top['name']
         elif result.get('riichi_selecting'):
             hero = '立直选牌 → 打 ' + top['name']
         device = ' · ' + self.adviser.device.upper() if self.adviser.device and result['engine'].startswith('Jev') else ''
@@ -936,6 +1015,8 @@ class Sidecar(QMainWindow):
                        else f'弃牌后{top["sh"]}向听，{top["ukeire"]}枚可见剩余进张{safe}。')
         if top.get('action', {}).get('type') == 'reach':
             explanation = '先点击游戏的“立直”，再单击推荐牌；选牌画面自动继续识别。'
+        elif top.get('action', {}).get('type') == 'hora':
+            explanation = result['decision']
         elif result.get('riichi_selecting'):
             explanation = '已进入立直选牌，只推荐能听牌的弃牌；单击推荐牌完成立直。'
         if result.get('direction'):
@@ -982,12 +1063,16 @@ class Sidecar(QMainWindow):
             self.status.setText('Esc 已停止自动点击；截图识别继续')
 
     def try_auto_execute(self):
-        if not self.auto_execute.isChecked() or not self.live.isChecked() or not self.auto_result:
+        if not self.auto_execute.isChecked() or not self.live.isChecked() or not self.auto_result or self.call_selection:
+            return
+        if self.hand_ending is not None and self.latest_screen.get('hand_id') == self.hand_ending:
             return
         if self.recognized_frame_started is None or (
             self.recognized_frame_started <= self.auto_ready_after and not self.discard_agreed
         ):
             return  # Require a newer matching frame or two independent recommendations for the same discard.
+        if self.recognized_frame_started < self.capture_resume_at:
+            return
         hand = tuple(d.tile for d in self.latest_detections)
         if hand != self.auto_hand or repr(self.latest_screen) != self.auto_screen:
             return
@@ -1000,12 +1085,28 @@ class Sidecar(QMainWindow):
                               self.regions['hand']['rect'], self.latest_image_size)
             if self.autoplayer.execute(key, plan, self.window_capture, self.window_table_rect):
                 self.discard_observation = None
-                if top.get('action', {}).get('type') == 'reach':
+                action = top.get('action', {}).get('type')
+                if action == 'hora':
+                    self.hand_ending = self.latest_screen.get('hand_id')
+                    self.auto_result = None
+                if action in ('chi', 'pon'):
+                    options = frozenset(tuple(item['action']['consumed'])
+                                        for item in self.auto_result['all_candidates']
+                                        if item.get('action', {}).get('type') == action)
+                    if len(options) > 1:
+                        self.call_selection = (time.monotonic(), hand, options,
+                                               tuple(top['action']['consumed']), plan.label)
+                        self.pending_vision = None
+                        QTimer.singleShot(200, self, self.tick)
+                        self.debug_event('call_selector_open', action=plan.label, x=plan.x, y=plan.y)
+                        return
+                    self.pause_after_call()
+                if action == 'reach':
                     self.riichi_flow.begin(hand, top['tile'])
                     self.screen_reader.expected_riichi_hand = list(hand)
                     self.screen_reader.expected_riichi_tile = top['tile']
                 self.status.setText('已自动点击：' + plan.label + ' · 等待操作完成')
-                if top.get('action', {}).get('type') in ('ankan', 'kakan'):
+                if action in ('ankan', 'kakan'):
                     self.screen_reader.expected_self_kan = {'action': top['action'], 'hand': list(hand),
                         'melds': [dict(g) for g in self.latest_screen.get('melds') or []], 'time': time.monotonic()}
                 self.debug_event('auto_click', hand=list(hand), action=plan.label, x=plan.x, y=plan.y)
@@ -1015,6 +1116,40 @@ class Sidecar(QMainWindow):
         except RuntimeError as error:
             self.status.setText(str(error))
             self.debug_event('auto_click_wait', reason=str(error), recommendation=top.get('name'))
+
+    def pause_after_call(self):
+        self.capture_resume_at = time.monotonic() + .45
+        self.pending_vision = None
+        self.capture_resume_timer.start(450)
+
+    def try_call_selection(self, regions, hand):
+        selection = self.call_selection
+        if selection is None:
+            return False
+        started, original, _, _, label = selection
+        if not self.auto_execute.isChecked() or len(hand) == len(original) - 2 and self.auto_melds is not None:
+            self.call_selection = None
+            return False
+        if time.monotonic() - started > 3:
+            self.call_selection = None
+            self.debug_event('call_selector_timeout', action=label)
+            return False
+        observed = regions.get('_call_selection')
+        if observed and observed[0] == selection and (self.recognized_frame_started or 0) > started:
+            _, plan = observed
+            key = ('call-selection', hand, repr(self.latest_screen), started)
+            # The confirmed selector is the response to the first click.
+            self.autoplayer.pending = None
+            try:
+                if self.autoplayer.execute(key, plan, self.window_capture, self.window_table_rect):
+                    self.call_selection = None
+                    self.pause_after_call()
+                    self.debug_event('auto_click', hand=list(hand), action=label, x=plan.x, y=plan.y)
+                    return True
+            except RuntimeError as error:
+                self.debug_event('auto_click_wait', reason=str(error), recommendation=label)
+        self.status.setText('正在核对吃碰组合')
+        return True
 
     def try_riichi_selection(self):
         flow = self.riichi_flow

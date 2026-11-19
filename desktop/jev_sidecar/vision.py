@@ -7,7 +7,7 @@ import uuid
 from threading import RLock
 
 import numpy as np
-from PIL import Image, ImageOps
+from PIL import Image, ImageChops, ImageOps
 
 DETECTOR_REVISION = 'eb360862738a5d4edcaaf5fdb2de566a30a8a78e'
 DETECTOR_URL = f'https://raw.githubusercontent.com/ssttkkl/mahjong-utils-app/{DETECTOR_REVISION}/mahjong-detector/src/desktopMain/resources/best.fp16.onnx'
@@ -120,9 +120,11 @@ def red_five(image, detection):
     a = np.asarray(image.crop(detection.box).convert('RGB'))
     if a.shape[0] < 6 or a.shape[1] < 4:
         return tile
-    # Ordinary manzu have a red 萬 below the numeral: inspect only the upper half.
+    # Read the numeral within the tile face. The orange tile rim and the
+    # red 萬 below it can enter an oversized detector box.
     if tile == '5m':
-        a = a[:int(a.shape[0] * .5)]
+        height, width = a.shape[:2]
+        a = a[round(height * .10):round(height * .46), round(width * .15):round(width * .85)]
     r, g, b = [a[:, :, i].astype(float) for i in range(3)]
     red = (r > 90) & (r > g * 1.4) & (r > b * 1.4) & (r - g > 45)
     if float(red.mean()) <= .045:
@@ -206,9 +208,24 @@ class TileDetector:
                 if values:
                     tallest = max(d.box[3] - d.box[1] for d in values)
                     values = [d for d in values if d.box[3] - d.box[1] >= tallest * .75]
-                # Complete detector output already preserves raised/drawn tiles;
-                # slot segmentation assumes all faces share one paper band.
-                boxes = hand_boxes(crop) if len(values) not in (1, 2, 4, 5, 7, 8, 10, 11, 13, 14) else []
+                # With a complete draw, keep the detector's raised/separated boxes.
+                boxes = [] if len(values) in (2, 5, 8, 11, 14) else hand_boxes(crop)
+                if values and len(boxes) == len(values) + 1:
+                    # A valid-looking count can still hide a missed tile on a draw.
+                    # Require every confident detection to occupy a distinct visible slot.
+                    occupied = [next((i for i, box in enumerate(boxes)
+                                      if box[0] <= (d.box[0] + d.box[2]) / 2 < box[2]), -1)
+                                for d in values]
+                    if -1 not in occupied and len(set(occupied)) == len(values):
+                        missing = next(i for i in range(len(boxes)) if i not in occupied)
+                        left, _, right, _ = boxes[missing]
+                        weaker = [d for d in self.detect(crop, confidence=.25)
+                                  if left <= (d.box[0] + d.box[2]) / 2 < right
+                                  and d.box[3] - d.box[1] >= tallest * .75]
+                        if len(weaker) == 1:
+                            values.append(weaker[0])
+                if len(values) in (1, 2, 4, 5, 7, 8, 10, 11, 13, 14):
+                    boxes = []
                 if boxes:
                     segmented = []
                     for box in boxes:
@@ -229,6 +246,50 @@ class TileDetector:
                                 segmented.append(Detection(best.tile, confidence, box))
                     if len(segmented) == len(boxes):
                         values = segmented
+                for detection in values:
+                    if detection.tile != '9s' or detection.source != 'ONNX':
+                        continue
+                    # On this skin, seven bamboo has a single red stick at
+                    # the top; the red center column of nine extends down.
+                    face = crop.crop(tuple(round(v) for v in detection.box))
+                    red, green, blue = np.asarray(face.resize((36, 60)), dtype=int).transpose(2, 0, 1)
+                    ink = (red > 65) & (red - green > 27) & (red - blue > 20)
+                    top = ink[:30]
+                    if top[:, 9:27].sum() >= 60 and ink[30:].sum() <= 5:
+                        detection.tile = '7s'
                 values.sort(key=lambda d: d.box[0])
             found[name] = values
         return found
+
+    def recheck_hand_glare(self, image, previous_image, region, hand, previous_hand):
+        if image.size != previous_image.size or len(hand) != len(previous_hand):
+            return
+        differences = [i for i, (current, previous) in enumerate(zip(hand, previous_hand))
+                       if current.tile != previous.tile]
+        if len(differences) != 1:
+            return
+        index = differences[0]
+        current, previous = hand[index], previous_hand[index]
+        if current.confidence >= .87 or previous.confidence < .92:
+            return
+        width = current.box[2] - current.box[0]
+        if max(abs(x - y) for x, y in zip(current.box, previous.box)) > width * .08:
+            return
+        x, y, w, h = region['rect']
+        box = (round(x * image.width), round(y * image.height),
+               round((x + w) * image.width), round((y + h) * image.height))
+        area, before = image.crop(box), previous_image.crop(box)
+        face = tuple(round(value) for value in current.box)
+        now_face, old_face = area.crop(face), before.crop(face)
+        newer, older = [np.asarray(ImageOps.grayscale(tile).resize((40, 60)), dtype=int)
+                        for tile in (now_face, old_face)]
+        difference = newer - older
+        if (difference > 25).mean() < .08 or (difference < -25).mean() > .025:
+            return
+        area.paste(ImageChops.darker(now_face, old_face), face)
+        center = (current.box[0] + current.box[2]) / 2
+        match = next((candidate for candidate in self.detect(area)
+                      if candidate.box[0] <= center <= candidate.box[2]
+                      and candidate.tile == previous.tile and candidate.confidence >= .9), None)
+        if match:
+            hand[index] = Detection(match.tile, match.confidence, current.box, '去高光复核')

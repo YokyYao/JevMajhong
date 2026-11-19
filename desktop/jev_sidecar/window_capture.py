@@ -72,6 +72,7 @@ class GameWindowCapture:
         self.capture = self.control = None
         self.frame = None
         self.frame_time = None
+        self.snapshot_frame_time = None
         self.lock = threading.Lock()
         self.closed = False
         self.geometry = None
@@ -105,10 +106,11 @@ class GameWindowCapture:
         user.IsIconic.argtypes = [wintypes.HWND]
         if user.IsIconic(hwnd):
             raise CaptureUnavailable('雀魂已最小化；恢复窗口后自动继续，切到其他应用无需暂停')
-        if hwnd != self.hwnd or self.closed:
+        if hwnd != self.hwnd or self.closed or self.control is None:
             self.connect(hwnd, title)
         with self.lock:
             image = self.frame.copy() if self.frame is not None else None
+            self.snapshot_frame_time = self.frame_time
         if image is None:
             raise CaptureUnavailable('已连接雀魂窗口，正在接收游戏画面')
         trimmed, bounds = trim_letterbox(image, with_bounds=True)

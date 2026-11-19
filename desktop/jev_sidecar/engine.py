@@ -73,6 +73,8 @@ class Board:
     riichi_selecting: bool = False
     self_kan_available: bool = False
     confirmed_metadata: list[str] = field(default_factory=list)
+    self_tsumo_available: bool = False
+    screen_ron_available: bool = False
 
     def visible(self):
         if len(self.rivers) != 4 or len(self.melds) != 4 or len(self.scores) != 4:
@@ -393,6 +395,19 @@ class Adviser:
         return f'{self.policy_name} · {device.upper()} · {dtype}'
 
     def recommend(self, board, use_model=False):
+        if board.self_tsumo_available or (board.screen_ron_available and not board.reaction):
+            is_tsumo = board.self_tsumo_available
+            tile_count = (14 if is_tsumo else 13) - 3 * len(board.melds[board.seat])
+            if (len(board.hand) != tile_count
+                    or shanten(tuple(sorted(index(t) for t in board.hand))) != (-1 if is_tsumo else 0)):
+                raise ValueError('已识别和牌按钮，正在核对牌形')
+            win = {'action': {'type': 'hora'}, 'name': '自摸' if is_tsumo else '和牌',
+                   'tile': board.drawn if is_tsumo else None,
+                   'sh': None, 'ukeire': None, 'safe': [], 'eligible': True}
+            return {'top3': [win], 'all_candidates': [win], 'engine': '牌理引擎',
+                    'notes': board.notes(), 'winning_shape': True, 'strategy': hand_strategy(board, win),
+                    'direction': hand_strategy(board, win, direction_only=True),
+                    'decision': decision_description(board, win)}
         if board.reaction:
             return self.recommend_reaction(board, use_model)
         values = candidates(board)

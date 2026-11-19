@@ -297,6 +297,7 @@ class VisionTests(unittest.TestCase):
                 reader.read(image, regions, detector, found(hand))
             remaining = hand[2:]
             with patch.object(reader, 'buttons', return_value=[]):
+                reader.read(image, regions, detector, found(hand[1:]))
                 result = reader.read(image, regions, detector, found(remaining))
             self.assertEqual(result['melds'], parse_melds('111m'))
             self.assertEqual(result['forbidden'], ['1m'])
@@ -339,6 +340,30 @@ class VisionTests(unittest.TestCase):
 
 
 class InterfaceTests(unittest.TestCase):
+    def test_repeated_missing_melds_request_fresh_analysis_without_clicking(self):
+        from desktop.jev_sidecar.app import Sidecar
+        with tempfile.TemporaryDirectory() as temporary, patch('desktop.jev_sidecar.app.CONFIG', Path(temporary) / 'settings.json'):
+            panel = Sidecar()
+            panel.live.setChecked(True)
+            panel.timer.stop()
+            hand = parse('123m123p123s11z')
+            found = {'hand': [Detection(t, .9, (i * 20, 0, i * 20 + 18, 30))
+                              for i, t in enumerate(hand)],
+                     '_screen': {'melds': None, 'offered': []}}
+            with patch.object(panel, 'analyze') as analyze, patch.object(panel, 'try_auto_execute') as click:
+                panel.recognized((found, False))
+                self.assertFalse(panel.meld_rescan_requested)
+                panel.last_analyzed = 'stale'
+                panel.recognized((found, False))
+                self.assertTrue(panel.meld_rescan_requested)
+                self.assertIsNone(panel.last_analyzed)
+                analyze.assert_not_called()
+                click.assert_not_called()
+                found['_screen']['melds'] = parse_melds('777z')
+                panel.recognized((found, False))
+                analyze.assert_called_once()
+            panel.close()
+
     def test_repeated_advice_uses_already_recognized_confirmation_frame(self):
         from types import SimpleNamespace
         from unittest.mock import Mock
@@ -374,6 +399,14 @@ class InterfaceTests(unittest.TestCase):
                     panel.try_auto_execute()
                     self.assertIs(panel.results.item(0, 0), cell)
                     self.assertEqual(panel.autoplayer.clicker.call_count, 1)
+                    if call:
+                        self.assertTrue(panel.capture_resume_timer.isActive())
+                        with patch('desktop.jev_sidecar.app.time.monotonic', return_value=panel.capture_resume_at - .1), \
+                                patch.object(panel, 'screen_image') as snapshot:
+                            panel.capture()
+                            snapshot.assert_not_called()
+                        panel.capture_resume_timer.stop()
+                        panel.capture_resume_at = 0.
                     panel.show_result(result, task)
                     panel.try_auto_execute()
                     self.assertEqual(panel.autoplayer.clicker.call_count, 1)
