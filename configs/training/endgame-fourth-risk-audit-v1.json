@@ -1,0 +1,16 @@
+{
+  "schema": "endgame-fourth-risk-audit-v1",
+  "out": "runs/endgame-fourth-risk-audit-v1",
+  "source_data_run": "runs/endgame-placement-v14",
+  "fourth_training_positions": 149,
+  "ordinary_fourth_positions": 55,
+  "win_fourth_positions": 94,
+  "arms": ["original_safe", "no_escape_floor", "top2_no_floor", "top2_legal_ordinary"],
+  "optimizer_updates": 0,
+  "new_model_queries": 0,
+  "new_simulations": 0,
+  "validation_data_used": false,
+  "fit_registered": false,
+  "independent_confirmation": false,
+  "raw_publication": false
+}
