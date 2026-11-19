@@ -17,7 +17,7 @@ from tools.build_mortal_teacher import sha, verify, registration, require_gpu
 
 def teacher_metrics(rows, predictions):
     from jevmahjong.endgame.public_policy import original_policy_keys
-    classes = defaultdict(list)
+    classes = defaultdict(list); kan=defaultdict(list)
     for r in rows:
         q=r['questions']['action']; p=predictions[r['_meta']['id']]
         label=r['_meta']['teacher_action']; eligible=original_policy_keys(r)
@@ -25,15 +25,24 @@ def teacher_metrics(rows, predictions):
             raise ValueError('Teacher benchmark legal support or probabilities differ')
         if abs(sum(p.values())-1.)>1e-5:
             raise ValueError('Teacher benchmark prediction is not a distribution')
-        classes[q['src']].append(dict(ce=-math.log(max(p[label],1e-30)),
-            hit=float(max(eligible,key=p.get)==label)))
+        chosen=max(eligible,key=p.get)
+        point=dict(ce=-math.log(max(p[label],1e-30)),hit=float(chosen==label))
+        classes[q['src']].append(point)
+        for kind in r['_meta'].get('kan_types',[]):
+            if kind not in ('ankan','daiminkan','kakan'):
+                raise ValueError('Unknown kan type in teacher validation')
+            kan[kind].append(dict(point,teacher_choice=q['criteria'][label]['type'],
+                                  student_choice=q['criteria'][chosen]['type']))
     if len(classes)!=7:
         raise ValueError('Teacher validation requires all seven decision classes')
     per={k:dict(positions=len(v),ce=sum(x['ce'] for x in v)/len(v),
                 accuracy=sum(x['hit'] for x in v)/len(v)) for k,v in classes.items()}
     return dict(classes=per,macro_ce=sum(v['ce'] for v in per.values())/7,
         macro_accuracy=sum(v['accuracy'] for v in per.values())/7,
-        overall_accuracy=sum(x['hit'] for v in classes.values() for x in v)/len(rows),positions=len(rows))
+        overall_accuracy=sum(x['hit'] for v in classes.values() for x in v)/len(rows),positions=len(rows),
+        kan_by_type={k:dict(positions=len(v),accuracy=sum(x['hit'] for x in v)/len(v),
+            teacher_choices=dict(Counter(x['teacher_choice'] for x in v)),
+            student_choices=dict(Counter(x['student_choice'] for x in v))) for k,v in kan.items()})
 
 
 def research_screen(metrics, anchor):
@@ -213,6 +222,21 @@ def fit(c, proof):
     del model,optimizer;gc.collect();torch.cuda.empty_cache()
 
 
+def audit_updates(result):
+    best=min((x for x in result['curve'] if x['new_update']>0),
+             key=lambda x:x['metrics']['teacher']['macro_ce'])['new_update']
+    updates={result['last_new_update'],best}
+    if result['selected_new_update'] is not None: updates.add(result['selected_new_update'])
+    return best,sorted(updates)
+
+
+def comparison_point(report):
+    if report['eligible_for_development']:
+        return next(x for x in report['audits'] if x['selected_eligible']), 'selected_eligible_research_candidate'
+    return (next(x for x in report['audits'] if x['new_update']==report['best_nonzero_diagnostic_update']),
+            'best_nonzero_teacher_ce_diagnostic_no_eligible_candidate')
+
+
 def audit(c):
     from jevmahjong.endgame.collect import write
     out=ROOT/c['out'];proof=json.loads((out/'training-protocol-private.json').read_text())
@@ -221,7 +245,8 @@ def audit(c):
     reference=json.loads((ROOT/c['reference_root']/'reference-targets-private.json').read_text())['rows']
     val=read_rows(out/'validation.jsonl');old=read_rows(ROOT/c['retention_root']/'validation.jsonl')
     fresh=read_rows(ROOT/c['retention_root']/'monitor.jsonl');selected=result['selected_new_update'];audits=[]
-    for update in sorted({result['last_new_update']}|({selected} if selected is not None else set())):
+    best_diagnostic,updates=audit_updates(result)
+    for update in updates:
         path=out/'training-run/checkpoints'/f"step-{c['parent_total_step']+update:06d}"
         metrics,_=evaluate_rows(c,path,val,old,fresh,reference)
         logged=next(x for x in result['curve'] if x['new_update']==update)
@@ -232,6 +257,7 @@ def audit(c):
                            selected_eligible=update==selected and flags['research_eligible']))
     verify(proof)
     report=dict(status='mortal_teacher_saved_model_audit_complete',audits=audits,
+        best_nonzero_diagnostic_update=best_diagnostic,
         eligible_for_development=any(x['selected_eligible'] for x in audits),release_qualified=False)
     write(out/'audit-private.json',report);print(json.dumps(report),flush=True)
     return report
@@ -296,16 +322,14 @@ def compare(c, audit_report):
     from jevmahjong.teachers.mortal import MortalTeacher
     import torch
     out=ROOT/c['out'];proof=json.loads((out/'training-protocol-private.json').read_text());verify(proof)
-    if not audit_report['eligible_for_development']:
-        write(out/'comparison-status-private.json',dict(status='not_started_no_eligible_checkpoint',release_qualified=False))
-        return
-    point=next(x for x in audit_report['audits'] if x['selected_eligible'])
+    point,comparison_reason=comparison_point(audit_report)
     candidate=out/'training-run/checkpoints'/f"step-{point['total_step']:06d}"
     parent=ROOT/c['parent_checkpoint']
     checkpoints={'parent':parent,'candidate':candidate};ids={k:bundle_identity(v) for k,v in checkpoints.items()}
     seeds=list(range(c['comparison_seed_start'],c['comparison_seed_start']+c['comparison_seed_groups']))
     protocol=dict(seeds=seeds,profiles=['calling','mortal'],seats=4,arms=ids,
         selected_total_step=point['total_step'],same_formatter_and_guard=True,
+        comparison_reason=comparison_reason,screen_eligible=point['selected_eligible'],
         whole_seed_interval=True,stage='development_not_confirmation',raw_publication=False)
     write(out/'comparison-protocol-private.json',protocol)
     raw=out/'comparison-games-private.jsonl'
@@ -325,7 +349,9 @@ def compare(c, audit_report):
                         if len(rows)%8==0: print(json.dumps(state),flush=True)
         del agent,client;gc.collect();torch.cuda.empty_cache()
         if bundle_identity(path)!=ids[arm]: raise ValueError('Evaluation modified checkpoint')
-    result=paired_summary(rows,seeds);verify(proof)
+    result=paired_summary(rows,seeds)
+    result.update(comparison_reason=comparison_reason,screen_eligible=point['selected_eligible'])
+    verify(proof)
     write(out/'comparison-result-private.json',result)
     write(out/'comparison-status-private.json',dict(status='complete',games_complete=len(rows),games_total=128,
         selected_total_step=point['total_step'],release_qualified=False))
@@ -336,7 +362,8 @@ def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--config',type=Path,required=True);a=p.parse_args()
     require_gpu();os.chdir(ROOT);c=json.loads(a.config.read_text());sys.path.insert(0,c['upstream_source'])
     out=ROOT/c['out'];proof=registration(c,('tools/train_mortal_teacher.py','tools/continue_endgame_fourth_lora.py',
-        'tools/train_targeted_endgame.py','tests/core/test_mortal_teacher.py','tests/core/test_mortal_training.py'))
+        'tools/train_targeted_endgame.py','tests/core/test_mortal_teacher.py','tests/core/test_mortal_training.py',
+        'docs/experiments/plans/mortal-teacher-validation-addendum-20261119.md'))
     from jevmahjong.endgame.collect import write
     write(out/'registered-training-code-private.json',proof)
     started=time.monotonic()
