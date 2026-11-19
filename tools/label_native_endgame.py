@@ -111,7 +111,8 @@ def protocol(config):
                       'jevmahjong/endgame', 'desktop/jev_sidecar'):
         paths.update((ROOT / directory).rglob('*.py'))
     paths.update(ROOT / name for name in ('jevmahjong/training/futures.py',
-                                         'tools/check_gpu.py', 'tools/label_native_endgame.py'))
+                                         'tools/check_gpu.py', 'tools/prepare_native_context_replay.py',
+                                         'tools/label_native_endgame.py'))
     upstream = Path(config['upstream_source']) / 'jevany'
     if not upstream.is_dir():
         raise ValueError('Pinned JevAny source is missing')
