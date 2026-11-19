@@ -1,0 +1,11 @@
+{
+  "schema": "native-ordinary-context-v1",
+  "out": "runs/endgame-native-context-v1",
+  "source_root": "runs/endgame-fourth-reuse-v1",
+  "coverage_out": "runs/endgame-source-coverage-v1",
+  "source_manifest_sha256": "ca521396002bce228e489eeb354e98259e32180fc4444bc24351969f25440a4a",
+  "input_version": "endgame-trailing-public-v1",
+  "teacher_registered": false,
+  "fit_registered": false,
+  "raw_publication": false
+}
