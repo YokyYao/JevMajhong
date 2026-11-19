@@ -140,3 +140,20 @@ This audit motivates monitoring over-eager riichi and call controls during the
 remaining fixed training schedule. It does not change frozen labels, weights,
 sampler, stopping rules or evaluation seed pools. Full-match evidence remains
 pending; no result here proves better winning or final placement.
+
+## Independent completion check prepared
+
+`tools/audit_mortal_teacher_run.py` recounts native payments, riichi pool,
+terminal tie order, wins, calls and both deal-in events and deal-in HANDS without
+calling the evaluator's ledger/summarizer. Four unit checks include missing
+termination, unclaimed deposits, double ron and a duplicate paired grid. GPU309871
+passed these checks and independently reconciled all512 actual source-game logs.
+The frozen auditor will run after fit309775 and the128-game development comparison
+succeed. Preparation is not a claim that the final comparison already passed.
+
+The evaluator's historical `dealin_rate` field counts ron EVENTS per hand;
+double ron can count twice. The independent report adds `dealin_hand_rate` with
+each affected hand counted once, and preserves `dealin_event_rate` for comparison.
+This is an independent ACCOUNTING/statistics check, not an independent han/fu
+scoring engine or an independent strength-confirmation dataset. Training source,
+targets, hyperparameters, selection and development seeds are unchanged.
