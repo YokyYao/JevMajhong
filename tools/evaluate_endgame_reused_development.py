@@ -41,6 +41,27 @@ def combined_eligible(general, targeted):
         and ranks['4']['candidate']['top2_count'] >= ranks['4']['baseline']['top2_count'])
 
 
+def scope_preflight_evidence(root, out, ready):
+    if ready.get('native_prototype_parity_positions') == 308 and ready.get('same_source_ids_and_targets'):
+        return {'native_parity_positions': 308, 'kind': 'direct_preflight'}
+    if not ready.get('same_source_ids_and_all851_inputs'):
+        raise ValueError('Original-path/native input-scope checks missing')
+    # A target-only trial can inherit the earlier native integration check,
+    # but only while both runtime input functions remain byte-identical.
+    prior = out.parent / 'endgame-placement-v7'
+    evidence = json.loads((prior / 'preflight-status-private.json').read_text())
+    proof = json.loads((prior / 'preparation-private.json').read_text())
+    if evidence.get('native_prototype_parity_positions') != 308 or not evidence.get('same_source_ids_and_targets'):
+        raise ValueError('Prior native parity evidence is incomplete')
+    for name in ('context.py', 'policy.py'):
+        path = (root / 'jevmahjong/endgame' / name).resolve()
+        hashes = [sha for p, sha in proof['code_sha256'].items() if Path(p).resolve() == path]
+        if len(hashes) != 1 or hashlib.sha256(path.read_bytes()).hexdigest() != hashes[0]:
+            raise ValueError('Runtime input scope changed after inherited native check')
+    return {'native_parity_positions': 308, 'kind': 'inherited_after_all851_inputs_and_runtime_code_match',
+            'evidence_sha256': hashlib.sha256((prior / 'preflight-status-private.json').read_bytes()).hexdigest()}
+
+
 def evaluate(config, reference_run):
     from riichienv import GameRule, RiichiEnv
     from jevmahjong.core.seeds import engine_seed
@@ -68,8 +89,7 @@ def evaluate(config, reference_run):
     if config['development_groups'] != 16 or config['development_seed_start'] != 2026117900:
         raise ValueError('This evaluator may only reuse the registered consumed tuning pool')
     ready = json.loads((out / 'preflight-status-private.json').read_text())
-    if ready.get('native_prototype_parity_positions') != 308 or not ready.get('same_source_ids_and_targets'):
-        raise ValueError('Original-path/native input-scope checks missing')
+    scope_evidence = scope_preflight_evidence(root, out, ready)
     old_launch = json.loads((old / 'fit-launch-protocol-private.json').read_text())
     # These reviewed changes concern input scope and offline targets. The
     # placement_aware=False branch retains the original format/action guards;
@@ -139,6 +159,7 @@ def evaluate(config, reference_run):
     protocol = {'schema': 'consumed-development-baseline-reuse-v1', 'input_version': config['input_version'],
         'candidate_identity': candidate_identity, 'baseline_identity': baseline_identity,
         'terminal_step_cap': config['terminal_step_cap'], 'reviewed_baseline_unaffected_changes': sorted(reviewed_changes),
+        'scope_preflight_evidence': scope_evidence,
         'scope': 'consumed standard16/targeted256 tuning pools; not independent confirmation',
         'cached_baseline_files_sha256': cache_hashes,
         'code_sha256': {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}}

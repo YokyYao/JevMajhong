@@ -1,9 +1,30 @@
 import copy
 import unittest
-from tools.evaluate_endgame_reused_development import combined_eligible, standard_summary
+import hashlib
+import json
+from pathlib import Path
+import tempfile
+from tools.evaluate_endgame_reused_development import combined_eligible, standard_summary, scope_preflight_evidence
 
 
 class ReusedDevelopmentTests(unittest.TestCase):
+    def test_target_only_reuse_requires_unchanged_native_input_code(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder); prior=root/'runs/endgame-placement-v7'; prior.mkdir(parents=True)
+            code=root/'jevmahjong/endgame'; code.mkdir(parents=True)
+            hashes={}
+            for name in ('context.py','policy.py'):
+                path=code/name; path.write_text('same reviewed runtime\n')
+                hashes[str(path)]=hashlib.sha256(path.read_bytes()).hexdigest()
+            (prior/'preflight-status-private.json').write_text(json.dumps({
+                'native_prototype_parity_positions':308,'same_source_ids_and_targets':True}))
+            (prior/'preparation-private.json').write_text(json.dumps({'code_sha256':hashes}))
+            ready={'same_source_ids_and_all851_inputs':True}
+            self.assertEqual(scope_preflight_evidence(root,root/'runs/endgame-placement-v8',ready)['native_parity_positions'],308)
+            (code/'policy.py').write_text('changed runtime\n')
+            with self.assertRaises(ValueError):
+                scope_preflight_evidence(root,root/'runs/endgame-placement-v8',ready)
+
     def test_top2_and_escape_remain_distinct_and_group_weighted(self):
         def row(seed, initial, before, after):
             def outcome(rank):
