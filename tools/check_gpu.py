@@ -3,9 +3,8 @@ import csv
 import io
 import json
 import os
+import socket
 import subprocess
-
-import torch
 
 
 def normalized_uuid(value):
@@ -13,6 +12,11 @@ def normalized_uuid(value):
 
 
 def main():
+    host = socket.gethostname()
+    if (not os.environ.get("SLURM_JOB_ID") or not os.environ.get("SLURM_JOB_GPUS")
+            or host.startswith(("lo-", "login"))):
+        raise RuntimeError("GPU checks must run in a scheduler GPU allocation, never on login")
+    import torch
     if torch.cuda.device_count() != 1:
         raise RuntimeError("This preflight requires exactly one scheduler-assigned GPU")
     device = torch.cuda.get_device_properties(0)
@@ -27,7 +31,8 @@ def main():
         pid = int(fields[1].strip())
         if pid != os.getpid():
             others.append(fields[2].strip())
-    print(json.dumps({"name": device.name, "uuid": str(device.uuid),
+    print(json.dumps({"hostname": host, "job_id": os.environ.get("SLURM_JOB_ID"),
+                      "name": device.name, "uuid": str(device.uuid),
                       "cuda_mask": os.environ.get("CUDA_VISIBLE_DEVICES"),
                       "slurm_gpus": os.environ.get("SLURM_JOB_GPUS"),
                       "other_compute_processes": len(others),
