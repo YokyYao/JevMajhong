@@ -95,7 +95,10 @@ def evaluate(config, reference_run):
     # placement_aware=False branch retains the original format/action guards;
     # native integration parity is separately required above. Freeze everything
     # else involved in source generation, features, inference and continuation.
-    reviewed_changes = {f'jevmahjong/endgame/{name}.py' for name in ('context', 'policy', 'prepare', 'reference', 'mix', 'fit')}
+    # futures.py only adds the offline label-registration guard; original
+    # baseline inference and bundle identity are unchanged, and the paired
+    # continuation pilot reproduced the stored original arm exactly.
+    reviewed_changes = {f'jevmahjong/endgame/{name}.py' for name in ('context', 'policy', 'prepare', 'reference', 'mix', 'fit', 'futures')}
     for path, expected in old_launch['code_sha256'].items():
         if path not in reviewed_changes and hashlib.sha256((root / path).read_bytes()).hexdigest() != expected:
             raise ValueError('Baseline/source implementation changed: ' + path)

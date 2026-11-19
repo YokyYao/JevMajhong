@@ -1,0 +1,15 @@
+{
+  "schema": "reused-fourth-label32-v1",
+  "out": "runs/endgame-fourth-reuse-v1",
+  "positions_sha256": "ca521396002bce228e489eeb354e98259e32180fc4444bc24351969f25440a4a",
+  "checkpoint": "PATH_TO_VERIFIED_PLAY_V2_SOURCE_CHECKPOINT",
+  "upstream_source": "PATH_TO_PINNED_JEVANY_SOURCE",
+  "continuation_policy": "released_original_v1",
+  "workers": 2,
+  "future_worlds": 32,
+  "target_temperature": 0.1,
+  "terminal_step_cap": 30000,
+  "label_registered": true,
+  "fit_registered": false,
+  "raw_publication": false
+}
