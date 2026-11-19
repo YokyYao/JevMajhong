@@ -4,7 +4,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
-from desktop.jev_sidecar.engine import Adviser, Board, candidates, request
+from desktop.jev_sidecar.engine import Adviser, Board, candidates, reaction_candidates, request
 from desktop.jev_sidecar.tiles import parse
 from desktop.jev_sidecar.endgame_policy import EndgamePolicyClient, canonical_request
 from desktop.jev_sidecar.unified_policy import UnifiedPolicyClient
@@ -38,7 +38,90 @@ def small_win_board():
         metadata_confirmed=True, reaction={'tile': '4m', 'seat': 1, 'offered': ['hora']})
 
 
+def reaction_request(board):
+    payload = request(board, [])
+    payload['state']['screen_observation']['reaction'] = board.reaction
+    payload['questions']['action']['criteria'] = {
+        f'a{i}': value['action'] for i, value in enumerate(reaction_candidates(board))}
+    return payload
+
+
 class EndgameDesktopTests(unittest.TestCase):
+    def test_scoped_input_uses_public_context_only_for_confirmed_trailing_late_state(self):
+        from jevmahjong.endgame.context import annotate_record
+        from desktop.jev_sidecar.unified_policy import serving_request
+        for hand, scores, active in ((4, [22000, 25000, 32000, 21000], True),
+                                     (1, [22000, 25000, 32000, 21000], False),
+                                     (4, [32000, 25000, 22000, 21000], False)):
+            board = small_win_board()
+            board.hand_number, board.scores = hand, scores
+            source = reaction_request(board)
+            canonical, mapping = canonical_request(source)
+            model = Model()
+            _, trace = EndgamePolicyClient(model, 'endgame-trailing-public-v1').system_one_with_trace(**source)
+            expected = annotate_record(canonical, 'endgame-trailing-public-v1', original_request=canonical)
+            expected = {'state': expected['state'], 'questions': {'action': {
+                key: value for key, value in expected['questions']['action'].items()
+                if key in ('type', 'instructions', 'criteria')}}}
+            self.assertEqual(model.requests, [expected])
+            self.assertEqual('endgame_context' in expected['state'], active)
+            self.assertEqual(trace['route'], 'endgame' if active else 'unified')
+            self.assertEqual(trace['relative_to_starting_east'], mapping)
+            if not active:
+                self.assertEqual(expected, serving_request(canonical))
+
+    def test_scoped_unconfirmed_input_preserves_ordinary_format_without_invented_seats(self):
+        from desktop.jev_sidecar.unified_policy import serving_request
+        board = small_win_board()
+        board.metadata_confirmed = False
+        source = reaction_request(board)
+        model = Model()
+        _, trace = EndgamePolicyClient(model, 'endgame-trailing-public-v1').system_one_with_trace(**source)
+        self.assertEqual(model.requests, [serving_request(source)])
+        self.assertIsNone(trace['relative_to_starting_east'])
+        self.assertEqual(trace['route'], 'unified')
+        self.assertFalse(EndgamePolicyClient(model, 'endgame-trailing-public-v1').allow_win_pass(source))
+
+    def test_scoped_small_ron_uses_exactly_one_model_call(self):
+        model = Model()
+        adviser = Adviser()
+        adviser.model = EndgamePolicyClient(model, 'endgame-trailing-public-v1')
+        api = SimpleNamespace(validate_distribution=validation_stub)
+        with patch.dict(sys.modules, {'jevany': SimpleNamespace(__path__=[]), 'jevany.api': api}):
+            result = adviser.recommend(small_win_board(), use_model=True)
+        self.assertEqual(result['top3'][0]['action']['type'], 'none')
+        self.assertEqual(len(model.requests), 1)
+        self.assertEqual(result['model_input']['route'], 'endgame')
+
+    def test_scoped_leading_or_sufficient_ron_keeps_win_without_model_call(self):
+        leading = small_win_board()
+        leading.scores = [32000, 25000, 22000, 21000]
+        earlier = small_win_board()
+        earlier.hand_number = 1
+        for board in (winning_board(), leading, earlier):
+            model = Model()
+            adviser = Adviser()
+            adviser.model = EndgamePolicyClient(model, 'endgame-trailing-public-v1')
+            result = adviser.recommend(board, use_model=True)
+            self.assertEqual(result['top3'][0]['action']['type'], 'hora')
+            self.assertEqual(model.requests, [])
+
+    def test_scoped_missing_tsumo_tile_does_not_use_candidate_display_fallback(self):
+        for drawn in (None, '4m'):
+            board = small_win_board()
+            board.hand.append('4m')
+            board.drawn, board.reaction, board.self_win_available = drawn, None, True
+            model = Model()
+            adviser = Adviser()
+            adviser.model = EndgamePolicyClient(model, 'endgame-trailing-public-v1')
+            api = SimpleNamespace(validate_distribution=validation_stub)
+            with patch.dict(sys.modules, {'jevany': SimpleNamespace(__path__=[]), 'jevany.api': api}):
+                result = adviser.recommend(board, use_model=True)
+            self.assertEqual(len(model.requests), 1)
+            context = model.requests[0]['state']['endgame_context']
+            self.assertEqual(context['current_win_settlement']['winning_tile_known'], drawn is not None)
+            self.assertEqual(context['public_winning_tile'], drawn)
+
     def test_starting_east_mapping_resolves_score_tie_and_safety_seats(self):
         board = Board(parse("12389m278p589s457z"), rivers=[[], [], [], []],
             scores=[25000, 20000, 30000, 25000], dealer=2, hand_number=4,

@@ -419,7 +419,7 @@ class Adviser:
         threats = set(board.riichi) - {board.seat}
         trace = None
         payload = request(board, values)
-        if use_model and getattr(self.model, 'input_version', None) == 'endgame-public-v3' and board.self_win_available:
+        if use_model and getattr(self.model, 'input_version', None) in ('endgame-public-v3', 'endgame-trailing-public-v1') and board.self_win_available:
             payload['state']['screen_observation']['winning_tile'] = board.drawn
             if board.drawn is None:
                 # The legacy button candidate has a display fallback tile;

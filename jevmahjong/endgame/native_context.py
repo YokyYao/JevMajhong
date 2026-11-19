@@ -17,6 +17,7 @@ from .public_policy import original_policy_keys,action_keys
 
 SCHEMA='native-ordinary-context-v1'
 QUOTAS={'train':{3:32,4:32},'validation':{3:8,4:8}}
+LEADING_QUOTAS={'train':{1:32,2:32},'validation':{1:8,2:8}}
 
 
 def replay_decisions(env,log,cap=30000):
@@ -61,16 +62,18 @@ def phase_for(kinds):
     return 'discard'
 
 
-def select_context_rows(rows):
-    groups={s:{r['seed'] for r in rows if r['split']==s} for s in QUOTAS}
+def select_context_rows(rows,quotas=None):
+    quotas=QUOTAS if quotas is None else quotas
+    if quotas not in (QUOTAS,LEADING_QUOTAS):raise ValueError('Unregistered native context rank quotas')
+    groups={s:{r['seed'] for r in rows if r['split']==s} for s in quotas}
     if groups['train'] & groups['validation']:raise ValueError('Native context source split leakage')
     selected=[]
-    for split,quota in QUOTAS.items():
+    for split,quota in quotas.items():
         pool=[r for r in rows if r['split']==split];used=set();remaining=dict(quota)
         def feasible(excluded,needed):
-            available={rank:{r['seed'] for r in pool if r['rank']==rank and r['seed'] not in excluded} for rank in (3,4)}
-            return (all(len(available[r])>=needed[r] for r in (3,4))
-                    and len(available[3]|available[4])>=sum(needed.values()))
+            available={rank:{r['seed'] for r in pool if r['rank']==rank and r['seed'] not in excluded} for rank in quota}
+            return (all(len(available[r])>=needed[r] for r in quota)
+                    and len(set().union(*available.values()))>=sum(needed.values()))
         if not feasible(used,remaining):raise ValueError('Insufficient distinct sources for rank-balanced ordinary contexts')
         cells={}
         for row in pool:cells.setdefault(row['cell'],[]).append(row)
@@ -94,6 +97,9 @@ def prepare_contexts(config):
             or config.get('input_version')!=TRAILING_INPUT_VERSION):
         raise ValueError('Only the registered public-context preparation stage is enabled')
     source_root=Path(config['source_root']);coverage=Path(config['coverage_out']);out=Path(config['out'])
+    scope=config.get('rank_scope','trailing')
+    if scope not in ('trailing','leading'):raise ValueError('Unregistered native context rank scope')
+    quotas=QUOTAS if scope=='trailing' else LEADING_QUOTAS
     manifest=json.loads((source_root/'selected-positions-private.json').read_text())
     if len(manifest)!=80 or digest(manifest)!=config['source_manifest_sha256']:
         raise ValueError('Fixed80 source-group manifest differs')
@@ -117,7 +123,7 @@ def prepare_contexts(config):
                 if not (int(env.round_wind)>0 or int(env.kyoku_idx)==3):continue
                 for seat,obs in observations.items():
                     data=obs.to_dict();rank=placements(data['scores'])[seat]
-                    if rank not in (3,4):continue
+                    if rank not in quotas[split]:continue
                     actions=legal_candidates(obs)
                     if len(actions)<2:continue
                     kinds={json.loads(a.to_mjai())['type'] for a in actions}
@@ -133,7 +139,10 @@ def prepare_contexts(config):
                     if bucket in best and key>=best[bucket]['selection_key']:continue
                     raw,actions,features=build_request(obs);raw['state']['hand_number']=int(obs.kyoku_index)+1
                     teacher=original_request(raw)
-                    student=annotate_record(add_native_context(raw,obs,actions),TRAILING_INPUT_VERSION)
+                    student=annotate_record(add_native_context(raw,obs,actions),TRAILING_INPUT_VERSION,
+                                            original_request=raw if scope=='leading' else None)
+                    if scope=='leading' and student!=teacher:
+                        raise ValueError('Leading context must retain the exact original v8 model input')
                     keys=list(teacher['questions']['action']['criteria'])
                     native=sorted(set(guarded_indices(obs,actions,features))|{i for i,f in enumerate(features) if not f})
                     support=[keys[i] for i in native]
@@ -160,13 +169,14 @@ def prepare_contexts(config):
             write(out/'status-private.json',{'status':'extracting_public_ordinary_contexts','source_replays_complete':checked,
                 'source_replays_total':160,'candidate_cells':len(candidates),'observed':dict(observed),
                 'model_queries':0,'optimizer_updates':0})
-    selected=select_context_rows(candidates)
+    selected=select_context_rows(candidates,quotas)
     if len(selected)!=80 or len({r['seed'] for r in selected})!=80:raise ValueError('Ordinary context source cap failed')
     path=out/'paired-contexts-private.json'
     if path.exists() and json.loads(path.read_text())!=selected:raise ValueError('Existing context manifest differs')
     write(path,selected)
     summary={'status':'native_ordinary_context_manifest_ready_no_teacher_queries','positions':80,
-        'splits':{s:dict(Counter(str(r['rank']) for r in selected if r['split']==s)) for s in QUOTAS},
+        'rank_scope':scope,
+        'splits':{s:dict(Counter(str(r['rank']) for r in selected if r['split']==s)) for s in quotas},
         'phases':dict(Counter(r['split']+':'+r['phase'] for r in selected)),
         'styles':dict(Counter(r['split']+':'+r['style'] for r in selected)),
         'stages':dict(Counter(r['split']+':'+r['stage'] for r in selected)),
