@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 import unittest
 
-from tools.train_targeted_endgame import validate_training_config,screen,progress_state
+from tools.train_targeted_endgame import validate_training_config,screen,progress_state,validate_world_trace
 
 
 def metrics(primary=.25,old=.225,new=.275):
@@ -38,6 +38,16 @@ class TargetedTrainingTests(unittest.TestCase):
         for update in range(16,112,16):
             state=progress_state(update,m,screen(m,m),state,c);self.assertFalse(state['stop'])
         self.assertTrue(progress_state(112,m,screen(m,m),state,c)['stop'])
+
+    def test_counterfactual_world_policy_pairing_cannot_be_misaligned(self):
+        from jevmahjong.endgame.targeted_refresh import world_design
+        values=[dict(world=i,**world_design(i),scores=[10000,20000,30000,40000],ranks=[4,3,2,1],
+                     completed=True,ledger_passed=True) for i in range(64)]
+        validate_world_trace(values)
+        bad=copy.deepcopy(values);bad[33]['policy']=1-bad[33]['policy']
+        with self.assertRaises(ValueError):validate_world_trace(bad)
+        bad=copy.deepcopy(values);bad[4]['ranks']=[1,2,3,4]
+        with self.assertRaises(ValueError):validate_world_trace(bad)
 
 
 if __name__=='__main__':unittest.main()

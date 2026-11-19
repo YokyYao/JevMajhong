@@ -66,6 +66,46 @@ def validate_training_config(c):
         raise ValueError('Unregistered fresh-data fitting schedule')
 
 
+def validate_world_trace(values):
+    from jevmahjong.endgame.targeted_refresh import world_design
+    from jevmahjong.endgame.context import placements
+    if len(values)!=64:raise ValueError('Every action must have all64 worlds')
+    for world,value in enumerate(values):
+        if (value['world']!=world or any(value[k]!=v for k,v in world_design(world).items())
+                or not value['completed'] or not value['ledger_passed'] or placements(value['scores'])!=value['ranks']):
+            raise ValueError('World pairing, policy replication or terminal accounting changed')
+
+
+def data_provenance(c,receipt,formal,parent):
+    from jevmahjong.endgame.prepare import checksum
+    from jevmahjong.endgame.futures import bundle_identity
+    from jevmahjong.endgame.targeted_refresh import reliable_target
+    from jevmahjong.endgame.fourth_chase import fourth_chase_action_keys
+    from jevmahjong.endgame.collect import write
+    out=Path(c['out']);collection=json.loads((out/'collection-protocol-private.json').read_text())
+    identities=[bundle_identity(formal),bundle_identity(parent)]
+    if identities!=[collection['formal_identity'],collection['parent_identity']]:raise ValueError('Frozen labeling policies changed')
+    manifest_sha=checksum(out/'manifest-private.json');menus=[]
+    for rid,sha in receipt['labels_sha256'].items():
+        path=out/'labels'/(rid.rsplit(':',1)[1]+'.json')
+        if checksum(path)!=sha:raise ValueError('Completed label changed after assembly')
+        label=json.loads(path.read_text())
+        if label['policy_identities']!=identities or label['manifest_sha256']!=manifest_sha:raise ValueError('Label policy/source identity mismatch')
+        row=label['source'];utility={}
+        for key,values in label['outcomes'].items():
+            validate_world_trace(values);utility[key]=[int(o['ranks'][row['seat']]<=2) for o in values]
+        target,report=reliable_target(label['prior128'],utility,fourth_chase_action_keys(row['request']))
+        if target!=label['record']['questions']['action']['target']:raise ValueError('Soft target no longer reproduces')
+        evidence=[v for k,v in report['paired'].items() if k!=report['baseline_action']]
+        menus.append(dict(split=row['split'],category=row['category'],
+            mean_nonbaseline_se=sum(v['se'] for v in evidence)/len(evidence) if evidence else 0.,
+            replication_sign_disagreements=sum(v['block_advantages'][0]*v['block_advantages'][1]<0 for v in evidence),
+            nonbaseline_actions=len(evidence),finite_expectation_fallback=report['finite_expectation_fallback']))
+    write(out/'label-quality-private.json',dict(status='all56_paired64_labels_reverified',menus=menus,
+        source_groups=56,training_groups=48,monitor_groups=8,policy_identities_verified=True,
+        uncertain_menus_not_filtered=True,current_hidden_hands_not_a_posterior=True))
+
+
 def fit(c,registration):
     validate_training_config(c)
     from tools.build_targeted_endgame import old_assets,verify_registration
@@ -86,6 +126,7 @@ def fit(c,registration):
     train=read_jsonl(out/'train.jsonl');validation=read_jsonl(out/'validation.jsonl');monitor=read_jsonl(out/'monitor.jsonl')
     if {r['_meta']['id'] for r in train}&{r['_meta']['id'] for r in validation+monitor}:raise ValueError('Training/monitoring identity leakage')
     ready,formal,oldtrain,oldval,oldfourth,ck=old_assets(c);parent=ck[128]
+    data_provenance(c,receipt,formal,parent)
     batches=balanced_batches(train,c['batch_quotas'],192)
     if len({i for b in batches[:64] for i in b})!=874:raise ValueError('Observation window misses a positive training record')
     proof=dict(registration,data_receipt_sha256=checksum(out/'data-ready-private.json'),
