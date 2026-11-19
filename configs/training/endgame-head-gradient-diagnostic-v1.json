@@ -1,0 +1,22 @@
+{
+  "schema": "endgame-head-gradient-diagnostic-v1",
+  "out": "runs/endgame-head-gradient-diagnostic-v1",
+  "research_data_run": "runs/endgame-placement-v14",
+  "capacity_capture_run": "runs/endgame-existing-head-capacity-v1",
+  "baseline_prediction_run": "runs/endgame-target-learning-header-diagnostic-v1",
+  "training_records": 905,
+  "positive_loss_records": 826,
+  "reused_encoder_features": 19,
+  "new_encoder_queries": 807,
+  "parameter_steps": [0, 32],
+  "actual_order_steps": 32,
+  "effective_batch": 16,
+  "control_max_probability_difference": 1e-7,
+  "optimizer_updates": 0,
+  "validation_data_used": false,
+  "new_simulations": 0,
+  "candidate_training_registered": false,
+  "export_registered": false,
+  "independent_confirmation": false,
+  "raw_publication": false
+}
