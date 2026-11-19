@@ -1,4 +1,4 @@
-# Targeted refresh: source coverage complete, paired labeling running
+# Targeted refresh: labeling complete, training resumed
 
 The user authorized new targeted positions, better finite labels, a revised
 mix and training from the128-step model. The plan and executable pipeline are
@@ -29,23 +29,43 @@ replication blocks vary unseen walls/future deals and balance frozen hero
 policies and opponent styles. These are conditional simulation estimates,
 not expert truth or a full hidden-hand posterior.
 
-Collection GPU309281 exited0. Label workers309282 and309283 are running on
-ws-l1-001/ws-l1-006. Data verification309284 is afterok both. New fitting and
-saved-weight audit309315 are afterok verification AND final regression309295.
-Invalid dependencies auto-cancel; each stage has bounds, logs and exit receipts.
-Cluster QoS currently admits two running user jobs, so the final cluster
-regression waits while both label GPUs work. It must pass before fitting.
-No new model parameter update has been claimed at this labeling stage.
+Collection GPU309281 and both label workers309282/309283 exited0. All56
+menus and27,776 complete branch rollouts are labeled. Initial verification309284
+and regression309295 stopped at GPU preflight because the allocated GPU already
+had other compute processes; dependent training309315 auto-canceled. Those
+processes were not touched and the completed labels were retained.
+
+Recovery assembly309621 exited0 and verified874 positive training rows,8 fresh
+monitoring menus and the unchanged186 old validation rows. Combined GPU job309626
+on ws-l2-012 passed277 core/89 desktop checks (one optional skip), then started
+training in the same clean allocation. Every stage remains bounded and writes
+logs and exit receipts. Training has passed total step144 (16 new updates).
+
+The first saved-and-normally-loaded validation is below. Both columns use the
+same respective held-out menus and finite simulation labels. The combined
+metric equally weights the old and fresh cohort means; it is not a full-game
+or human-match top-two rate.
+
+| Fourth-place validation cohort | Parent128 | Step144 | Change |
+|---|---:|---:|---:|
+|Old51 menus|22.55%|20.47%|-2.08 pp|
+|Fresh6 menus|23.70%|24.48%|+0.78 pp|
+|Combined primary|23.12%|22.47%|-0.65 pp|
+
+There is no overall improvement yet and no selected replacement checkpoint.
+Training continues under the registered observation/patience schedule. The
+23.12% combined baseline is the same parent128 weights on a different cohort
+mix; it must not be presented as a gain over the old51-only22.55% baseline.
 
 Data source94a74d33/CI44534005698 and GPU309279 passed273 core/89 desktop
 checks (one optional skip). Training sourcecd5f8db5/CI44536025274 passed277
 core/desktop workflow checks; earlier GPU309288 passed276 core before the
-additional metadata test. Final GPU309295 is a dependency, not reported as
-already passed. Initial unsupported live-seed test309263 failed before data
+additional metadata test. Final277 core checks passed in recovery309626.
+Initial unsupported live-seed test309263 failed before data
 generation. The corrected native-boundary reset now passes next-deal variety
 and full-match ledger tests; probe jobs309265/267/269/273 are terminal.
 
-The planned positive training set is874 rows (existing826 plus48 fresh),
+The verified positive training set is874 rows (existing826 plus48 fresh),
 with40% fresh loss mass,45% ordinary/leading replay,10% old fourth targets
 and5% old third/holding. Start exactly from128 LoRA/head, with a new optimizer
 and warmup for the changed objective, not from384. Normal loaded checkpoints
