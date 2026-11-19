@@ -17,6 +17,9 @@ class MatchScoreHistory:
         self.session_id = uuid4().hex
         self.match_id = uuid4().hex
         self.previous = None
+        self.terminal_observed = False
+        self.terminal_marker = None
+        self.last_terminal_key = None
         self.lock = RLock()
 
     def _append(self, event):
@@ -43,15 +46,25 @@ class MatchScoreHistory:
                     "own_original_seat": state["seat"], "dealer": state["dealer"],
                     "riichi": list(state["riichi"])}
         with self.lock:
-            if self.previous is not None and self.previous["marker"] == marker:
+            reset = ((marker == (0, 1, 0) and scores == [25000] * 4 and sticks == 0)
+                     or self.terminal_observed and (self.terminal_marker is None or marker != self.terminal_marker))
+            if (self.previous is not None and self.previous["marker"] == marker
+                    and not (self.terminal_observed and reset)):
                 self.previous["latest"] = snapshot
                 return None
-            reset = marker == (0, 1, 0) and scores == [25000] * 4 and sticks == 0
             if self.previous is not None and reset:
                 # A new match's reset scores are never treated as the previous final settlement.
-                self._append({"kind": "match_reset", "previous_terminal_scores_observed": False})
+                self._append({"kind": "match_reset", "previous_terminal_scores_observed": self.terminal_observed})
                 self.match_id = uuid4().hex
                 self.previous = None
+                self.terminal_observed = False
+                self.terminal_marker = None
+                self.last_terminal_key = None
+            elif self.previous is None and self.terminal_observed and reset:
+                self.match_id = uuid4().hex
+                self.terminal_observed = False
+                self.terminal_marker = None
+                self.last_terminal_key = None
             if self.previous is not None:
                 event = {"kind": "hand_boundary", "previous_hand": list(self.previous["marker"]),
                          "next_hand": list(marker), "next_public_scores": list(scores),
@@ -67,11 +80,29 @@ class MatchScoreHistory:
             self.previous = {"marker": marker, "initial": snapshot, "latest": snapshot}
             return self._append({"kind": "confirmed_hand_score_observation", **snapshot})
 
-    def record_terminal_scores(self, scores, sticks=0):
+    def record_terminal_scores(self, scores, sticks=0, *, own_original_seat=None, last_hand=None):
         """For an explicit confirmed result observation, never from a new-match reset."""
-        if len(scores) != 4 or sum(scores) + sticks * 1000 != 100000:
+        if (len(scores) != 4 or any(type(x) is not int for x in scores)
+                or type(sticks) is not int or sticks < 0 or sum(scores) + sticks * 1000 != 100000):
             raise ValueError("Terminal score observation does not conserve points")
         with self.lock:
-            return self._append({"kind": "confirmed_terminal_scores", "scores": list(scores),
-                                 "placements": placements(scores), "sticks": sticks})
+            key = (tuple(scores), sticks, own_original_seat, tuple(last_hand or ()))
+            if self.last_terminal_key == key:
+                return None
+            event = self._append({"kind": "confirmed_terminal_scores", "scores": list(scores),
+                "placements": placements(scores), "sticks": sticks, "own_original_seat": own_original_seat,
+                "last_hand": last_hand, "source": "explicit_result_observation"})
+            self.terminal_observed = True
+            self.terminal_marker = tuple(last_hand) if last_hand is not None else (
+                self.previous['marker'] if self.previous is not None else None)
+            self.last_terminal_key = key
+            return event
+
+    def record_terminal_observation(self, payload):
+        """Explicit result entry supplies public scores without requiring a hand."""
+        canonical, _ = canonical_request(payload)
+        state = canonical["state"]
+        return self.record_terminal_scores(state["scores"], state.get("sticks", 0),
+            own_original_seat=state["seat"],
+            last_hand=[state["round_wind"], state["hand_number"], state["honba"]])
 

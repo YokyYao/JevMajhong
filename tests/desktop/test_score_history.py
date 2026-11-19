@@ -15,6 +15,50 @@ def payload(hand=3, scores=None, sticks=0, riichi=None, confirmed=True):
 
 
 class ScoreHistoryTests(unittest.TestCase):
+    def test_explicit_final_scores_rotate_ties_and_deduplicate(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / 'scores.jsonl'
+            history = MatchScoreHistory(file)
+            final = payload(4, [25000, 22000, 25000, 28000])
+            final['state']['dealer'] = 1
+            event = history.record_terminal_observation(final)
+            self.assertEqual(event['scores'], [25000, 28000, 25000, 22000])
+            self.assertEqual(event['own_original_seat'], 0)
+            self.assertEqual(event['placements'][0], 2)
+            self.assertIsNone(history.record_terminal_observation(final))
+            self.assertEqual(len(file.read_text().splitlines()), 1)
+
+    def test_recorded_terminal_separates_next_match_even_after_riichi_deposit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / 'scores.jsonl'
+            history = MatchScoreHistory(file)
+            history.observe(payload(4))
+            history.record_terminal_observation(payload(4))
+            history.observe(payload(1, [24000, 25000, 25000, 25000], sticks=1, riichi=[0]))
+            rows = [json.loads(x) for x in file.read_text().splitlines()]
+            self.assertIn('match_reset', [r['kind'] for r in rows])
+            self.assertNotIn('hand_boundary', [r['kind'] for r in rows])
+            self.assertNotEqual(rows[0]['match_id'], rows[-1]['match_id'])
+
+    def test_recorded_terminal_does_not_join_a_later_first_seen_hand_to_old_match(self):
+        with tempfile.TemporaryDirectory() as directory:
+            file = Path(directory) / 'scores.jsonl'
+            history = MatchScoreHistory(file)
+            history.observe(payload(4))
+            history.record_terminal_observation(payload(4))
+            history.observe(payload(2, [23000, 27000, 25000, 25000]))
+            rows = [json.loads(x) for x in file.read_text().splitlines()]
+            reset = next(r for r in rows if r['kind'] == 'match_reset')
+            self.assertTrue(reset['previous_terminal_scores_observed'])
+            self.assertNotIn('hand_boundary', [r['kind'] for r in rows])
+
+    def test_final_result_rejects_missing_or_noninteger_scores(self):
+        with tempfile.TemporaryDirectory() as directory:
+            history = MatchScoreHistory(Path(directory) / 'scores.jsonl')
+            for scores in ([25000] * 3, [25000.] * 4, [25000, 25000, 25000, 24000]):
+                with self.assertRaises(ValueError):
+                    history.record_terminal_scores(scores)
+
     def test_records_real_next_hand_scores_once(self):
         with tempfile.TemporaryDirectory() as directory:
             file = Path(directory) / "scores.jsonl"

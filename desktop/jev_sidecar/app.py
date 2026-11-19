@@ -347,6 +347,10 @@ class Sidecar(QMainWindow):
         self.scores.textEdited.connect(self.invalidate)
         context.addWidget(QLabel('分数：自己 / 下家 / 对家 / 上家'))
         context.addWidget(self.scores)
+        self.record_scores = QPushButton('记录本场最终分数')
+        self.record_scores.setToolTip('结算后填入上方四家最终分数，再按此按钮记录；不需要手牌。')
+        self.record_scores.clicked.connect(self.record_final_scores)
+        context.addWidget(self.record_scores)
         form = QFormLayout()
         self.dealer = QComboBox()
         self.dealer.addItems(['自己', '下家', '对家', '上家'])
@@ -851,6 +855,25 @@ class Sidecar(QMainWindow):
             self.templates.teach(crop, hand_boxes(crop), tiles)
             self.status.setText(f'已保存{len(tiles)}张校正模板；取消手牌锁定后继续实时识别')
         except Exception as error:
+            self.status.setText(str(error))
+
+    def record_final_scores(self, checked=False):
+        from .score_history import MatchScoreHistory
+        try:
+            payload = {'state': {'seat': 0, 'dealer': self.dealer.currentIndex(),
+                'hand_number': self.hand_number.value(), 'round_wind': self.wind.currentIndex(),
+                'honba': self.honba.value(), 'sticks': 0,
+                'scores': [int(x) for x in self.scores.text().split()]},
+                'questions': {'action': {'type': 'choice', 'criteria': {}}}}
+            if self.adviser.score_history is None:
+                self.adviser.score_history = MatchScoreHistory()
+            event = self.adviser.score_history.record_terminal_observation(payload)
+            if event is None:
+                self.status.setText('本场最终分数已记录')
+            else:
+                rank = event['placements'][event['own_original_seat']]
+                self.status.setText(f'已记录本场最终分数 · 自己第{rank}名')
+        except (ValueError, OSError) as error:
             self.status.setText(str(error))
 
     def board(self):

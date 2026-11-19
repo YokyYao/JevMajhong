@@ -339,6 +339,28 @@ class VisionTests(unittest.TestCase):
 
 
 class InterfaceTests(unittest.TestCase):
+    def test_final_score_entry_works_without_hand_or_model_inference(self):
+        from unittest.mock import Mock
+        from desktop.jev_sidecar.app import Sidecar
+        from desktop.jev_sidecar.score_history import MatchScoreHistory
+        with tempfile.TemporaryDirectory() as temporary, patch('desktop.jev_sidecar.app.CONFIG', Path(temporary) / 'settings.json'):
+            panel = Sidecar()
+            panel.timer.stop()
+            panel.live.setChecked(False)
+            panel.hand.setText('')
+            panel.scores.setText('25000 22000 25000 28000')
+            panel.dealer.setCurrentIndex(1)
+            panel.hand_number.setValue(4)
+            file = Path(temporary) / 'scores.jsonl'
+            panel.adviser.score_history = MatchScoreHistory(file)
+            panel.adviser.recommend = Mock(side_effect=AssertionError('Final entry must not run a model'))
+            panel.record_scores.click()
+            self.assertIn('自己第3名', panel.status.text())
+            panel.record_scores.click()
+            self.assertEqual(len(file.read_text().splitlines()), 1)
+            panel.adviser.recommend.assert_not_called()
+            panel.close()
+
     def test_repeated_advice_uses_already_recognized_confirmation_frame(self):
         from types import SimpleNamespace
         from unittest.mock import Mock
