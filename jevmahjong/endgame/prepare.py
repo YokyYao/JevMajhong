@@ -82,6 +82,12 @@ def balance_training_sources(records, config):
             continue
         bucket = record["_meta"]["bucket"]
         q["src"] += "_" + bucket
+        if (bucket == 'fourth' and config.get('split_ordinary_fourth_improvements')
+                and config.get('reference_regularization')):
+            flag = record['_meta'].get('strict_original_policy_improvement')
+            if type(flag) is not bool or record['_meta'].get('source_initial_placement') != 4:
+                raise ValueError('Ordinary-fourth loss split needs a verified finite-improvement flag')
+            if flag: q['src'] += '_improve'
         if (config.get("split_win_by_initial_rank", False) and config.get("reference_regularization", False)
                 and bucket == "win"):
             rank = placements(record["state"]["scores"])[record["state"]["seat"]]

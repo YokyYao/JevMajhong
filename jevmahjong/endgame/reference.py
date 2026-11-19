@@ -139,6 +139,8 @@ def apply_reference(config, splits):
     ordinary_style = config.get('ordinary_fourth_target_style', 'reference_tilt')
     if ordinary_style not in ('reference_tilt', 'greedy_improvement'):
         raise ValueError('Unsupported ordinary-fourth target style')
+    if config.get('split_ordinary_fourth_improvements') and ordinary_style != 'greedy_improvement':
+        raise ValueError('Strict-improvement weighting requires the existing greedy-improvement target')
     if ordinary_style == 'greedy_improvement' and (
             config.get('fourth_escape_constraint') is not True
             or config.get('reference_mode') != 'released_original_policy'):
@@ -201,6 +203,12 @@ def apply_reference(config, splits):
             meta["target_basis"] = "greedy_best_finite_terminal_win_scope" if greedy else "frozen_reference_tilted_by_terminal_utility"
             if ordinary_style == 'greedy_improvement' and meta['bucket'] == 'fourth' and meta['source_initial_placement'] == 4:
                 meta['target_basis'] = 'greedy_safe_finite_ordinary_improvement_preserve_best_original'
+                if config.get('split_ordinary_fourth_improvements'):
+                    from .public_policy import action_keys
+                    original_greedy = max(action_keys(record), key=p.get)
+                    target_greedy = max(target, key=target.get)
+                    meta['strict_original_policy_improvement'] = bool(
+                        values[target_greedy] > values[original_greedy] + 1e-12)
         q["label"] = max(q["target"], key=q["target"].get)
     for record in splits["validation"]:
         meta, q = record["_meta"], record["questions"]["action"]
