@@ -53,6 +53,34 @@ def reference_kl_group(source):
     return 'original'
 
 
+def configure_parameter_scope(model,scope):
+    if scope not in ('lora_and_head','head_only'):
+        raise ValueError('Unsupported registered trainable parameter scope')
+    if scope=='head_only':
+        model.requires_grad_(False)
+        model.head.requires_grad_(True)
+        model.lm.eval()
+    head_ids={id(p) for p in model.head.parameters()}
+    trainable=[(name,p) for name,p in model.named_parameters() if p.requires_grad]
+    if not trainable or not all(p.requires_grad for p in model.head.parameters()):
+        raise ValueError('The existing action head must remain trainable')
+    if scope=='head_only' and any(id(p) not in head_ids for _,p in trainable):
+        raise ValueError('Head-only fit must freeze every encoder parameter')
+    return {'scope':scope,'trainable_parameters':sum(p.numel() for _,p in trainable),
+        'head_parameters':sum(p.numel() for p in model.head.parameters()),
+        'trainable_encoder_parameters':sum(p.numel() for _,p in trainable if id(p) not in head_ids)}
+
+
+def validate_parameter_updates(scope,adapter_changed,head_changed):
+    if scope=='head_only':
+        if adapter_changed or not head_changed:
+            raise ValueError('Head-only fit requires unchanged LoRA and an actual head update')
+    elif scope=='lora_and_head':
+        if not adapter_changed or not head_changed:
+            raise ValueError('Joint fit requires actual LoRA and head updates')
+    else:raise ValueError('Unsupported registered trainable parameter scope')
+
+
 def selection_value(step,utility,replay_ce,guards_passed,zero_feasible,feasibility_first=False):
     if not feasibility_first:
         return -utility if guards_passed else 1e6+replay_ce
@@ -66,6 +94,9 @@ def selection_value(step,utility,replay_ce,guards_passed,zero_feasible,feasibili
 def fit(config):
     if config.get("fit_registered", True) is not True:
         raise ValueError("This data-audit configuration has no registered fit protocol")
+    parameter_scope=config.get('trainable_scope','lora_and_head')
+    if parameter_scope not in ('lora_and_head','head_only'):
+        raise ValueError('Unsupported registered trainable parameter scope')
     if config.get("native_context_root"):
         native_limit = config.get("native_reference_kl_guard")
         if type(native_limit) not in (float, int) or not math.isfinite(native_limit) or native_limit <= 0:
@@ -140,9 +171,13 @@ def fit(config):
         state["head_initial"] = {k: v.detach().cpu().clone() for k, v in model.head.state_dict().items()}
         if any(p.requires_grad for n, p in model.lm.named_parameters() if "lora_" not in n):
             raise ValueError("Backbone must remain frozen")
+        scope_proof=configure_parameter_scope(model,parameter_scope)
+        state['model']=model
+        state['parameter_scope']=scope_proof
         write(out / "initialization-private.json", {"parent": config["checkpoint"],
             "exact_parent_adapter_and_head": True, "same_rank16_lora_and_head": True,
-            "new_optimizer": True, "external_residual_networks": 0})
+            "new_optimizer": True, "external_residual_networks": 0,'parameter_scope':scope_proof,
+            'encoder_dropout_disabled':parameter_scope=='head_only'})
         return result
 
     def admitted(*args, **kwargs):
@@ -296,6 +331,7 @@ def fit(config):
         return result
 
     def batch(*args, **kwargs):
+        if parameter_scope=='head_only':args[0].lm.eval()
         state["micro_batches"] = state.get("micro_batches", 0) + 1
         steps = (state["micro_batches"] - 1) // 16
         if steps >= 2 and not state.get("update_proof"):
@@ -303,11 +339,11 @@ def fit(config):
             actual = get_peft_model_state_dict(model.lm, save_embedding_layers=False)
             changed_adapter = any(not torch.equal(v.detach().cpu(), state["adapter_initial"][k]) for k, v in actual.items())
             changed_head = any(not torch.equal(v.detach().cpu(), state["head_initial"][k]) for k, v in model.head.state_dict().items())
-            if not changed_adapter or not changed_head:
-                raise ValueError("No actual LoRA and head update")
+            validate_parameter_updates(parameter_scope,changed_adapter,changed_head)
             state["update_proof"] = True
             write(out / "actual-update-proof-private.json", {
-                "completed_optimizer_steps_at_least": steps, "adapter_changed": True, "head_changed": True})
+                "completed_optimizer_steps_at_least": steps, "adapter_changed": changed_adapter,
+                "head_changed": changed_head,'trainable_scope':parameter_scope})
         if state["micro_batches"] % 16 == 1:
             write(out / "training-status-private.json", {"status": "training",
                 "completed_optimizer_steps_at_least": steps, "max_steps": proof["max_steps"],
@@ -357,6 +393,12 @@ def fit(config):
         "stage": "pilot_not_deployed", "raw_records_public": False})
     try:
         trainer.main(args)
+        if parameter_scope=='head_only':
+            current=get_peft_model_state_dict(state['model'].lm,save_embedding_layers=False)
+            if (set(current)!=set(state['adapter_initial']) or any(
+                    not torch.equal(value.detach().cpu(),state['adapter_initial'][name])
+                    for name,value in current.items())):
+                raise ValueError('Frozen LoRA changed by the end of head-only fitting')
         for file, expected_digest in expected.items():
             if checksum(file) != expected_digest:
                 raise ValueError("Registered training data changed")
@@ -364,7 +406,9 @@ def fit(config):
         result = {"status": "endgame_pilot_training_complete",
             "selection": selection, "actual_updates_verified": bool(state.get("update_proof")),
             "eligible_for_development": selection["step"] > 0,
-            "validation": curve, "deployed": False}
+            "validation": curve, "deployed": False,'trainable_scope':parameter_scope,
+            'parameter_scope':state.get('parameter_scope'),
+            'frozen_encoder_preserved':parameter_scope=='head_only'}
         write(out / "fit-result-private.json", result)
         write(out / "training-status-private.json", result)
         return result
