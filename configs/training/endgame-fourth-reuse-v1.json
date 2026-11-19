@@ -1,0 +1,22 @@
+{
+  "schema": "reused-fourth-win32-v1",
+  "out": "runs/endgame-fourth-reuse-v1",
+  "coverage_out": "runs/endgame-source-coverage-v1",
+  "coverage_source_sha256": {
+    "standard": "77eb9c592d2e3e104ba71baa5f88f2c66d00b1941788da2d7ea22c73be885f57",
+    "dama": "31adcd989108de3680ff39812cab879124f80db150e6cee51c3aff3b6ec57854"
+  },
+  "exclude_manifest": "runs/endgame-target-win-v1/selected-positions-private.json",
+  "exclude_manifest_positions_sha256": "56a9805c804b746e62e96c6d7d31064d2c8f7517d66614908de15e2145e314b9",
+  "manifest_limits": {"train": 64, "validation": 16},
+  "checkpoint": "PATH_TO_VERIFIED_PLAY_V2_SOURCE_CHECKPOINT",
+  "upstream_source": "PATH_TO_PINNED_JEVANY_SOURCE",
+  "future_worlds": 32,
+  "target_temperature": 0.1,
+  "terminal_step_cap": 30000,
+  "training_objective": "top2_primary_v1",
+  "terminal_utility": [1.1, 1.0, 0.0, -0.05],
+  "label_registered": false,
+  "fit_registered": false,
+  "raw_publication": false
+}

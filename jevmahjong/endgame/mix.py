@@ -6,18 +6,33 @@ from .collect import digest, write
 from .prepare import checksum
 
 
+def label_set_contract(sets):
+    if not {'legacy4', 'target16'} <= set(sets):
+        raise ValueError('The registered original label sets must be retained')
+    result = {}
+    for tag, spec in sets.items():
+        if tag in ('legacy4', 'target16'):
+            count, worlds = (264, 4) if tag == 'legacy4' else (44, 16)
+            if spec.get('positions', count) != count or spec['future_worlds'] != worlds:
+                raise ValueError('Original label-set contract changed')
+        else:
+            count, worlds = spec.get('positions'), spec.get('future_worlds')
+            if type(count) is not int or not 1 <= count <= 2000 or type(worlds) is not int or not 1 <= worlds <= 32:
+                raise ValueError('Additional label sets require explicit count and MC-world contracts')
+        result[tag] = (count, worlds)
+    return result
+
+
 def assemble(config):
     out = Path(config['out'])
     sets = config['label_sets']
     from .context import PUBLIC_SETTLEMENT_VERSIONS
-    if set(sets) != {'legacy4', 'target16'} or config.get('input_version') not in PUBLIC_SETTLEMENT_VERSIONS:
-        raise ValueError('Mixed pilot requires the registered original4/new16 label sets')
-    target = Path(sets['target16']['root'])
-    verification = json.loads((target / 'label-protocol-verification-private.json').read_text())
-    if verification['status'] != 'frozen_label_protocol_verified':
-        raise ValueError('Target label generation protocol was not verified')
+    contracts = label_set_contract(sets)
+    if config.get('input_version') not in PUBLIC_SETTLEMENT_VERSIONS:
+        raise ValueError('Mixed pilot requires verified public-settlement inputs')
     selected, public_rows, seen, groups, counts = [], {}, set(), {'train': set(), 'validation': set()}, {}
     sources, label_hashes = {}, {}
+    seed_groups = {'train': set(), 'validation': set()}
     for tag, spec in sets.items():
         root = Path(spec['root'])
         positions = json.loads((root / 'selected-positions-private.json').read_text())
@@ -25,9 +40,17 @@ def assemble(config):
         if (context['schema'] != 'current-public-win-context-v1'
                 or not context['source_prefix_only'] or context['future_results_used']):
             raise ValueError('Public context provenance mismatch')
-        expected_count = 264 if tag == 'legacy4' else 44
-        if len(positions) != expected_count or spec['future_worlds'] != (4 if tag == 'legacy4' else 16):
+        expected_count, worlds = contracts[tag]
+        if len(positions) != expected_count:
             raise ValueError('Original source count or MC count differs')
+        verification = None
+        if tag != 'legacy4':
+            verification = json.loads((root / 'label-protocol-verification-private.json').read_text())
+            if verification['status'] != 'frozen_label_protocol_verified':
+                raise ValueError('Label generation protocol was not verified')
+            if tag != 'target16' and (verification.get('positions_sha256') != digest(positions)
+                    or verification.get('positions') != expected_count or verification.get('future_worlds') != worlds):
+                raise ValueError('Additional label-set verification differs from its contract')
         counts[tag] = len(positions)
         for original in positions:
             row = dict(original, _label_set=tag)
@@ -48,9 +71,14 @@ def assemble(config):
                     or data['source_request_sha256'] != row['request_sha256']):
                 raise ValueError('Incomplete or mismatched original label')
             label_hashes[rid] = checksum(label)
+            if tag not in ('legacy4', 'target16') and verification.get('labels_sha256', {}).get(rid) != label_hashes[rid]:
+                raise ValueError('An additional original label changed after protocol verification')
+            if row['split'] not in seed_groups:
+                raise ValueError('Unexpected original source split')
+            seed_groups[row['split']].add(row['seed'])
             groups[row['split']].add(row['group_id'])
             selected.append(row)
-    if groups['train'] & groups['validation']:
+    if groups['train'] & groups['validation'] or seed_groups['train'] & seed_groups['validation']:
         raise ValueError('Mixed terminal sources cross train/validation')
     manifest = out / 'selected-positions-private.json'
     if manifest.exists() and json.loads(manifest.read_text()) != selected:

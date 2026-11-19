@@ -55,6 +55,8 @@ def finish_match(env, initial_actions, seat, seed, frozen, step_cap):
 
 
 def label(config, limit=None):
+    if config.get("label_registered", True) is not True:
+        raise ValueError("This stage prepares data only; the continuation-label protocol is not registered")
     out = Path(config["out"])
     selected = json.loads((out / "selected-positions-private.json").read_text())
     if limit is not None:

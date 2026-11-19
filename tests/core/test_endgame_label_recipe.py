@@ -10,7 +10,7 @@ class MixedLabelRecipeTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             specs = {}
-            for tag, worlds, temperature in [('legacy4', 4, .25), ('target16', 16, .1)]:
+            for tag, worlds, temperature in [('legacy4', 4, .25), ('target16', 16, .1), ('fourth32', 32, .1)]:
                 original = root / tag / 'labels' / (tag + '.json')
                 original.parent.mkdir(parents=True)
                 original.write_text('{}')

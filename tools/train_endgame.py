@@ -10,7 +10,7 @@ import traceback
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("stage", choices=("collect", "coverage", "target-manifest", "label", "enrich", "assemble", "prepare", "reference", "fit", "evaluate", "path-ablation", "path-guards", "input-ablation"))
+    parser.add_argument("stage", choices=("collect", "coverage", "target-manifest", "reuse-fourth-manifest", "label", "enrich", "assemble", "prepare", "reference", "fit", "evaluate", "path-ablation", "path-guards", "input-ablation"))
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--limit", type=int)
     args = parser.parse_args()
@@ -25,6 +25,9 @@ def main():
         if args.stage == "coverage":
             from jevmahjong.endgame.coverage import collect_coverage
             result = collect_coverage(config)
+        elif args.stage == "reuse-fourth-manifest":
+            from jevmahjong.endgame.reuse import make_reused_manifest
+            result = make_reused_manifest(config)
         elif args.stage == "target-manifest":
             from jevmahjong.endgame.coverage import make_target_manifest
             result = make_target_manifest(config)
