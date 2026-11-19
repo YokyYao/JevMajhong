@@ -1,0 +1,24 @@
+{
+  "schema": "endgame-head-encoder-attribution-v1",
+  "out": "runs/endgame-parameter-attribution-v1",
+  "baseline_checkpoint": "models/jev-play-v2",
+  "candidate_run": "runs/endgame-placement-v10",
+  "candidate_step": 72,
+  "validation_records": 186,
+  "input_version": "endgame-trailing-public-v1",
+  "control_count": 8,
+  "control_hash_prefix": "endgame-head-encoder-attribution-v1",
+  "control_max_absolute_probability_difference": 0.0001,
+  "arms": {
+    "A": {"encoder": "released_v8", "head": "released_v8", "predictions": "cached_step0_with_fresh_controls"},
+    "B": {"encoder": "released_v8", "head": "tenth_step72", "predictions": "new_validation_only"},
+    "C": {"encoder": "tenth_step72", "head": "released_v8", "predictions": "new_validation_only"},
+    "D": {"encoder": "tenth_step72", "head": "tenth_step72", "predictions": "cached_step72_with_fresh_controls"}
+  },
+  "fit_registered": false,
+  "optimizer_updates": 0,
+  "new_simulations": 0,
+  "independent_confirmation": false,
+  "export_registered": false,
+  "raw_publication": false
+}
