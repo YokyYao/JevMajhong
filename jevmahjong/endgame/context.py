@@ -156,12 +156,18 @@ def settled_placement(scores, deltas, seat):
     return placements([s + d for s, d in zip(scores, deltas)])[seat]
 
 
-def annotate_record(record):
+def annotate_record(record, input_version="endgame-public-v2"):
     result = copy.deepcopy(record)
     result["state"].pop("endgame_context", None)
-    payload = model_request(result)
+    if input_version == "endgame-public-v2":
+        payload = model_request(result)
+    elif input_version == "endgame-public-v3":
+        from .win_value import settlement_request
+        payload = settlement_request(result)
+    else:
+        raise ValueError("Unsupported endgame model input version")
     result["state"] = payload["state"]
-    result["questions"]["action"]["instructions"] = INSTRUCTION
+    result["questions"]["action"]["instructions"] = payload["questions"]["action"]["instructions"]
     result["questions"]["action"]["criteria"] = payload["questions"]["action"]["criteria"]
     return result
 

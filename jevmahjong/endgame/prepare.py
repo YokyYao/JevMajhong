@@ -55,6 +55,14 @@ def prepare(config):
         raise ValueError("The registered top-two objective and utility must be explicit")
     out = Path(config["out"])
     positions = json.loads((out / "selected-positions-private.json").read_text())
+    input_version = config.get("input_version", "endgame-public-v2")
+    public_context_rows = None
+    if input_version == "endgame-public-v3":
+        public_cache = json.loads((out / "public-context-private.json").read_text())
+        if (public_cache.get("schema") != "current-public-win-context-v1"
+                or not public_cache.get("source_prefix_only") or public_cache.get("future_results_used")):
+            raise ValueError("Public-context enrichment provenance differs")
+        public_context_rows = public_cache["rows"]
     splits = {"train": [], "validation": []}
     groups = {"train": set(), "validation": set()}
     new_counts = Counter()
@@ -102,7 +110,12 @@ def prepare(config):
         probabilities = target_from_utilities(means, config["target_temperature"])
         record["questions"]["action"]["target"] = dict(zip(keys, probabilities))
         record["questions"]["action"]["label"] = keys[max(range(len(keys)), key=lambda i: probabilities[i])]
-        record = annotate_record(record)
+        if public_context_rows is not None:
+            public_row = public_context_rows[row_id]
+            if public_row["source_request_sha256"] != row["request_sha256"]:
+                raise ValueError("Public-context source request differs")
+            record["state"].setdefault("screen_observation", {}).update(public_row["screen_observation"])
+        record = annotate_record(record, input_version)
         split = row["split"]
         new_counts[split + ":" + row["bucket"]] += 1
         admitted_target, basis = terminal_training_target(record["questions"]["action"]["criteria"],
@@ -138,7 +151,7 @@ def prepare(config):
         ineligible = Counter()
         for record in old:
             try:
-                normalized = annotate_record(record)
+                normalized = annotate_record(record, input_version)
             except (ValueError, KeyError, TypeError) as error:
                 ineligible[type(error).__name__] += 1
                 continue
@@ -192,6 +205,7 @@ def prepare(config):
         raise ValueError("Short fit budget must be at least three optimizer updates")
     result = {"status": "complete_terminal_dataset_ready", "new_strata": dict(new_counts),
         "objective": "top2_primary_v1", "terminal_utility": [1.1, 1.0, 0.0, -0.05],
+        "input_version": input_version,
         "admitted_new_strata": dict(admitted_counts), "neutral_menu_handling": dict(neutral_counts),
         "records": {s: len(r) for s, r in splits.items()},
         "group_overlap": 0, "loss_source_counts": dict(counts), "loss_source_mass": mass,

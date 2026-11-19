@@ -24,6 +24,8 @@ def target_ce(question, probabilities):
 
 
 def fit(config):
+    if config.get("fit_registered", True) is not True:
+        raise ValueError("This data-audit configuration has no registered fit protocol")
     out = Path(config["out"])
     proof = prepare(config)
     train_dir = out / "training-run"
@@ -116,10 +118,19 @@ def fit(config):
             ce[source].append(target_ce(question, probabilities))
             if reference_rows is not None and source.startswith("replay_"):
                 p = reference_rows[record["_meta"]["id"]]["probabilities"]
-                reference_kl.append(sum(v * math.log(max(v, 1e-30) / max(probabilities[k], 1e-30))
+                current = probabilities
+                if config.get("reference_mode") == "released_original_policy":
+                    from .public_policy import action_keys
+                    from .reference import restrict_distribution
+                    current = restrict_distribution(probabilities, action_keys(record))
+                reference_kl.append(sum(v * math.log(max(v, 1e-30) / max(current[k], 1e-30))
                                         for k, v in p.items() if v > 0))
             if source == "endgame_terminal":
-                chosen = max(probabilities, key=probabilities.get)
+                eligible = list(probabilities)
+                if config.get("input_version") == "endgame-public-v3":
+                    from .public_policy import action_keys
+                    eligible = action_keys(record)
+                chosen = max(eligible, key=probabilities.get)
                 utilities[record["_meta"]["bucket"]].append(record["_meta"]["expected_terminal_utilities"][chosen])
         required = {"win", "third", "fourth", "hold"}
         if set(utilities) != required:
@@ -138,7 +149,12 @@ def fit(config):
                 and strata["fourth"] >= state["initial_strata"]["fourth"] - 1e-12
                 and strata["hold"] >= state["initial_strata"]["hold"] - .02 - 1e-12))
         mean_reference_kl = sum(reference_kl) / len(reference_kl) if reference_kl else None
-        reference_guard = mean_reference_kl is None or mean_reference_kl <= config["reference_kl_guard"]
+        if step == 0:
+            state["initial_reference_kl"] = mean_reference_kl
+        reference_limit = config.get("reference_kl_guard")
+        if config.get("reference_kl_guard_relative_to_start", False):
+            reference_limit += state["initial_reference_kl"]
+        reference_guard = mean_reference_kl is None or mean_reference_kl <= reference_limit
         guard_passed = replay_guard and placement_guard and reference_guard
         selection_metric = -utility if guard_passed else 1e6 + replay_ce
         item = {"step": step, "endgame_validation_terminal_utility": utility,
@@ -146,6 +162,7 @@ def fit(config):
             "replay_target_ce": replay_ce, "replay_guard_passed": replay_guard,
             "placement_strata_guard_passed": placement_guard, "all_guards_passed": guard_passed,
             "replay_reference_kl": mean_reference_kl, "reference_guard_passed": reference_guard,
+            "reference_kl_guard_limit": reference_limit,
             "selection_metric_negative_terminal_utility": selection_metric,
             "target_ce_by_source": {k: sum(v) / len(v) for k, v in ce.items()},
             "validation_is_not_independent_strength_confirmation": True}

@@ -77,6 +77,43 @@ class EndgameContextTests(unittest.TestCase):
 
 
 class EndgameReferenceTests(unittest.TestCase):
+    def test_original_policy_distribution_restricts_only_to_known_support(self):
+        from jevmahjong.endgame.reference import restrict_distribution
+        q = restrict_distribution({'bad': .7, 'good': .2, 'kan': .1}, ['good', 'kan'])
+        self.assertEqual(q['bad'], 0)
+        self.assertAlmostEqual(q['good'], 2 / 3)
+        self.assertAlmostEqual(q['kan'], 1 / 3)
+
+    def test_win_tilt_can_learn_a_comeback_but_keeps_an_inferior_continuation_out(self):
+        from jevmahjong.endgame.reference import improvement_target
+        p = {'win': 1., 'continue': 0.}
+        positive = improvement_target(p, {'win': 0., 'continue': .2125}, .05, .1)
+        self.assertGreater(positive['continue'], .7)
+        self.assertEqual(improvement_target(p, {'win': 0., 'continue': -.05}, .05, .1), p)
+
+    def test_publicly_fixed_wins_become_reference_replay_without_future_selection(self):
+        from unittest.mock import patch
+        from jevmahjong.endgame.reference import apply_reference
+        def row(key, enough):
+            return {'state': {'endgame_context': {'late_match_window': True, 'placement': 3,
+                        'current_win_settlement': {'status': 'public_single_winner_baseline_scenarios',
+                            'winner_is_dealer': False, 'top2_in_any_baseline_scenario': enough}}},
+                    '_meta': {'id': key, 'bucket': 'win', 'target_basis': 'complete_terminal_MC_soft_target',
+                              'expected_terminal_utilities': {'win': 0., 'continue': .2125}},
+                    'questions': {'action': {'src': 'endgame_terminal', 'label': 'continue',
+                        'criteria': {'win': {'type': 'hora'}, 'continue': {'type': 'none'}},
+                        'target': {'win': 0., 'continue': 1.}}}}
+        fixed, active = row('fixed', True), row('active', False)
+        cache = {'identity_sha256': 'test', 'input_version': 'endgame-public-v3',
+                 'rows': {k: {'probabilities': {'win': 1., 'continue': 0.}} for k in ('fixed', 'active')}}
+        cfg = {'reference_mode': 'released_original_policy', 'reference_temperature': .1,
+               'reference_win_temperature': .05, 'reference_exploration': .1}
+        with patch('jevmahjong.endgame.reference.load_reference', return_value=cache):
+            apply_reference(cfg, {'train': [fixed, active], 'validation': []})
+        self.assertEqual(fixed['questions']['action']['src'], 'replay_reference')
+        self.assertEqual(fixed['questions']['action']['target'], {'win': 1., 'continue': 0.})
+        self.assertGreater(active['questions']['action']['target']['continue'], .7)
+
     def test_equal_returns_keep_frozen_policy_instead_of_uniform_targets(self):
         from jevmahjong.endgame.reference import improvement_target
         p = {"a": .9, "b": .1}

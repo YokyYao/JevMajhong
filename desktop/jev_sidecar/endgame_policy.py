@@ -65,10 +65,15 @@ def validate_checkpoint(directory):
     from jevmahjong.endgame.context import INSTRUCTION
     from .unified_policy import identity
     released = identity()
+    version = profile.get("input_version")
+    instruction = INSTRUCTION
+    if version == "endgame-public-v3":
+        from jevmahjong.endgame.win_value import SCORING_NOTE
+        instruction += SCORING_NOTE
     if (profile.get("schema") != "endgame-checkpoint-v1"
             or profile.get("model_id") != MODEL_ID
-            or profile.get("input_version") != "endgame-public-v2"
-            or profile.get("policy_instruction") != INSTRUCTION
+            or version not in ("endgame-public-v2", "endgame-public-v3")
+            or profile.get("policy_instruction") != instruction
             or profile.get("baseline_source_identity") != released["source_identity_sha256"]):
         raise ValueError("Endgame checkpoint/profile identity differs")
     required = {"adapter_model.safetensors", "adapter_config.json", "head.pt",
@@ -90,17 +95,31 @@ def validate_checkpoint(directory):
 
 
 class EndgamePolicyClient:
-    def __init__(self, model):
+    def __init__(self, model, input_version="endgame-public-v2"):
+        if input_version not in ("endgame-public-v2", "endgame-public-v3"):
+            raise ValueError("Unsupported endgame model input version")
         self.model = model
+        self.input_version = input_version
 
     def allow_win_pass(self, payload):
-        return confirmed_for_endgame(payload)
+        if not confirmed_for_endgame(payload):
+            return False
+        if self.input_version == "endgame-public-v3":
+            from jevmahjong.endgame.win_value import settlement_request
+            from jevmahjong.endgame.public_policy import win_pass_allowed
+            canonical, _ = canonical_request(payload)
+            return win_pass_allowed(settlement_request(canonical))
+        return True
 
     def system_one_with_trace(self, **request):
         from jevmahjong.endgame.context import model_request
         canonical, mapping = canonical_request(request)
-        payload = model_request(canonical)
-        trace = {"version": "endgame-public-v2", "route": "endgame",
+        if self.input_version == "endgame-public-v3":
+            from jevmahjong.endgame.win_value import settlement_request
+            payload = settlement_request(canonical)
+        else:
+            payload = model_request(canonical)
+        trace = {"version": self.input_version, "route": "endgame",
                  "model_id": MODEL_ID, "relative_to_starting_east": mapping,
                  "source_request": copy.deepcopy(request), "model_request": copy.deepcopy(payload)}
         return self.model.system_one(**payload), trace

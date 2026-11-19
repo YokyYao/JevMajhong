@@ -31,6 +31,13 @@ def winning_board(hand_number=4, confirmed=True):
         metadata_confirmed=confirmed, reaction={"tile": "2z", "seat": 1, "offered": ["hora"]})
 
 
+def small_win_board():
+    return Board(parse('23m456p678s22p'), rivers=[[], [], [], []],
+        indicators=['9m'], melds=[[{'type': 1, 'tiles': '5z 5z 5z'}], [], [], []],
+        scores=[22000, 25000, 32000, 21000], dealer=2, hand_number=4,
+        metadata_confirmed=True, reaction={'tile': '4m', 'seat': 1, 'offered': ['hora']})
+
+
 class EndgameDesktopTests(unittest.TestCase):
     def test_starting_east_mapping_resolves_score_tie_and_safety_seats(self):
         board = Board(parse("12389m278p589s457z"), rivers=[[], [], [], []],
@@ -86,7 +93,7 @@ class EndgameDesktopTests(unittest.TestCase):
 
 
 
-    def test_native_and_screen_ron_payer_features_match(self):
+    def test_legacy_pair_form_and_screen_ron_payer_features_match(self):
         from jevmahjong.endgame.context import model_request
         model = Model()
         adviser = Adviser()
@@ -106,6 +113,53 @@ class EndgameDesktopTests(unittest.TestCase):
                              normalized["state"]["endgame_context"][key])
         self.assertEqual(actual["state"]["endgame_context"]["ron_payer"], 2)
         self.assertEqual(actual["state"]["endgame_context"]["win_method"], "ron")
+
+    def test_v3_scores_native_physical_discard_and_screen_reaction_identically(self):
+        import base64, json
+        from riichienv import ActionType
+        from jevmahjong.endgame.native_public import add_native_context
+        from jevmahjong.endgame.win_value import settlement_request
+        model = Model(); adviser = Adviser()
+        adviser.model = EndgamePolicyClient(model, input_version="endgame-public-v3")
+        api = SimpleNamespace(validate_distribution=validation_stub)
+        with patch.dict(sys.modules, {"jevany": SimpleNamespace(__path__=[]), "jevany.api": api}):
+            result = adviser.recommend(small_win_board(), use_model=True)
+        actual = result['model_input']['model_request']
+        native = copy.deepcopy(actual)
+        native['state']['last_discard'] = 12
+        native['state']['screen_observation'].pop('reaction', None)
+        native['state']['screen_observation'].pop('winning_tile', None)
+        obs = SimpleNamespace(to_dict=lambda: {'discards': [[], [], [12], []]},
+            serialize_to_base64=lambda: base64.b64encode(json.dumps({'last_discard': 12}).encode()))
+        normalized = settlement_request(add_native_context(native, obs, [SimpleNamespace(action_type=ActionType.RON, tile=12)]))
+        for key in ('ron_payer', 'public_winning_tile', 'current_win_settlement'):
+            self.assertEqual(actual['state']['endgame_context'][key], normalized['state']['endgame_context'][key])
+        self.assertEqual(len(model.requests), 1)
+
+    def test_v3_does_not_treat_a_display_fallback_as_a_known_drawn_tile(self):
+        for drawn in (None, '4m'):
+            board = small_win_board()
+            board.hand.append('4m'); board.drawn = drawn
+            board.reaction = None; board.self_win_available = True
+            model = Model(); adviser = Adviser()
+            adviser.model = EndgamePolicyClient(model, input_version='endgame-public-v3')
+            api = SimpleNamespace(validate_distribution=validation_stub)
+            with patch.dict(sys.modules, {'jevany': SimpleNamespace(__path__=[]), 'jevany.api': api}):
+                result = adviser.recommend(board, use_model=True)
+            context = result['model_input']['model_request']['state']['endgame_context']
+            self.assertEqual(context['current_win_settlement']['winning_tile_known'], drawn is not None)
+            self.assertEqual(context['public_winning_tile'], drawn)
+            self.assertEqual(len(model.requests), 1)
+
+    def test_v3_takes_a_sufficient_or_leading_win_without_model_inference(self):
+        leading = small_win_board(); leading.scores = [32000, 25000, 22000, 21000]
+        dealer = small_win_board(); dealer.dealer = 0
+        for board in (winning_board(), leading, dealer):
+            model = Model(); adviser = Adviser()
+            adviser.model = EndgamePolicyClient(model, input_version='endgame-public-v3')
+            result = adviser.recommend(board, use_model=True)
+            self.assertEqual(result['top3'][0]['action']['type'], 'hora')
+            self.assertEqual(model.requests, [])
 
 
 

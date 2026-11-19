@@ -9,12 +9,13 @@ from .context import model_request, placements
 
 class ModelAgent:
     def __init__(self, model, placement_aware=False, ordinary_guard=False, protect_leading_wins=False,
-                 force_all_wins=False):
+                 force_all_wins=False, input_version="endgame-public-v2"):
         self.model = model
         self.placement_aware = placement_aware
         self.ordinary_guard = ordinary_guard
         self.protect_leading_wins = protect_leading_wins
         self.force_all_wins = force_all_wins
+        self.input_version = input_version
         self.choices = Counter()
 
     def act(self, obs):
@@ -34,16 +35,29 @@ class ModelAgent:
                 and placements(request["state"]["scores"])[request["state"]["seat"]] <= 2):
             return next(a for a in actions if a.action_type in (ActionType.RON, ActionType.TSUMO))
         if self.placement_aware:
-            payload = model_request(request)
+            if self.input_version == "endgame-public-v3":
+                from .native_public import add_native_context
+                from .win_value import settlement_request
+                payload = settlement_request(add_native_context(request, obs, actions))
+            elif self.input_version == "endgame-public-v2":
+                payload = model_request(request)
+            else:
+                raise ValueError("Unsupported endgame input version")
         else:
             from desktop.jev_sidecar.unified_policy import serving_request as baseline_request
             payload = baseline_request(request)
+        keys = list(payload["questions"]["action"]["criteria"])
+        if self.placement_aware and self.input_version == "endgame-public-v3":
+            from .public_policy import action_keys
+            eligible = [keys.index(k) for k in action_keys(payload)]
+            if len(eligible) == 1:
+                return actions[eligible[0]]
+        else:
+            eligible = list(range(len(actions))) if compare_all and (has_win or not self.ordinary_guard) else sorted(
+                set(guarded_indices(obs, actions, feats)) | {i for i, f in enumerate(feats) if not f})
         from jevany.api import validate_distribution
         result = self.model.system_one(**payload)
-        keys = list(payload["questions"]["action"]["criteria"])
         probabilities, _ = validate_distribution(result["answers"]["action"]["probabilities"], keys)
-        eligible = list(range(len(actions))) if compare_all and (has_win or not self.ordinary_guard) else sorted(
-            set(guarded_indices(obs, actions, feats)) | {i for i, f in enumerate(feats) if not f})
         chosen = max(eligible, key=lambda i: probabilities[i])
         self.choices[json.loads(actions[chosen].to_mjai())["type"]] += 1
         return actions[chosen]

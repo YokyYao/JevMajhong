@@ -359,7 +359,7 @@ class Adviser:
             from .unified_policy import validate_checkpoint
         else:
             from .model_identity import validate_checkpoint
-        validate_checkpoint(checkpoint)
+        validated_profile = validate_checkpoint(checkpoint)
         manifest = checkpoint / 'manifest.json'
         if manifest.is_file():
             for filename, expected in json.loads(manifest.read_text(encoding='utf-8')).items():
@@ -390,7 +390,7 @@ class Adviser:
         if endgame:
             from .endgame_policy import MODEL_NAME, EndgamePolicyClient
             from .score_history import MatchScoreHistory
-            self.model = EndgamePolicyClient(ordinary)
+            self.model = EndgamePolicyClient(ordinary, input_version=validated_profile['input_version'])
             self.policy_name = MODEL_NAME
             self.score_history = MatchScoreHistory()
         elif unified:
@@ -419,6 +419,14 @@ class Adviser:
         threats = set(board.riichi) - {board.seat}
         trace = None
         payload = request(board, values)
+        if use_model and getattr(self.model, 'input_version', None) == 'endgame-public-v3' and board.self_win_available:
+            payload['state']['screen_observation']['winning_tile'] = board.drawn
+            if board.drawn is None:
+                # The legacy button candidate has a display fallback tile;
+                # it is not evidence of the tile that completed this hand.
+                for value in payload['questions']['action']['criteria'].values():
+                    if value.get('type') == 'hora':
+                        value.pop('pai', None)
         compare_all = bool(use_model and self.model is not None and
             getattr(self.model, 'allow_win_pass', lambda p: False)(payload))
         if compare_all:

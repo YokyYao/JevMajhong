@@ -9,7 +9,7 @@ from riichienv import GameRule, RiichiEnv
 from jevmahjong.core.seeds import engine_seed
 from jevmahjong.core.state import legal_candidates
 from jevmahjong.evaluation.agents import EfficiencyAgent, CallingOpponent
-from .collect import native_match, write
+from .collect import native_match, write, digest
 from .context import placements, placement_objective
 from .futures import bundle_identity
 from .ledger import hand_score_history
@@ -83,12 +83,15 @@ def point_and_risk_summary(records):
 
 def evaluate(config):
     out = Path(config["out"])
+    phase = config.get("evaluation_phase", "development")
+    if phase not in ("development", "confirmation"):
+        raise ValueError("Unsupported evaluation phase")
     fit = json.loads((out / "fit-result-private.json").read_text())
     if not fit["eligible_for_development"]:
         result = {"status": "development_skipped_zero_step_selected",
                   "reason": "No candidate improved validation terminal utility under the replay guard",
                   "deployed": False}
-        write(out / "development-result-private.json", result)
+        write(out / (phase + "-result-private.json"), result)
         return result
     candidate = (out / "training-run" / fit["selection"]["selected_checkpoint"]).resolve()
     if not candidate.is_relative_to((out / "training-run/checkpoints").resolve()):
@@ -97,15 +100,50 @@ def evaluate(config):
     from jevmahjong.policy.routing import load_model
     baseline_identity = bundle_identity(config["checkpoint"])
     candidate_identity = bundle_identity(candidate)
+    protocol = None
+    if phase == "confirmation":
+        development = json.loads((out / "development-result-private.json").read_text())
+        if (not development["eligible_for_independent_confirmation"]
+                or development["candidate_identity"] != candidate_identity
+                or candidate_identity["identity_sha256"] != config["confirmation_candidate_identity"]):
+            raise ValueError("Confirmation requires the fixed qualified development candidate")
+        from .prepare import checksum
+        root = Path(__file__).resolve().parents[2]
+        paths = ("jevmahjong/endgame/policy.py", "jevmahjong/endgame/context.py",
+                 "jevmahjong/endgame/win_value.py", "jevmahjong/endgame/native_public.py",
+                 "jevmahjong/endgame/public_policy.py", "jevmahjong/endgame/collect.py",
+                 "jevmahjong/endgame/evaluate.py", "jevmahjong/endgame/ledger.py",
+                 "jevmahjong/training/futures.py", "jevmahjong/core/seeds.py",
+                 "jevmahjong/policy/routing.py", "desktop/jev_sidecar/play_v2_identity.json",
+                 "jevmahjong/core/state.py", "jevmahjong/evaluation/agents.py",
+                 "desktop/jev_sidecar/unified_policy.py", "desktop/jev_sidecar/call_features.py",
+                 "desktop/jev_sidecar/call_feature_helpers.py")
+        protocol = {"candidate_identity": candidate_identity, "baseline_identity": baseline_identity,
+                    "input_version": config.get("input_version", "endgame-public-v2"),
+                    "terminal_step_cap": config["terminal_step_cap"],
+                    "action_controls": {k: config.get(k, False) for k in ("preserve_ordinary_guard", "protect_leading_wins")},
+                    "source_code_sha256": {p: checksum(root / p) for p in paths},
+                    "groups": config["confirmation_groups"], "seed_start": config["confirmation_seed_start"]}
+        protocol_file = out / "confirmation-protocol-private.json"
+        if protocol_file.exists() and json.loads(protocol_file.read_text()) != protocol:
+            raise ValueError("Confirmation code, candidate or source schedule changed")
+        write(protocol_file, protocol)
     baseline = ModelAgent(load_model(config["checkpoint"]), placement_aware=False)
-    learner = ModelAgent(load_model(candidate), placement_aware=True)
-    groups = config.get("development_groups", 8)
-    seed_start = config.get("development_seed_start", 2026112900)
+    learner = ModelAgent(load_model(candidate), placement_aware=True,
+        input_version=config.get("input_version", "endgame-public-v2"),
+        ordinary_guard=config.get("preserve_ordinary_guard", False),
+        protect_leading_wins=config.get("protect_leading_wins", False))
+    groups = config["confirmation_groups"] if phase == "confirmation" else config.get("development_groups", 8)
+    seed_start = config["confirmation_seed_start"] if phase == "confirmation" else config.get("development_seed_start", 2026112900)
     fitted_sources = json.loads((out / "selected-positions-private.json").read_text())
     fitted_seeds = {row["seed"] for row in fitted_sources}
     if fitted_seeds & set(range(seed_start, seed_start + groups)):
         raise ValueError("Development source seeds overlap training/validation")
-    directory = out / "development"
+    if phase == "confirmation" and set(range(seed_start, seed_start + groups)) & set(range(
+            config.get("development_seed_start", 2026112900),
+            config.get("development_seed_start", 2026112900) + config.get("development_groups", 8))):
+        raise ValueError("Confirmation overlaps development")
+    directory = out / phase
     directory.mkdir(exist_ok=True)
     records = []
     for group in range(groups):
@@ -116,7 +154,8 @@ def evaluate(config):
             if file.exists():
                 row = json.loads(file.read_text())
                 if (row["candidate_identity"] != candidate_identity
-                        or row["baseline_identity"] != baseline_identity):
+                        or row["baseline_identity"] != baseline_identity
+                        or (protocol is not None and row.get("protocol_sha256") != digest(protocol))):
                     raise ValueError("Existing development used different checkpoints")
             else:
                 env = RiichiEnv(game_mode="4p-red-east", rule=GameRule.default_mjsoul(),
@@ -129,9 +168,11 @@ def evaluate(config):
                     "baseline_identity": baseline_identity, "candidate_identity": candidate_identity,
                     "baseline": rollout(env.clone(), seat, seed, baseline, config["terminal_step_cap"]),
                     "candidate": rollout(env.clone(), seat, seed, learner, config["terminal_step_cap"])}
+                if protocol is not None:
+                    row["protocol_sha256"] = digest(protocol)
                 write(file, row)
             records.append(row)
-            write(out / "development-status-private.json", {"status": "paired_fresh_endgame_development",
+            write(out / (phase + "-status-private.json"), {"status": "paired_fresh_endgame_" + phase,
                 "source_groups_complete": group, "source_groups_total": groups, "paired_positions": len(records)})
     by_group = defaultdict(list)
     for row in records:
@@ -153,19 +194,29 @@ def evaluate(config):
         and rates["third_to_top2"]["candidate_minus_baseline"] >= 0
         and rates["fourth_escape"]["candidate_minus_baseline"] >= 0
         and rates["hold_top2"]["candidate_minus_baseline"] >= -.05)
-    result = {"status": "paired_endgame_development_complete", "independent_source_groups": len(by_group),
+    bounds = interval(differences)
+    result = {"status": "paired_endgame_" + phase + "_complete", "independent_source_groups": len(by_group),
         "paired_positions": len(records), "terminal_continuations": len(records) * 2,
-        "terminal_utility_gain": gain, "whole_source_group_paired_bootstrap_ci95": interval(differences),
+        "terminal_utility_gain": gain, "whole_source_group_paired_bootstrap_ci95": bounds,
         "placement_rates": rates, "eligible_for_independent_confirmation": eligible,
         "points_and_dealins": point_and_risk_summary(records),
         "baseline_identity": baseline_identity, "candidate_identity": candidate_identity,
         "declined_win_counts": {p: sum(r[p]["declined_wins"] for r in records) for p in ("baseline", "candidate")},
-        "no_independent_confirmation_yet": True, "deployed": False,
+        "no_independent_confirmation_yet": phase != "confirmation", "deployed": False,
         "limits": ["Rule-policy source trajectories and opponents; sampled late windows, not full-match-start win rate.",
-                   "Eight source groups are a pilot; bootstrap draws add no independent information.",
+                   f"Requested {groups} source groups; bootstrap draws add no independent information.",
                    "The learner changes the endgame input/action path as well as LoRA weights.",
                    "Raw per-window records remain private."]}
-    write(out / "development-result-private.json", result)
-    write(out / "development-status-private.json", result)
+    if phase == "confirmation":
+        if any(checksum(root / p) != value for p, value in protocol["source_code_sha256"].items()):
+            raise ValueError("Frozen serving code changed during confirmation")
+        result["eligible_for_independent_confirmation"] = False
+        result["confirmation_passed"] = (bounds[0] > 0
+            and rates["third_to_top2"]["candidate_minus_baseline"] > 0
+            and rates["fourth_escape"]["candidate_minus_baseline"] >= 0
+            and rates["hold_top2"]["candidate_minus_baseline"] >= 0)
+        result["protocol_sha256"] = digest(protocol)
+    write(out / (phase + "-result-private.json"), result)
+    write(out / (phase + "-status-private.json"), result)
     return result
 

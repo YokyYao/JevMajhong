@@ -8,7 +8,7 @@
 
 ## 结果
 
-- [末盘追分三轮小试：验证改善、开发退化及新路径对照诊断](results/2026-11-19-endgame-pilot/README.md)
+- [末盘追分四轮小试：输入修复、独立确认与实际训练覆盖诊断](results/2026-11-19-endgame-pilot/README.md)
 
 - [Windows真人实测：21300分第三名、31次吃碰推荐全跳过及新增立直应对要求](results/2026-11-12-windows-live-test/README.md)
 

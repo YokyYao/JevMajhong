@@ -10,7 +10,7 @@ import traceback
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("stage", choices=("collect", "label", "prepare", "reference", "fit", "evaluate", "path-ablation", "path-guards", "input-ablation"))
+    parser.add_argument("stage", choices=("collect", "label", "enrich", "prepare", "reference", "fit", "evaluate", "path-ablation", "path-guards", "input-ablation"))
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--limit", type=int)
     args = parser.parse_args()
@@ -31,6 +31,9 @@ def main():
         elif args.stage == "prepare":
             from jevmahjong.endgame.prepare import prepare
             result = prepare(config)
+        elif args.stage == "enrich":
+            from jevmahjong.endgame.enrich import enrich_positions
+            result = enrich_positions(config)
         elif args.stage == "fit":
             from jevmahjong.endgame.fit import fit
             result = fit(config)
