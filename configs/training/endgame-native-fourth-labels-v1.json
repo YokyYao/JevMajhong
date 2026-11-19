@@ -1,0 +1,21 @@
+{
+  "schema": "native-fourth-terminal16-v1",
+  "out": "runs/endgame-native-fourth-labels-v1",
+  "native_context_root": "runs/endgame-native-context-v1",
+  "native_context_positions_sha256": "8771610c0934d3f4048d64621a2e026dbd1816047dd7528a4e857040784d1764",
+  "coverage_out": "runs/endgame-source-coverage-v1",
+  "checkpoint": "PATH_TO_VERIFIED_PLAY_V2_SOURCE_CHECKPOINT",
+  "upstream_source": "PATH_TO_PINNED_JEVANY_SOURCE",
+  "manifest_limits": {"train": 32, "validation": 8},
+  "input_version": "endgame-trailing-public-v1",
+  "continuation_policy": "released_original_v1",
+  "future_worlds": 16,
+  "workers": 2,
+  "target_temperature": 0.1,
+  "terminal_step_cap": 30000,
+  "max_legal_actions": 800,
+  "label_registered": true,
+  "fit_registered": false,
+  "promotion_registered": false,
+  "raw_publication": false
+}

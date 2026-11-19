@@ -1,0 +1,337 @@
+"""Frozen-v8 distributions and terminal-utility improvement targets, offline only."""
+import copy
+import json
+import math
+from pathlib import Path
+import sys
+
+from .collect import digest, write
+
+
+def inference_request(record):
+    """Strip labels and metadata before the same input is sent to a frozen teacher."""
+    return {"state": copy.deepcopy(record["state"]), "questions": {
+        name: {key: copy.deepcopy(value) for key, value in question.items()
+               if key in ("type", "instructions", "criteria")}
+        for name, question in record["questions"].items()}}
+
+
+def distribution(values, keys):
+    if set(values) != set(keys) or not keys:
+        raise ValueError("Reference menu differs from the current legal menu")
+    p = [values[key] for key in keys]
+    if any(not math.isfinite(x) or x < 0 for x in p) or abs(sum(p) - 1) > 1e-5:
+        raise ValueError("Reference probabilities must form a finite distribution")
+    return [x / sum(p) for x in p]
+
+
+def restrict_distribution(probabilities, eligible):
+    if not eligible or not set(eligible) <= set(probabilities):
+        raise ValueError("Policy support differs from the legal menu")
+    total = sum(probabilities[k] for k in eligible)
+    if total <= 0:
+        return {k: float(k == eligible[0]) for k in probabilities}
+    return {k: probabilities[k] / total if k in eligible else 0. for k in probabilities}
+
+
+def reused_reference_prior(row, payload, teacher, eligible, keys):
+    if (row['request_sha256'] != digest(payload) or row['teacher_request_sha256'] != digest(teacher)
+            or row['teacher_eligible_keys'] != eligible or list(row['probabilities']) != keys):
+        raise ValueError('Cached reference input or ordered action support changed')
+    distribution(row['probabilities'], keys)
+    if any(row['probabilities'][key] != 0 for key in keys if key not in eligible):
+        raise ValueError('Cached original-policy reference escapes its serving support')
+    return dict(row['probabilities'])
+
+
+def improvement_target(reference, utilities, temperature=.1, exploration=.1):
+    """Tilt a reference distribution by utility, rather than erase its preferences."""
+    keys = list(reference)
+    p = distribution(reference, keys)
+    if (set(utilities) != set(keys) or not math.isfinite(temperature) or temperature <= 0
+            or not math.isfinite(exploration) or not 0 <= exploration < 1):
+        raise ValueError("Invalid reference-improvement recipe")
+    values = [utilities[key] for key in keys]
+    if not all(math.isfinite(x) for x in values):
+        raise ValueError("Terminal utilities must be finite")
+    if max(values) - min(values) <= 1e-12:
+        return dict(zip(keys, p))
+    advantages = [math.exp((v - max(values)) / temperature) for v in values]
+    prior = [(1 - exploration) * x + exploration / len(p) for x in p]
+    weights = [a * b for a, b in zip(prior, advantages)]
+    q = [x / sum(weights) for x in weights]
+    if sum(x * v for x, v in zip(q, values)) < sum(x * v for x, v in zip(p, values)) - 1e-12:
+        # A uniform exploration floor must not reduce the known expected utility.
+        weights = [a * b for a, b in zip(p, advantages)]
+        if sum(weights) == 0:
+            return dict(zip(keys, p))
+        q = [x / sum(weights) for x in weights]
+    return dict(zip(keys, q))
+
+
+def greedy_win_target(criteria, utilities, eligible):
+    """Match deterministic serving: best finite utility, keep a win on ties."""
+    keys = list(criteria)
+    wins = [k for k in keys if criteria[k]["type"] == "hora"]
+    if (len(wins) != 1 or wins[0] not in eligible or not set(eligible) <= set(keys)
+            or set(utilities) != set(keys) or not all(math.isfinite(v) for v in utilities.values())):
+        raise ValueError("Invalid supported win/continue utility menu")
+    win = wins[0]
+    best = max(utilities[k] for k in eligible)
+    if best <= utilities[win] + 1e-12:
+        return {k: float(k == win) for k in keys}
+    winners = [k for k in eligible if abs(utilities[k] - best) <= 1e-12]
+    return {k: 1 / len(winners) if k in winners else 0. for k in keys}
+
+
+def greedy_improvement_target(reference, utilities, eligible):
+    """Correct a strictly suboptimal greedy choice; preserve a best/tied old choice."""
+    keys = list(reference)
+    distribution(reference, keys)
+    if (not eligible or not set(eligible) <= set(keys) or set(utilities) != set(keys)
+            or not all(math.isfinite(v) for v in utilities.values())):
+        raise ValueError('Invalid supported ordinary terminal improvement menu')
+    supported = restrict_distribution(reference, eligible)
+    baseline = max(eligible, key=reference.get)
+    best = max(utilities[k] for k in eligible)
+    if utilities[baseline] >= best - 1e-12:
+        return supported
+    winners = [k for k in eligible if utilities[k] >= best - 1e-12]
+    return {k: float(k in winners) / len(winners) for k in keys}
+
+
+def escape_supported_keys(reference, escape_probabilities, eligible):
+    """For initial fourth, admit targets no worse than original greedy escape."""
+    distribution(reference, list(escape_probabilities))
+    if (not eligible or not set(eligible) <= set(reference)
+            or any(not math.isfinite(x) or not 0 <= x <= 1 for x in escape_probabilities.values())):
+        raise ValueError("Invalid finite escape estimates or action support")
+    baseline = max(eligible, key=reference.get)
+    floor = escape_probabilities[baseline]
+    return [k for k in eligible if escape_probabilities[k] >= floor - 1e-12]
+
+
+def load_reference(config, records):
+    from .futures import bundle_identity
+    out = Path(config["out"])
+    path = out / "reference-targets-private.json"
+    cache = json.loads(path.read_text())
+    if (cache.get("status") != "complete_frozen_reference"
+            or cache.get("identity_sha256") != bundle_identity(config["checkpoint"])["identity_sha256"]
+            or cache.get("input_version") != config.get("input_version", "endgame-public-v2")
+            or cache.get("reference_mode", "current_input_raw") != config.get("reference_mode", "current_input_raw")):
+        raise ValueError("Reference cache identity or format differs")
+    if {r["_meta"]["id"] for r in records} != set(cache["rows"]):
+        raise ValueError("Reference cache record set differs")
+    for record in records:
+        reference = cache["rows"][record["_meta"]["id"]]
+        if reference["request_sha256"] != digest(inference_request(record)):
+            raise ValueError("Reference inference input changed")
+        distribution(reference["probabilities"], list(record["questions"]["action"]["criteria"]))
+    return cache
+
+
+def apply_reference(config, splits):
+    from .public_policy import win_pass_allowed
+    style = config.get("win_target_style", "reference_tilt")
+    if style not in ("reference_tilt", "greedy_terminal_best"):
+        raise ValueError("Unsupported win-target style")
+    ordinary_style = config.get('ordinary_fourth_target_style', 'reference_tilt')
+    if ordinary_style not in ('reference_tilt', 'greedy_improvement'):
+        raise ValueError('Unsupported ordinary-fourth target style')
+    if config.get('split_ordinary_fourth_improvements') and ordinary_style != 'greedy_improvement':
+        raise ValueError('Strict-improvement weighting requires the existing greedy-improvement target')
+    if ordinary_style == 'greedy_improvement' and (
+            config.get('fourth_escape_constraint') is not True
+            or config.get('reference_mode') != 'released_original_policy'):
+        raise ValueError('Greedy ordinary improvement needs original-policy escape constraints')
+    from .context import PUBLIC_SETTLEMENT_VERSIONS
+    if (style == "greedy_terminal_best" or config.get("split_fixed_win_reference", False)) and (
+            config.get("input_version") not in PUBLIC_SETTLEMENT_VERSIONS
+            or config.get("reference_mode") != "released_original_policy"):
+        raise ValueError("Greedy win targets and fixed controls require the verified public-v3 original policy")
+    cache = load_reference(config, splits["train"] + splits["validation"])
+    changes, expected_gains, previous_gains = [], [], []
+    expert_count = expert_disagreements = 0
+    for record in splits["train"]:
+        meta, q = record["_meta"], record["questions"]["action"]
+        p = cache["rows"][meta["id"]]["probabilities"]
+        meta["original_target_source"] = q["src"]
+        if q["src"].startswith("replay_"):
+            if q["src"] == "replay_expert":
+                expert_count += 1
+                expert_disagreements += max(p, key=p.get) != q["label"]
+            leading=meta.get('native_retention_scope')=='leading'
+            if leading and not config.get('split_leading_reference'):
+                raise ValueError('Leading native reference needs an explicit loss source')
+            q["src"], q["target"] = "replay_reference_leading" if leading else "replay_reference", dict(p)
+            if meta.get("native_reference_pending"):
+                if cache["rows"][meta["id"]]["teacher_request_sha256"] != meta["teacher_request_sha256"]:
+                    raise ValueError("Native frozen teacher input changed")
+                meta.pop("native_reference_pending")
+                meta["label_type"] = "frozen_original_v8_policy_retention"
+        elif (config.get("reference_mode") == "released_original_policy" and meta["bucket"] == "win"
+              and not win_pass_allowed(record)):
+            q["src"] = "replay_fixed_win" if config.get("split_fixed_win_reference", False) else "replay_reference"
+            q["target"] = dict(p)
+            meta["target_basis"] = "fixed_public_win_scope_preserve_original_policy"
+        elif meta.get("target_basis") != "finite_MC_tie_preserve_existing_legal_win":
+            values = meta["expected_terminal_utilities"]
+            previous_gains.append(sum((q["target"][k] - p[k]) * values[k] for k in p))
+            eligible = list(p)
+            if config.get("reference_mode") == "released_original_policy":
+                from .public_policy import action_keys
+                eligible = action_keys(record)
+            if config.get("fourth_escape_constraint", False) and meta["source_initial_placement"] == 4:
+                eligible = escape_supported_keys(p, meta["terminal_escape4_probabilities"], eligible)
+            supported = restrict_distribution(p, eligible)
+            temperature = (config.get("reference_win_temperature", config["reference_temperature"])
+                           if meta["bucket"] == "win" else config["reference_temperature"])
+            greedy = meta["bucket"] == "win" and config.get("win_target_style") == "greedy_terminal_best"
+            if greedy:
+                target = greedy_win_target(q["criteria"], values, eligible)
+            elif (ordinary_style == 'greedy_improvement' and meta['bucket'] == 'fourth'
+                  and meta['source_initial_placement'] == 4):
+                target = greedy_improvement_target(p, values, eligible)
+            else:
+                target = improvement_target({k: supported[k] for k in eligible},
+                    {k: values[k] for k in eligible}, temperature, config["reference_exploration"])
+            target = {k: target.get(k, 0.) for k in p}
+            changes.append(sum(abs(target[k] - p[k]) for k in p) / 2)
+            expected_gains.append(sum((target[k] - p[k]) * values[k] for k in p))
+            q["target"] = target
+            meta["target_basis"] = "greedy_best_finite_terminal_win_scope" if greedy else "frozen_reference_tilted_by_terminal_utility"
+            if ordinary_style == 'greedy_improvement' and meta['bucket'] == 'fourth' and meta['source_initial_placement'] == 4:
+                meta['target_basis'] = 'greedy_safe_finite_ordinary_improvement_preserve_best_original'
+                if config.get('split_ordinary_fourth_improvements'):
+                    from .public_policy import action_keys
+                    original_greedy = max(action_keys(record), key=p.get)
+                    target_greedy = max(target, key=target.get)
+                    meta['strict_original_policy_improvement'] = bool(
+                        values[target_greedy] > values[original_greedy] + 1e-12)
+        q["label"] = max(q["target"], key=q["target"].get)
+    for record in splits["validation"]:
+        meta, q = record["_meta"], record["questions"]["action"]
+        if q["src"] in ("replay_native", "replay_native_leading"):
+            ref = cache["rows"][meta["id"]]
+            if ref["teacher_request_sha256"] != meta["teacher_request_sha256"]:
+                raise ValueError("Native validation teacher input changed")
+            q["target"] = dict(ref["probabilities"])
+            q["label"] = max(q["target"], key=q["target"].get)
+            meta.pop("native_reference_pending")
+            meta["label_type"] = "frozen_original_v8_policy_retention"
+    return {"reference_identity_sha256": cache["identity_sha256"],
+            "input_version": cache["input_version"], "reference_rows": len(cache["rows"]),
+            "mean_training_terminal_target_tv_from_reference": sum(changes) / len(changes),
+            "mean_training_target_expected_utility_gain": sum(expected_gains) / len(expected_gains),
+            "minimum_training_target_expected_utility_gain": min(expected_gains),
+            "previous_absolute_target_mean_expected_utility_delta": sum(previous_gains) / len(previous_gains),
+            "previous_absolute_targets_with_negative_expected_delta": sum(x < -1e-12 for x in previous_gains),
+            "old_expert_labels": expert_count, "old_expert_reference_argmax_disagreements": expert_disagreements,
+            "reference_mode": config.get("reference_mode", "current_input_raw"),
+            "win_target_style": config.get("win_target_style", "reference_tilt"),
+            "teacher_is_frozen_weights_on_new_input_not_the_released_guarded_policy": config.get("reference_mode") != "released_original_policy"}
+
+
+def build_reference(config):
+    if config.get('native_leading_context_root') and config.get('leading_reference_registered') is not True:
+        raise ValueError('Leading teacher queries require an explicitly registered preparation stage')
+    from .prepare import prepare, read_jsonl, checksum
+    from .futures import bundle_identity
+    from desktop.jev_sidecar.unified_policy import identity
+    out = Path(config["out"])
+    if (out / "training-run").exists() or (out / "reference-targets-private.json").exists():
+        raise ValueError("Existing reference or fit output must be inspected before rebuilding")
+    ordinary = dict(config, reference_regularization=False, internal_reference_preparation=True)
+    prepare(ordinary)
+    records = read_jsonl(out / "train.jsonl") + read_jsonl(out / "validation.jsonl")
+    frozen_identity = bundle_identity(config["checkpoint"])["identity_sha256"]
+    if frozen_identity not in (identity()["source_identity_sha256"], identity()["identity_sha256"]):
+        raise ValueError("The frozen reference must be exactly released v8")
+    sys.path.insert(0, config["upstream_source"])
+    from jevmahjong.policy.routing import load_model
+    from jevany.api import validate_distribution
+    model = None
+    mode = config.get("reference_mode", "current_input_raw")
+    if mode not in ("current_input_raw", "released_original_policy"):
+        raise ValueError("Unsupported reference mode")
+    reuse = None
+    if config.get('reference_reuse_from'):
+        reuse = json.loads(Path(config['reference_reuse_from']).read_text())
+        if (reuse.get('status') != 'complete_frozen_reference' or reuse['identity_sha256'] != frozen_identity
+                or reuse['input_version'] != config['input_version'] or reuse['reference_mode'] != mode
+                or not set(reuse['rows']) <= {r['_meta']['id'] for r in records}):
+            raise ValueError('Original reference cache identity, format or source set differs')
+    originals = {}
+    if mode == "released_original_policy":
+        from desktop.jev_sidecar.unified_policy import serving_request
+        from .public_policy import original_policy_keys
+        needed = {r["_meta"]["id"] for r in records if not r["_meta"]["id"].startswith("endgame:")}
+        for field in ("replay_train", "replay_validation"):
+            for raw in read_jsonl(config[field]):
+                key = raw["_meta"]["id"]
+                if key in needed:
+                    candidate = inference_request(raw)
+                    if key in originals and originals[key] != candidate:
+                        raise ValueError("Ambiguous original replay input identity")
+                    originals[key] = candidate
+        if config.get("native_context_root"):
+            from .native_retention import load_native_pairs
+            for row in load_native_pairs(config):
+                if row["id"] in needed:
+                    originals[row["id"]] = row["raw_request"]
+        if set(originals) != needed:
+            raise ValueError("Original replay input missing")
+    rows = {}
+    reused_count = forced_count = model_queries = 0
+    for record in records:
+        payload = inference_request(record)
+        keys = list(payload["questions"]["action"]["criteria"])
+        teacher, eligible = payload, keys
+        if mode == "released_original_policy":
+            key = record["_meta"]["id"]
+            if key.startswith("endgame:"):
+                raw = json.loads((out / "labels" / (key.split(":", 1)[1] + ".json")).read_text())["source"]["request"]
+                raw = copy.deepcopy(raw); raw["state"].pop("endgame_context", None)
+            else:
+                raw = originals[key]
+            teacher = serving_request(raw)
+            if set(teacher["questions"]["action"]["criteria"]) != set(keys):
+                raise ValueError("Original and student legal menus differ")
+            eligible = original_policy_keys(teacher)
+        key = record['_meta']['id']
+        cached = reuse is not None and key in reuse['rows']
+        if cached:
+            prior = reused_reference_prior(reuse['rows'][key], payload, teacher, eligible, keys)
+            reused_count += 1
+        elif mode == "released_original_policy" and len(eligible) == 1:
+            probabilities = [float(k == eligible[0]) for k in keys]
+            prior = dict(zip(keys, probabilities))
+            forced_count += 1
+        else:
+            if model is None:
+                model = load_model(config['checkpoint'])
+            result = model.system_one(**teacher)
+            probabilities, _ = validate_distribution(result["answers"]["action"]["probabilities"], keys)
+            prior = dict(zip(keys, probabilities))
+            model_queries += 1
+        if mode == "released_original_policy" and not cached:
+            prior = restrict_distribution(prior, eligible)
+        rows[record["_meta"]["id"]] = {"request_sha256": digest(payload),
+                                        "teacher_request_sha256": digest(teacher),
+                                        "teacher_eligible_keys": eligible, "probabilities": prior}
+        if len(rows) % 50 == 0 or len(rows) == len(records):
+            progress = {"status": "building_frozen_reference", "records_complete": len(rows),
+                        "records_total": len(records), "optimizer_updates": 0}
+            write(out / "reference-status-private.json", progress)
+            print(json.dumps(progress), flush=True)
+    cache = {"status": "complete_frozen_reference", "identity_sha256": frozen_identity,
+             "reference_mode": mode,
+             "input_version": config.get("input_version", "endgame-public-v2"), "rows": rows}
+    write(out / "reference-targets-private.json", cache)
+    result = {k: v for k, v in cache.items() if k != "rows"}
+    result.update(records=len(rows), optimizer_updates=0, reused_reference_rows=reused_count,
+                  forced_original_policy_rows=forced_count, new_model_queries=model_queries,
+                  reused_cache_sha256=checksum(config['reference_reuse_from']) if reuse is not None else None)
+    write(out / "reference-status-private.json", result)
+    return result

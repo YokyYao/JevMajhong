@@ -347,6 +347,10 @@ class Sidecar(QMainWindow):
         self.scores.textEdited.connect(self.invalidate)
         context.addWidget(QLabel('分数：自己 / 下家 / 对家 / 上家'))
         context.addWidget(self.scores)
+        self.record_scores = QPushButton('记录本场最终分数')
+        self.record_scores.setToolTip('结算后填入上方四家最终分数，再按此按钮记录；不需要手牌。')
+        self.record_scores.clicked.connect(self.record_final_scores)
+        context.addWidget(self.record_scores)
         form = QFormLayout()
         self.dealer = QComboBox()
         self.dealer.addItems(['自己', '下家', '对家', '上家'])
@@ -853,6 +857,25 @@ class Sidecar(QMainWindow):
         except Exception as error:
             self.status.setText(str(error))
 
+    def record_final_scores(self, checked=False):
+        from .score_history import MatchScoreHistory
+        try:
+            payload = {'state': {'seat': 0, 'dealer': self.dealer.currentIndex(),
+                'hand_number': self.hand_number.value(), 'round_wind': self.wind.currentIndex(),
+                'honba': self.honba.value(), 'sticks': 0,
+                'scores': [int(x) for x in self.scores.text().split()]},
+                'questions': {'action': {'type': 'choice', 'criteria': {}}}}
+            if self.adviser.score_history is None:
+                self.adviser.score_history = MatchScoreHistory()
+            event = self.adviser.score_history.record_terminal_observation(payload)
+            if event is None:
+                self.status.setText('本场最终分数已记录')
+            else:
+                rank = event['placements'][event['own_original_seat']]
+                self.status.setText(f'已记录本场最终分数 · 自己第{rank}名')
+        except (ValueError, OSError) as error:
+            self.status.setText(str(error))
+
     def board(self):
         hand = parse(self.hand.text())
         melds = [parse_melds(edit.text()) for edit in self.meld_edits]
@@ -871,7 +894,8 @@ class Sidecar(QMainWindow):
                      forbidden_discards=self.forbidden_discards if self.live.isChecked() else [],
                      riichi_available=self.live.isChecked() and self.screen_riichi.get('riichi_available', False),
                      riichi_selecting=self.live.isChecked() and self.screen_riichi.get('riichi_selecting', False),
-                     self_kan_available=self.live.isChecked() and self.latest_screen.get('self_kan_available', False))
+                     self_kan_available=self.live.isChecked() and self.latest_screen.get('self_kan_available', False),
+                     self_win_available=self.live.isChecked() and self.latest_screen.get('self_win_available', False))
 
     def analyze(self, checked=False, automatic=False):
         if self.busy & {'analysis', 'load'}:
@@ -926,6 +950,8 @@ class Sidecar(QMainWindow):
         hero = ('建议：' if result.get('reaction') else '建议打 ') + top['name']
         if top.get('action', {}).get('type') == 'reach':
             hero = top['name']
+        elif top.get('action', {}).get('type') == 'hora':
+            hero = top['name']
         elif result.get('riichi_selecting'):
             hero = '立直选牌 → 打 ' + top['name']
         device = ' · ' + self.adviser.device.upper() if self.adviser.device and result['engine'].startswith('Jev') else ''
@@ -959,7 +985,7 @@ class Sidecar(QMainWindow):
                     self.results.setItem(row, col, QTableWidgetItem(value))
                     changed = True
         notes = result['notes'] + ['模型偏好分不是胜率。赤五为色彩估计，可点击校正。']
-        if result['winning_shape']:
+        if result['winning_shape'] and not result.get('own_win_available'):
             hero = '和牌形 · 检查自摸'
             explanation = '若游戏提供自摸/和牌按钮，请先确认。未满足役等条件时，可参考下方弃牌候选。'
             notes.insert(0, '当前是和牌形：先检查游戏是否提供自摸/和牌按钮。')

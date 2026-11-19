@@ -280,6 +280,7 @@ class ScreenStateReader:
         return {'melds': melds, 'offered': offered, 'reaction': reaction, 'forbidden': self.forbidden, 'hand_id': self.hand_id,
                 'riichi_available': available, 'riichi_selecting': self.riichi_selecting,
                 'self_kan_available': self_kan_available,
+                'self_win_available': 'hora' in offered and len(hand) % 3 == 2,
                 'own_riichi': self.own_riichi,
                 'counters': self.counter_reader.read(image, regions.get('counters'), self.ocr_engine)}
 

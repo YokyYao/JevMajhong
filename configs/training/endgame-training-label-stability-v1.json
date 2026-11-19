@@ -1,0 +1,21 @@
+{
+  "schema": "endgame-training-label-stability-v1",
+  "out": "runs/endgame-training-label-stability-v1",
+  "source_data_run": "runs/endgame-placement-v14",
+  "training_positions": 55,
+  "strict_positions": 19,
+  "legacy_positions": 23,
+  "legacy_worlds": 4,
+  "native_positions": 32,
+  "native_worlds": 16,
+  "terminal_utility": [1.1, 1.0, 0.0, -0.05],
+  "method": "paired_world_leave_one_out",
+  "tie_break": "original_ordered_menu",
+  "optimizer_updates": 0,
+  "new_model_queries": 0,
+  "new_simulations": 0,
+  "validation_data_used": false,
+  "fit_registered": false,
+  "independent_confirmation": false,
+  "raw_publication": false
+}

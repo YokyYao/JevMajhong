@@ -1,0 +1,12 @@
+{
+  "out": "runs/endgame-target-win-v1",
+  "coverage_out": "runs/endgame-source-coverage-v1",
+  "checkpoint": "PATH_TO_VERIFIED_PLAY_V2_SOURCE_CHECKPOINT",
+  "upstream_source": "PATH_TO_PINNED_JEVANY_SOURCE",
+  "future_worlds": 16,
+  "training_objective": "top2_primary_v1",
+  "terminal_utility": [1.1, 1.0, 0.0, -0.05],
+  "target_temperature": 0.1,
+  "terminal_step_cap": 30000,
+  "fit_registered": false
+}

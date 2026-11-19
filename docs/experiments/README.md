@@ -8,6 +8,9 @@
 
 ## 结果
 
+- [末盘追分：训练、风险约束与拟合诊断](results/2026-11-19-endgame-pilot/README.md)
+- [末盘追分：两份研究权重的已用窗口完整续打诊断](results/2026-11-19-endgame-pilot/consumed-self-continuation.md)
+
 - [Windows真人实测：21300分第三名、31次吃碰推荐全跳过及新增立直应对要求](results/2026-11-12-windows-live-test/README.md)
 
 - [快和奖励：动作配比与直接排序短程对照](results/2026-11-11-tempo-action-learning/README.md)

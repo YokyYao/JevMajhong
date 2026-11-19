@@ -1,0 +1,20 @@
+{
+  "schema": "endgame-target-learning-header-diagnostic-v1",
+  "out": "runs/endgame-target-learning-header-diagnostic-v1",
+  "research_run": "runs/endgame-placement-v12",
+  "research_step": 72,
+  "training_ordinary_fourth_positions": 55,
+  "validation_positions": 186,
+  "header_variant": "released_teacher_instructions_only",
+  "baseline_repeat_controls": 8,
+  "control_selection": "public_fixed_hash",
+  "control_max_abs_difference": 1e-7,
+  "max_model_queries": 304,
+  "new_match_simulations": 0,
+  "diagnostic_only": true,
+  "fit_registered": false,
+  "promotion_registered": false,
+  "independent_confirmation": false,
+  "export_registered": false,
+  "raw_publication": false
+}
