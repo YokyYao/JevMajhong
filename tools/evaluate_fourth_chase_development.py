@@ -1,4 +1,4 @@
-"""Frozen-v8 fourth-only action-scope development on consumed cached source pools."""
+"""Frozen-v8 fourth-only endgame-path development on consumed cached source pools."""
 import argparse
 from collections import defaultdict
 import importlib.metadata
@@ -33,6 +33,26 @@ def candidate_agent(client):
     # original released input and guards, rather than the third-place trial.
     agent.base.placement_aware=False
     return agent
+
+
+def static_path_ablation(records,predictions,reference):
+    from jevmahjong.endgame.public_policy import action_keys
+    from jevmahjong.endgame.fourth_chase import fourth_chase_action_keys
+    arms=defaultdict(list);input_changes=ordinary_scope_changes=0
+    for row in records:
+        meta=row['_meta'];rid=meta['id']
+        if meta.get('source_initial_placement')!=4 or row['questions']['action']['src']!='endgame_terminal':continue
+        old_scope=action_keys(row);new_scope=fourth_chase_action_keys(row)
+        original=max(old_scope,key=reference[rid]['probabilities'].get)
+        rich=max(old_scope,key=predictions[rid].get);new=max(new_scope,key=predictions[rid].get)
+        input_changes+=original!=rich;ordinary_scope_changes+=rich!=new
+        for name,key in (('released_reference',original),('existing_endgame_input_and_guards',rich),('fourth_legal_ordinary_path',new)):
+            arms[name].append({'top2':meta['fourth_chase_top2_probabilities'][key],
+                              'fourth':1-meta['terminal_escape4_probabilities'][key]})
+    if len(arms['released_reference'])!=51:raise ValueError('Static path comparison must keep all51 fourth validation positions')
+    return {'positions':51,'arms':{name:{k:sum(v[k] for v in values)/len(values) for k in ('top2','fourth')}
+        for name,values in arms.items()},'input_and_win_scope_choice_changes':input_changes,
+        'ordinary_scope_only_choice_changes':ordinary_scope_changes,'finite_old_validation_not_strength':True}
 
 
 def summarize(records):
@@ -91,6 +111,16 @@ def evaluate(config):
     if old_general['baseline_identity']!=identity or old_target['baseline_identity']!=identity:
         raise ValueError('Cached baseline weights differ')
     original_launch=json.loads((old/'fit-launch-protocol-private.json').read_text())
+    from jevmahjong.endgame.prepare import read_jsonl
+    static_records=read_jsonl(fit_root/'validation.jsonl')
+    if checksum(fit_root/'validation.jsonl')!=ready['data_sha256'][str(fit_root/'validation.jsonl')]:
+        raise ValueError('Prepared static validation changed')
+    static_predictions_path=fit_root/'training-run/predictions/step-000000-private.json'
+    static_reference_path=fit_root/'reference-targets-private.json'
+    ablation=static_path_ablation(static_records,json.loads(static_predictions_path.read_text()),
+        json.loads(static_reference_path.read_text())['rows'])
+    if any(abs(ablation['arms']['fourth_legal_ordinary_path'][k]-ready['initial_validation']['fourth'][k])>1e-12
+           for k in ('top2','fourth')):raise ValueError('Static path decomposition differs from audited baseline0')
     critical_desktop={'unified_policy.py','call_policy.py','call_features.py','call_feature_helpers.py','tiles.py'}
     baseline_checked={}
     for name,expected in original_launch['code_sha256'].items():
@@ -147,6 +177,7 @@ def evaluate(config):
     paths.update(old/name for name in ('fit-launch-protocol-private.json','development-result-private.json',
         'targeted-development-result-private.json','targeted-development-protocol-private.json'))
     paths.update(fit_root/name for name in ('ready-private.json','postfit-summary-private.json'))
+    paths.update((fit_root/'validation.jsonl',static_predictions_path,static_reference_path))
     controls=[]
     for cohort in ('standard','targeted'):
         values=[e for e in entries if e[0]==cohort and cached[(cohort,f"{e[2]['seed']}-{e[2]['step']}-{e[2]['seat']}")]['initial_rank']==4]
@@ -158,6 +189,7 @@ def evaluate(config):
         'versions':{n:importlib.metadata.version(n) for n in ('torch','transformers','peft','riichienv','mahjong')},
         'baseline_rollouts_reused':83,'candidate_rollouts':83,'independent_confirmation':False}
     write(out/'protocol-private.json',protocol)
+    write(out/'static-path-ablation-private.json',ablation)
     from riichienv import GameRule,RiichiEnv
     from jevmahjong.core.seeds import engine_seed
     from jevmahjong.core.state import build_request
@@ -197,6 +229,7 @@ def evaluate(config):
         if checksum(path)!=expected:raise ValueError('Frozen source/cache changed during development')
     if bundle_identity(parent)!=identity:raise ValueError('Formal model files changed')
     summary=dict(result,status='fourth_scope_consumed_development_complete',baseline_controls=checked,
+        static_path_ablation=ablation,
         baseline_rollouts_reused=83,new_candidate_rollouts=83,baseline_control_rollouts=2,
         formal_weights_unchanged=True,independent_confirmation=False,deployed=False,raw_publication=False)
     write(out/'summary-private.json',summary);write(out/'status-private.json',{'status':summary['status'],

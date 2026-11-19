@@ -2,9 +2,9 @@ import copy
 import json
 from pathlib import Path
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock,patch
 
-from tools.evaluate_fourth_chase_development import validate_config,candidate_agent,summarize
+from tools.evaluate_fourth_chase_development import validate_config,candidate_agent,summarize,static_path_ablation
 
 
 def outcome(rank):
@@ -49,6 +49,20 @@ class FourthScopeDevelopmentTests(unittest.TestCase):
         for change in ({'standard_seed_start':2026118900},{'fourth_escape_constraint':'veto'},
                        {'independent_confirmation':True},{'new_candidate_rollouts':166}):
             with self.assertRaises(ValueError):validate_config(dict(config,**change))
+
+    def test_static_comparison_does_not_attribute_input_changes_to_action_masks(self):
+        records=[{'_meta':{'id':str(i),'source_initial_placement':4,
+            'fourth_chase_top2_probabilities':{'a':0.,'b':1.,'c':.5},
+            'terminal_escape4_probabilities':{'a':.5,'b':1.,'c':1.}},
+            'questions':{'action':{'src':'endgame_terminal'}}} for i in range(51)]
+        p={str(i):{'a':.1,'b':.7,'c':.2} for i in range(51)}
+        reference={str(i):{'probabilities':{'a':1.,'b':0.,'c':0.}} for i in range(51)}
+        with patch('jevmahjong.endgame.public_policy.action_keys',return_value=['a','b']),\
+             patch('jevmahjong.endgame.fourth_chase.fourth_chase_action_keys',return_value=['a','b','c']):
+            result=static_path_ablation(records,p,reference)
+        self.assertEqual(result['input_and_win_scope_choice_changes'],51)
+        self.assertEqual(result['ordinary_scope_only_choice_changes'],0)
+        self.assertEqual(result['arms']['existing_endgame_input_and_guards']['top2'],1.)
 
 
 if __name__=='__main__':unittest.main()
