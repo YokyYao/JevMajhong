@@ -14,6 +14,7 @@ sys.path.insert(0,str(ROOT))
 
 def validate_config(config):
     if (config.get('schema')!='endgame-fourth-risk-audit-v1'
+            or config.get('out')!='runs/endgame-fourth-chase-risk-audit-v1'
             or config.get('fourth_training_positions')!=149 or config.get('ordinary_fourth_positions')!=55
             or config.get('win_fourth_positions')!=94
             or config.get('arms')!=['original_safe','no_escape_floor','top2_no_floor','top2_legal_ordinary']

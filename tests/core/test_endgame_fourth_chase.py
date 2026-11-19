@@ -47,7 +47,7 @@ class FourthChaseTests(unittest.TestCase):
         path=Path(__file__).resolve().parents[2]/'configs/training/endgame-fourth-risk-audit-v1.json'
         config=json.loads(path.read_text());validate_config(config)
         for changes in ({'validation_data_used':True},{'fit_registered':True},{'new_simulations':1},
-                        {'fourth_training_positions':19}):
+                        {'fourth_training_positions':19},{'out':'runs/endgame-fourth-risk-audit-v1'}):
             with self.assertRaises(ValueError):validate_config(dict(config,**changes))
 
 
