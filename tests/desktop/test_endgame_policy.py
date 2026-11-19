@@ -116,7 +116,12 @@ class EndgameDesktopTests(unittest.TestCase):
 
     def test_v3_scores_native_physical_discard_and_screen_reaction_identically(self):
         import base64, json
-        from riichienv import ActionType
+        try:
+            from riichienv import ActionType
+        except ModuleNotFoundError as exc:
+            if exc.name != "riichienv":
+                raise
+            self.skipTest("Native comparison runs in the training checkout")
         from jevmahjong.endgame.native_public import add_native_context
         from jevmahjong.endgame.win_value import settlement_request
         model = Model(); adviser = Adviser()
