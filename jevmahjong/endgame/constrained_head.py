@@ -105,8 +105,10 @@ def constrained_update(head,records,features,direction,before_losses,*,relative_
             if all(after[k]<=before_losses[k]+tolerance for k in after):
                 actual=float(torch.linalg.vector_norm(candidate.double()-before.double())/torch.linalg.vector_norm(before.double()))
                 if actual<=0:raise ValueError('Projected update rounded to no parameter change')
-                return {'accepted':True,'halvings':halvings,'actual_relative_head_l2_change':actual,'losses':after}
+                return {'accepted':True,'halvings':halvings,'actual_relative_head_l2_change':actual,
+                        'before_losses':dict(before_losses),'losses':after}
         assign(before)
-        return {'accepted':False,'halvings':max_halvings,'reason':'no finite step preserves every training source','losses':before_losses}
+        return {'accepted':False,'halvings':max_halvings,'reason':'no finite step preserves every training source',
+                'before_losses':dict(before_losses),'losses':dict(before_losses)}
     except BaseException:
         assign(before);raise

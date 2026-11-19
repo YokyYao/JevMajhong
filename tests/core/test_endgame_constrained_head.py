@@ -30,6 +30,7 @@ class ConstrainedHeadTests(unittest.TestCase):
         direction,_=projected_descent(gradients,{'a':.5,'b':.5})
         accepted=constrained_update(head,rows,features,direction,losses,relative_step=.05,tolerance=0.)
         self.assertTrue(accepted['accepted']);self.assertTrue(all(accepted['losses'][k]<losses[k] for k in losses))
+        self.assertEqual(accepted['before_losses'],losses)
         before={k:v.clone() for k,v in head.state_dict().items()};gradients,losses=source_gradients(head,rows,features)
         direction,_=projected_descent(gradients,{'a':.5,'b':.5})
         rejected=constrained_update(head,rows,features,-direction,losses,relative_step=.01,max_halvings=3,tolerance=0.)
