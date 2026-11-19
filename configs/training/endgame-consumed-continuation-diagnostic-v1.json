@@ -1,0 +1,23 @@
+{
+  "schema": "consumed-development-self-continuation-diagnostic-v1",
+  "out": "runs/endgame-consumed-continuation-diagnostic-v1",
+  "reference_run": "runs/endgame-placement-v6",
+  "standard_source_run": "runs/endgame-placement-v7",
+  "candidates": {
+    "joint_trial10": {"run": "runs/endgame-placement-v10", "step": 72},
+    "head_trial11": {"run": "runs/endgame-placement-v11", "step": 48}
+  },
+  "public_quota": {"third": 4, "fourth": 4, "first": 2, "second": 2},
+  "per_seed_cap": 1,
+  "selection_hash_prefix": "consumed-self-continuation-diagnostic-v1",
+  "terminal_step_cap": 30000,
+  "baseline_cache_reuse": true,
+  "baseline_control": "first_hash_selected_nonwin_holding_position",
+  "input_version": "endgame-trailing-public-v1",
+  "diagnostic_only": true,
+  "fit_registered": false,
+  "promotion_registered": false,
+  "independent_confirmation": false,
+  "export_registered": false,
+  "raw_publication": false
+}
