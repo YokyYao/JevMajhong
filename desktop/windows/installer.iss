@@ -1,5 +1,5 @@
 #include "..\..\release\reuse-constants.iss"
-#define AppVersion "0.4.2"
+#define AppVersion "0.4.3"
 [Setup]
 AppId={{718C23FC-78B1-471E-8F29-A47A9BA97FD1}
 AppName=Jev Mahjong - Jev Play v2
@@ -32,7 +32,7 @@ Filename: "{app}\JevMahjong.exe"; Description: "Launch Jev Mahjong"; Flags: nowa
 [Code]
 function RuntimeBaseUrl(Param: String): String;
 begin
-  Result := ExpandConstant('{param:RUNTIMEURL|https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.4.2}');
+  Result := ExpandConstant('{param:RUNTIMEURL|https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.4.3}');
 end;
 
 

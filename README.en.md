@@ -4,13 +4,13 @@
 
 A local discard and call recommendation tool for four-player riichi mahjong in Mahjong Soul, with supporting simulation and training code.
 
-[Download the Windows installer](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.4.2/JevMahjong-Setup-0.4.2-win-x64.exe) · [Desktop guide](desktop/README.md) · [Model catalog](weights/README.md) · [Training and evaluation](docs/training.md) · [Experiment records](docs/experiments/README.md)
+[Download the Windows installer](https://github.com/YokyYao/JevMajhong/releases/latest) · [Desktop guide](desktop/README.md) · [Model catalog](weights/README.md) · [Training and evaluation](docs/training.md) · [Experiment records](docs/experiments/README.md)
 
-Windows 0.4.2 reuses the installed runtime. An in-place upgrade downloads only changed application and model components while preserving screenshot calibration and the base-model cache. Missing or damaged runtime components are restored automatically. [Upgrade guide](desktop/README.md)
+Windows 0.4.3 reuses the installed runtime. An in-place upgrade downloads only changed application and model components while preserving screenshot calibration and the base-model cache. Missing or damaged runtime components are restored automatically. [Upgrade guide](desktop/README.md)
 
 ## Current model: Jev Play v2
 
-Windows **0.4.2** uses **Jev Play v2** by default. Versions 0.4.0, 0.4.1, and 0.4.2 use the same model parameters; the latter two releases primarily improve desktop recognition, interaction, installation, and upgrades.
+Windows **0.4.3** uses **Jev Play v2** by default. Versions 0.4.0 through 0.4.3 use the same model parameters. See the [release notes](desktop/RELEASE_NOTES.md) for desktop fixes.
 
 | Item | Details |
 | --- | --- |

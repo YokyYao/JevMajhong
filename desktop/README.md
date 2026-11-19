@@ -1,6 +1,6 @@
 # Windows 桌面工具
 
-[下载 JevMahjong-Setup-0.4.2-win-x64.exe](https://github.com/YokyYao/JevMajhong/releases/download/desktop-v0.4.2/JevMahjong-Setup-0.4.2-win-x64.exe)，双击安装即可。安装程序自动下载并核对运行组件，无需自行安装 Python、pip 或 CUDA Toolkit。使用 NVIDIA GPU 需要本机显卡驱动。
+[下载最新版 Windows 安装程序](https://github.com/YokyYao/JevMajhong/releases/latest)，双击安装即可。安装程序自动下载并核对运行组件，无需自行安装 Python、pip 或 CUDA Toolkit。使用 NVIDIA GPU 需要本机显卡驱动。
 
 升级时直接运行新版安装程序并使用原安装目录，**不要先卸载旧版**。安装器会校验并复用已有 Python／PyTorch／CUDA 运行环境；程序与模型分别更新，模型相同时也不重复下载。首次安装、换到空目录或运行环境缺失／损坏时，才下载完整运行组件。截图校准及已下载的 Qwen 基座缓存会保留。
 
@@ -12,7 +12,7 @@
 
 这是按用户要求发布的正式版本，尚未证明优于原版 Jev Play v1 或真人胜率提升。[发布说明](RELEASE_NOTES.md) · [模型身份](../weights/jev-play-v2/README.md)。安装包已通过 Windows 构建及安装后推理检查；旧 0.3.0 版本使用 Discard v1＋Call v1 组合。
 
-源码包含本场数、立直棒识别，以及暗杠／加杠候选和单一选项的点击规划。多种杠法的二次选择界面仍未支持。实际截图和 NVIDIA GPU 效果仍需本机验证。
+源码包含本场数、立直棒识别，以及暗杠／加杠候选和单一选项的点击规划。多种杠法的二次选择界面仍未支持。本机已使用 NVIDIA GPU 和实际牌桌截图完成两场真人对局验收。
 
 ## 从源码运行
 
