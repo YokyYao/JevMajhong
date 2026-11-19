@@ -2,7 +2,7 @@
 
 Status: training is active. This is a new rank-16 LoRA and pointer head on pinned Qwen3.5-0.8B, with no Mahjong-trained v8/audited176 adapter or head and no v8 replay targets. The backbone is frozen. See the [registered plan](../../plans/mortal-base-training-20261120.md).
 
-GPU job309978 passed preflight and seven checks and encoded all22,321 teacher training decisions. Saved-model validation is complete through update576; both LoRA and head changed. The512 validation decisions come from128 whole source games separate from the384 training games. This is an inspected development set, not an untouched confirmation test. This pure-teacher phase covers East1–3 non-win menus under the existing serving guard; East4 pursuit and win acceptance receive no direct teacher supervision here, so agreement cannot establish those abilities.
+GPU job309978 passed preflight and seven checks and encoded all22,321 teacher training decisions. Saved-model validation is complete through update640; both LoRA and head changed. The512 validation decisions come from128 whole source games separate from the384 training games. This is an inspected development set, not an untouched confirmation test. This pure-teacher phase covers East1–3 non-win menus under the existing serving guard; East4 pursuit and win acceptance receive no direct teacher supervision here, so agreement cannot establish those abilities.
 
 | Saved step | Weighted teacher CE ↓ | Weighted agreement | Overall agreement, selected512 menus | Unique training decisions exposed |
 |---|---:|---:|---:|---:|
@@ -16,6 +16,7 @@ GPU job309978 passed preflight and seven checks and encoded all22,321 teacher tr
 | 448 | 0.84677 | 69.07% | 65.82% | 18,015 |
 | 512 | 0.84989 | 67.40% | 65.62% | 19,935 |
 | 576 | 0.81667 | 69.30% | 67.58% | 21,562 |
+| 640 | 0.82420 | 70.70% | 69.73% | 21,946 |
 
 Step0 is a random decision head on a pretrained backbone, not an old Mahjong policy or a uniform-random action baseline. Agreement depends on this selected/weighted validation mix and is not a win rate.
 
@@ -31,21 +32,22 @@ Step0 is a random decision head on a pretrained backbone, not an old Mahjong pol
 | 448 | 28 | 62 | 27 | 16 |
 | 512 | 38 | 62 | 31 | 7 |
 | 576 | 38 | 63 | 23 | 15 |
+| 640 | 43 | 63 | 28 | 13 |
 
-The initial learner changed from calling too often to always declining chi/pon at64–128, then began selecting some teacher-positive calls at192. Exact positive-call matches change16/64 →22/64 →34/64 →37/64 →28/64 →38/64 →38/64 at192/256/320/384/448/512/576. Negative-call matches stay62/64 from320 through512 and improve63/64 at576. Weighted CE increases at448/512, then reaches a new low at576. No claim of solved decisions or improved playing strength follows from these auxiliary metrics.
+The initial learner changed from calling too often to always declining chi/pon at64–128, then began selecting some teacher-positive calls at192. Exact positive-call matches change16/64 →22/64 →34/64 →37/64 →28/64 →38/64 →38/64 →43/64 at192/256/320/384/448/512/576/640. Negative-call matches are63/64 at576/640. Weighted CE reaches its current minimum at576, then rises slightly at640 despite improved agreement. No claim of solved decisions or improved playing strength follows from these auxiliary metrics.
 
-| Available decision | Validation opportunities | Teacher selects | Step512 selects | Step576 selects |
+| Available decision | Validation opportunities | Teacher selects | Step576 selects | Step640 selects |
 |---|---:|---:|---:|---:|
-| Riichi | 64 | 32 | 56 | 33 |
-| Chi | 75 | 22 | 11 | 10 |
-| Pon | 76 | 43 | 31 | 30 |
-| Ankan | 26 | 6 | 3 | 1 |
+| Riichi | 64 | 32 | 33 | 45 |
+| Chi | 75 | 22 | 10 | 12 |
+| Pon | 76 | 43 | 30 | 33 |
+| Ankan | 26 | 6 | 1 | 5 |
 | Daiminkan | 21 | 0 | 0 | 0 |
-| Kakan | 17 | 3 | 2 | 2 |
+| Kakan | 17 | 3 | 2 | 4 |
 
-Opportunity rows overlap: a menu can contain several action types. At576,10/10 selected chi and29/30 selected pon match the teacher's action type; exact candidate agreement is38/64 on the teacher-positive call stratum. These are teacher matches, not independent expert correctness labels.
+Opportunity rows overlap: a menu can contain several action types. At640,12/12 selected chi and32/33 selected pon match the teacher's action type; exact candidate agreement is43/64 on the teacher-positive call stratum. These are teacher matches, not independent expert correctness labels.
 
-Riichi at576 has23 teacher-positive matches,10 extra declarations,9 misses and22 correct declines. Ankan has0 matches,1 extra and6 misses; kakan has1 match,1 extra and2 misses. Thus better total CE coexists with incomplete kan judgment; neither total CE nor action frequency alone establishes playing strength.
+Riichi at640 has28 teacher-positive matches,17 extra declarations,4 misses and15 correct declines. Ankan has3 matches,2 extras and3 misses; kakan has2 matches,2 extras and1 miss. Kan-positive recall improves to5/9 from1/9 at576, with4 extra kan selections relative to the teacher. These remain small, fluctuating counts; neither CE nor action frequency alone establishes playing strength.
 
 ## Rare positive-kan exposure
 
@@ -97,7 +99,9 @@ This limited diagnostic checks visibility and decoding in those windows, not eve
 
 ## Schedule and integrity
 
-At576, only21,562/22,321 unique training decisions have been exposed. Continue the fixed schedule: saved validation every64 updates, at least768 updates and full exposure before early stopping, maximum1536. The call-negative population alone needs703 updates at six examples/update for first exposure. No early checkpoint is selected as final before the observation floor. Step576 now has the lowest all-run CE; the registered selection policy waits for the full-exposure floor, which is not a guarantee of the best playing strength.
+At640, only21,946/22,321 unique training decisions have been exposed. Continue the fixed schedule: saved validation every64 updates, at least768 updates and full exposure before early stopping, maximum1536. The call-negative population alone needs703 updates at six examples/update for first exposure. No early checkpoint is selected as final before the observation floor. Step576 has the lowest CE through640; the registered selection policy waits for full exposure, which is not a guarantee of the best playing strength.
+
+A prospective full-exposure development screen uses checkpoint768. This was added after the adverse384 result and before observing768 outcomes. If the monotonic registered selector later moves to a different, lower-CE checkpoint, separately evaluate768 on64 games; otherwise its ordinary post-fit comparison supplies the screen. This avoids repeating an identical final candidate. Reuse the64 reference games and measured384 results. Compare top-two and mean net points together to guide continued observation versus a revised recipe; a positive95% bound is not required merely to continue research, and a favorable point estimate is not a qualified improvement. Active optimizer/data/selection code remain unchanged; any externally triggered stop or new recipe must document its checkpoint and cleanup.
 
 A read-only companion-CPU step inside the same GPU allocation verified all10 base snapshot files (1,769,905,646 bytes) against their original content addresses, including weights and tokenizer. Nested links to shared storage are handled using the snapshot's content address. This is local pinned-cache integrity, not a new remote signature. Registered training sources/data match their frozen hashes, and eight published source/plan/report files match their Git blob identities. Post-fit checks were compiled and frozen; they repeat base integrity checking after fitting.
 
@@ -105,4 +109,4 @@ A separate bounded companion-CPU check verified current RiichiEnv0.4.11 Python/n
 
 An input-isolation check also processed all22,833 training/validation records: public state/instruction/option serialization matched the normal inference path and stayed identical after mutating labels, target distributions, source names and metadata. Fourteen representatives (two per stratum) had identical actual forward-input token arrays across training, inference and mutated-supervision forms, with labels genuinely changed. This excludes those supervision fields as a visible-input shortcut; it does not establish every feature's sufficiency or playing strength. No policy weights were loaded, and registered training code/data stayed unchanged.
 
-After fitting, reload/audit selected and final checkpoints, run64 complete East games for the registered selected candidate, and compare with the same64 audited reference games. Its complete-game results remain pending; the early384 diagnostic above is a separate experiment. Dependency-bound GPU audit job309982 follows a successful fit and is canceled automatically if that dependency fails. Training code commit8610bff1cb74d32188c1d356f8961641c098f0cb passed GitHub CI. This update also publishes the reusable read-only checkpoint evaluator; raw records, prediction details and research weights remain private.
+After fitting, reload/audit selected and final checkpoints and evaluate the registered selected candidate against the same64 reference games. The optional768 screen above is only separate once768 can no longer be that selected candidate; no reference-policy rerun is needed. Final-candidate results remain pending; early384 is a separate experiment. Dependency-bound GPU audit job309982 follows a successful fit and is canceled automatically if that dependency fails. Training code8610bff1 passed CI. The reusable evaluator and adverse384 result were published in987ee146; its core and desktop CI jobs44637163535 both passed. Raw records, prediction details and research weights remain private.
