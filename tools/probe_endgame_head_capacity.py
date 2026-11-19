@@ -51,6 +51,91 @@ def target_stats(target, probabilities, eligible):
             'excess_ce': max(0., ce - entropy)}
 
 
+def validated_head_distribution(values, keys, validator):
+    """The string-key API requires a mapping, including for cached raw logits."""
+    if len(values) != len(keys):
+        raise ValueError('Cached head option count differs')
+    probabilities, _ = validator(dict(zip(keys, values)), keys)
+    return dict(zip(keys, probabilities))
+
+
+def finish_probe(config, rows, *, features, head, initial, parent, parent_id, protocol,
+                 actual, repeated, original_parameter_ids, capture_reused=False):
+    import torch
+    from jevany.api import validate_distribution
+    from jevmahjong.endgame.collect import write
+    from jevmahjong.endgame.prepare import checksum
+    from jevmahjong.endgame.futures import bundle_identity
+    from jevmahjong.endgame.public_policy import action_keys
+    from tools.audit_endgame_parameter_attribution import control_comparison
+    out = Path(config['out'])
+    torch.backends.cuda.matmul.allow_tf32 = False
+    torch.backends.cudnn.allow_tf32 = False
+    for value in features.values():
+        value['decide'] = value['decide'].to('cuda').clone()
+        value['options'] = value['options'].to('cuda').clone()
+    def logits(rid):
+        value = features[rid]
+        with torch.autocast('cuda', enabled=value['autocast_enabled'], dtype=getattr(torch, value['autocast_dtype'])):
+            return head(value['decide'], value['options']).float()
+    def predictions():
+        result = {}; head.eval()
+        with torch.no_grad():
+            for row in rows:
+                rid = row['_meta']['id']; keys = features[rid]['keys']
+                result[rid] = validated_head_distribution(logits(rid).softmax(-1).cpu().tolist(), keys, validate_distribution)
+        return result
+    replayed = predictions(); replay_control = control_comparison(rows, replayed, actual, 1e-7)
+    write(out / 'head-replay-control-private.json', replay_control)
+    if not replay_control['passed']: raise ValueError('Captured head features do not reproduce real inference')
+    optimizer = torch.optim.AdamW(head.parameters(), lr=.001, weight_decay=0.)
+    if {id(p) for group in optimizer.param_groups for p in group['params']} & original_parameter_ids:
+        raise ValueError('Optimizer must not contain any original model parameter')
+    targets = {r['_meta']['id']: torch.tensor([r['questions']['action']['target'][k]
+        for k in features[r['_meta']['id']]['keys']], dtype=torch.float32, device='cuda') for r in rows}
+    curve = []
+    def evaluate(step, p):
+        stats = [target_stats(r['questions']['action']['target'], p[r['_meta']['id']], action_keys(r)) for r in rows]
+        value = {'step': step, 'positions': 19, 'target_hits': sum(s['hit'] for s in stats),
+            'mean_target_ce': sum(s['target_ce'] for s in stats) / 19,
+            'mean_target_entropy': sum(s['target_entropy'] for s in stats) / 19,
+            'mean_excess_ce': sum(s['excess_ce'] for s in stats) / 19,
+            'validation_data_used': False}
+        curve.append(value); write(out / 'curve-private.json', curve); write(out / 'status-private.json', value)
+        print(json.dumps(value), flush=True); return value
+    current = evaluate(0, replayed)
+    for step in range(1, 129):
+        with torch.enable_grad():
+            head.train(); optimizer.zero_grad(set_to_none=True)
+            loss = sum(-(targets[r['_meta']['id']] * logits(r['_meta']['id']).log_softmax(-1)).sum() for r in rows) / 19
+            if not torch.isfinite(loss): raise ValueError('Nonfinite probe objective')
+            loss.backward(); norm = torch.nn.utils.clip_grad_norm_(head.parameters(), 1.)
+            if not torch.isfinite(norm): raise ValueError('Nonfinite probe gradient')
+            optimizer.step()
+        if step % 8 == 0:
+            current = evaluate(step, predictions())
+            if current['target_hits'] >= 18 and current['mean_excess_ce'] <= .2: break
+    for path, expected in protocol['source_sha256'].items():
+        if checksum(path) != expected: raise ValueError('Read-only source changed during capacity probe')
+    if bundle_identity(parent) != parent_id: raise ValueError('Original v8 files changed')
+    final = {k: v.detach().cpu() for k, v in head.state_dict().items()}
+    relative_change = math.sqrt(sum(((v - initial[k]) ** 2).sum().item() for k, v in final.items()) /
+                                sum((v ** 2).sum().item() for v in initial.values()))
+    torch.save({'head': final, 'diagnostic_only': True, 'parent_identity': parent_id}, out / 'probe-head-private.pt')
+    summary = {'status': 'existing_head_capacity_probe_complete', 'end_to_end_control': repeated,
+        'head_replay_control': replay_control, 'encoded_positions': 19, 'all_public_context_checks_passed': True,
+        'initial': curve[0], 'final': curve[-1], 'goal_reached': current['target_hits'] >= 18 and current['mean_excess_ce'] <= .2,
+        'relative_head_parameter_l2_change': relative_change, 'trainable_head_parameters': 524800,
+        'original_encoder_optimizer_parameters': 0, 'full_encoder_queries': 19,
+        'new_full_encoder_queries': 0 if capture_reused else 19,
+        'reused_full_encoder_queries': 19 if capture_reused else 0, 'head_updates': curve[-1]['step'],
+        'original_weight_files_unchanged': True, 'source_fingerprints_unchanged': True,
+        'validation_data_used': False, 'new_simulations': 0, 'candidate_training_registered': False,
+        'eligible_for_promotion': False, 'exported_or_deployed': False, 'raw_publication': False}
+    write(out / 'summary-private.json', summary); write(out / 'status-private.json', {'status': summary['status']})
+    return summary
+
+
 def probe(config):
     validate_config(config)
     from jevmahjong.endgame.collect import digest, write
@@ -158,72 +243,96 @@ def probe(config):
     write(out / 'token-audits-private.json', token_audits)
     if not repeated['passed']: raise ValueError('Formal-v8 capture differs from cached predictions')
     torch.save({'features': features, 'parent_identity': parent_id, 'diagnostic_only': True}, out / 'frozen-features-private.pt')
-    for value in features.values():
-        value['decide'] = value['decide'].to('cuda').clone()
-        value['options'] = value['options'].to('cuda').clone()
-    def logits(rid):
-        value = features[rid]
-        with torch.autocast('cuda', enabled=value['autocast_enabled'], dtype=getattr(torch, value['autocast_dtype'])):
-            return head(value['decide'], value['options']).float()
-    def predictions():
-        result = {}; head.eval()
-        with torch.no_grad():
-            for row in rows:
-                rid = row['_meta']['id']; keys = features[rid]['keys']
-                p, _ = validate_distribution(logits(rid).softmax(-1).cpu().tolist(), keys)
-                result[rid] = dict(zip(keys, p))
-        return result
-    replayed = predictions(); replay_control = control_comparison(rows, replayed, actual, 1e-7)
-    write(out / 'head-replay-control-private.json', replay_control)
-    if not replay_control['passed']: raise ValueError('Captured head features do not reproduce real inference')
     del client, original_admit, original_head; gc.collect(); torch.cuda.empty_cache()
-    optimizer = torch.optim.AdamW(head.parameters(), lr=.001, weight_decay=0.)
-    if {id(p) for group in optimizer.param_groups for p in group['params']} & original_parameter_ids:
-        raise ValueError('Optimizer must not contain any original model parameter')
-    targets = {r['_meta']['id']: torch.tensor([r['questions']['action']['target'][k]
-        for k in features[r['_meta']['id']]['keys']], dtype=torch.float32, device='cuda') for r in rows}
-    curve = []
-    def evaluate(step, p):
-        stats = [target_stats(r['questions']['action']['target'], p[r['_meta']['id']], action_keys(r)) for r in rows]
-        value = {'step': step, 'positions': 19, 'target_hits': sum(s['hit'] for s in stats),
-            'mean_target_ce': sum(s['target_ce'] for s in stats) / 19,
-            'mean_target_entropy': sum(s['target_entropy'] for s in stats) / 19,
-            'mean_excess_ce': sum(s['excess_ce'] for s in stats) / 19,
-            'validation_data_used': False}
-        curve.append(value); write(out / 'curve-private.json', curve); write(out / 'status-private.json', value)
-        print(json.dumps(value), flush=True); return value
-    current = evaluate(0, replayed)
-    for step in range(1, 129):
-        head.train(); optimizer.zero_grad(set_to_none=True)
-        loss = sum(-(targets[r['_meta']['id']] * logits(r['_meta']['id']).log_softmax(-1)).sum() for r in rows) / 19
-        if not torch.isfinite(loss): raise ValueError('Nonfinite probe objective')
-        loss.backward(); norm = torch.nn.utils.clip_grad_norm_(head.parameters(), 1.)
-        if not torch.isfinite(norm): raise ValueError('Nonfinite probe gradient')
-        optimizer.step()
-        if step % 8 == 0:
-            current = evaluate(step, predictions())
-            if current['target_hits'] >= 18 and current['mean_excess_ce'] <= .2: break
-    for path, expected in protocol['source_sha256'].items():
-        if checksum(path) != expected: raise ValueError('Read-only source changed during capacity probe')
-    if bundle_identity(parent) != parent_id: raise ValueError('Original v8 files changed')
-    final = {k: v.detach().cpu() for k, v in head.state_dict().items()}
-    relative_change = math.sqrt(sum(((v - initial[k]) ** 2).sum().item() for k, v in final.items()) /
-                                sum((v ** 2).sum().item() for v in initial.values()))
-    torch.save({'head': final, 'diagnostic_only': True, 'parent_identity': parent_id}, out / 'probe-head-private.pt')
-    summary = {'status': 'existing_head_capacity_probe_complete', 'end_to_end_control': repeated,
-        'head_replay_control': replay_control, 'encoded_positions': 19, 'all_public_context_checks_passed': True,
-        'initial': curve[0], 'final': curve[-1], 'goal_reached': current['target_hits'] >= 18 and current['mean_excess_ce'] <= .2,
-        'relative_head_parameter_l2_change': relative_change, 'trainable_head_parameters': 524800,
-        'original_encoder_optimizer_parameters': 0, 'full_encoder_queries': 19, 'head_updates': curve[-1]['step'],
-        'original_weight_files_unchanged': True, 'source_fingerprints_unchanged': True,
-        'validation_data_used': False, 'new_simulations': 0, 'candidate_training_registered': False,
-        'eligible_for_promotion': False, 'exported_or_deployed': False, 'raw_publication': False}
-    write(out / 'summary-private.json', summary); write(out / 'status-private.json', {'status': summary['status']})
-    return summary
+    return finish_probe(config, rows, features=features, head=head, initial=initial,
+        parent=parent, parent_id=parent_id, protocol=protocol, actual=actual, repeated=repeated,
+        original_parameter_ids=original_parameter_ids)
+
+
+def resume_probe(config):
+    """Resume only the reviewed pre-update API-format failure; reuse all19 encoder calls."""
+    validate_config(config)
+    from jevmahjong.endgame.collect import digest, write
+    from jevmahjong.endgame.prepare import read_jsonl, checksum
+    from jevmahjong.endgame.futures import bundle_identity
+    from desktop.jev_sidecar.unified_policy import identity
+    out, run = Path(config['out']), Path(config['research_data_run'])
+    if any((out / name).exists() for name in ('summary-private.json', 'curve-private.json',
+            'probe-head-private.pt', 'head-replay-control-private.json', 'resume-protocol-private.json')):
+        raise ValueError('Only a pre-update failed capture can resume; inspect existing progress')
+    if json.loads((out / 'probe-job-308894-exit.json').read_text())['exit_code'] != 1:
+        raise ValueError('Expected the known original pre-update API-format failure')
+    original = json.loads((out / 'protocol-private.json').read_text())
+    if original['configuration'] != config:
+        raise ValueError('Original capture sampling or optimization settings changed')
+    tool_path = str(Path(__file__).resolve())
+    old_tool_sha = 'f5a0b74b7fe7a0f872e1a2cd09b653fa32565f0f57bba177e146675981e9c5f5'
+    if original['source_sha256'].get(tool_path) != old_tool_sha:
+        raise ValueError('The original capture tool is not the reviewed exact version')
+    for path, expected in original['source_sha256'].items():
+        if path != tool_path and checksum(path) != expected:
+            raise ValueError('An unreviewed capture dependency/input changed: ' + path)
+    if original['versions'] != {name: importlib.metadata.version(name) for name in original['versions']}:
+        raise ValueError('Capture library versions changed')
+    rows = [r for r in read_jsonl(run / 'train.jsonl') if r['questions']['action']['src'] == 'endgame_terminal_fourth_improve']
+    ids = [r['_meta']['id'] for r in rows]
+    if len(rows) != 19 or ids != original['record_ids']:
+        raise ValueError('Original complete19 capture identity/order changed')
+    repeated = json.loads((out / 'end_to_end-control-private.json').read_text())
+    if (repeated.get('records') != 19 or repeated.get('passed') is not True
+            or repeated.get('max_absolute_probability_difference') != 0. or repeated.get('greedy_flips') != 0):
+        raise ValueError('Reusing absent actual predictions requires the saved exact-zero19 repeat proof')
+    token_audits = json.loads((out / 'token-audits-private.json').read_text())
+    required = {'endgame_context', 'scores', 'gap_to_second', 'gap_to_third'}
+    if set(token_audits) != set(ids) or any(v['state_truncated'] or not v['target_metadata_absent']
+            or not required <= set(v['required_public_fields_present']) for v in token_audits.values()):
+        raise ValueError('All19 saved actual encoding checks must have passed')
+    run_config = json.loads((run / 'config-private.json').read_text())
+    parent = Path(run_config['checkpoint']); parent_id = bundle_identity(parent); released = identity()
+    if (parent_id != original['parent_identity']
+            or parent_id['identity_sha256'] not in (released['source_identity_sha256'], released['identity_sha256'])):
+        raise ValueError('Original source v8 changed')
+    artifact_paths = [out / name for name in ('protocol-private.json', 'frozen-features-private.pt',
+        'end_to_end-control-private.json', 'token-audits-private.json')]
+    protocol = copy.deepcopy(original)
+    protocol['source_sha256'] = {path: checksum(path) for path in original['source_sha256']}
+    protocol['source_sha256'].update({str(p.resolve()): checksum(p) for p in artifact_paths})
+    protocol['resume'] = {'capture_job': 308894, 'capture_protocol_sha256': digest(original),
+        'reviewed_original_tool_sha256': old_tool_sha, 'encoder_queries_reused': 19, 'new_encoder_queries': 0}
+    write(out / 'resume-protocol-private.json', protocol)
+    import torch
+    sys.path.insert(0, run_config['upstream_source'])
+    from jevany.model import PointerHead
+    torch.manual_seed(2026111914)
+    saved = torch.load(out / 'frozen-features-private.pt', map_location='cpu', weights_only=True)
+    if saved['parent_identity'] != parent_id or saved.get('diagnostic_only') is not True or set(saved['features']) != set(ids):
+        raise ValueError('Frozen feature artifact provenance differs')
+    features = saved['features']
+    meta = torch.load(parent / 'head.pt', map_location='cpu', weights_only=True)
+    if meta.get('head_residual_dim', 0) != 0 or meta.get('decision_mode', 'pointer') != 'pointer':
+        raise ValueError('Only the original plain pointer architecture may resume')
+    dp, d = meta['head']['q.weight'].shape
+    head = PointerHead(d, dp).to(device='cuda', dtype=torch.float32).requires_grad_(True)
+    head.load_state_dict(meta['head'], strict=True)
+    initial = {k: v.detach().float().cpu().clone() for k, v in meta['head'].items()}
+    if sum(p.numel() for p in head.parameters()) != 524800 or any(
+            not torch.equal(v.detach().cpu(), initial[k]) for k, v in head.state_dict().items()):
+        raise ValueError('Resumed head is not an exact existing524800-parameter clone')
+    baseline = json.loads((Path(config['baseline_prediction_run']) / 'baseline_rich_train-predictions-private.json').read_text())
+    actual = {rid: baseline[rid] for rid in ids}
+    for row in rows:
+        rid = row['_meta']['id']; value = features[rid]
+        if (value['keys'] != list(row['questions']['action']['criteria'])
+                or value['decide'].shape != (d,) or value['options'].shape != (len(value['keys']), d)):
+            raise ValueError('Saved feature shapes or ordered candidates differ')
+    return finish_probe(config, rows, features=features, head=head, initial=initial,
+        parent=parent, parent_id=parent_id, protocol=protocol, actual=actual, repeated=repeated,
+        original_parameter_ids=set(), capture_reused=True)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__); parser.add_argument('--config', type=Path, required=True)
+    parser.add_argument('--resume-frozen-capture', action='store_true')
     args = parser.parse_args()
     if not os.environ.get('SLURM_JOB_ID') or socket.gethostname().startswith(('lo-', 'login')):
         raise RuntimeError('Capacity probe requires a scheduled GPU allocation')
@@ -231,7 +340,8 @@ def main():
     description = subprocess.check_output(['scontrol', 'show', 'job', os.environ['SLURM_JOB_ID'], '--oneliner'], text=True)
     allocation = allocation_metadata(description, socket.gethostname())
     print(json.dumps({'node': socket.gethostname(), 'allocation': allocation}), flush=True)
-    print(json.dumps(probe(json.loads(args.config.read_text())), indent=2), flush=True)
+    function = resume_probe if args.resume_frozen_capture else probe
+    print(json.dumps(function(json.loads(args.config.read_text())), indent=2), flush=True)
 
 
 if __name__ == '__main__': main()

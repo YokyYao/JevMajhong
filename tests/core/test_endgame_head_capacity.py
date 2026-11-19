@@ -4,7 +4,8 @@ import math
 from pathlib import Path
 import unittest
 
-from tools.probe_endgame_head_capacity import validate_config, encoded_public_state_audit, target_stats
+from tools.probe_endgame_head_capacity import (validate_config, encoded_public_state_audit,
+                                              target_stats, validated_head_distribution)
 
 
 class HeadCapacityProbeTests(unittest.TestCase):
@@ -31,6 +32,14 @@ class HeadCapacityProbeTests(unittest.TestCase):
         self.assertLess(stats['excess_ce'], .03)
         self.assertFalse(target_stats(target, {'a': .1, 'b': .1, 'other': .8}, list(target))['hit'])
         with self.assertRaises(ValueError): target_stats(target, {'a': .5, 'b': .5, 'other': float('nan')}, list(target))
+
+    def test_cached_head_probabilities_use_the_string_key_api_contract(self):
+        def validator(probabilities, keys):
+            self.assertIsInstance(probabilities, dict)
+            self.assertEqual(list(probabilities), keys)
+            return [probabilities[k] for k in keys], None
+        self.assertEqual(validated_head_distribution([.2, .8], ['a', 'b'], validator), {'a': .2, 'b': .8})
+        with self.assertRaises(ValueError): validated_head_distribution([1.], ['a', 'b'], validator)
 
 
 if __name__ == '__main__': unittest.main()
