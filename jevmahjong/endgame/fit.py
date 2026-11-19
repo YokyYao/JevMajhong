@@ -68,13 +68,38 @@ def reference_kl_group(source,meta=None):
     return 'original'
 
 
-def configure_parameter_scope(model,scope):
+def training_compute_options(config):
+    scope=config.get('trainable_scope','lora_and_head')
+    dtype=config.get('training_compute_dtype','bf16')
+    disable=config.get('disable_frozen_encoder_input_grads',False)
+    if dtype not in ('bf16','fp32') or type(disable) is not bool:
+        raise ValueError('Unsupported registered compute precision or frozen-input setting')
+    if (dtype=='fp32' or disable) and scope!='head_only':
+        raise ValueError('Frozen-encoder optimization requires head-only training')
+    if disable and dtype!='fp32':
+        raise ValueError('Frozen-input optimization requires the registered FP32 readout')
+    return {'dtype':dtype,'checkpointing':0 if disable else 1,
+            'disable_frozen_encoder_input_grads':disable}
+
+
+def configure_parameter_scope(model,scope,disable_frozen_encoder_input_grads=False):
     if scope not in ('lora_and_head','head_only'):
         raise ValueError('Unsupported registered trainable parameter scope')
+    if disable_frozen_encoder_input_grads and scope!='head_only':
+        raise ValueError('Input gradient hooks may only be disabled for a frozen encoder')
     if scope=='head_only':
         model.requires_grad_(False)
         model.head.requires_grad_(True)
         model.lm.eval()
+        if disable_frozen_encoder_input_grads:
+            # PEFT can install an embedding-output gradient hook even though every
+            # encoder parameter is frozen. Remove it through the backbone API.
+            disable=getattr(model.lm,'disable_input_require_grads',None)
+            checkpointing_disable=getattr(model.lm,'gradient_checkpointing_disable',None)
+            if not callable(disable) or not callable(checkpointing_disable):
+                raise ValueError('Frozen encoder does not expose the required gradient controls')
+            checkpointing_disable()
+            disable()
     head_ids={id(p) for p in model.head.parameters()}
     trainable=[(name,p) for name,p in model.named_parameters() if p.requires_grad]
     if not trainable or not all(p.requires_grad for p in model.head.parameters()):
@@ -83,7 +108,23 @@ def configure_parameter_scope(model,scope):
         raise ValueError('Head-only fit must freeze every encoder parameter')
     return {'scope':scope,'trainable_parameters':sum(p.numel() for _,p in trainable),
         'head_parameters':sum(p.numel() for p in model.head.parameters()),
-        'trainable_encoder_parameters':sum(p.numel() for _,p in trainable if id(p) not in head_ids)}
+        'trainable_encoder_parameters':sum(p.numel() for _,p in trainable if id(p) not in head_ids),
+        'frozen_encoder_input_grads_disabled':disable_frozen_encoder_input_grads}
+
+
+def verify_frozen_readout(model,features):
+    """Check real head inputs, not just the requested training flags."""
+    import torch
+    if not torch.is_grad_enabled() or not model.head.training or model.lm.training:
+        raise ValueError('Readout audit requires training with an eval-mode frozen encoder')
+    if len(features)!=2 or any(x.requires_grad or x.dtype!=torch.float32 for x in features):
+        raise ValueError('Frozen readout features must be detached FP32 tensors')
+    if torch.is_autocast_enabled('cuda') or torch.is_autocast_enabled('cpu'):
+        raise ValueError('FP32 head optimization must not run inside autocast')
+    if any(p.dtype!=torch.float32 or not p.requires_grad for p in model.head.parameters()):
+        raise ValueError('Existing head must have trainable FP32 parameters')
+    return {'encoder_features_require_grad':False,'readout_dtype':'fp32',
+            'autocast_enabled':False,'encoder_training':False,'head_training':True}
 
 
 def validate_parameter_updates(scope,adapter_changed,head_changed):
@@ -110,6 +151,7 @@ def fit(config):
     if config.get("fit_registered", True) is not True:
         raise ValueError("This data-audit configuration has no registered fit protocol")
     parameter_scope=config.get('trainable_scope','lora_and_head')
+    compute=training_compute_options(config)
     if config.get('native_terminal_label_root') and config.get('enforce_native_terminal_escape_guard') is not True:
         raise ValueError('Native terminal validation requires a separate registered escape guard')
     if parameter_scope not in ('lora_and_head','head_only'):
@@ -188,13 +230,22 @@ def fit(config):
         state["head_initial"] = {k: v.detach().cpu().clone() for k, v in model.head.state_dict().items()}
         if any(p.requires_grad for n, p in model.lm.named_parameters() if "lora_" not in n):
             raise ValueError("Backbone must remain frozen")
-        scope_proof=configure_parameter_scope(model,parameter_scope)
+        scope_proof=configure_parameter_scope(model,parameter_scope,compute['disable_frozen_encoder_input_grads'])
+        if compute['disable_frozen_encoder_input_grads']:
+            torch.backends.cuda.matmul.allow_tf32=False
+            torch.backends.cudnn.allow_tf32=False
+            def audit_readout(head,features):
+                if not torch.is_grad_enabled() or not head.training:return
+                state['readout_proof']=verify_frozen_readout(model,features)
+                write(out / 'frozen-readout-proof-private.json',state['readout_proof'])
+                state['readout_hook'].remove()
+            state['readout_hook']=model.head.register_forward_pre_hook(audit_readout)
         state['model']=model
         state['parameter_scope']=scope_proof
         write(out / "initialization-private.json", {"parent": config["checkpoint"],
             "exact_parent_adapter_and_head": True, "same_rank16_lora_and_head": True,
             "new_optimizer": True, "external_residual_networks": 0,'parameter_scope':scope_proof,
-            'encoder_dropout_disabled':parameter_scope=='head_only'})
+            'encoder_dropout_disabled':parameter_scope=='head_only','compute':compute})
         return result
 
     def admitted(*args, **kwargs):
@@ -412,12 +463,12 @@ def fit(config):
         "--base_load_path", config["base_load_path"],
         "--data", str(out / "train.jsonl"), "--eval_data", str(out / "validation.jsonl"),
         "--out", str(train_dir), "--init_from", config["checkpoint"],
-        "--device", "cuda", "--weights_dtype", "bf16", "--dtype", "bf16",
+        "--device", "cuda", "--weights_dtype", "bf16", "--dtype", compute['dtype'],
         "--lora", "16", "--lora_targets", "all", "--lora_dropout", "0.05",
         "--head_dim", "256", "--decision_mode", "pointer", "--branch_mode", "rows",
         "--backbone_adapter", "text", "--epochs", str(proof["epochs"]), "--max_steps", str(proof["max_steps"]),
         "--lr", str(lr), "--head_lr", str(head_lr), "--weight_decay", "0.001",
-        "--batch", "1", "--accum", "16", "--checkpointing", "1",
+        "--batch", "1", "--accum", "16", "--checkpointing", str(compute['checkpointing']),
         "--checkpoint_every_steps", str(evaluation_every), "--eval_before_start",
         "--eval_every_steps", str(evaluation_every), "--early_stop_patience", "2",
         "--early_stop_metric", "development_nll", "--early_stop_min_delta", "0.0001",
@@ -431,6 +482,8 @@ def fit(config):
         "stage": "pilot_not_deployed", "raw_records_public": False})
     try:
         trainer.main(args)
+        if compute['disable_frozen_encoder_input_grads'] and not state.get('readout_proof'):
+            raise ValueError('No real training readout was audited')
         if parameter_scope=='head_only':
             current=get_peft_model_state_dict(state['model'].lm,save_embedding_layers=False)
             if (set(current)!=set(state['adapter_initial']) or any(
@@ -446,11 +499,13 @@ def fit(config):
             "eligible_for_development": selection["step"] > 0,
             "validation": curve, "deployed": False,'trainable_scope':parameter_scope,
             'parameter_scope':state.get('parameter_scope'),
-            'frozen_encoder_preserved':parameter_scope=='head_only'}
+            'frozen_encoder_preserved':parameter_scope=='head_only',
+            'compute':compute,'readout_proof':state.get('readout_proof')}
         write(out / "fit-result-private.json", result)
         write(out / "training-status-private.json", result)
         return result
     finally:
+        if state.get('readout_hook') is not None:state['readout_hook'].remove()
         trainer.question_loss, trainer.evaluate_during_training = original_loss, original_eval
         trainer.batch_loss, trainer.Checkpoint.warm_start = original_batch, original_warm
         trainer.training_requests = original_admit

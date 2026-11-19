@@ -1,6 +1,7 @@
 import unittest
 import torch
-from jevmahjong.endgame.fit import configure_parameter_scope,validate_parameter_updates
+from jevmahjong.endgame.fit import (configure_parameter_scope,validate_parameter_updates,
+    training_compute_options,verify_frozen_readout)
 
 
 class Encoder(torch.nn.Module):
@@ -12,6 +13,14 @@ class Encoder(torch.nn.Module):
         self.base.requires_grad_(False)
 
     def forward(self,x):return self.base(x)+self.dropout(self.lora_A(x))
+
+    def enable_test_input_grads(self):
+        self.input_hook=self.base.register_forward_hook(lambda module,args,out:out.requires_grad_(True))
+        self.gradient_checkpointing=True
+
+    def disable_input_require_grads(self):self.input_hook.remove()
+
+    def gradient_checkpointing_disable(self):self.gradient_checkpointing=False
 
 
 class TinyPolicy(torch.nn.Module):
@@ -47,6 +56,40 @@ class ParameterScopeTests(unittest.TestCase):
         for scope,adapter,head in (('head_only',True,True),('head_only',False,False),
                                    ('lora_and_head',False,True),('lora_and_head',True,False)):
             with self.assertRaises(ValueError):validate_parameter_updates(scope,adapter,head)
+
+    def test_frozen_encoder_removes_input_grad_hook_but_head_still_learns(self):
+        model=TinyPolicy().train();model.lm.enable_test_input_grads()
+        configure_parameter_scope(model,'head_only',True)
+        features=model.lm(torch.ones(3));options=model.lm(torch.ones(2,3))
+        self.assertFalse(model.lm.gradient_checkpointing)
+        proof=verify_frozen_readout(model,(features,options))
+        self.assertFalse(proof['encoder_features_require_grad'])
+        model.head(features).square().sum().backward()
+        self.assertTrue(all(p.grad is None for p in model.lm.parameters()))
+        self.assertTrue(any(p.grad is not None for p in model.head.parameters()))
+
+    def test_real_readout_audit_rejects_precision_and_gradient_drift(self):
+        model=TinyPolicy().train();configure_parameter_scope(model,'head_only')
+        features=(torch.ones(3),torch.ones(2,3))
+        verify_frozen_readout(model,features)
+        with self.assertRaises(ValueError):verify_frozen_readout(model,(features[0].requires_grad_(),features[1]))
+        with self.assertRaises(ValueError):verify_frozen_readout(model,tuple(x.detach().bfloat16() for x in features))
+        with torch.autocast('cpu',dtype=torch.bfloat16):
+            with self.assertRaises(ValueError):verify_frozen_readout(model,tuple(x.detach() for x in features))
+        model.lm.train()
+        with self.assertRaises(ValueError):verify_frozen_readout(model,tuple(x.detach() for x in features))
+
+    def test_compute_configuration_preserves_old_recipe_and_rejects_joint_fp32(self):
+        self.assertEqual(training_compute_options({}),{'dtype':'bf16','checkpointing':1,
+            'disable_frozen_encoder_input_grads':False})
+        valid={'trainable_scope':'head_only','training_compute_dtype':'fp32',
+               'disable_frozen_encoder_input_grads':True}
+        self.assertEqual(training_compute_options(valid)['checkpointing'],0)
+        for invalid in ({'training_compute_dtype':'fp32'},
+                        dict(valid,trainable_scope='lora_and_head'),
+                        dict(valid,training_compute_dtype='bf16'),
+                        dict(valid,disable_frozen_encoder_input_grads=1)):
+            with self.assertRaises(ValueError):training_compute_options(invalid)
 
 
 if __name__=='__main__':unittest.main()
