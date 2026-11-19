@@ -9,6 +9,7 @@
   },
   "public_quota": {"third": 4, "fourth": 4, "first": 2, "second": 2},
   "per_seed_cap": 1,
+  "holding_nonwin_only": true,
   "selection_hash_prefix": "consumed-self-continuation-diagnostic-v1",
   "terminal_step_cap": 30000,
   "baseline_cache_reuse": true,
