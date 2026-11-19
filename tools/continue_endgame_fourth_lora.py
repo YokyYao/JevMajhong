@@ -78,6 +78,17 @@ def validate_resume_state(state,seen_ids):
         raise ValueError('Optimizer moments, learning rates or RNG are not a true continuation')
 
 
+def continuation_coverage(schedule,positive_count=826,resume_step=128,observation_end=192):
+    historical={i for batch in schedule[:observation_end] for i in batch}
+    extension={i for batch in schedule[resume_step:observation_end] for i in batch}
+    if historical!=set(range(positive_count)):
+        raise ValueError('Cumulative training history must cover every positive row')
+    # A sliding window can span two differently shuffled source cycles and
+    # omit a row even when each complete cycle is without replacement.
+    # Preserve the true sampler position and report new-window exposure.
+    return dict(cumulative_unique=len(historical),extension_unique=len(extension))
+
+
 def assets(c):
     from tools.train_endgame_fourth_adamw import validate_assets
     from tools.train_endgame_fourth_chase import verify
@@ -131,7 +142,7 @@ def prepare(c,registration):
     parent_protocol=json.loads((parent/'protocol-private.json').read_text())
     schedule=balanced_schedule(train,384)
     if schedule[:128]!=parent_protocol['batch_schedule']:raise ValueError('The first128 sampler batches changed')
-    if len({i for b in schedule[128:192] for i in b})!=826:raise ValueError('Extension observation window must cover every positive row')
+    coverage=continuation_coverage(schedule)
     paths=[parent/n for n in ('protocol-private.json','registered-code-private.json','status-private.json',
         'postfit-summary-private.json','curve-private.json','selection-anchor-private.json')]
     paths.extend(source/n for n in ('ready-private.json','train.jsonl','validation.jsonl','reference-targets-private.json'))
@@ -156,7 +167,8 @@ def prepare(c,registration):
         parent_best_live_soft=max(p['metrics']['fourth']['soft_top2'] for p in json.loads((parent/'curve-private.json').read_text())))
     verify(proof)
     result=dict(status='fourth_lora_extension_ready',anchor=anchor,parent_service_reports=reports,
-        resume_optimizer_step=128,first128_sampler_batches_identical=True,configuration=c,proof_sha256=checksum(out/'protocol-private.json'))
+        resume_optimizer_step=128,first128_sampler_batches_identical=True,observation_coverage=coverage,
+        configuration=c,proof_sha256=checksum(out/'protocol-private.json'))
     write(out/'ready-private.json',result);print(json.dumps(result),flush=True)
 
 

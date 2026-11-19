@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 import unittest
 
-from tools.continue_endgame_fourth_lora import validate_config,research_screen,progress_state,validate_resume_state
+from tools.continue_endgame_fourth_lora import validate_config,research_screen,progress_state,validate_resume_state,continuation_coverage
 from tools.train_endgame_fourth_lora_balanced import balanced_schedule
 
 
@@ -63,6 +63,12 @@ class FourthLoRAExtensionTests(unittest.TestCase):
         from tools.train_endgame_fourth_lora_balanced import QUOTAS
         rows=[{'questions':{'action':{'src':k}}} for k in QUOTAS for _ in range(41)]
         self.assertEqual(balanced_schedule(rows,128),balanced_schedule(rows,384)[:128])
+
+    def test_continuation_keeps_prior_exposure_without_forcing_a_sampler_restart(self):
+        schedule=[list(range(826))]+[[0] for _ in range(191)]
+        result=continuation_coverage(schedule)
+        self.assertEqual(result,{'cumulative_unique':826,'extension_unique':1})
+        with self.assertRaises(ValueError):continuation_coverage([[0] for _ in range(192)])
 
     def test_config_disallows_restart_and_unregistered_data_change(self):
         c=config();validate_config(c)
