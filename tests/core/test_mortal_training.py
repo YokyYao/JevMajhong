@@ -1,6 +1,6 @@
 import copy
 import unittest
-from tools.train_mortal_teacher import research_screen, progress_state, paired_summary, teacher_metrics, audit_updates, comparison_point
+from tools.train_mortal_teacher import research_screen, progress_state, paired_summary, teacher_metrics, audit_updates, comparison_point, labelled_training_row
 
 
 def metrics(ce=1.,top2=.25,holding=.9):
@@ -9,6 +9,17 @@ def metrics(ce=1.,top2=.25,holding=.9):
 
 
 class MortalTrainingTests(unittest.TestCase):
+    def test_explicit_encoder_label_comes_from_verified_teacher_action(self):
+        row={'questions':{'action':{'src':'teacher_kan','criteria':{'a':{},'b':{}},
+                                   'target':{'a':.01,'b':.99}}},'_meta':{'teacher_action':'b'}}
+        original=copy.deepcopy(row);fixed=labelled_training_row(row)
+        self.assertEqual(fixed['questions']['action']['label'],'b')
+        self.assertEqual(row,original)
+        row['questions']['action']['label']='a'
+        with self.assertRaises(ValueError): labelled_training_row(row)
+        row['questions']['action']['src']='retention_replay';row['questions']['action'].pop('label')
+        with self.assertRaises(ValueError): labelled_training_row(row)
+
     def test_failed_screen_still_compares_a_real_nonzero_checkpoint(self):
         result={'last_new_update':96,'selected_new_update':None,'curve':[
             {'new_update':0,'metrics':metrics(.1)}, {'new_update':32,'metrics':metrics(.9)},

@@ -74,6 +74,30 @@ def read_rows(path):
     return [json.loads(line) for line in Path(path).read_text().splitlines() if line.strip()]
 
 
+def labelled_training_row(row):
+    """Adapt the frozen teacher-choice metadata to Jev's explicit label API.
+
+    Keep raw source/target bytes unchanged, including the data-provenance hash.
+    A conflicting explicit label is an error, never silently overwritten.
+    """
+    result=copy.deepcopy(row);q=result['questions']['action']
+    if q['src'].startswith('teacher_'):
+        selected=result['_meta']['teacher_action']
+        if selected not in q['criteria'] or ('label' in q and q['label']!=selected):
+            raise ValueError('Teacher action and explicit Jev label disagree')
+        q['label']=selected
+    if 'label' not in q:
+        raise ValueError('Nonteacher retention row is missing its existing label')
+    return result
+
+
+def materialized_training_rows(rows):
+    from jevany.data import materialize
+    if len({r['_meta']['id'] for r in rows})!=len(rows):
+        raise ValueError('Duplicate training record identity')
+    return {r['_meta']['id']:materialize(labelled_training_row(r)) for r in rows}
+
+
 def evaluate_rows(c, checkpoint, teacher_rows, old_rows, fresh_rows, reference):
     from tools.continue_endgame_fourth_lora import normal_predictions
     from tools.train_targeted_endgame import fresh_metrics
@@ -92,7 +116,6 @@ def fit(c, proof):
     from safetensors.torch import load_file
     from jevany.model import DecisionModel, load_preprocessor
     from jevany.checkpoint import Checkpoint
-    from jevany.data import materialize
     from jevmahjong.endgame.collect import write
     from jevmahjong.endgame.futures import bundle_identity
     from jevmahjong.endgame.targeted_refresh import balanced_batches
@@ -107,6 +130,10 @@ def fit(c, proof):
     if bundle_identity(parent)!=data['parent_identity']:
         raise ValueError('Parent176 weights changed after data admission')
     train=read_rows(out/'train.jsonl'); val=read_rows(out/'validation.jsonl')
+    materialized=materialized_training_rows(train)
+    write(out/'schema-validation-private.json',dict(records=len(materialized),
+        status='all_training_records_materialize_with_pinned_jevany',
+        explicit_teacher_label_from_mapped_action=True,raw_data_unchanged=True))
     oldval=read_rows(ROOT/c['retention_root']/'validation.jsonl')
     fresh=read_rows(ROOT/c['retention_root']/'monitor.jsonl')
     reference=json.loads((ROOT/c['reference_root']/'reference-targets-private.json').read_text())['rows']
@@ -146,7 +173,7 @@ def fit(c, proof):
         trainable_lora=sum(p.numel() for p in lp),trainable_head=sum(p.numel() for p in hp),job_id=os.environ['SLURM_JOB_ID']))
     enc={}
     for i,row in enumerate(train):
-        value=model.encode(tok,materialize(row),max_state=4096,max_branch=8192,strict=True)
+        value=model.encode(tok,materialized[row['_meta']['id']],max_state=4096,max_branch=8192,strict=True)
         if value.get('state_truncated') or len(value['ids'])>8192:
             raise ValueError('No training truncation is permitted')
         enc[row['_meta']['id']]=value
@@ -363,7 +390,12 @@ def main():
     require_gpu();os.chdir(ROOT);c=json.loads(a.config.read_text());sys.path.insert(0,c['upstream_source'])
     out=ROOT/c['out'];proof=registration(c,('tools/train_mortal_teacher.py','tools/continue_endgame_fourth_lora.py',
         'tools/train_targeted_endgame.py','tests/core/test_mortal_teacher.py','tests/core/test_mortal_training.py',
-        'docs/experiments/plans/mortal-teacher-validation-addendum-20261119.md'))
+        'docs/experiments/plans/mortal-teacher-validation-addendum-20261119.md',
+        'docs/experiments/plans/mortal-teacher-label-adapter-20261119.md'))
+    frozen=json.loads((out/'pre-fit-source-freeze-private.json').read_text());verify(frozen)
+    if frozen['config']!=c: raise ValueError('Pre-fit checked configuration differs')
+    proof['files'].update(frozen['files'])
+    proof['pre_fit_source_commit']=frozen['public_commit']
     from jevmahjong.endgame.collect import write
     write(out/'registered-training-code-private.json',proof)
     started=time.monotonic()
