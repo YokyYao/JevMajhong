@@ -8,7 +8,7 @@
 
 ## 结果
 
-- [末盘追分：四轮确认结果、训练曝光诊断与专项来源扩充](results/2026-11-19-endgame-pilot/README.md)
+- [末盘追分：五轮结果、真实曝光与服务贪心目标诊断](results/2026-11-19-endgame-pilot/README.md)
 
 - [Windows真人实测：21300分第三名、31次吃碰推荐全跳过及新增立直应对要求](results/2026-11-12-windows-live-test/README.md)
 

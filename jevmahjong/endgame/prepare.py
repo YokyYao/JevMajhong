@@ -28,7 +28,7 @@ def jsonl(path, rows):
     temporary.replace(path)
 
 
-def loss_recipe(counts, new_mass=.5, balanced=False, reference=False):
+def loss_recipe(counts, new_mass=.5, balanced=False, reference=False, source_mass=None):
     if not math.isfinite(new_mass) or not 0 < new_mass < 1:
         raise ValueError("New terminal loss mass must be strictly between zero and one")
     mass = {"replay_expert": (1 - new_mass) * .75,
@@ -40,6 +40,12 @@ def loss_recipe(counts, new_mass=.5, balanced=False, reference=False):
                      for bucket in ("win", "third", "fourth", "hold")})
     else:
         mass["endgame_terminal"] = new_mass
+    if source_mass is not None:
+        mass = dict(source_mass)
+        if (any(not math.isfinite(v) or v < 0 or v >= 1 for v in mass.values())
+                or abs(sum(mass.values()) - 1) > 1e-12
+                or any(v == 0 and key != "replay_fixed_win" for key, v in mass.items())):
+            raise ValueError("Explicit source masses must sum to one; only runtime-fixed win controls may have zero loss")
     if set(counts) != set(mass) or any(n <= 0 for n in counts.values()):
         raise ValueError("Missing or unexpected training loss source")
     total = sum(counts.values())
@@ -223,7 +229,8 @@ def prepare(config):
     total = len(splits["train"])
     mass, weights = loss_recipe(counts, config.get("new_terminal_loss_mass", .5),
                                config.get("balance_endgame_buckets", False),
-                               config.get("reference_regularization", False))
+                               config.get("reference_regularization", False),
+                               config.get("loss_source_mass") if config.get("reference_regularization", False) else None)
     epochs = config.get("epochs", 1)
     if type(epochs) is not int or not 1 <= epochs <= 2:
         raise ValueError("Registered short fit must use one or two epochs")

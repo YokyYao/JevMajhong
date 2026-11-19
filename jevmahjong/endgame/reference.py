@@ -59,6 +59,21 @@ def improvement_target(reference, utilities, temperature=.1, exploration=.1):
     return dict(zip(keys, q))
 
 
+def greedy_win_target(criteria, utilities, eligible):
+    """Match deterministic serving: best finite utility, keep a win on ties."""
+    keys = list(criteria)
+    wins = [k for k in keys if criteria[k]["type"] == "hora"]
+    if (len(wins) != 1 or wins[0] not in eligible or not set(eligible) <= set(keys)
+            or set(utilities) != set(keys) or not all(math.isfinite(v) for v in utilities.values())):
+        raise ValueError("Invalid supported win/continue utility menu")
+    win = wins[0]
+    best = max(utilities[k] for k in eligible)
+    if best <= utilities[win] + 1e-12:
+        return {k: float(k == win) for k in keys}
+    winners = [k for k in eligible if abs(utilities[k] - best) <= 1e-12]
+    return {k: 1 / len(winners) if k in winners else 0. for k in keys}
+
+
 def load_reference(config, records):
     from .futures import bundle_identity
     out = Path(config["out"])
@@ -81,6 +96,13 @@ def load_reference(config, records):
 
 def apply_reference(config, splits):
     from .public_policy import win_pass_allowed
+    style = config.get("win_target_style", "reference_tilt")
+    if style not in ("reference_tilt", "greedy_terminal_best"):
+        raise ValueError("Unsupported win-target style")
+    if (style == "greedy_terminal_best" or config.get("split_fixed_win_reference", False)) and (
+            config.get("input_version") != "endgame-public-v3"
+            or config.get("reference_mode") != "released_original_policy"):
+        raise ValueError("Greedy win targets and fixed controls require the verified public-v3 original policy")
     cache = load_reference(config, splits["train"] + splits["validation"])
     changes, expected_gains, previous_gains = [], [], []
     expert_count = expert_disagreements = 0
@@ -95,7 +117,8 @@ def apply_reference(config, splits):
             q["src"], q["target"] = "replay_reference", dict(p)
         elif (config.get("reference_mode") == "released_original_policy" and meta["bucket"] == "win"
               and not win_pass_allowed(record)):
-            q["src"], q["target"] = "replay_reference", dict(p)
+            q["src"] = "replay_fixed_win" if config.get("split_fixed_win_reference", False) else "replay_reference"
+            q["target"] = dict(p)
             meta["target_basis"] = "fixed_public_win_scope_preserve_original_policy"
         elif meta.get("target_basis") != "finite_MC_tie_preserve_existing_legal_win":
             values = meta["expected_terminal_utilities"]
@@ -107,13 +130,17 @@ def apply_reference(config, splits):
             supported = restrict_distribution(p, eligible)
             temperature = (config.get("reference_win_temperature", config["reference_temperature"])
                            if meta["bucket"] == "win" else config["reference_temperature"])
-            target = improvement_target({k: supported[k] for k in eligible},
-                {k: values[k] for k in eligible}, temperature, config["reference_exploration"])
+            greedy = meta["bucket"] == "win" and config.get("win_target_style") == "greedy_terminal_best"
+            if greedy:
+                target = greedy_win_target(q["criteria"], values, eligible)
+            else:
+                target = improvement_target({k: supported[k] for k in eligible},
+                    {k: values[k] for k in eligible}, temperature, config["reference_exploration"])
             target = {k: target.get(k, 0.) for k in p}
             changes.append(sum(abs(target[k] - p[k]) for k in p) / 2)
             expected_gains.append(sum((target[k] - p[k]) * values[k] for k in p))
             q["target"] = target
-            meta["target_basis"] = "frozen_reference_tilted_by_terminal_utility"
+            meta["target_basis"] = "greedy_best_finite_terminal_win_scope" if greedy else "frozen_reference_tilted_by_terminal_utility"
         q["label"] = max(q["target"], key=q["target"].get)
     return {"reference_identity_sha256": cache["identity_sha256"],
             "input_version": cache["input_version"], "reference_rows": len(cache["rows"]),
@@ -124,6 +151,7 @@ def apply_reference(config, splits):
             "previous_absolute_targets_with_negative_expected_delta": sum(x < -1e-12 for x in previous_gains),
             "old_expert_labels": expert_count, "old_expert_reference_argmax_disagreements": expert_disagreements,
             "reference_mode": config.get("reference_mode", "current_input_raw"),
+            "win_target_style": config.get("win_target_style", "reference_tilt"),
             "teacher_is_frozen_weights_on_new_input_not_the_released_guarded_policy": config.get("reference_mode") != "released_original_policy"}
 
 

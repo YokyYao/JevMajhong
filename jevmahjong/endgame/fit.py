@@ -160,9 +160,11 @@ def fit(config):
             reference_limit += state["initial_reference_kl"]
         reference_guard = mean_reference_kl is None or mean_reference_kl <= reference_limit
         other_guards_passed = replay_guard and placement_guard and reference_guard
+        win_guard = (not config.get("enforce_win_stratum_guard", False)
+                     or strata["win"] >= state["initial_strata"]["win"] - 1e-12)
         exposure_snapshot = exposure.snapshot()
         exposure_guard = step == 0 or exposure_snapshot["minimum_exposure_met"]
-        guard_passed = other_guards_passed and exposure_guard
+        guard_passed = other_guards_passed and win_guard and exposure_guard
         state["evaluation_step"] = step
         state["other_guards_passed"] = other_guards_passed
         state["exposure_met"] = exposure_snapshot["minimum_exposure_met"]
@@ -174,6 +176,7 @@ def fit(config):
             "replay_reference_kl": mean_reference_kl, "reference_guard_passed": reference_guard,
             "reference_kl_guard_limit": reference_limit,
             "training_exposure": exposure_snapshot, "exposure_guard_passed": exposure_guard,
+            "win_stratum_guard_passed": win_guard,
             "selection_metric_negative_terminal_utility": selection_metric,
             "target_ce_by_source": {k: sum(v) / len(v) for k, v in ce.items()},
             "validation_is_not_independent_strength_confirmation": True}
