@@ -1,0 +1,8 @@
+{
+  "schema": "endgame-source-coverage-v1",
+  "out": "runs/endgame-source-coverage-v1",
+  "source_groups": 64,
+  "seed_start": 2026116900,
+  "workers": 2,
+  "fit_registered": false
+}

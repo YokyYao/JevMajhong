@@ -10,7 +10,7 @@ import traceback
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("stage", choices=("collect", "label", "enrich", "prepare", "reference", "fit", "evaluate", "path-ablation", "path-guards", "input-ablation"))
+    parser.add_argument("stage", choices=("collect", "coverage", "label", "enrich", "prepare", "reference", "fit", "evaluate", "path-ablation", "path-guards", "input-ablation"))
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--limit", type=int)
     args = parser.parse_args()
@@ -22,7 +22,10 @@ def main():
     config = json.loads(args.config.read_text())
     from jevmahjong.endgame.collect import write
     try:
-        if args.stage == "collect":
+        if args.stage == "coverage":
+            from jevmahjong.endgame.coverage import collect_coverage
+            result = collect_coverage(config)
+        elif args.stage == "collect":
             from jevmahjong.endgame.collect import collect
             result = collect(config)
         elif args.stage == "label":
