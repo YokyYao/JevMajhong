@@ -49,6 +49,24 @@ def loss_recipe(counts, new_mass=.5, balanced=False, reference=False):
     return mass, weights
 
 
+def label_recipe(config, row, file):
+    """Keep heterogeneous original MC counts/temperatures explicit and immutable."""
+    if not config.get("label_sets"):
+        return config["future_worlds"], config["target_temperature"], "legacy_single_set"
+    tag = row.get("_label_set")
+    if tag not in config["label_sets"]:
+        raise ValueError("Terminal row has no registered label-set provenance")
+    spec = config["label_sets"][tag]
+    expected = Path(spec["root"]) / "labels" / Path(file).name
+    if Path(file).resolve() != expected.resolve():
+        raise ValueError("Terminal file is not the registered original label")
+    worlds, temperature = spec["future_worlds"], spec["source_target_temperature"]
+    if (type(worlds) is not int or not 1 <= worlds <= 32
+            or not math.isfinite(temperature) or temperature <= 0):
+        raise ValueError("Invalid registered original label recipe")
+    return worlds, temperature, tag
+
+
 def prepare(config):
     if (config.get("training_objective") != "top2_primary_v1"
             or config.get("terminal_utility") != [1.1, 1.0, 0.0, -0.05]):
@@ -68,14 +86,16 @@ def prepare(config):
     new_counts = Counter()
     admitted_counts = Counter()
     neutral_counts = Counter()
+    label_set_counts = Counter()
     for row in positions:
         row_id = digest([row["seed"], row["step"], row["seat"], row["request_sha256"]])
         file = out / "labels" / (row_id + ".json")
+        worlds, source_temperature, label_set = label_recipe(config, row, file)
         label = json.loads(file.read_text())
         if (label["status"] != "complete_terminal_menu"
                 or label["source_request_sha256"] != row["request_sha256"]
                 or not label["continued_until_native_match_done"]
-                or label["worlds_per_action"] != config["future_worlds"]
+                or label["worlds_per_action"] != worlds
                 or len(label["outcomes"]) != label["actual_actions"]):
             raise ValueError("Missing or incompatible complete terminal label")
         record = label["record"]
@@ -84,7 +104,7 @@ def prepare(config):
             raise ValueError("Legal menu changed after terminal labeling")
         means = []
         for outcomes in label["outcomes"]:
-            if len(outcomes) != config["future_worlds"]:
+            if len(outcomes) != worlds:
                 raise ValueError("Incomplete future worlds")
             if not all(x["ledger_passed"] for x in outcomes):
                 raise ValueError("Unaudited terminal settlement")
@@ -93,7 +113,7 @@ def prepare(config):
                         or terminal_utility(outcome["ranks"][row["seat"]]) != outcome["utility"]):
                     raise ValueError("Source terminal rank or original diagnostic utility differs")
             means.append(sum(x["utility"] for x in outcomes) / len(outcomes))
-        target = target_from_utilities(means, config["target_temperature"])
+        target = target_from_utilities(means, source_temperature)
         actual = record["questions"]["action"]["target"]
         if any(abs(actual[key] - p) > 1e-12 for key, p in zip(keys, target)):
             raise ValueError("Stored terminal target formula differs")
@@ -102,6 +122,10 @@ def prepare(config):
         # Preserve the original source diagnostic and rederive the new objective
         # exclusively from complete terminal ranks, before any optimizer update.
         record["_meta"]["source_diagnostic_utilities"] = dict(zip(keys, means))
+        record["_meta"]["terminal_label_provenance"] = {
+            "set": label_set, "worlds_per_action": worlds,
+            "source_target_temperature": source_temperature, "file_sha256": checksum(file)}
+        label_set_counts[row["split"] + ":" + label_set] += 1
         means = [sum(placement_objective(x["ranks"][row["seat"]]) for x in outcomes) / len(outcomes)
                  for outcomes in label["outcomes"]]
         record["_meta"]["expected_terminal_utilities"] = dict(zip(keys, means))
@@ -200,16 +224,20 @@ def prepare(config):
     mass, weights = loss_recipe(counts, config.get("new_terminal_loss_mass", .5),
                                config.get("balance_endgame_buckets", False),
                                config.get("reference_regularization", False))
-    max_steps = min(math.ceil(total / 16), config.get("max_optimizer_steps", math.ceil(total / 16)))
+    epochs = config.get("epochs", 1)
+    if type(epochs) is not int or not 1 <= epochs <= 2:
+        raise ValueError("Registered short fit must use one or two epochs")
+    max_steps = min(epochs * math.ceil(total / 16), config.get("max_optimizer_steps", math.ceil(total / 16)))
     if not isinstance(max_steps, int) or isinstance(max_steps, bool) or max_steps < 3:
         raise ValueError("Short fit budget must be at least three optimizer updates")
     result = {"status": "complete_terminal_dataset_ready", "new_strata": dict(new_counts),
         "objective": "top2_primary_v1", "terminal_utility": [1.1, 1.0, 0.0, -0.05],
         "input_version": input_version,
         "admitted_new_strata": dict(admitted_counts), "neutral_menu_handling": dict(neutral_counts),
+        "terminal_label_sets": dict(label_set_counts),
         "records": {s: len(r) for s, r in splits.items()},
         "group_overlap": 0, "loss_source_counts": dict(counts), "loss_source_mass": mass,
-        "loss_source_weights": weights, "max_steps": max_steps,
+        "loss_source_weights": weights, "max_steps": max_steps, "epochs": epochs,
         "replay_inputs": replay_sources, "replay_admission": replay_admission,
         "reference_regularization": reference_receipt,
         "validation_replay": "16 expert examples per phase; no fictitious call-window MC validation",

@@ -50,6 +50,10 @@ def fit(config):
     original_batch = trainer.batch_loss
     original_warm = trainer.Checkpoint.warm_start
     original_admit = trainer.training_requests
+    original_encode = trainer.encode_batch
+    original_stop = trainer.early_stop_update
+    from .exposure import TrainingExposure, exposure_early_stop_update
+    exposure = TrainingExposure(read_jsonl(out / "train.jsonl"), config.get("minimum_unique_exposure"))
     curve, state = [], {}
     weights = proof["loss_source_weights"]
     lr = config.get("learning_rate", 2e-6)
@@ -155,7 +159,13 @@ def fit(config):
         if config.get("reference_kl_guard_relative_to_start", False):
             reference_limit += state["initial_reference_kl"]
         reference_guard = mean_reference_kl is None or mean_reference_kl <= reference_limit
-        guard_passed = replay_guard and placement_guard and reference_guard
+        other_guards_passed = replay_guard and placement_guard and reference_guard
+        exposure_snapshot = exposure.snapshot()
+        exposure_guard = step == 0 or exposure_snapshot["minimum_exposure_met"]
+        guard_passed = other_guards_passed and exposure_guard
+        state["evaluation_step"] = step
+        state["other_guards_passed"] = other_guards_passed
+        state["exposure_met"] = exposure_snapshot["minimum_exposure_met"]
         selection_metric = -utility if guard_passed else 1e6 + replay_ce
         item = {"step": step, "endgame_validation_terminal_utility": utility,
             "utility_by_stratum": strata,
@@ -163,11 +173,14 @@ def fit(config):
             "placement_strata_guard_passed": placement_guard, "all_guards_passed": guard_passed,
             "replay_reference_kl": mean_reference_kl, "reference_guard_passed": reference_guard,
             "reference_kl_guard_limit": reference_limit,
+            "training_exposure": exposure_snapshot, "exposure_guard_passed": exposure_guard,
             "selection_metric_negative_terminal_utility": selection_metric,
             "target_ce_by_source": {k: sum(v) / len(v) for k, v in ce.items()},
             "validation_is_not_independent_strength_confirmation": True}
         curve.append(item)
         write(out / "validation-progress-private.json", curve)
+        write(out / "training-exposure-private.json", dict(exposure_snapshot, step=step,
+              seen_record_ids=sorted(exposure.seen), based_on_successful_forward_batches=True))
         write(out / "training-status-private.json", dict(status="validation", **item))
         print(json.dumps(item), flush=True)
         result = copy.deepcopy(summary)
@@ -191,11 +204,27 @@ def fit(config):
             write(out / "training-status-private.json", {"status": "training",
                 "completed_optimizer_steps_at_least": steps, "max_steps": proof["max_steps"],
                 "actual_update_proof": bool(state.get("update_proof"))})
-        return original_batch(*args, **kwargs)
+        result = original_batch(*args, **kwargs)
+        exposure.observe(v.endgame_record_id for v in args[2])
+        return result
+
+    def encode(model, tok, a, chunk, epoch):
+        result = original_encode(model, tok, a, chunk, epoch)
+        if len(result) != len(chunk):
+            raise ValueError("Exposure ledger requires the registered one-variant recipe")
+        for variant, record in zip(result, chunk):
+            variant.endgame_record_id = record["_meta"]["id"]
+        return result
+
+    def stop(value, best, stale, **kwargs):
+        return exposure_early_stop_update(original_stop, value, best, stale,
+            step=state["evaluation_step"], exposure_met=state["exposure_met"],
+            other_guards_passed=state["other_guards_passed"], **kwargs)
 
     trainer.question_loss, trainer.evaluate_during_training = loss, evaluate
     trainer.batch_loss, trainer.Checkpoint.warm_start = batch, warm
     trainer.training_requests = admitted
+    trainer.encode_batch, trainer.early_stop_update = encode, stop
     args = [
         "--base", "Qwen/Qwen3.5-0.8B", "--base_revision", "2fc06364715b967f1860aea9cf38778875588b17",
         "--base_load_path", config["base_load_path"],
@@ -204,7 +233,7 @@ def fit(config):
         "--device", "cuda", "--weights_dtype", "bf16", "--dtype", "bf16",
         "--lora", "16", "--lora_targets", "all", "--lora_dropout", "0.05",
         "--head_dim", "256", "--decision_mode", "pointer", "--branch_mode", "rows",
-        "--backbone_adapter", "text", "--epochs", "1", "--max_steps", str(proof["max_steps"]),
+        "--backbone_adapter", "text", "--epochs", str(proof["epochs"]), "--max_steps", str(proof["max_steps"]),
         "--lr", str(lr), "--head_lr", str(head_lr), "--weight_decay", "0.001",
         "--batch", "1", "--accum", "16", "--checkpointing", "1",
         "--checkpoint_every_steps", str(evaluation_every), "--eval_before_start",
@@ -235,4 +264,5 @@ def fit(config):
         trainer.question_loss, trainer.evaluate_during_training = original_loss, original_eval
         trainer.batch_loss, trainer.Checkpoint.warm_start = original_batch, original_warm
         trainer.training_requests = original_admit
+        trainer.encode_batch, trainer.early_stop_update = original_encode, original_stop
 
