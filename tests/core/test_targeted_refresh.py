@@ -53,6 +53,15 @@ class TargetedRefreshTests(unittest.TestCase):
         for batch in balanced_batches(rows,c['batch_quotas'],5):
             self.assertEqual(dict(Counter(rows[i]['questions']['action']['src'] for i in batch)),c['batch_quotas'])
 
+    def test_training_kan_quota_covers_all_three_actual_legal_kan_types(self):
+        rows=[]
+        for i,kind in enumerate(('ankan','ankan','ankan','daiminkan','kakan','ankan')):
+            rows.append(dict(seed=i,id=str(i),split='train',category='kan',cell='kan:'+kind,
+                selection_key=str(i),request={'questions':{'action':{'criteria':{'k':{'type':kind}}}}}))
+        selected=select_manifest(rows,{'train':{'kan':4}})
+        self.assertEqual({r['request']['questions']['action']['criteria']['k']['type'] for r in selected},
+                         {'ankan','daiminkan','kakan'})
+
     def test_future_seed_varies_next_hand_without_changing_current_public_state(self):
         from riichienv import RiichiEnv,GameRule
         from jevmahjong.core.seeds import engine_seed
@@ -69,6 +78,21 @@ class TargetedRefreshTests(unittest.TestCase):
         else:self.fail('Bounded first hand did not complete')
         self.assertFalse(a.done());self.assertFalse(b.done())
         self.assertEqual(list(a.scores()),list(b.scores()));self.assertNotEqual(a.hands,b.hands)
+
+    def test_reseeded_hands_keep_one_reconciling_full_match_ledger(self):
+        from riichienv import RiichiEnv,GameRule
+        from jevmahjong.evaluation.agents import EfficiencyAgent
+        from jevmahjong.core.scoring import settlement_ledger
+        from jevmahjong.endgame.ledger import hand_score_history
+        e=RiichiEnv(game_mode='4p-red-east',rule=GameRule.default_mjsoul(),seed=42);e.reset()
+        world=seeded_future(e,12345,100);agent=EfficiencyAgent()
+        for _ in range(3000):
+            if world.done():break
+            obs=world.get_observations();world.step({p:agent.act(o) for p,o in obs.items() if o.legal_actions()})
+        else:self.fail('Bounded full match did not complete')
+        settlement_ledger(world.mjai_log,world.scores())
+        self.assertEqual(hand_score_history(world.mjai_log)['final_scores'],list(world.scores()))
+        self.assertEqual(sum(e['type']=='start_game' for e in world.mjai_log),1)
 
 
 if __name__=='__main__':unittest.main()

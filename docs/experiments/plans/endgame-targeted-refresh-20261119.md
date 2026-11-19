@@ -33,7 +33,9 @@ Select one position per distinct source game, balancing public deficit bands
 Kan selection records ankan/daiminkan/kakan availability. Coverage shortfalls
 stop before labels; do not pretend a quota was met or manufacture a correct
 call. Both profitable and unprofitable calls remain because selection precedes
-counterfactual outcomes. Compare EVERY legal action, not just a rule's favorite.
+counterfactual outcomes. The four TRAIN kan menus include at least one legal
+ankan, one daiminkan and one kakan from distinct actual games. Compare EVERY
+legal action, not just a rule's favorite.
 The old186 validation rows remain byte-identical; the8 new monitor rows are
 held out from gradients. They are development monitoring, not independent proof.
 
@@ -49,6 +51,14 @@ actually vary in native tests. Current opponent concealed hands stay fixed to
 the native source: this is NOT a full public-information posterior or expert
 ground truth. New source diversity and future uncertainty address only part
 of that limitation.
+
+RiichiEnv's live environment has no writable seed. Future-hand resampling uses
+its supported `reset(oya,round_wind,honba,kyotaku,scores,seed)` only AFTER a
+native hand boundary. Verify the new dealer/kyoku/wind/honba/sticks/scores
+exactly match, replace only the newly generated hand and stitch completed
+MJAI prefixes into one reconciling ledger. Current hand/public history never
+reset. Native tests require changed next deals and a complete valid match
+ledger; an unsupported seed assignment cannot silently count as resampling.
 
 Simulate until native match completion, rejecting truncation and any mismatch
 between per-hand scores, final ledger and ranks. Keep per-policy/per-block

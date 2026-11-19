@@ -41,6 +41,12 @@ def select_manifest(rows,quotas):
         order=sorted(wanted,key=lambda k:(sum(len(v) for v in pools[k].values())/wanted[k],k))
         for kind in order:
             selected=[];cells=pools[kind]
+            if kind=='kan' and wanted[kind]>=3:
+                for subtype in ('ankan','daiminkan','kakan'):
+                    offered=[r for values in cells.values() for r in values if r['seed'] not in used
+                        and subtype in {a['type'] for a in r['request']['questions']['action']['criteria'].values()}]
+                    if not offered:raise ValueError(f'Insufficient public {split}:{subtype} coverage')
+                    row=min(offered,key=lambda r:r['selection_key']);selected.append(row);used.add(row['seed'])
             while len(selected)<wanted[kind]:
                 changed=False
                 for cell in sorted(cells):
@@ -58,15 +64,62 @@ def world_design(index):
     return dict(block=index//32,policy=index%2,opponents=(index//2)%2)
 
 
+class FutureHandsWorld:
+    """Reinitialize only NEW hand boundaries with independently seeded native deals.
+
+    RiichiEnv0.4.11 has no writable seed on a live environment. Its supported
+    reset API can preserve the next hand's public match state at a boundary.
+    Keep the already completed MJAI prefix for one continuous score ledger.
+    """
+    def __init__(self,env,future_seed,prefix=None):
+        self._env=env;self._future_seed=future_seed;self._prefix=prefix or []
+
+    def __getattr__(self,name):return getattr(self._env,name)
+
+    @property
+    def mjai_log(self):
+        log=self._env.mjai_log
+        if not self._prefix:return log
+        if log[0]['type']!='start_game':raise ValueError('Expected native new-hand game prefix')
+        return self._prefix+log[1:]
+
+    def clone(self):
+        import copy
+        return FutureHandsWorld(self._env.clone(),self._future_seed,copy.deepcopy(self._prefix))
+
+    def step(self,actions):
+        old=(self._env.round_wind,self._env.kyoku_idx,self._env.honba)
+        previous_log_size=len(self.mjai_log)
+        observations=self._env.step(actions)
+        current=(self._env.round_wind,self._env.kyoku_idx,self._env.honba)
+        if self._env.done() or current==old:return observations
+        from riichienv import RiichiEnv,GameRule
+        from .collect import digest
+        expected=(self._env.oya,*current,self._env.riichi_sticks,list(self._env.scores()))
+        log=self.mjai_log
+        # Some engine transitions can expose the new marker before emitting
+        # its start event. Never cut away the completed current hand.
+        boundary=next((i for i in range(previous_log_size,len(log)) if log[i]['type']=='start_kyoku'),len(log))
+        prefix=log[:boundary]
+        seed=int(digest([self._future_seed,list(current),'next-hand-native-reset'])[:16],16)
+        fresh=RiichiEnv(game_mode='4p-red-east',rule=GameRule.default_mjsoul(),seed=seed)
+        observations=fresh.reset(oya=self._env.oya,round_wind=current[0],honba=current[2],
+                                 kyotaku=self._env.riichi_sticks,scores=list(self._env.scores()),seed=seed)
+        actual=(fresh.oya,fresh.round_wind,fresh.kyoku_idx,fresh.honba,fresh.riichi_sticks,list(fresh.scores()))
+        if actual!=expected:raise ValueError('Fresh future-hand reset changed public match state')
+        self._prefix=prefix;self._env=fresh
+        return observations
+
+
 def seeded_future(env,wall_seed,future_seed):
     from jevmahjong.training.futures import sample_future
     from jevmahjong.training.collector import call_observation_digest
     sampled=sample_future(env,wall_seed,'unseen')
     before=call_observation_digest(sampled.clone().get_observations())
-    sampled.seed=future_seed
-    if call_observation_digest(sampled.clone().get_observations())!=before:
+    result=FutureHandsWorld(sampled,future_seed)
+    if call_observation_digest(result.clone().get_observations())!=before:
         raise ValueError('Resampling future-hand RNG changed current observations')
-    return sampled
+    return result
 
 
 def reliable_target(prior,utilities,eligible,temperature=.1,z=1.96,raw_fraction=.5,exploration=.1):

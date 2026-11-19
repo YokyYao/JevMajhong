@@ -164,6 +164,9 @@ def manifest(c,reg):
         worker=min(range(2),key=lambda i:(cost[i],i));bins[worker].append(row['id']);cost[worker]+=len(row['request']['questions']['action']['criteria'])
     frozen=dict(status='fresh_targeted_manifest_frozen',positions=selected,positions_sha256=digest(selected),
         worker_ids=bins,worker_actions=cost,legal_actions=actions,terminal_rollouts=actions*64,
+        counts=dict(Counter(r['split']+':'+r['category'] for r in selected)),
+        kan_availability=dict(Counter(a['type'] for r in selected if r['split']=='train'
+            for a in r['request']['questions']['action']['criteria'].values() if a['type'] in ('ankan','daiminkan','kakan'))),
         selected_source_sha256={str(r['seed']):receipt['source_files_sha256'][str(r['seed'])] for r in selected})
     write(out/'manifest-private.json',frozen)
     write(out/'manifest-summary-private.json',{k:v for k,v in frozen.items() if k not in ('positions','worker_ids','selected_source_sha256')})
