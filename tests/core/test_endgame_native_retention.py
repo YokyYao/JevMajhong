@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch
 from jevmahjong.endgame.native_retention import native_record,reference_preparation_only
 from jevmahjong.endgame.reference import apply_reference
-from jevmahjong.endgame.fit import original_replay_ce
+from jevmahjong.endgame.fit import original_replay_ce,selection_value
 from jevmahjong.endgame.prepare import balance_training_sources
 
 
@@ -16,6 +16,14 @@ def native(rid):
 
 
 class NativeRetentionTests(unittest.TestCase):
+    def test_feasible_candidate_outranks_infeasible_anchor_without_promoting_rejected_steps(self):
+        anchor=selection_value(0,.6,1.,True,False,True)
+        self.assertLess(selection_value(56,.5,1.,True,False,True),anchor)
+        self.assertGreater(selection_value(56,.9,.01,False,False,True),anchor)
+        feasible_anchor=selection_value(0,.6,1.,True,True,True)
+        self.assertGreater(selection_value(56,.5,1.,True,True,True),feasible_anchor)
+        self.assertEqual(selection_value(0,.6,1.,True,False,False),-.6)
+
     def test_rank_balancing_only_applies_after_runtime_fixed_wins_are_removed(self):
         def record(seat,src='endgame_terminal'):
             return {'state':{'seat':seat,'scores':[40000,30000,20000,10000]},

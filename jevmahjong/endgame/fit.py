@@ -47,6 +47,16 @@ def original_replay_ce(ce):
     return sum(values) / len(values)
 
 
+def selection_value(step,utility,replay_ce,guards_passed,zero_feasible,feasibility_first=False):
+    if not feasibility_first:
+        return -utility if guards_passed else 1e6+replay_ce
+    if step==0:
+        return -utility if zero_feasible else 1e6
+    # All rejected nonzero steps are strictly worse than the no-update anchor,
+    # while every feasible nonzero step outranks an infeasible anchor.
+    return -utility if guards_passed else 1e6+1+replay_ce
+
+
 def fit(config):
     if config.get("fit_registered", True) is not True:
         raise ValueError("This data-audit configuration has no registered fit protocol")
@@ -228,10 +238,16 @@ def fit(config):
         exposure_snapshot = exposure.snapshot()
         exposure_guard = step == 0 or exposure_snapshot["minimum_exposure_met"]
         guard_passed = other_guards_passed and win_guard and exposure_guard and escape_guard and third_guard and native_guard
+        if step == 0:
+            raw_floors = all(audit is None or audit['candidate'] >= audit['required_nonzero_floor']-1e-12
+                             for audit in (escape_audit, third_audit))
+            raw_native = native_kl is None or native_kl <= config['native_reference_kl_guard']
+            state['zero_feasible'] = other_guards_passed and win_guard and raw_floors and raw_native
         state["evaluation_step"] = step
         state["other_guards_passed"] = other_guards_passed
         state["exposure_met"] = exposure_snapshot["minimum_exposure_met"]
-        selection_metric = -utility if guard_passed else 1e6 + replay_ce
+        selection_metric = selection_value(step,utility,replay_ce,guard_passed,state['zero_feasible'],
+                                           config.get('feasibility_first_selection',False))
         item = {"step": step, "endgame_validation_terminal_utility": utility,
             "utility_by_stratum": strata,
             "replay_target_ce": replay_ce, "replay_guard_passed": replay_guard,
@@ -240,6 +256,8 @@ def fit(config):
             "reference_kl_guard_limit": reference_limit,
             "native_reference_kl": native_kl, "native_reference_guard_passed": native_guard,
             "native_reference_kl_limit": config.get("native_reference_kl_guard"),
+            "zero_anchor_raw_constraints_met": state['zero_feasible'],
+            "feasibility_first_selection": config.get('feasibility_first_selection',False),
             "training_exposure": exposure_snapshot, "exposure_guard_passed": exposure_guard,
             "win_stratum_guard_passed": win_guard,
             "fourth_escape_guard_passed": escape_guard, "fourth_escape_validation": escape_audit,

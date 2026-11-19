@@ -42,6 +42,7 @@
   "reference_kl_guard": 0.05,
   "reference_kl_guard_relative_to_start": true,
   "native_reference_kl_guard": 0.05,
+  "feasibility_first_selection": true,
   "epochs": 2,
   "max_optimizer_steps": 112,
   "learning_rate": 1e-6,
