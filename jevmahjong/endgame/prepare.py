@@ -242,11 +242,14 @@ def prepare(config):
                     groups[split].add(record["_meta"]["group_id"])
                 splits[split].extend(chosen)
     native_rows = []
+    terminal_native_records = {}
     if config.get("native_context_root"):
         from .native_retention import load_native_pairs, native_record
         native_rows = load_native_pairs(config)
+        from .native_terminal import load_terminal_native_records
+        terminal_native_records = load_terminal_native_records(config, native_rows)
         for row in native_rows:
-            splits[row["split"]].append(native_record(row))
+            splits[row["split"]].append(terminal_native_records.get(row['id']) or native_record(row))
             groups[row["split"]].add(row["group_id"])
     if groups["train"] & groups["validation"]:
         raise ValueError("Combined replay/new groups overlap")
@@ -289,6 +292,7 @@ def prepare(config):
         "replay_inputs": replay_sources, "replay_admission": replay_admission,
         "reference_regularization": reference_receipt,
         "native_context_records": dict(Counter(r["split"] for r in native_rows)),
+        "native_terminal_supervision_records": dict(Counter(r['_meta']['split'] for r in terminal_native_records.values())),
         "reference_preparation_only": bool(native_rows and not config.get("reference_regularization", False)),
         "validation_replay": "16 expert examples per phase; no fictitious call-window MC validation",
         "files": {s: {"path": str(out / (s + ".jsonl")),

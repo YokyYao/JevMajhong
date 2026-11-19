@@ -9,6 +9,7 @@ import time
 
 from .collect import write
 from .prepare import checksum, prepare, read_jsonl
+from .native_terminal import is_native_terminal
 
 
 def target_ce(question, probabilities):
@@ -39,6 +40,19 @@ def terminal_floor_guard(step, current, original, initial):
         "zero_step_is_anchor": step == 0}
 
 
+def fourth_cohort_floor_guards(step, current, original, initial, native_registered=False):
+    """New ordinary windows must never compensate for a legacy escape regression."""
+    expected = {'existing', 'native_fourth'} if native_registered else {'existing'}
+    if set(current) != expected or set(original) != expected or set(initial) != expected:
+        raise ValueError('Required fourth-place validation cohorts differ')
+    if native_registered and (len(current['existing']) != 43 or len(current['native_fourth']) != 8):
+        raise ValueError('Keep all43 old and8 new fourth-place validation windows separately')
+    passed, audits = {}, {}
+    for key in sorted(expected):
+        passed[key], audits[key] = terminal_floor_guard(step, current[key], original[key], initial[key])
+    return passed, audits
+
+
 def original_replay_ce(ce):
     values = [x for source, rows in ce.items()
               if source.startswith("replay_") and not source.startswith("replay_native") for x in rows]
@@ -47,7 +61,8 @@ def original_replay_ce(ce):
     return sum(values) / len(values)
 
 
-def reference_kl_group(source):
+def reference_kl_group(source,meta=None):
+    if is_native_terminal(meta or {}):return 'trailing'
     if source=='replay_native_leading':return 'leading'
     if source=='replay_native':return 'trailing'
     return 'original'
@@ -95,6 +110,8 @@ def fit(config):
     if config.get("fit_registered", True) is not True:
         raise ValueError("This data-audit configuration has no registered fit protocol")
     parameter_scope=config.get('trainable_scope','lora_and_head')
+    if config.get('native_terminal_label_root') and config.get('enforce_native_terminal_escape_guard') is not True:
+        raise ValueError('Native terminal validation requires a separate registered escape guard')
     if parameter_scope not in ('lora_and_head','head_only'):
         raise ValueError('Unsupported registered trainable parameter scope')
     if config.get("native_context_root"):
@@ -196,6 +213,7 @@ def fit(config):
             raise ValueError("Validation dropped or duplicated records")
         utilities, ce, reference_kl, native_reference_kl, leading_reference_kl = defaultdict(list), defaultdict(list), [], [], []
         fourth_escape, original_fourth_escape, third_pursuit, original_third_pursuit = [], [], [], []
+        native_fourth_escape, original_native_fourth_escape = [], []
         for prediction in rows:
             record = by_id[prediction["id"]]
             question = record["questions"]["action"]
@@ -204,7 +222,7 @@ def fit(config):
                 raise ValueError("Validation legal menu differs")
             source = question["src"]
             ce[source].append(target_ce(question, probabilities))
-            if reference_rows is not None and source.startswith("replay_"):
+            if reference_rows is not None and (source.startswith("replay_") or is_native_terminal(record['_meta'])):
                 p = reference_rows[record["_meta"]["id"]]["probabilities"]
                 current = probabilities
                 if config.get("reference_mode") == "released_original_policy":
@@ -212,7 +230,7 @@ def fit(config):
                     from .reference import restrict_distribution
                     current = restrict_distribution(probabilities, action_keys(record))
                 destination = {'leading':leading_reference_kl,'trailing':native_reference_kl,
-                               'original':reference_kl}[reference_kl_group(source)]
+                               'original':reference_kl}[reference_kl_group(source, record['_meta'])]
                 destination.append(sum(v * math.log(max(v, 1e-30) / max(current[k], 1e-30))
                                        for k, v in p.items() if v > 0))
             if source == "endgame_terminal":
@@ -226,8 +244,10 @@ def fit(config):
                 if config.get("fourth_escape_constraint", False) and record["_meta"]["source_initial_placement"] == 4:
                     escape = record["_meta"]["terminal_escape4_probabilities"]
                     baseline = reference_rows[record["_meta"]["id"]]["probabilities"]
-                    fourth_escape.append(escape[chosen])
-                    original_fourth_escape.append(escape[max(baseline, key=baseline.get)])
+                    current_values, original_values = ((native_fourth_escape, original_native_fourth_escape)
+                        if is_native_terminal(record['_meta']) else (fourth_escape, original_fourth_escape))
+                    current_values.append(escape[chosen])
+                    original_values.append(escape[max(baseline, key=baseline.get)])
                 if config.get("fourth_escape_constraint", False) and record["_meta"]["source_initial_placement"] == 3:
                     baseline = reference_rows[record["_meta"]["id"]]["probabilities"]
                     values = record["_meta"]["expected_terminal_utilities"]
@@ -275,24 +295,40 @@ def fit(config):
                      or strata["win"] >= state["initial_strata"]["win"] - 1e-12)
         escape_guard = third_guard = True
         escape_audit, third_audit = None, None
+        native_escape_guard, native_escape_audit = True, None
         if config.get("fourth_escape_constraint", False):
             # Keep step zero as the valid no-update anchor even when the new
             # input path starts below original policy. This guard determines
             # nonzero eligibility; before full coverage it does not drain
             # patience, just like the active-win guard.
-            escape_guard, escape_audit = terminal_floor_guard(step, fourth_escape,
-                original_fourth_escape, state.get("initial_fourth_escape"))
+            current_cohorts, original_cohorts, initial_cohorts = ({'existing': fourth_escape},
+                {'existing': original_fourth_escape}, {'existing': state.get('initial_fourth_escape')})
+            native_registered = config.get('enforce_native_terminal_escape_guard', False)
+            if native_registered:
+                current_cohorts['native_fourth'] = native_fourth_escape
+                original_cohorts['native_fourth'] = original_native_fourth_escape
+                initial_cohorts['native_fourth'] = state.get('initial_native_fourth_escape')
+            elif native_fourth_escape or original_native_fourth_escape:
+                raise ValueError('Native terminal windows cannot enter the old aggregate escape guard')
+            cohort_passed, cohort_audits = fourth_cohort_floor_guards(step, current_cohorts,
+                original_cohorts, initial_cohorts, native_registered)
+            escape_guard, escape_audit = cohort_passed['existing'], cohort_audits['existing']
+            native_escape_guard = cohort_passed.get('native_fourth', True)
+            native_escape_audit = cohort_audits.get('native_fourth')
             third_guard, third_audit = terminal_floor_guard(step, third_pursuit,
                 original_third_pursuit, state.get("initial_third_pursuit"))
             if step == 0:
                 state["initial_fourth_escape"] = escape_audit["candidate"]
+                if native_escape_audit is not None:
+                    state['initial_native_fourth_escape'] = native_escape_audit['candidate']
                 state["initial_third_pursuit"] = third_audit["candidate"]
         exposure_snapshot = exposure.snapshot()
         exposure_guard = step == 0 or exposure_snapshot["minimum_exposure_met"]
-        guard_passed = other_guards_passed and win_guard and exposure_guard and escape_guard and third_guard and native_guard and leading_guard
+        guard_passed = (other_guards_passed and win_guard and exposure_guard and escape_guard
+            and third_guard and native_guard and leading_guard and native_escape_guard)
         if step == 0:
             raw_floors = all(audit is None or audit['candidate'] >= audit['required_nonzero_floor']-1e-12
-                             for audit in (escape_audit, third_audit))
+                             for audit in (escape_audit, third_audit, native_escape_audit))
             raw_native = native_kl is None or native_kl <= config['native_reference_kl_guard']
             raw_leading=leading_kl is None or leading_kl<=config['leading_native_reference_kl_guard']
             state['zero_feasible'] = other_guards_passed and win_guard and raw_floors and raw_native and raw_leading
@@ -316,6 +352,8 @@ def fit(config):
             "training_exposure": exposure_snapshot, "exposure_guard_passed": exposure_guard,
             "win_stratum_guard_passed": win_guard,
             "fourth_escape_guard_passed": escape_guard, "fourth_escape_validation": escape_audit,
+            "native_fourth_escape_guard_passed": native_escape_guard,
+            "native_fourth_escape_validation": native_escape_audit,
             "third_pursuit_guard_passed": third_guard, "third_pursuit_validation": third_audit,
             "selection_metric_negative_terminal_utility": selection_metric,
             "target_ce_by_source": {k: sum(v) / len(v) for k, v in ce.items()},

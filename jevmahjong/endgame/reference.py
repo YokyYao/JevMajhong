@@ -84,6 +84,22 @@ def greedy_win_target(criteria, utilities, eligible):
     return {k: 1 / len(winners) if k in winners else 0. for k in keys}
 
 
+def greedy_improvement_target(reference, utilities, eligible):
+    """Correct a strictly suboptimal greedy choice; preserve a best/tied old choice."""
+    keys = list(reference)
+    distribution(reference, keys)
+    if (not eligible or not set(eligible) <= set(keys) or set(utilities) != set(keys)
+            or not all(math.isfinite(v) for v in utilities.values())):
+        raise ValueError('Invalid supported ordinary terminal improvement menu')
+    supported = restrict_distribution(reference, eligible)
+    baseline = max(eligible, key=reference.get)
+    best = max(utilities[k] for k in eligible)
+    if utilities[baseline] >= best - 1e-12:
+        return supported
+    winners = [k for k in eligible if utilities[k] >= best - 1e-12]
+    return {k: float(k in winners) / len(winners) for k in keys}
+
+
 def escape_supported_keys(reference, escape_probabilities, eligible):
     """For initial fourth, admit targets no worse than original greedy escape."""
     distribution(reference, list(escape_probabilities))
@@ -120,6 +136,13 @@ def apply_reference(config, splits):
     style = config.get("win_target_style", "reference_tilt")
     if style not in ("reference_tilt", "greedy_terminal_best"):
         raise ValueError("Unsupported win-target style")
+    ordinary_style = config.get('ordinary_fourth_target_style', 'reference_tilt')
+    if ordinary_style not in ('reference_tilt', 'greedy_improvement'):
+        raise ValueError('Unsupported ordinary-fourth target style')
+    if ordinary_style == 'greedy_improvement' and (
+            config.get('fourth_escape_constraint') is not True
+            or config.get('reference_mode') != 'released_original_policy'):
+        raise ValueError('Greedy ordinary improvement needs original-policy escape constraints')
     from .context import PUBLIC_SETTLEMENT_VERSIONS
     if (style == "greedy_terminal_best" or config.get("split_fixed_win_reference", False)) and (
             config.get("input_version") not in PUBLIC_SETTLEMENT_VERSIONS
@@ -165,6 +188,9 @@ def apply_reference(config, splits):
             greedy = meta["bucket"] == "win" and config.get("win_target_style") == "greedy_terminal_best"
             if greedy:
                 target = greedy_win_target(q["criteria"], values, eligible)
+            elif (ordinary_style == 'greedy_improvement' and meta['bucket'] == 'fourth'
+                  and meta['source_initial_placement'] == 4):
+                target = greedy_improvement_target(p, values, eligible)
             else:
                 target = improvement_target({k: supported[k] for k in eligible},
                     {k: values[k] for k in eligible}, temperature, config["reference_exploration"])
@@ -173,6 +199,8 @@ def apply_reference(config, splits):
             expected_gains.append(sum((target[k] - p[k]) * values[k] for k in p))
             q["target"] = target
             meta["target_basis"] = "greedy_best_finite_terminal_win_scope" if greedy else "frozen_reference_tilted_by_terminal_utility"
+            if ordinary_style == 'greedy_improvement' and meta['bucket'] == 'fourth' and meta['source_initial_placement'] == 4:
+                meta['target_basis'] = 'greedy_safe_finite_ordinary_improvement_preserve_best_original'
         q["label"] = max(q["target"], key=q["target"].get)
     for record in splits["validation"]:
         meta, q = record["_meta"], record["questions"]["action"]
