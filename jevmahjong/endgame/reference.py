@@ -136,7 +136,10 @@ def apply_reference(config, splits):
             if q["src"] == "replay_expert":
                 expert_count += 1
                 expert_disagreements += max(p, key=p.get) != q["label"]
-            q["src"], q["target"] = "replay_reference", dict(p)
+            leading=meta.get('native_retention_scope')=='leading'
+            if leading and not config.get('split_leading_reference'):
+                raise ValueError('Leading native reference needs an explicit loss source')
+            q["src"], q["target"] = "replay_reference_leading" if leading else "replay_reference", dict(p)
             if meta.get("native_reference_pending"):
                 if cache["rows"][meta["id"]]["teacher_request_sha256"] != meta["teacher_request_sha256"]:
                     raise ValueError("Native frozen teacher input changed")
@@ -173,7 +176,7 @@ def apply_reference(config, splits):
         q["label"] = max(q["target"], key=q["target"].get)
     for record in splits["validation"]:
         meta, q = record["_meta"], record["questions"]["action"]
-        if q["src"] == "replay_native":
+        if q["src"] in ("replay_native", "replay_native_leading"):
             ref = cache["rows"][meta["id"]]
             if ref["teacher_request_sha256"] != meta["teacher_request_sha256"]:
                 raise ValueError("Native validation teacher input changed")
@@ -195,6 +198,8 @@ def apply_reference(config, splits):
 
 
 def build_reference(config):
+    if config.get('native_leading_context_root') and config.get('leading_reference_registered') is not True:
+        raise ValueError('Leading teacher queries require an explicitly registered preparation stage')
     from .prepare import prepare, read_jsonl, checksum
     from .futures import bundle_identity
     from desktop.jev_sidecar.unified_policy import identity

@@ -41,10 +41,16 @@ def terminal_floor_guard(step, current, original, initial):
 
 def original_replay_ce(ce):
     values = [x for source, rows in ce.items()
-              if source.startswith("replay_") and source != "replay_native" for x in rows]
+              if source.startswith("replay_") and not source.startswith("replay_native") for x in rows]
     if not values:
         raise ValueError("Original replay validation coverage is missing")
     return sum(values) / len(values)
+
+
+def reference_kl_group(source):
+    if source=='replay_native_leading':return 'leading'
+    if source=='replay_native':return 'trailing'
+    return 'original'
 
 
 def selection_value(step,utility,replay_ce,guards_passed,zero_feasible,feasibility_first=False):
@@ -64,6 +70,10 @@ def fit(config):
         native_limit = config.get("native_reference_kl_guard")
         if type(native_limit) not in (float, int) or not math.isfinite(native_limit) or native_limit <= 0:
             raise ValueError("Native policy retention requires an explicit positive validation KL limit")
+    if config.get('native_leading_context_root'):
+        leading_limit=config.get('leading_native_reference_kl_guard')
+        if type(leading_limit) not in (float,int) or not math.isfinite(leading_limit) or leading_limit<=0:
+            raise ValueError('Leading native retention requires its own positive KL limit')
     out = Path(config["out"])
     proof = prepare(config)
     train_dir = out / "training-run"
@@ -149,7 +159,7 @@ def fit(config):
         rows = json.loads((directory / "training_eval" / ("step-%06d" % step) / "development/rows.json").read_text())
         if len(rows) != len(records) or {r["id"] for r in rows} != set(by_id):
             raise ValueError("Validation dropped or duplicated records")
-        utilities, ce, reference_kl, native_reference_kl = defaultdict(list), defaultdict(list), [], []
+        utilities, ce, reference_kl, native_reference_kl, leading_reference_kl = defaultdict(list), defaultdict(list), [], [], []
         fourth_escape, original_fourth_escape, third_pursuit, original_third_pursuit = [], [], [], []
         for prediction in rows:
             record = by_id[prediction["id"]]
@@ -166,7 +176,8 @@ def fit(config):
                     from .public_policy import action_keys
                     from .reference import restrict_distribution
                     current = restrict_distribution(probabilities, action_keys(record))
-                destination = native_reference_kl if source == "replay_native" else reference_kl
+                destination = {'leading':leading_reference_kl,'trailing':native_reference_kl,
+                               'original':reference_kl}[reference_kl_group(source)]
                 destination.append(sum(v * math.log(max(v, 1e-30) / max(current[k], 1e-30))
                                        for k, v in p.items() if v > 0))
             if source == "endgame_terminal":
@@ -219,6 +230,12 @@ def fit(config):
             # Like the pursuit/escape guard, native alignment determines
             # nonzero eligibility after exposure; zero stays a valid anchor.
             native_guard = step == 0 or native_kl <= config["native_reference_kl_guard"]
+        leading_kl=sum(leading_reference_kl)/len(leading_reference_kl) if leading_reference_kl else None
+        leading_guard=True
+        if config.get('native_leading_context_root'):
+            if len(leading_reference_kl)!=16:
+                raise ValueError('Leading native validation must retain all16 frozen-policy examples')
+            leading_guard=step==0 or leading_kl<=config['leading_native_reference_kl_guard']
         win_guard = (not config.get("enforce_win_stratum_guard", False)
                      or strata["win"] >= state["initial_strata"]["win"] - 1e-12)
         escape_guard = third_guard = True
@@ -237,12 +254,13 @@ def fit(config):
                 state["initial_third_pursuit"] = third_audit["candidate"]
         exposure_snapshot = exposure.snapshot()
         exposure_guard = step == 0 or exposure_snapshot["minimum_exposure_met"]
-        guard_passed = other_guards_passed and win_guard and exposure_guard and escape_guard and third_guard and native_guard
+        guard_passed = other_guards_passed and win_guard and exposure_guard and escape_guard and third_guard and native_guard and leading_guard
         if step == 0:
             raw_floors = all(audit is None or audit['candidate'] >= audit['required_nonzero_floor']-1e-12
                              for audit in (escape_audit, third_audit))
             raw_native = native_kl is None or native_kl <= config['native_reference_kl_guard']
-            state['zero_feasible'] = other_guards_passed and win_guard and raw_floors and raw_native
+            raw_leading=leading_kl is None or leading_kl<=config['leading_native_reference_kl_guard']
+            state['zero_feasible'] = other_guards_passed and win_guard and raw_floors and raw_native and raw_leading
         state["evaluation_step"] = step
         state["other_guards_passed"] = other_guards_passed
         state["exposure_met"] = exposure_snapshot["minimum_exposure_met"]
@@ -256,6 +274,8 @@ def fit(config):
             "reference_kl_guard_limit": reference_limit,
             "native_reference_kl": native_kl, "native_reference_guard_passed": native_guard,
             "native_reference_kl_limit": config.get("native_reference_kl_guard"),
+            'leading_native_reference_kl':leading_kl,'leading_native_reference_guard_passed':leading_guard,
+            'leading_native_reference_kl_limit':config.get('leading_native_reference_kl_guard'),
             "zero_anchor_raw_constraints_met": state['zero_feasible'],
             "feasibility_first_selection": config.get('feasibility_first_selection',False),
             "training_exposure": exposure_snapshot, "exposure_guard_passed": exposure_guard,

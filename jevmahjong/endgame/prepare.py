@@ -91,6 +91,8 @@ def balance_training_sources(records, config):
 
 
 def prepare(config):
+    if config.get('native_leading_context_root') and not config.get('native_context_root'):
+        raise ValueError('Leading contexts cannot replace or silently omit trailing contexts')
     if config.get("native_context_root"):
         from .context import TRAILING_INPUT_VERSION
         if config.get("reference_mode") != "released_original_policy" or config.get("input_version") != TRAILING_INPUT_VERSION:
