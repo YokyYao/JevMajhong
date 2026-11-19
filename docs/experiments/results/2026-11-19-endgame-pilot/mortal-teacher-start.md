@@ -88,3 +88,55 @@ as an explicitly screen-ineligible diagnostic rather than skipping match evidenc
 
 Only code/plans/aggregate findings are public. Raw games, traces, labels/features
 and research weights remain private. No independent confirmation or release claim.
+
+## First32-update monitor (total208)
+
+Normal loaded checkpoint208 improves teacher macro CE .736471→.537679
+(about27% lower), macro agreement64.17%→77.57%, and overall agreement
+66.80%→70.70%. Class counts are deliberately balanced, so these two agreement
+averages have different weights. Neither is a game-strength measurement.
+
+| Teacher class | Parent176 agreement | Checkpoint208 agreement |
+|---|---:|---:|
+|Kan windows|50.00%|81.25%|
+|Positive chi choices|43.75%|43.75%|
+|Positive pon choices|100.00%|100.00%|
+|Positive riichi choices|25.00%|100.00%|
+|Defense discards|81.25%|78.13%|
+|Decline-call controls|84.38%|78.13%|
+|Ordinary discards|64.84%|61.72%|
+
+Endgame finite-label primary falls23.5141%→23.1158% (-.3983pp): old51
+fourth menus22.5490%→21.7525%, fresh6 stays24.4792%. Holding utility falls
+.970833→.929167. These are early monitoring regressions, not improved top2.
+Checkpoint208 passes the registered RESEARCH tolerances only (teacher CE -2%,
+endgame within2pp, holding within.05); it is not qualified for deployment.
+Observation continues through at least192 new updates and full record exposure.
+
+A separate one-shot audit of the SAME saved predictions, using companion CPU
+inside GPU309775 with no new inference, examines action OPPORTUNITIES rather
+than only categories selected by the teacher:
+
+| Available action | Held-out menus | Teacher selects | Parent selects |208 selects |
+|---|---:|---:|---:|---:|
+|Riichi|20|16|6|20|
+|Chi|42|16|13|14|
+|Pon|33|17|16|17|
+|Ankan|5|1|2|2|
+|Daiminkan|10|0|5|0|
+|Kakan|1|1|1|1|
+
+Riichi recall of teacher-selected choices rises4/16→16/16, while choices in
+the4 teacher-decline riichi menus rise2→4. Positive-class100% therefore also
+includes an early "always riichi when available" behavior on this small set.
+Chi recall by action TYPE stays8/16, with additional chi in teacher-decline
+menus5→6; exact positive chi action agreement remains7/16 because one chi uses
+a different candidate combination. Pon type recall stays16/17 with an extra
+teacher-disagreeing pon0→1. Kan improvement is principally declining the5
+daiminkan choices; ankan/kakan selections have not improved. These counts measure
+agreement with a third-party teacher, not independent Mahjong optimality.
+
+This audit motivates monitoring over-eager riichi and call controls during the
+remaining fixed training schedule. It does not change frozen labels, weights,
+sampler, stopping rules or evaluation seed pools. Full-match evidence remains
+pending; no result here proves better winning or final placement.
