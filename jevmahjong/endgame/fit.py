@@ -23,6 +23,22 @@ def target_ce(question, probabilities):
     return -sum(target[key] / total * math.log(max(probabilities[key] / mass, 1e-30)) for key in support)
 
 
+def terminal_floor_guard(step, current, original, initial):
+    """Retain zero as an anchor; nonzero must clear both reference floors."""
+    if not current or len(current) != len(original):
+        raise ValueError("Required terminal validation coverage is missing")
+    mean, baseline = sum(current) / len(current), sum(original) / len(original)
+    if initial is None:
+        if step != 0:
+            raise ValueError("Initial validation anchor is missing")
+        initial = mean
+    floor = max(initial, baseline)
+    return (step == 0 or mean >= floor - 1e-12), {
+        "positions": len(current), "candidate": mean, "original_policy": baseline,
+        "initial_input_path": initial, "required_nonzero_floor": floor,
+        "zero_step_is_anchor": step == 0}
+
+
 def fit(config):
     if config.get("fit_registered", True) is not True:
         raise ValueError("This data-audit configuration has no registered fit protocol")
@@ -112,6 +128,7 @@ def fit(config):
         if len(rows) != len(records) or {r["id"] for r in rows} != set(by_id):
             raise ValueError("Validation dropped or duplicated records")
         utilities, ce, reference_kl = defaultdict(list), defaultdict(list), []
+        fourth_escape, original_fourth_escape, third_pursuit, original_third_pursuit = [], [], [], []
         for prediction in rows:
             record = by_id[prediction["id"]]
             question = record["questions"]["action"]
@@ -137,6 +154,16 @@ def fit(config):
                     eligible = action_keys(record)
                 chosen = max(eligible, key=probabilities.get)
                 utilities[record["_meta"]["bucket"]].append(record["_meta"]["expected_terminal_utilities"][chosen])
+                if config.get("fourth_escape_constraint", False) and record["_meta"]["source_initial_placement"] == 4:
+                    escape = record["_meta"]["terminal_escape4_probabilities"]
+                    baseline = reference_rows[record["_meta"]["id"]]["probabilities"]
+                    fourth_escape.append(escape[chosen])
+                    original_fourth_escape.append(escape[max(baseline, key=baseline.get)])
+                if config.get("fourth_escape_constraint", False) and record["_meta"]["source_initial_placement"] == 3:
+                    baseline = reference_rows[record["_meta"]["id"]]["probabilities"]
+                    values = record["_meta"]["expected_terminal_utilities"]
+                    third_pursuit.append(values[chosen])
+                    original_third_pursuit.append(values[max(baseline, key=baseline.get)])
         required = {"win", "third", "fourth", "hold"}
         if set(utilities) != required:
             raise ValueError("Validation missing registered endgame stratum")
@@ -151,7 +178,8 @@ def fit(config):
         replay_guard = replay_ce <= state["initial_replay_ce"] + 0.10
         placement_guard = (not config.get("enforce_placement_strata_guard", False)
             or (strata["third"] >= state["initial_strata"]["third"] - 1e-12
-                and strata["fourth"] >= state["initial_strata"]["fourth"] - 1e-12
+                and (config.get("fourth_escape_constraint", False)
+                     or strata["fourth"] >= state["initial_strata"]["fourth"] - 1e-12)
                 and strata["hold"] >= state["initial_strata"]["hold"] - .02 - 1e-12))
         mean_reference_kl = sum(reference_kl) / len(reference_kl) if reference_kl else None
         if step == 0:
@@ -163,9 +191,23 @@ def fit(config):
         other_guards_passed = replay_guard and placement_guard and reference_guard
         win_guard = (not config.get("enforce_win_stratum_guard", False)
                      or strata["win"] >= state["initial_strata"]["win"] - 1e-12)
+        escape_guard = third_guard = True
+        escape_audit, third_audit = None, None
+        if config.get("fourth_escape_constraint", False):
+            # Keep step zero as the valid no-update anchor even when the new
+            # input path starts below original policy. This guard determines
+            # nonzero eligibility; before full coverage it does not drain
+            # patience, just like the active-win guard.
+            escape_guard, escape_audit = terminal_floor_guard(step, fourth_escape,
+                original_fourth_escape, state.get("initial_fourth_escape"))
+            third_guard, third_audit = terminal_floor_guard(step, third_pursuit,
+                original_third_pursuit, state.get("initial_third_pursuit"))
+            if step == 0:
+                state["initial_fourth_escape"] = escape_audit["candidate"]
+                state["initial_third_pursuit"] = third_audit["candidate"]
         exposure_snapshot = exposure.snapshot()
         exposure_guard = step == 0 or exposure_snapshot["minimum_exposure_met"]
-        guard_passed = other_guards_passed and win_guard and exposure_guard
+        guard_passed = other_guards_passed and win_guard and exposure_guard and escape_guard and third_guard
         state["evaluation_step"] = step
         state["other_guards_passed"] = other_guards_passed
         state["exposure_met"] = exposure_snapshot["minimum_exposure_met"]
@@ -178,6 +220,8 @@ def fit(config):
             "reference_kl_guard_limit": reference_limit,
             "training_exposure": exposure_snapshot, "exposure_guard_passed": exposure_guard,
             "win_stratum_guard_passed": win_guard,
+            "fourth_escape_guard_passed": escape_guard, "fourth_escape_validation": escape_audit,
+            "third_pursuit_guard_passed": third_guard, "third_pursuit_validation": third_audit,
             "selection_metric_negative_terminal_utility": selection_metric,
             "target_ce_by_source": {k: sum(v) / len(v) for k, v in ce.items()},
             "validation_is_not_independent_strength_confirmation": True}

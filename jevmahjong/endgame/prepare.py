@@ -137,6 +137,13 @@ def prepare(config):
                  for outcomes in label["outcomes"]]
         record["_meta"]["expected_terminal_utilities"] = dict(zip(keys, means))
         record["_meta"]["terminal_objective"] = "top2_primary_v1"
+        if config.get("fourth_escape_constraint", False):
+            if config.get("reference_mode") != "released_original_policy":
+                raise ValueError("Escape constraint requires the original effective policy reference")
+            record["_meta"]["source_initial_placement"] = placements(record["state"]["scores"])[row["seat"]]
+            record["_meta"]["terminal_escape4_probabilities"] = {
+                key: sum(x["ranks"][row["seat"]] < 4 for x in outcomes) / len(outcomes)
+                for key, outcomes in zip(keys, label["outcomes"])}
         # Targets and future diagnostics are metadata; they never enter the state.
         probabilities = target_from_utilities(means, config["target_temperature"])
         record["questions"]["action"]["target"] = dict(zip(keys, probabilities))

@@ -74,6 +74,17 @@ def greedy_win_target(criteria, utilities, eligible):
     return {k: 1 / len(winners) if k in winners else 0. for k in keys}
 
 
+def escape_supported_keys(reference, escape_probabilities, eligible):
+    """For initial fourth, admit targets no worse than original greedy escape."""
+    distribution(reference, list(escape_probabilities))
+    if (not eligible or not set(eligible) <= set(reference)
+            or any(not math.isfinite(x) or not 0 <= x <= 1 for x in escape_probabilities.values())):
+        raise ValueError("Invalid finite escape estimates or action support")
+    baseline = max(eligible, key=reference.get)
+    floor = escape_probabilities[baseline]
+    return [k for k in eligible if escape_probabilities[k] >= floor - 1e-12]
+
+
 def load_reference(config, records):
     from .futures import bundle_identity
     out = Path(config["out"])
@@ -128,6 +139,8 @@ def apply_reference(config, splits):
             if config.get("reference_mode") == "released_original_policy":
                 from .public_policy import action_keys
                 eligible = action_keys(record)
+            if config.get("fourth_escape_constraint", False) and meta["source_initial_placement"] == 4:
+                eligible = escape_supported_keys(p, meta["terminal_escape4_probabilities"], eligible)
             supported = restrict_distribution(p, eligible)
             temperature = (config.get("reference_win_temperature", config["reference_temperature"])
                            if meta["bucket"] == "win" else config["reference_temperature"])
