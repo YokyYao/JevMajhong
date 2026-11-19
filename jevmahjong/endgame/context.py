@@ -14,6 +14,8 @@ INSTRUCTION = (
 PLACEMENT_UTILITY = (1.0, 0.5, -0.5, -1.0)
 
 TOP2_PLACEMENT_UTILITY = (1.1, 1.0, 0.0, -0.05)
+TRAILING_INPUT_VERSION = "endgame-trailing-public-v1"
+PUBLIC_SETTLEMENT_VERSIONS = ("endgame-public-v3", TRAILING_INPUT_VERSION)
 
 
 def placement_objective(rank):
@@ -156,14 +158,27 @@ def settled_placement(scores, deltas, seat):
     return placements([s + d for s, d in zip(scores, deltas)])[seat]
 
 
-def annotate_record(record, input_version="endgame-public-v2"):
+def trailing_context_active(state):
+    """Gate input by current public placement, including starting-seat tie order."""
+    context = public_context(state)
+    return context["late_match_window"] and context["placement"] >= 3
+
+
+def annotate_record(record, input_version="endgame-public-v2", original_request=None):
     result = copy.deepcopy(record)
     result["state"].pop("endgame_context", None)
     if input_version == "endgame-public-v2":
         payload = model_request(result)
-    elif input_version == "endgame-public-v3":
+    elif input_version in PUBLIC_SETTLEMENT_VERSIONS:
         from .win_value import settlement_request
         payload = settlement_request(result)
+        # Retain strict public-context admission in both scopes, so changing
+        # formatting cannot silently replace the replay sample pool.
+        if input_version == TRAILING_INPUT_VERSION and not trailing_context_active(payload["state"]):
+            from desktop.jev_sidecar.unified_policy import serving_request as play_v2_request
+            original = copy.deepcopy(original_request if original_request is not None else result)
+            original["state"].pop("endgame_context", None)
+            payload = play_v2_request(original)
     else:
         raise ValueError("Unsupported endgame model input version")
     result["state"] = payload["state"]

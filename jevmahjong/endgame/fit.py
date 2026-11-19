@@ -131,7 +131,8 @@ def fit(config):
                                         for k, v in p.items() if v > 0))
             if source == "endgame_terminal":
                 eligible = list(probabilities)
-                if config.get("input_version") == "endgame-public-v3":
+                from .context import PUBLIC_SETTLEMENT_VERSIONS
+                if config.get("input_version") in PUBLIC_SETTLEMENT_VERSIONS:
                     from .public_policy import action_keys
                     eligible = action_keys(record)
                 chosen = max(eligible, key=probabilities.get)

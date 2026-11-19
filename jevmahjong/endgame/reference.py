@@ -99,8 +99,9 @@ def apply_reference(config, splits):
     style = config.get("win_target_style", "reference_tilt")
     if style not in ("reference_tilt", "greedy_terminal_best"):
         raise ValueError("Unsupported win-target style")
+    from .context import PUBLIC_SETTLEMENT_VERSIONS
     if (style == "greedy_terminal_best" or config.get("split_fixed_win_reference", False)) and (
-            config.get("input_version") != "endgame-public-v3"
+            config.get("input_version") not in PUBLIC_SETTLEMENT_VERSIONS
             or config.get("reference_mode") != "released_original_policy"):
         raise ValueError("Greedy win targets and fixed controls require the verified public-v3 original policy")
     cache = load_reference(config, splits["train"] + splits["validation"])

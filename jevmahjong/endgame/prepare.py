@@ -81,7 +81,8 @@ def prepare(config):
     positions = json.loads((out / "selected-positions-private.json").read_text())
     input_version = config.get("input_version", "endgame-public-v2")
     public_context_rows = None
-    if input_version == "endgame-public-v3":
+    from .context import PUBLIC_SETTLEMENT_VERSIONS
+    if input_version in PUBLIC_SETTLEMENT_VERSIONS:
         public_cache = json.loads((out / "public-context-private.json").read_text())
         if (public_cache.get("schema") != "current-public-win-context-v1"
                 or not public_cache.get("source_prefix_only") or public_cache.get("future_results_used")):
@@ -145,7 +146,7 @@ def prepare(config):
             if public_row["source_request_sha256"] != row["request_sha256"]:
                 raise ValueError("Public-context source request differs")
             record["state"].setdefault("screen_observation", {}).update(public_row["screen_observation"])
-        record = annotate_record(record, input_version)
+        record = annotate_record(record, input_version, original_request=label["source"]["request"])
         split = row["split"]
         new_counts[split + ":" + row["bucket"]] += 1
         admitted_target, basis = terminal_training_target(record["questions"]["action"]["criteria"],

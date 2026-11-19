@@ -9,7 +9,8 @@ from .prepare import checksum
 def assemble(config):
     out = Path(config['out'])
     sets = config['label_sets']
-    if set(sets) != {'legacy4', 'target16'} or config.get('input_version') != 'endgame-public-v3':
+    from .context import PUBLIC_SETTLEMENT_VERSIONS
+    if set(sets) != {'legacy4', 'target16'} or config.get('input_version') not in PUBLIC_SETTLEMENT_VERSIONS:
         raise ValueError('Mixed pilot requires the registered original4/new16 label sets')
     target = Path(sets['target16']['root'])
     verification = json.loads((target / 'label-protocol-verification-private.json').read_text())
