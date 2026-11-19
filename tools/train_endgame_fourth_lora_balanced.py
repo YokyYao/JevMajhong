@@ -47,11 +47,16 @@ def balanced_schedule(records,steps,quotas=QUOTAS,seed=2026111918):
     batches=[]
     for _ in range(steps):
         batch=[]
-        for source,n in quotas.items():
+        source_order=list(quotas);rng.shuffle(source_order)
+        for source in source_order:
+            n=quotas[source]
             for _ in range(n):
                 if cursor[source]==len(pools[source]):rng.shuffle(pools[source]);cursor[source]=0
                 batch.append(pools[source][cursor[source]]);cursor[source]+=1
-        rng.shuffle(batch);batches.append(batch)
+        # Keep each source's within-cycle draw order across its boundary.
+        # Shuffling individual indices could move a next-cycle duplicate ahead
+        # of the final unseen item in the current source pass.
+        batches.append(batch)
     return batches
 
 
