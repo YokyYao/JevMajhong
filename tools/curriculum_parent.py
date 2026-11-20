@@ -175,6 +175,8 @@ def seal(registered, evidence, fit_exit, audit_exit, child_data_ready, out):
         node=socket.gethostname(), job_id=os.environ['SLURM_JOB_ID'], model=model,
         selected_step=reg['registered_final_step'], selection_from_minimum_CE=False,
         parent_registration=str(Path(registered).resolve()), parent_evidence=str(Path(evidence).resolve()),
+        child_data_ready=str(Path(child_data_ready).resolve()),
+        required_input_schema=c.get('riichi_input_schema'),
         parent_training_file=str(Path(args['data']).resolve()), ancestor_training_files=[str(Path(args['data']).resolve())],
         parent_validation_files=[str(Path(args['eval_data']).resolve())], bound_files=files,
         stage_quality=audit['stage1_advancement'], scheduler_exits=scheduler_receipts,
