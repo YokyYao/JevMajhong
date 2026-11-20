@@ -1,0 +1,21 @@
+{
+  "foundation_config":"configs/training/mortal-base-v1.json",
+  "out":"runs/mortal-base-retention-v1",
+  "retention_root":"runs/endgame-targeted-refresh-v1",
+  "replay_quotas":{"teacher_plain":1024,"teacher_defense":256,"teacher_riichi_yes":64,"teacher_riichi_no":64,"teacher_call_yes":128,"teacher_call_no":384,"teacher_kan":128},
+  "replay_group_cap":16,
+  "teacher_loss_fraction":0.85,
+  "batch_quotas":{"teacher_plain":16,"teacher_defense":8,"teacher_riichi_yes":2,"teacher_riichi_no":2,"teacher_call_yes":4,"teacher_call_no":6,"teacher_kan":2,"retention_outcome":8},
+  "max_updates":384,
+  "minimum_observation_updates":128,
+  "validation_every":32,
+  "early_stop_patience":4,
+  "progress_relative_delta":0.001,
+  "lora_learning_rate":0.000002,
+  "head_learning_rate":0.00001,
+  "warmup_updates":16,
+  "cosine_final_fraction":0.25,
+  "seed":2026112003,
+  "raw_publication":false,
+  "automatic_export":false
+}

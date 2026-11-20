@@ -2,7 +2,7 @@
 
 Status: training is active. This is a new rank-16 LoRA and pointer head on pinned Qwen3.5-0.8B, with no Mahjong-trained v8/audited176 adapter or head and no v8 replay targets. The backbone is frozen. See the [registered plan](../../plans/mortal-base-training-20261120.md).
 
-GPU job309978 passed preflight and seven checks and encoded all22,321 teacher training decisions. Saved-model validation is complete through update960, with the observation floor and full exposure satisfied; both LoRA and head changed. Step832 remains the current candidate, with the lowest CE so far. The512 validation decisions come from128 whole source games separate from the384 training games. This is an inspected development set, not an untouched confirmation test. This pure-teacher phase covers East1–3 non-win menus under the existing serving guard; East4 pursuit and win acceptance receive no direct teacher supervision here, so agreement cannot establish those abilities.
+GPU job309978 passed preflight and seven checks and encoded all22,321 teacher training decisions. Saved-model validation is complete through update1024, with the observation floor and full exposure satisfied; both LoRA and head changed. Step832 remains the current candidate, with the lowest CE so far. The512 validation decisions come from128 whole source games separate from the384 training games. This is an inspected development set, not an untouched confirmation test. This pure-teacher phase covers East1–3 non-win menus under the existing serving guard; East4 pursuit and win acceptance receive no direct teacher supervision here, so agreement cannot establish those abilities.
 
 | Saved step | Weighted teacher CE ↓ | Weighted agreement | Overall agreement, selected512 menus | Unique training decisions exposed |
 |---|---:|---:|---:|---:|
@@ -22,6 +22,7 @@ GPU job309978 passed preflight and seven checks and encoded all22,321 teacher tr
 | 832 | 0.77506 | 74.49% | 73.24% | 22,321 |
 | 896 | 0.78599 | 72.65% | 71.68% | 22,321 |
 | 960 | 0.79435 | 70.57% | 69.53% | 22,321 |
+| 1024 | 0.77999 | 72.25% | 70.70% | 22,321 |
 
 Step0 is a random decision head on a pretrained backbone, not an old Mahjong policy or a uniform-random action baseline. Agreement depends on this selected/weighted validation mix and is not a win rate.
 
@@ -43,6 +44,7 @@ Step0 is a random decision head on a pretrained backbone, not an old Mahjong pol
 | 832 | 44 | 62 | 27 | 17 |
 | 896 | 45 | 63 | 27 | 14 |
 | 960 | 41 | 62 | 22 | 15 |
+| 1024 | 40 | 63 | 25 | 13 |
 
 The initial learner changed from calling too often to always declining chi/pon at64–128, then began selecting some teacher-positive calls at192. Exact positive-call matches reach44/64 at832, with62/64 negative-call matches. CE reaches a new low at832, but the per-action results remain mixed. No claim of solved decisions or improved playing strength follows from these auxiliary metrics.
 
@@ -64,6 +66,8 @@ At832, riichi has27 positive matches and10 extra declarations; chi has12 positiv
 At896, weighted CE increases to0.78599, so832 stays selected with one stale check. Exact positive/negative call matches improve to45/64 and63/64, while riichi has27 positive matches with13 extras. Ankan matches1/6 with1 extra and kakan1/3 with1 extra. Continue the registered observation rule; this single fluctuation does not trigger a restart or establish improving strength.
 
 At960, weighted CE is0.79435 and832 remains selected with two stale checks. Exact positive/negative call matches are41/64 and62/64. Riichi has22 positive action-type matches with12 extras; ankan2/6 with1 extra and kakan1/3 with1 extra. The fit remains active under the four-stale-check rule. If neither1024 nor1088 improves the registered CE threshold, it will stop at1088 and compare the retained832 candidate; a later improvement changes that conditional stopping point. No960 complete-match score has been measured.
+
+At1024, CE recovers to0.77999 but remains above832's0.77506; there are now three stale checks. Exact positive/negative call matches are40/64 and63/64, riichi25/32 and13/32. Ankan has2/6 action-type positives with1 extra, and kakan1/3 with1 extra. If1088 does not improve the registered threshold, fitting stops there; otherwise selection/observation continues. No1024 complete-match score has been measured.
 
 ## Rare positive-kan exposure
 
@@ -145,6 +149,8 @@ Their existing targets mix an old128-step policy prior with simulated top-two ou
 Checked upstream `libriichi/src/state/update.rs` sets `is_all_last` false in East and true at South4; its observation encoder also distinguishes round wind and hand index. This source inspection is not a probe of the loaded extension or proof of the teacher's endgame preferences. It is a reason to verify East-only endgame alignment before treating raw teacher choices as pursuit truth. The current E1–3/no-win foundation recipe remains unchanged.
 
 A separate probe then loaded the actual pinned native extension, without policy weights. For one public East4 initial state, adding `game_mode`/`game_length` fields requesting East-only versus half-game length to `start_game` produced identical1012×34 observation features and46-value action masks. Changing its wind from East to South changed the features. This only verifies those two proposed input fields and that single state; it does not expose the internal all-last flag, evaluate teacher Q preferences, or justify changing wind in training labels. Opponent concealed tiles were masked and active data/weights stayed unchanged.
+
+An explicit [follow-up retention plan](../../plans/mortal-base-retention-20261120.md) and separate preparation/training tools now address this missing scope. They accept only the fully audited fresh foundation, recompute targets with its own prior, and mix terminal supervision15% with teacher replay85%. New source-isolation, incomplete-world rejection and old-target-independence tests pass on the allocated GPU node; no training for that phase has started. Publication-matching source/CI and the foundation's completed final evidence audit are prerequisites. The current foundation source/data/selection are unchanged.
 
 At704, all22,321 unique training decisions have been exposed. A bounded read-only audit loaded the saved704 trainer state: its seen-ID set exactly equals the training set, contains none of the512 selected validation IDs, and all376 stored optimizer parameter states report704 updates. Registered code/data hashes still match. This is direct coverage/update evidence, not a claim of competence or source-game independence; the whole-game split was separately verified during preparation.
 
