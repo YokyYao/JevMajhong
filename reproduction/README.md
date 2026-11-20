@@ -2,6 +2,8 @@
 
 This is the newly registered basic-discard/riichi course, not a replay of every historical v8 experiment. The student initializes a fresh rank16 LoRA and256-dimensional action head on pinned Qwen3.5-0.8B. No v7/v8/Mortal weights initialize it. The frozen v8 export is used only by a separate evaluation process.
 
+The first registered fit completed1,162 updates and its final64-match development comparison. See the [completed stage1 report](../docs/experiments/results/curriculum-stage1-20261120.md) for all validation points, the unresolved riichi bias and the comparison with v8. A successful training exit is not a release qualification.
+
 ## Environment and public inputs
 
 Run all commands below in a scheduled GPU allocation. On this workspace, running them on login, including data processing/tests/plotting, is prohibited. The observed package versions are in `curriculum-runtime.txt`; PyTorch needs a CUDA build compatible with the host. Use the matching JevAny package and source restoration below rather than an unpinned latest install.
