@@ -50,9 +50,11 @@ Step0 records the fresh student's pre-training validation and16 complete games. 
 After successful fitting, raw CSV and standalone PNG/PDF figures are generated. They can be regenerated without training:
 
 ```bash
-python tools/plot_curriculum.py \
+python tools/plot_curriculum_fixed_grid.py \
   --metrics-dir runs/curriculum-reproduction-v1/stage1-fit/metrics
 ```
+
+Use this aligned plot for comparisons: all curve points use the same16 development matches, including the matching subset of the final64. The full final64 statistics stay in the original logs and `evaluation-stage-end64.csv`. `plot-data-provenance.json` records the transformation; no new games are generated. The raw training wrapper's original plot is replaced by this matched-grid rendering when running the cluster template or the supervised end audit.
 
 The initial model is a random Mahjong head/adapter on a pretrained backbone, not a random-action agent; the legal-action/efficiency guard and forced legal wins still apply. Do not call its initial game results a learned Mahjong ability. Stage1 has no win/pass or yaku-scoring supervision. Stage2/3 data are prepared with the same holdout exclusions; their fits and stage4's public data generation are separate registered work and are not automatically launched by this command.
 

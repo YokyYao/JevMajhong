@@ -24,3 +24,4 @@ timeout --signal=TERM --kill-after=15s 10m python tools/prepare_curriculum.py --
 timeout --signal=TERM --kill-after=15s 10m python tools/build_curriculum_stage1.py --source runs/curriculum-reproduction-v1/public-data --out runs/curriculum-reproduction-v1/clean-data-v1
 timeout --signal=TERM --kill-after=15s 10m python tools/register_curriculum.py --config configs/training/curriculum-stage1-v1.json --base-path "$JEV_BASE_MODEL_DIR" --reference-path models/jev-play-v2
 timeout --signal=TERM --kill-after=30s 230m python tools/train_curriculum.py --registered runs/curriculum-reproduction-v1/fit-plan/registered.json
+timeout --signal=TERM --kill-after=15s 3m python tools/plot_curriculum_fixed_grid.py --metrics-dir runs/curriculum-reproduction-v1/stage1-fit/metrics
