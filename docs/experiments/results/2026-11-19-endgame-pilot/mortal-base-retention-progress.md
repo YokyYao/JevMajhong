@@ -1,6 +1,6 @@
 # Fresh-base lineage: endgame-retention progress
 
-Status: GPU fit310255 is active; saved-model validation has reached32 new updates. No retention checkpoint is selected yet, and no retention candidate has received complete-game evaluation. The [registered plan](../../plans/mortal-base-retention-20261120.md) requires at least128 new updates and all2,096 admitted examples exposed before selection/stopping; maximum384, validation every32 and four stale checks thereafter.
+Status: GPU fit310255 is active; saved-model validation has reached64 new updates and all2,096 admitted examples have been exposed. No retention checkpoint is selected yet, and no retention candidate has received complete-game evaluation. The [registered plan](../../plans/mortal-base-retention-20261120.md) requires at least128 new updates and full exposure before selection/stopping; maximum384, validation every32 and four stale checks thereafter.
 
 ## Parent and actual initialization
 
@@ -24,18 +24,21 @@ An actual-agent replay found5 held-position records with extra display context. 
 |---|---:|---:|---:|---:|---|
 | 0 | 0.75664 | 0.68085 | 0.74527 | 0 | Observation floor not met |
 | 32 | 0.75828 | 0.69757 | 0.74917 | 1,328/2,096 | Observation floor not met |
+| 64 | 0.75655 | 0.70352 | 0.74859 | 2,096/2,096 | Observation floor not met |
 
 At32, both LoRA and head have changed, but joint loss is slightly above the baseline. Exact teacher-positive/negative call matches move40/64 and63/64 →39/64 and63/64. Riichi has27 teacher-positive action-type matches with17 extras. No positive daiminkan teacher supervision has appeared. These are auxiliary teacher matches, not independently correct action labels or win rates.
 
+At64, both parameter groups still change and every admitted example has been exposed, but the128-update floor is not reached. Teacher CE is almost identical to the parent, terminal-target CE is higher, and joint CE0.74859 remains above the0.74527 baseline. Exact positive/negative calls are40/64 and63/64; riichi has27 positive action-type matches with18 extras. No benefit is established by the minor teacher-loss fluctuation.
+
 ## Cached terminal monitor, not complete-match top-two rate
 
-| Initial placement stratum | Monitor positions | Parent new0 cached top-two estimate | New32 cached top-two estimate |
-|---|---:|---:|---:|
-| Fourth | 6 | 24.48% | 24.48% |
-| Third | 1 | 46.88% | 46.88% |
-| First/second holding | 1 | 43.75% | 43.75% |
+| Initial placement stratum | Monitor positions | Parent new0 cached top-two estimate | New32 | New64 |
+|---|---:|---:|---:|---:|
+| Fourth | 6 | 24.48% | 24.48% | 24.48% |
+| Third | 1 | 46.88% | 46.88% | 46.88% |
+| First/second holding | 1 | 43.75% | 43.75% | 43.75% |
 
-These values apply the model's chosen action to stored counterfactual outcomes, with old continuation behavior after that action. They are not freshly played games, an independent test set or the model's overall top-two rate. New32 shows no change in these hard estimates; the tiny8-position monitor cannot establish general playing strength. No benefit is claimed from the small soft-distribution changes. Continue the registered128-update/full-exposure observation period rather than stopping after an early small number of updates.
+These values apply the model's chosen action to stored counterfactual outcomes, with old continuation behavior after that action. They are not freshly played games, an independent test set or the model's overall top-two rate. New32 and64 show no change in these hard estimates; the tiny8-position monitor cannot establish general playing strength. No benefit is claimed from the small soft-distribution changes. Continue the registered128-update/full-exposure observation period rather than stopping after an early small number of updates.
 
 ## Remaining evaluation
 
