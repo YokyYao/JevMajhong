@@ -1,6 +1,6 @@
 # Fresh-base lineage: endgame-retention progress
 
-Status: GPU fit310255 is active; saved-model validation has reached128 new updates and all2,096 admitted examples have been exposed. New128 is the first eligible research selection, but its joint loss is above the parent baseline and it has not received complete-game evaluation. The [registered plan](../../plans/mortal-base-retention-20261120.md) requires this128-update/full-exposure floor; maximum384, validation every32 and four stale checks thereafter. Eligibility is not an improvement or release qualification.
+Status: GPU fit310255 is active; saved-model validation has reached160 new updates and all2,096 admitted examples have been exposed. New128 remains the eligible research selection, with one stale check, but its joint loss is above the parent baseline and it has not received complete-game evaluation. The [registered plan](../../plans/mortal-base-retention-20261120.md) requires the128-update/full-exposure floor; maximum384, validation every32 and four stale checks thereafter. Eligibility is not an improvement or release qualification.
 
 ## Parent and actual initialization
 
@@ -27,12 +27,15 @@ An actual-agent replay found5 held-position records with extra display context. 
 | 64 | 0.75655 | 0.70352 | 0.74859 | 2,096/2,096 | Observation floor not met |
 | 96 | 0.76371 | 0.71483 | 0.75638 | 2,096/2,096 | Observation floor not met |
 | 128 | 0.76332 | 0.70337 | 0.75433 | 2,096/2,096 | First eligible research candidate; not better than parent |
+| 160 | 0.77559 | 0.72554 | 0.76808 | 2,096/2,096 | Retain128; one stale check |
 
 At32, both LoRA and head have changed, but joint loss is slightly above the baseline. Exact teacher-positive/negative call matches move40/64 and63/64 →39/64 and63/64. Riichi has27 teacher-positive action-type matches with17 extras. No positive daiminkan teacher supervision has appeared. These are auxiliary teacher matches, not independently correct action labels or win rates.
 
 At64, both parameter groups still change and every admitted example has been exposed, but the128-update floor is not reached. Teacher CE is almost identical to the parent, terminal-target CE is higher, and joint CE0.74859 remains above the0.74527 baseline. Exact positive/negative calls are40/64 and63/64; riichi has27 positive action-type matches with18 extras. No benefit is established by the minor teacher-loss fluctuation.
 
 At96/128, joint CE remains above the baseline. New128 satisfies the observation/exposure floor and becomes the first eligible research checkpoint; this rule does not claim it improves on step0. Exact teacher-positive/negative call matches at128 are38/64 and63/64. Continue the registered post-floor checks, and require eventual complete-game comparison rather than treating selection as a quality pass.
+
+At160, both teacher and terminal-target CE worsen, giving joint CE0.76808 and the first stale post-floor check. Keep128 as the research candidate. The cached hard estimates below remain the same as96/128, so no improvement is established. Continue only within the registered four-stale-check/384-update bounds.
 
 ## Cached terminal monitor, not complete-match top-two rate
 
@@ -41,6 +44,8 @@ At96/128, joint CE remains above the baseline. New128 satisfies the observation/
 | Fourth | 6 | 24.48% | 24.48% | 24.48% | 23.70% | 23.70% |
 | Third | 1 | 46.88% | 46.88% | 46.88% | 46.88% | 46.88% |
 | First/second holding | 1 | 43.75% | 43.75% | 43.75% | 43.75% | 43.75% |
+
+New160 has the same cached hard estimates as128 in all three strata.
 
 These values apply the model's chosen action to stored counterfactual outcomes, with old continuation behavior after that action. They are not freshly played games, an independent test set or the model's overall top-two rate. New32/64 are unchanged and96/128 are slightly lower in the fourth-place stratum; the tiny8-position monitor cannot establish general playing strength. No benefit is claimed from small soft-distribution changes. The observation floor is now met; post-floor fitting remains bounded by the registered stopping rule.
 
