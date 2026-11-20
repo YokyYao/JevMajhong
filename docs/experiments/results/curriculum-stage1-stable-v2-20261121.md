@@ -2,7 +2,7 @@
 
 2026-11-21, Asia/Dubai. GPU training311884 is active with a fixed four-epoch/584-update budget; dependent audit311887 has not started. This is an interim development report, not a completed model or evidence of v8-level strength. The registered final584 checkpoint remains the sole candidate.
 
-## First full epoch
+## Interim validation and complete-match results
 
 The recipe preserves the first run's9,292/1,972 source-isolated decisions, rank16 LoRA/256-dimensional pointer, seed, source/base identity, loss masses and peak learning rates. It starts fresh from base. Changes are without-replacement64-record accumulation groups containing both riichi labels and four epochs. That is a combined recipe/exposure experiment, not a causal batching ablation.
 
@@ -15,12 +15,22 @@ At the203-update health observation, all update records are finite and contiguou
 |146|1.546582|44.13%|18/37|24/70|
 |219|1.438572|47.77%|20/37|34/70|
 |292|1.442875|46.81%|13/37|47/70|
+|365|1.336671|48.31%|27/37|31/70|
+|438|1.335966|49.97%|31/37|20/70|
 
-CE/plain imitation improve, while riichi changes from conservative at73 to over-accepting at146. At219 both acceptance and correct decline improve relative to146, but remain54.05%/48.57%, below the two-sided phase target. At292 acceptance falls to35.14% while correct decline rises to67.14%; the two-sided target is still unmet. Keep the fixed recipe through its registered budget; do not silently select an early point or change inference from these diagnostics.
+CE/plain imitation improve, while riichi changes from conservative at73 to over-accepting at146. At219 both acceptance and correct decline improve relative to146, but remain54.05%/48.57%, below the two-sided phase target. At292 acceptance falls to35.14% while correct decline rises to67.14%. At438, acceptance reaches83.78% but correct decline falls to28.57%; the two-sided target is still unmet even though weighted CE improves. Keep the fixed recipe through its registered budget; do not silently select an early point or change inference from these diagnostics.
 
-The matching16-game development grid at146 gives hand-win16.04%, dealin18.30%, first12.50%, top-two43.75%, fourth25.00% and net−3,718.75 points/match. The initial grid is top-two6.25%/net−11,437.50. Frozen v8 on the same16-game subset gives top-two62.50%/net+3,612.50. Only two seed groups underlie these points; they are not independent confirmation or a precise population-strength estimate. V8's cached reference is reused without new games.
+All points below use the same16 complete development matches, two seeds × two opponent profiles × four seats. The v8 reference is the matching subset of its cached64, reused without playing new games.
 
-At292 the matching16-game grid gives hand-win18.62%, dealin16.21%, first31.25%, top-two62.50%, fourth25.00% and net+187.50/match. Matching the reference's top-two point while trailing its net points does not establish v8-level play. The [public-context diagnostic and controlled variant](curriculum-riichi-context-20261121.md) are separate from this still-frozen run.
+| Policy / update | Top-two | Net points/match | Hand-win rate | Dealin rate |
+|---|---:|---:|---:|---:|
+| Stable-v2,0 |6.25%|−11,437.50|6.16%|32.47%|
+| Stable-v2,146 |43.75%|−3,718.75|16.04%|18.30%|
+| Stable-v2,292 |62.50%|+187.50|18.62%|16.21%|
+| Stable-v2,438 |62.50%|+2,431.25|18.97%|12.42%|
+| Frozen v8, matching16 |62.50%|+3,612.50|22.37%|10.34%|
+
+At438, first-place rate is50% and fourth25%, compared with v8's62.50%/31.25% on this small grid. Net points and dealin improve relative to292, but net still trails v8 by1,181.25/match and hand-win remains lower. Matching a top-two point does not establish comparable strength. Only two consumed seed groups underlie each point; they are not independent confirmation or a precise population-strength estimate. Final584 still needs its64-match grid and evidence audit. The [public-context diagnostic and controlled variant](curriculum-riichi-context-20261121.md) remain separate from this frozen run.
 
 ## Discrimination is weak, not just a convenient threshold problem
 
