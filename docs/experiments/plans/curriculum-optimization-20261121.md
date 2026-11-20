@@ -2,6 +2,8 @@
 
 Goal registered2026-11-21, Asia/Dubai. Complete the fresh-base four-course route with evidence supporting at least comparable play to frozen Jev Play v2/v8. This is an active research goal, not a promised outcome or a completed replication. Keep the practical v8 weights and Windows tool unchanged while researching. Stage2/3 coverage audits and candidate data preparation are now complete; [counts, proposed mixes and simulation-label limitations](../results/curriculum-stage2-stage3-data-20261121.md) are recorded separately. Their fits and transfer parents have not yet been admitted.
 
+The [stable-v2 interim report](../results/curriculum-stage1-stable-v2-20261121.md) records the first full epoch,146-step development games, saved-score discrimination diagnostics and explicit final-parent admission checks. Riichi is still unstable; no threshold is deployed and no active recipe is changed from those inspected labels.
+
 ## Evidence motivating this iteration
 
 The [completed initial stage1](../results/curriculum-stage1-20261120.md) trained1,162 updates/two epochs successfully. Final weighted validation CE improved from2.473897 to1.329124 and ordinary-discard agreement from15.07% to50.46%. However, it accepted54/70 teacher-decline riichi windows. Its final64 development matches yielded top-two51.56%, net+18.75/match and dealin18.69%, versus v8's59.38%,+4,290.625 and10.44%. Eight-seed paired intervals remain wide. A normal training exit or lower aggregate loss is not the full goal.
