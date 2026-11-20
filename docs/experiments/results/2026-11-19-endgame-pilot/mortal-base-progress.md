@@ -1,8 +1,8 @@
 # Fresh-base Mortal distillation: development progress
 
-Status: training is active. This is a new rank-16 LoRA and pointer head on pinned Qwen3.5-0.8B, with no Mahjong-trained v8/audited176 adapter or head and no v8 replay targets. The backbone is frozen. See the [registered plan](../../plans/mortal-base-training-20261120.md).
+Status: foundation fitting and final development evaluation are complete. Fitting stopped at1408, retaining1152; this candidate did not demonstrate stronger play. The separate endgame-retention fit has started. This is a new rank-16 LoRA and pointer head on pinned Qwen3.5-0.8B, with no Mahjong-trained v8/audited176 initialization or v8 replay targets. The backbone is frozen. See the [registered plan](../../plans/mortal-base-training-20261120.md).
 
-GPU job309978 passed preflight and seven checks and encoded all22,321 teacher training decisions. Saved-model validation is complete through update1344, with the observation floor and full exposure satisfied; both LoRA and head changed. Step1152 remains the current candidate, with the lowest weighted CE so far. The512 validation decisions come from128 whole source games separate from the384 training games. This is an inspected development set, not an untouched confirmation test. This pure-teacher phase covers East1–3 non-win menus under the existing serving guard; East4 pursuit and win acceptance receive no direct teacher supervision here, so agreement cannot establish those abilities.
+GPU job309978 passed preflight and seven checks and encoded all22,321 teacher training decisions. Saved-model validation completed through1408; four stale checks stopped parameter updates, with1152 selected by the registered weighted CE. All22,321 examples were exposed and both LoRA/head changed. The512 validation decisions come from128 whole source games separate from the384 training games. This is an inspected development set, not an untouched confirmation test. This pure-teacher phase covers East1–3 non-win menus under the existing serving guard; East4 pursuit and win acceptance receive no direct teacher supervision here, so agreement cannot establish those abilities.
 
 | Saved step | Weighted teacher CE ↓ | Weighted agreement | Overall agreement, selected512 menus | Unique training decisions exposed |
 |---|---:|---:|---:|---:|
@@ -28,6 +28,7 @@ GPU job309978 passed preflight and seven checks and encoded all22,321 teacher tr
 | 1216 | 0.76628 | 70.96% | 69.92% | 22,321 |
 | 1280 | 0.78225 | 70.73% | 69.53% | 22,321 |
 | 1344 | 0.76726 | 69.97% | 69.34% | 22,321 |
+| 1408 | 0.75889 | 70.34% | 68.95% | 22,321 |
 
 Step0 is a random decision head on a pretrained backbone, not an old Mahjong policy or a uniform-random action baseline. Agreement depends on this selected/weighted validation mix and is not a win rate.
 
@@ -55,6 +56,7 @@ Step0 is a random decision head on a pretrained backbone, not an old Mahjong pol
 | 1216 | 43 | 63 | 29 | 12 |
 | 1280 | 40 | 63 | 27 | 11 |
 | 1344 | 45 | 62 | 27 | 13 |
+| 1408 | 39 | 63 | 27 | 14 |
 
 The initial learner changed from calling too often to always declining chi/pon at64–128, then began selecting some teacher-positive calls at192. Exact positive-call matches reach44/64 at832, with62/64 negative-call matches. CE reaches a new low at832, but the per-action results remain mixed. No claim of solved decisions or improved playing strength follows from these auxiliary metrics.
 
@@ -81,13 +83,15 @@ At1024, CE recovers to0.77999 but remains above832's0.77506; there are now three
 
 At1088, CE improves to0.76746, replacing832 as the current selection and resetting stale checks to0. The conditional1088 stopping point therefore does not apply. Exact positive/negative calls are39/64 and63/64, riichi30/32 and13/32; the learner declares riichi45 times versus32 teacher selections, including15 extras. Ankan has2/6 action-type positives with1 extra and kakan1/3 with1 extra. Overall agreement declines while weighted CE improves; these mixed auxiliary metrics do not establish stronger play. No1088 complete-match score has been measured. Continue the registered recipe, with the1536 cap unchanged.
 
-At1152, weighted CE improves again to0.75664 and selection moves to1152 with stale0. Exact positive/negative call matches are40/64 and63/64, riichi26/32 and15/32. The model selects chi12 times (all12 action-type matches), pon31 times (30 matches/1 extra), riichi38 times (26 matches/12 extras), ankan3 times (2/6 positives/1 extra) and kakan2 times (1/3 positive/1 extra). There is still no positive daiminkan example or selection. No1152 complete-match score has been measured; training continues under the unchanged1536 cap.
+At1152, weighted CE improves again to0.75664 and selection moves to1152 with stale0. Exact positive/negative call matches are40/64 and63/64, riichi26/32 and15/32. The model selects chi12 times (all12 action-type matches), pon31 times (30 matches/1 extra), riichi38 times (26 matches/12 extras), ankan3 times (2/6 positives/1 extra) and kakan2 times (1/3 positive/1 extra). There is still no positive daiminkan example or selection. Its complete-match result had not yet been observed at that validation point; the eventual result appears below.
 
 At1216, weighted CE is0.76628, leaving1152 selected with one stale check. Exact positive/negative calls are43/64 and63/64, riichi29/32 and12/32. Riichi is selected46 times with17 extras relative to the teacher; chi12 has no extra selection, pon33 has1 extra, ankan3 has1 extra and kakan2 has1 extra. Positive-kan action-type recall stays3/9. No1216 complete-match score has been measured. Continue the registered schedule rather than treating one auxiliary fluctuation as a strength result.
 
 At1280, weighted CE is0.78225, leaving1152 selected with two stale checks. Exact positive/negative calls are40/64 and63/64, riichi27/32 and11/32. Riichi44 has17 extra selections; chi11 has no extra selection, pon31 has1 extra, ankan4 has3/6 positive matches with1 extra, and kakan2 has1/3 with1 extra. These small kan counts fluctuate while overall loss worsens; no1280 complete-match outcome is available. Preserve the registered four-stale-check stopping rule and the retained best checkpoint.
 
 At1344, weighted CE is0.76726, leaving1152 selected with three stale checks. Exact positive/negative calls are45/64 and62/64, riichi27/32 and13/32. The model selects chi13 times (13 action-type matches), pon35 (33 matches/2 extras), riichi42 (27 matches/15 extras), ankan3 (2/6 positives/1 extra), and kakan2 (1/3 positive/1 extra). Unweighted macro CE0.73963 is lower, but selection follows the preregistered population-weighted CE; the two metrics are not interchangeable. No1344 complete-match outcome is available. If1408 fails the registered improvement threshold, stop fitting and compare the retained best checkpoint; otherwise continue under the1536 cap.
+
+At1408, weighted CE0.75889 remains above1152's0.75664. The fourth stale check stops fitting; selected1152 and final1408 both reproduce their saved metrics through the normal loader. Exact positive/negative calls are39/64 and63/64, riichi27/32 and14/32. The1536 cap was not reached. Training has ended; subsequent GPU work is auditing/evaluation or the separate retention phase.
 
 ## Rare positive-kan exposure
 
@@ -152,6 +156,31 @@ Over64 games,768 selected chi17, pon51, ankan6, kakan2, daiminkan0 and riichi98;
 
 This is an inspected development comparison using reused seeds/reference games, not independent confirmation or an online win-rate estimate. Detailed logs and research weights remain private; payment auditing is not an independent han/fu scorer.
 
+## Final selected1152 complete-match result
+
+The registered final comparison completed64 new candidate games and reused64 audited176 reference games. Model selection was fixed by teacher CE before these candidate outcomes. All128 complete logs passed accounting/statistics checks; a separate dependency-bound GPU evidence audit verified initialization, real updates/exposure, source/data identities, saved-model metrics, base-cache integrity and unchanged released weights. Fit309978, audit309982 and subsequent retention preparation310254 all have controller state `COMPLETED` and exit `0:0`, with exit receipts0. These audits check payments/pools/ranks, not an independent han/fu scorer.
+
+| Complete-East metric | Audited176 reference | Fresh-base selected1152 |
+|---|---:|---:|
+| Games | 64 | 64 |
+| Top-two finishes | 31/64 (48.44%) | 24/64 (37.50%) |
+| First place | 17.19% | 15.62% |
+| Fourth place | 25.00% | 25.00% |
+| Mean rank | 2.59375 | 2.71875 |
+| Mean net points/game | -1,445.31 | -2,350.00 |
+| Hand win rate | 20.63% | 15.32% |
+| Deal-in hand rate | 11.17% | 9.47% |
+
+Top-two difference is -10.9375pp, whole-seed95% t interval [-28.98,+7.11]pp across8 groups. Mean net points are lower by904.6875/game. The observed point estimates are worse and do not demonstrate improvement; the wide interval still crosses0, so this small reused development grid does not establish definitive inferiority or online strength.
+
+Over64 games, the selected candidate chose chi10, pon33, ankan7, kakan0, daiminkan0 and riichi78; reference counts are60/89/9/4/21/82. Lower deal-ins coexist with fewer hand wins and fewer calls. These are not opportunity-adjusted counts, and they do not isolate a causal explanation. Missing positive daiminkan supervision and incomplete call imitation remain concrete limitations.
+
+Step768 had an observed43.75% top-two rate and-1,435.94 points/game on this same grid. Selected1152 improves teacher CE from0.80443 to0.75664 while its observed complete-game point estimates fall. This is descriptive, not an independent across-checkpoint significance test or proof that1152 is intrinsically worse. It does show why lower teacher loss cannot be presented as better playing strength. No weights/model/EXE are released from this result.
+
+The separate retention fit now continues from selected1152, not from the discarded final1408 checkpoint or old v8/176 parameters. Its terminal-supervision experiment and eventual complete-game comparison remain necessary before any retention claim. The foundation's negative result is retained as its honest baseline. See [retention progress](mortal-base-retention-progress.md).
+
+The five held-position input corrections described below belong to the follow-up data, which the foundation never trained on. They do not explain away this negative foundation result.
+
 ## Teacher daiminkan bridge diagnostic
 
 The source pool has no positive daiminkan labels. To check the interface, a bounded diagnostic inside the existing GPU allocation replayed4 complete stored training-source games. All4 inspected controlled-player E1–3 daiminkan windows exposed the kan action in the teacher's real legal mask, but the teacher's natural Q ranking preferred another action. Two separate Bot copies were forced to select kan solely to test decoding: each produced daiminkan and mapped uniquely into the native legal menu. The real source trajectories remained identical to the stored logs; no forced action was applied to a source game or added to training.
@@ -174,11 +203,11 @@ An explicit [follow-up retention plan](../../plans/mortal-base-retention-2026112
 
 The three pending follow-up jobs310238/310240/310241 were canceled before starting, and their source registration/receipts were archived; no retention data or optimizer updates were admitted. Preparation now replays each source and captures the actual `FourthChaseAgent` request before prior inference/training, asserting that the core public state and ordered candidate features are unchanged. A bounded GPU regression replay confirms56/56 normalized requests exactly match an independent capture, correcting those5 held inputs. Five source-isolation, incomplete-world, old-target-independence and normalization checks pass, along with compilation.
 
-Corrected source commit `a037dd44ea343aaf3c827c48691f0fc44e86a864` passed core and desktop CI44650768159. Its five public source/plan blobs were reverified against local bytes inside the GPU allocation; updated private post-fit scripts were compiled and frozen. Replacement GPU preparation310254 depends on successful foundation audit309982, fit310255 on preparation, and audit310256 on fitting, with invalid dependencies automatically canceled. All three are pending dependencies; no retention training has begun. The active foundation source/data/selection remain unchanged.
+Corrected source commit `a037dd44ea343aaf3c827c48691f0fc44e86a864` passed core and desktop CI44650768159. Its five public source/plan blobs were reverified against local bytes inside the GPU allocation; updated private post-fit scripts were compiled and frozen. Foundation audit309982 and replacement preparation310254 have now completed successfully. Data admission contains2,048 teacher replay decisions plus48 terminal TRAIN menus and512 teacher validation decisions plus8 terminal monitor menus, with56 actual native inputs verified. Fit310255 is running; audit310256 remains success-bound. Exact parent1152 adapter/head initialization and a new optimizer were verified, and step0 reproduces all foundation teacher metrics exactly. The85% teacher/15% terminal objective is a separate experiment, not evidence that the negative foundation comparison has been fixed.
 
 At704, all22,321 unique training decisions have been exposed. A bounded read-only audit loaded the saved704 trainer state: its seen-ID set exactly equals the training set, contains none of the512 selected validation IDs, and all376 stored optimizer parameter states report704 updates. Registered code/data hashes still match. This is direct coverage/update evidence, not a claim of competence or source-game independence; the whole-game split was separately verified during preparation.
 
-The768 observation floor is now satisfied. Continue the registered validation every64 updates, with up to1536 updates and four stale checks after the floor/full exposure. Step1152 replaces1088 as the lowest-CE eligible selection; the selection can change. Complete exposure does not guarantee playing strength.
+The768 observation floor and full exposure were satisfied. The registered four-stale-check rule stopped fitting at1408 and retained1152. Complete exposure and the lowest weighted CE did not produce a demonstrated match improvement; see the final comparison above.
 
 A prospective full-exposure development screen uses checkpoint768. This was added after the adverse384 result and before observing768 outcomes. If the monotonic registered selector later moves to a different, lower-CE checkpoint, separately evaluate768 on64 games; otherwise its ordinary post-fit comparison supplies the screen. This avoids repeating an identical final candidate. Reuse the64 reference games and measured384 results. Compare top-two and mean net points together to guide continued observation versus a revised recipe; a positive95% bound is not required merely to continue research, and a favorable point estimate is not a qualified improvement. Active optimizer/data/selection code remain unchanged; any externally triggered stop or new recipe must document its checkpoint and cleanup.
 
@@ -190,4 +219,4 @@ A separate bounded companion-CPU check verified current RiichiEnv0.4.11 Python/n
 
 An input-isolation check also processed all22,833 training/validation records: public state/instruction/option serialization matched the normal inference path and stayed identical after mutating labels, target distributions, source names and metadata. Fourteen representatives (two per stratum) had identical actual forward-input token arrays across training, inference and mutated-supervision forms, with labels genuinely changed. This excludes those supervision fields as a visible-input shortcut; it does not establish every feature's sufficiency or playing strength. No policy weights were loaded, and registered training code/data stayed unchanged.
 
-After fitting, reload/audit selected and final checkpoints and evaluate the registered selected candidate against the same64 reference games. The completed768 screen is separate because768 can no longer be that selected candidate; no reference-policy rerun is needed. Final-candidate results remain pending; measured384/768 are development checkpoints. Dependency-bound GPU audit job309982 follows a successful fit and is canceled automatically if that dependency fails. Training code8610bff1 passed CI. The reusable evaluator and adverse384 result were published in987ee146; its core and desktop CI jobs44637163535 both passed. Raw records, prediction details and research weights remain private.
+Selected1152 and final1408 were reloaded/audited, and the selected candidate completed64 new games against the cached64 reference games. The measured384/768 screens remain separate development checkpoints; none of those games or the reference policy was repeated. Dependency-bound GPU audit309982 completed successfully and reconciled the final evidence. Training code8610bff1 and evaluator987ee146 passed their recorded CI checks. Retention310255 is the only active fit, with its own source-frozen protocol and later64-game/evidence audit still pending. Raw records, prediction details and research weights remain private.
