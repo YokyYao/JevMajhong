@@ -21,7 +21,7 @@ Replay the logged tile events from the completed768-match v8 confirmation (384 g
 | Historical experiment reference |520|26|5.00%|
 | v8 final2088 |592|30|5.07%|
 
-No regular/seven-pairs ambiguous winning shape was found in these records. These numbers describe this old simulation protocol, not live Mahjong Soul or a causal test of training mix. They do not show a conspicuous seven-pairs excess relative to that reference; they also cannot exclude a problem on a particular user's hands. The historical comparison is not the new stage1 evaluation grid.
+No regular/seven-pairs ambiguous winning shape was found in these records. These numbers describe this old simulation protocol, not live Mahjong Soul or a causal test of training mix. They do not show a conspicuous excess among **completed wins** relative to that reference. Unsuccessful seven-pairs pursuits are absent from this denominator, so these counts cannot establish that pursuit decisions are sound or exclude the user's observation. An action-level comparison on competing regular/seven-pairs positions is still needed. The historical comparison is not the new stage1 evaluation grid.
 
 ## Decision-shape proxies and the candidate guard
 
