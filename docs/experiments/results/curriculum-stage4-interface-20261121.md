@@ -31,3 +31,34 @@ python tools/audit_curriculum_win_pass.py \
 ```
 
 The [full curriculum goal](../plans/curriculum-optimization-20261121.md) remains active. The interface audit does not admit stage4 data, start a fit, satisfy the placement objective or replace the unseen final comparison.
+
+## Explicit stage4 model route
+
+`tools/curriculum_endgame.py` now provides a separate `EndgamePolicyAgent`. Only legal-win decision windows in scheduled East4 or later extension rounds consult the supplied model. This is a late-decision scope, not an assertion that East4 must terminate the match. Earlier wins retain the existing immediate-win guard. All non-win windows delegate to the pinned ordinary agent. No practical v8 or active stage1 policy uses this new route.
+
+Within the late window, one model call scores the exact native menu, including hora and ron PASS/tsumo DISCARD. A score-gap threshold does not override its choice. This makes it possible for a later trained model to decline an insufficient win while preserving legal actions. A new route alone does not teach when declining is valuable.
+
+`tools/audit_curriculum_endgame_route.py` used24 distinct diagnostic seeds2026400100–2026400123, separate from the reserved final-test grid. Scripted one-hot selectors exercised both acceptance and decline; these selectors are test fixtures, not a teacher, training label or learned policy. Every game completed and passed its internal settlement ledger.
+
+| Observation | Count |
+|---|---:|
+| Late ron / tsumo windows routed to one model-interface call |20/17|
+| Ron declines / model-interface accepts |13/7|
+| Tsumo declines / model-interface accepts |10/7|
+| Earlier legal wins retaining the immediate guard |89|
+| Late windows from starting rank1/2/3/4 |11/10/9/7|
+| Late windows with self as dealer |9|
+| Late windows in extension rounds |10|
+
+All37 late windows additionally checked that the unchanged reference agent takes the offered legal win with zero model calls. Public requests contain no wall, opponent hand, future result or label; the scripted selector receives exactly the native public request. The routing check verifies implementation and native continuations, not hidden-world sampling, independent han/fu correctness, a useful learned endgame strategy or v8-level strength. Both types of decline can lead to more hands, so subsequent labels must evaluate the complete match rather than stop at the intervention hand.
+
+The33 curriculum regression checks pass using the repository's discovery entry point, without modifying frozen active-fit files.
+
+```bash
+python -m unittest discover -s tests/core -p 'test_curriculum*py'
+python tools/audit_curriculum_endgame_route.py \
+  --registered runs/curriculum-optimization-v2/fit-plan/registered.json \
+  --out runs/curriculum-optimization-v2/stage4-endgame-route-private.json
+```
+
+All commands still require allocated GPU resources with companion CPUs. New private window records remain unpublished. Stage4 public-state generation, reliable paired full-match labels, parent admission, fitting and final evaluation remain outstanding.
