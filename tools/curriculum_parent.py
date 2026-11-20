@@ -60,6 +60,15 @@ def require_stage1_candidate(reg, completion, audit, validation, identity):
     final_reload = [r for r in audit['saved_reloads'] if r['step'] == last]
     if len(final_reload) != 1 or final_reload[0]['identity'] != identity:
         raise ParentNotReady('Parent bundle is not the audited registered final checkpoint')
+    schema=c.get('riichi_input_schema')
+    if schema and (audit.get('input_schema')!=schema
+            or audit.get('all_saved_checkpoint_contracts_verified') is not True
+            or audit.get('final_raw_public_serving_menus')!=positives+negatives
+            or not isinstance(audit.get('final_raw_public_max_probability_error'),(int,float))
+            or not math.isfinite(audit['final_raw_public_max_probability_error'])
+            or audit['final_raw_public_max_probability_error']>=5e-5
+            or not audit.get('final_policy_identity_sha256')):
+        raise ParentNotReady('Context parent requires the full raw-public serving audit, not the core audit alone')
 
 
 def require_child_input_contract(reg, child):
@@ -112,6 +121,14 @@ def seal(registered, evidence, fit_exit, audit_exit, child_data_ready, out):
     checkpoint = fit/'training-run/checkpoints'/f"step-{reg['registered_final_step']:06d}"
     model = bundle(checkpoint)
     require_stage1_candidate(reg, completion, audit, validation, model['identity_sha256'])
+    contract_path=None
+    if c.get('riichi_input_schema'):
+        sys.path.insert(0,str(ROOT))
+        from tools.curriculum_input_contract import verify_checkpoint,NAME
+        contract=verify_checkpoint(checkpoint,reg,bundle)
+        if contract['policy_identity_sha256']!=audit['final_policy_identity_sha256']:
+            raise ParentNotReady('Context policy contract differs from the completed serving audit')
+        contract_path=checkpoint/NAME
     args = tomllib.loads(Path(reg['training_config']['trainer_config']).read_text())
     if args['max_steps'] != reg['registered_final_step'] or args.get('early_stop_patience', 0) != 0:
         raise ParentNotReady('Parent did not use the fixed registered budget')
@@ -151,6 +168,7 @@ def seal(registered, evidence, fit_exit, audit_exit, child_data_ready, out):
     paths.extend(ROOT/spec['path'] for spec in child['files'].values())
     for name, checksum in model['files'].items():
         files[str((checkpoint/name).resolve())] = checksum
+    if contract_path:files[str(contract_path.resolve())]=sha(contract_path)
     for path in paths:
         files[str(path.resolve())] = sha(path)
     result = dict(status='curriculum_stage1_final_parent_sealed', method='curriculum_registered_final_with_quality_v1',

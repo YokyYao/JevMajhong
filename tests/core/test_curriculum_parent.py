@@ -47,3 +47,16 @@ class CurriculumParentTests(unittest.TestCase):
     def test_plain_parent_cannot_silently_use_context_child(self):
         with self.assertRaises(ParentNotReady):
             require_child_input_contract(self.reg,dict(required_input_schema='public-riichi-context-v1'))
+
+    def test_context_parent_requires_serving_evidence_not_only_core(self):
+        reg=copy.deepcopy(self.reg);reg['curriculum']['riichi_input_schema']='public-riichi-context-v1'
+        with self.assertRaises(ParentNotReady):
+            require_stage1_candidate(reg,self.done,self.audit,self.validation,'final')
+        evidence=dict(self.audit,input_schema='public-riichi-context-v1',all_saved_checkpoint_contracts_verified=True,
+            final_raw_public_serving_menus=107,final_raw_public_max_probability_error=0.,final_policy_identity_sha256='policy')
+        require_stage1_candidate(reg,self.done,evidence,self.validation,'final')
+        for bad in (dict(evidence,final_raw_public_serving_menus=106),
+                    dict(evidence,final_raw_public_max_probability_error=float('nan')),
+                    dict(evidence,final_raw_public_max_probability_error=1e-3)):
+            with self.assertRaises(ParentNotReady):
+                require_stage1_candidate(reg,self.done,bad,self.validation,'final')
