@@ -13,8 +13,9 @@ At the203-update health observation, all update records are finite and contiguou
 |0|2.473897|15.07%|3/37|69/70|
 |73|1.891910|30.99%|5/37|66/70|
 |146|1.546582|44.13%|18/37|24/70|
+|219|1.438572|47.77%|20/37|34/70|
 
-CE/plain imitation improve, while riichi changes from conservative at73 to over-accepting at146. The phase-quality target has not passed. Keep the fixed recipe through its registered budget; do not silently select an early point or change inference from these diagnostics.
+CE/plain imitation improve, while riichi changes from conservative at73 to over-accepting at146. At219 both acceptance and correct decline improve relative to146, but remain54.05%/48.57%, below the two-sided phase target. Keep the fixed recipe through its registered budget; do not silently select an early point or change inference from these diagnostics. Update219 has no new game evaluation; the next saved-checkpoint development games are at292.
 
 The matching16-game development grid at146 gives hand-win16.04%, dealin18.30%, first12.50%, top-two43.75%, fourth25.00% and net−3,718.75 points/match. The initial grid is top-two6.25%/net−11,437.50. Frozen v8 on the same16-game subset gives top-two62.50%/net+3,612.50. Only two seed groups underlie these points; they are not independent confirmation or a precise population-strength estimate. V8's cached reference is reused without new games.
 
@@ -27,9 +28,10 @@ The saved-score audit uses the exact same107 already-consumed validation riichi 
 | Stable-v2,0 |0.5436|0.5703|0.5853|No|
 | Stable-v2,73 |0.6143|0.5826|0.6154|No|
 | Stable-v2,146 |0.4645|0.4305|0.5515|No|
+| Stable-v2,219 |0.6035|0.5699|0.6114|No|
 | Initial curriculum v1, registered final1162 |0.5328|0.5004|0.5647|No|
 
-These are small development-set descriptions without population-confidence claims. An oracle threshold is an upper-bound diagnostic on inspected labels, not an available deployment threshold. The script does not return or deploy such a threshold. Earlier transient checkpoints can look different; they do not replace either registered final candidate.
+These are small development-set descriptions without population-confidence claims. An oracle threshold is an upper-bound diagnostic on inspected labels, not an available deployment threshold. The script does not return or deploy such a threshold. Average balanced accuracy above60% does not imply that each recall passes60%. Ranking at219 improves after the146 decline but still varies across updates; this does not establish stable discrimination. Earlier transient checkpoints can look different; they do not replace either registered final candidate.
 
 At146,10 of46 false-positive reach selections occur even though total discard probability mass is larger. Grouping types at0.5 reduces false positives to36 but also reduces true positives from18 to15, leaving balanced accuracy44.56%. Thus this particular aggregation does not solve the problem. A fixed bias on the current reach/best-discard margin cannot meet the declared two-sided development target either.
 
