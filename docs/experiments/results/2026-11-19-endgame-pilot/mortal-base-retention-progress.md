@@ -1,6 +1,6 @@
 # Fresh-base lineage: endgame-retention progress
 
-Status: GPU fit310255 is active; saved-model validation has reached160 new updates and all2,096 admitted examples have been exposed. New128 remains the eligible research selection, with one stale check, but its joint loss is above the parent baseline and it has not received complete-game evaluation. The [registered plan](../../plans/mortal-base-retention-20261120.md) requires the128-update/full-exposure floor; maximum384, validation every32 and four stale checks thereafter. Eligibility is not an improvement or release qualification.
+Status: optimizer updates stopped at new256 after four stale checks beyond the128-update/full-exposure floor. All2,096 admitted examples were exposed. New128 is the selected research checkpoint; its joint loss remains above the parent baseline. GPU job310255 is now completing saved-checkpoint reproduction and the64-game comparison; dependent audit310256 remains required. The [registered plan](../../plans/mortal-base-retention-20261120.md) was unchanged. Selection is not an improvement or release qualification.
 
 ## Parent and actual initialization
 
@@ -28,6 +28,9 @@ An actual-agent replay found5 held-position records with extra display context. 
 | 96 | 0.76371 | 0.71483 | 0.75638 | 2,096/2,096 | Observation floor not met |
 | 128 | 0.76332 | 0.70337 | 0.75433 | 2,096/2,096 | First eligible research candidate; not better than parent |
 | 160 | 0.77559 | 0.72554 | 0.76808 | 2,096/2,096 | Retain128; one stale check |
+| 192 | 0.76645 | 0.71620 | 0.75891 | 2,096/2,096 | Retain128; two stale checks |
+| 224 | 0.78232 | 0.73460 | 0.77516 | 2,096/2,096 | Retain128; three stale checks |
+| 256 | 0.78031 | 0.72485 | 0.77199 | 2,096/2,096 | Retain128; four stale checks, stop updates |
 
 At32, both LoRA and head have changed, but joint loss is slightly above the baseline. Exact teacher-positive/negative call matches move40/64 and63/64 →39/64 and63/64. Riichi has27 teacher-positive action-type matches with17 extras. No positive daiminkan teacher supervision has appeared. These are auxiliary teacher matches, not independently correct action labels or win rates.
 
@@ -45,7 +48,7 @@ At160, both teacher and terminal-target CE worsen, giving joint CE0.76808 and th
 | Third | 1 | 46.88% | 46.88% | 46.88% | 46.88% | 46.88% |
 | First/second holding | 1 | 43.75% | 43.75% | 43.75% | 43.75% | 43.75% |
 
-New160 has the same cached hard estimates as128 in all three strata.
+New160/192/224/256 have the same cached hard estimates as128 in all three strata. None of the saved checkpoints beats the parent joint-loss baseline. The registered run stops further optimizer updates rather than changing labels or selection rules mid-run.
 
 These values apply the model's chosen action to stored counterfactual outcomes, with old continuation behavior after that action. They are not freshly played games, an independent test set or the model's overall top-two rate. New32/64 are unchanged and96/128 are slightly lower in the fourth-place stratum; the tiny8-position monitor cannot establish general playing strength. No benefit is claimed from small soft-distribution changes. The observation floor is now met; post-floor fitting remains bounded by the registered stopping rule.
 
@@ -72,4 +75,4 @@ There are29 TRAIN positions with a raw empirically higher-valued alternative, bu
 
 After fitting, reload selected/final checkpoints and reproduce their metrics, then run64 new complete East games for the selected retention candidate. Reuse both the audited176 reference games and the fresh1152 foundation games; rerun neither baseline policy. Compare against both with whole-seed uncertainty and independent payment/pool/rank reconciliation. Dependency-bound GPU audit310256 also checks real optimizer states/exposure, exact parent lineage, all56 normalized inputs/targets and source/runtime identities. These reused development comparisons are not independent confirmation.
 
-Training and final evidence remain incomplete. Raw records, detailed predictions and weights stay private; no automatic model/EXE release or main merge follows from this experiment.
+Optimizer fitting is complete; complete-game evaluation and final evidence remain incomplete. Raw records, detailed predictions and weights stay private; no automatic model/EXE release or main merge follows from this experiment.
