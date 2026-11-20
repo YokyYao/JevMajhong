@@ -12,6 +12,7 @@ import tomllib
 
 ROOT=Path(__file__).resolve().parents[1]
 METHOD='curriculum_registered_final_with_quality_v1'
+RESEARCH_METHOD='curriculum_registered_final_research_v2'
 
 
 def read(path):return json.loads(Path(path).read_text())
@@ -44,12 +45,12 @@ def verify_curriculum_parent(cfg):
     from tools.curriculum_parent import require_stage1_candidate,require_child_input_contract
     spec=cfg['parent_initialization']
     required={'method','manifest','sha256','identity_sha256','selected_step','source','source_sha256','run','child_data_ready'}
-    if set(spec)!=required or spec['method']!=METHOD or cfg.get('initialization')!='continued':
+    if set(spec)!=required or spec['method'] not in (METHOD,RESEARCH_METHOD) or cfg.get('initialization')!='continued':
         raise ValueError('Explicit sealed curriculum continuation specification required')
     seal_path=Path(spec['manifest']).resolve()
     if sha(seal_path)!=spec['sha256']:raise ValueError('Parent seal changed')
     seal=read(seal_path)
-    if (seal.get('status')!='curriculum_stage1_final_parent_sealed' or seal.get('method')!=METHOD
+    if (seal.get('status')!='curriculum_stage1_final_parent_sealed' or seal.get('method')!=spec['method']
         or seal.get('selection_from_minimum_CE') is not False or seal.get('optimizer_resumed') is not False
         or not seal.get('stage_quality',{}).get('passed')
         or seal['selected_step']!=spec['selected_step']
@@ -70,7 +71,16 @@ def verify_curriculum_parent(cfg):
     for p in (evidence,fit/'completion.json',validation,fit/'protocol.json'):
         if bound.get(str(p))!=sha(p):raise ValueError('Required audited parent artifact is unbound')
     metrics=[json.loads(s) for s in validation.read_text().splitlines() if s]
-    require_stage1_candidate(reg,read(fit/'completion.json'),read(evidence),metrics[-1],spec['identity_sha256'])
+    if spec['method']==RESEARCH_METHOD:
+        from tools.curriculum_research_parent import load_bound_policy,require_research_candidate
+        policy_file=Path(seal['research_parent_policy_binding']).resolve()
+        if bound.get(str(policy_file))!=sha(policy_file):raise ValueError('Research-policy binding is not sealed')
+        policy,policy_files=load_bound_policy(policy_file,reg_path)
+        if any(bound.get(p)!=h for p,h in policy_files.items()):raise ValueError('Research-policy evidence is unbound')
+        grade=require_research_candidate(reg,read(fit/'completion.json'),read(evidence),metrics[-1],spec['identity_sha256'],policy)
+        if grade!=seal['stage_quality'] or seal['original_stage1_advancement']!=read(evidence)['stage1_advancement']:
+            raise ValueError('Research grade or preserved original diagnostic differs')
+    else:require_stage1_candidate(reg,read(fit/'completion.json'),read(evidence),metrics[-1],spec['identity_sha256'])
     child_path=Path(spec['child_data_ready']).resolve()
     if str(child_path)!=seal.get('child_data_ready') or bound.get(str(child_path))!=sha(child_path):
         raise ValueError('Continuation child differs from the sealed replay dataset')

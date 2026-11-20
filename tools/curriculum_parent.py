@@ -30,8 +30,8 @@ def rows(path):
     return [json.loads(s) for s in Path(path).read_text().splitlines() if s.strip()]
 
 
-def require_stage1_candidate(reg, completion, audit, validation, identity):
-    """Check final-budget identity and actual recalls, never just a passed flag."""
+def require_final_integrity(reg, completion, audit, validation, identity):
+    """Shared completed-final integrity; no research/strict quality substitution."""
     c = reg['curriculum']
     last = reg['registered_final_step']
     expected = c['epochs']*math.ceil(reg['train_records']/(c['batch']*c['accumulation']))
@@ -45,20 +45,19 @@ def require_stage1_candidate(reg, completion, audit, validation, identity):
             or audit.get('optimizer_steps') != last
             or not audit.get('source_and_data_hashes_unchanged')
             or not audit.get('heldout_groups_excluded_from_all_stages')
-            or not isinstance(advancement, dict) or not advancement.get('passed')):
-        raise ParentNotReady('A completed evidence audit and a passed stage-quality gate are both required')
+            or not isinstance(advancement, dict)):
+        raise ParentNotReady('A completed evidence audit with the original stage diagnostic is required')
     rc = validation.get('riichi_type_counts', {})
     positives = rc.get('tp', 0)+rc.get('fn', 0)
     negatives = rc.get('tn', 0)+rc.get('fp', 0)
     if (validation.get('local_step') != last or not positives or not negatives
             or positives != validation['stratum_counts']['riichi_yes']
             or negatives != validation['stratum_counts']['riichi_no']
-            or rc.get('tp', 0)/positives < .6 or rc.get('tn', 0)/negatives < .6
-            or validation['stratum_accuracy']['plain'] < .4845576407506702
-            or validation['stratum_ce']['plain'] > 1.3489726760783527*1.05):
-        raise ParentNotReady('The final checkpoint does not satisfy the registered basic/riichi retention gate')
+            or any(type(rc.get(k,0)) is not int or rc.get(k,0)<0 for k in ('tp','fn','tn','fp'))
+            or any(not math.isfinite(validation[k]['plain']) for k in ('stratum_accuracy','stratum_ce'))):
+        raise ParentNotReady('Final validation counts, metrics or registered step differ')
     final_reload = [r for r in audit['saved_reloads'] if r['step'] == last]
-    if len(final_reload) != 1 or final_reload[0]['identity'] != identity:
+    if not isinstance(identity,str) or not identity or len(final_reload) != 1 or final_reload[0]['identity'] != identity:
         raise ParentNotReady('Parent bundle is not the audited registered final checkpoint')
     schema=c.get('riichi_input_schema')
     if schema and (audit.get('input_schema')!=schema
@@ -69,6 +68,16 @@ def require_stage1_candidate(reg, completion, audit, validation, identity):
             or audit['final_raw_public_max_probability_error']>=5e-5
             or not audit.get('final_policy_identity_sha256')):
         raise ParentNotReady('Context parent requires the full raw-public serving audit, not the core audit alone')
+    return rc.get('tp',0)/positives,rc.get('tn',0)/negatives
+
+
+def require_stage1_candidate(reg, completion, audit, validation, identity):
+    """The original strict gate remains the default, with actual metric checks."""
+    accept,decline=require_final_integrity(reg,completion,audit,validation,identity)
+    if (not audit['stage1_advancement'].get('passed') or accept<.6 or decline<.6
+            or validation['stratum_accuracy']['plain'] < .4845576407506702
+            or validation['stratum_ce']['plain'] > 1.3489726760783527*1.05):
+        raise ParentNotReady('The final checkpoint does not satisfy the registered basic/riichi retention gate')
 
 
 def require_child_input_contract(reg, child):
@@ -98,7 +107,7 @@ def require_replay(parent_rows,child_rows):
                 raise ParentNotReady('Mandatory replay supervision changed')
 
 
-def seal(registered, evidence, fit_exit, audit_exit, child_data_ready, out):
+def seal(registered, evidence, fit_exit, audit_exit, child_data_ready, out, research_policy_binding=None):
     assert os.environ.get('SLURM_JOB_ID') and (os.environ.get('SLURM_JOB_GPUS') or os.environ.get('SLURM_STEP_GPUS'))
     assert not socket.gethostname().startswith(('lo-', 'login'))
     reg = read(registered)
@@ -112,7 +121,17 @@ def seal(registered, evidence, fit_exit, audit_exit, child_data_ready, out):
     validation = rows(validation_file)[-1]
     reloads = [r for r in audit.get('saved_reloads', []) if r['step'] == reg['registered_final_step']]
     identity = reloads[0]['identity'] if len(reloads) == 1 else None
-    require_stage1_candidate(reg, completion, audit, validation, identity)
+    research_policy=None;research_files={};research_grade=None
+    if research_policy_binding:
+        sys.path.insert(0,str(ROOT))
+        from tools.curriculum_research_parent import load_bound_policy,require_research_candidate,METHOD
+        research_policy,research_files=load_bound_policy(research_policy_binding,registered)
+    def qualify(actual_identity):
+        if research_policy is not None:
+            return require_research_candidate(reg,completion,audit,validation,actual_identity,research_policy)
+        require_stage1_candidate(reg,completion,audit,validation,actual_identity)
+        return audit['stage1_advancement']
+    research_grade=qualify(identity)
     scheduler_receipts = []
     for path in (fit_exit, audit_exit):
         receipt = read(path)
@@ -136,7 +155,7 @@ def seal(registered, evidence, fit_exit, audit_exit, child_data_ready, out):
         raise ParentNotReady('Parent research or upstream package changed')
     checkpoint = fit/'training-run/checkpoints'/f"step-{reg['registered_final_step']:06d}"
     model = bundle(checkpoint)
-    require_stage1_candidate(reg, completion, audit, validation, model['identity_sha256'])
+    research_grade=qualify(model['identity_sha256'])
     contract_path=None
     if c.get('riichi_input_schema'):
         sys.path.insert(0,str(ROOT))
@@ -167,6 +186,9 @@ def seal(registered, evidence, fit_exit, audit_exit, child_data_ready, out):
     require_replay(parent_train,child_train)
     require_replay(parent_validation,child_validation)
     files = dict(reg['inputs'])
+    for path,h in research_files.items():
+        if path in files and files[path]!=h:raise ParentNotReady('Conflicting research-policy binding')
+        files[path]=h
     paths = [Path(registered), *required, validation_file, Path(child_data_ready), reserved_file,
              fit/'protocol.json', fit/'initialization-audit.json', fit/'actual-update-proof.json',
              fit/'metrics/train_metrics.jsonl', fit/'metrics/evaluation_metrics.jsonl', Path(__file__)]
@@ -186,7 +208,7 @@ def seal(registered, evidence, fit_exit, audit_exit, child_data_ready, out):
     if contract_path:files[str(contract_path.resolve())]=sha(contract_path)
     for path in paths:
         files[str(path.resolve())] = sha(path)
-    result = dict(status='curriculum_stage1_final_parent_sealed', method='curriculum_registered_final_with_quality_v1',
+    result = dict(status='curriculum_stage1_final_parent_sealed', method=METHOD if research_policy is not None else 'curriculum_registered_final_with_quality_v1',
         node=socket.gethostname(), job_id=os.environ['SLURM_JOB_ID'], model=model,
         selected_step=reg['registered_final_step'], selection_from_minimum_CE=False,
         parent_registration=str(Path(registered).resolve()), parent_evidence=str(Path(evidence).resolve()),
@@ -194,7 +216,8 @@ def seal(registered, evidence, fit_exit, audit_exit, child_data_ready, out):
         required_input_schema=c.get('riichi_input_schema'),
         parent_training_file=str(Path(args['data']).resolve()), ancestor_training_files=[str(Path(args['data']).resolve())],
         parent_validation_files=[str(Path(args['eval_data']).resolve())], bound_files=files,
-        stage_quality=audit['stage1_advancement'], scheduler_exits=scheduler_receipts,
+        stage_quality=research_grade,original_stage1_advancement=audit['stage1_advancement'],scheduler_exits=scheduler_receipts,
+        research_parent_policy_binding=str(Path(research_policy_binding).resolve()) if research_policy_binding else None,
         group_proof=dict(parent_train_groups=len(groups(parent_train)), child_train_groups=len(groups(child_train)),
             child_validation_groups=len(groups(child_validation)), overlap_with_any_held_group=0,
             mandatory_stage1_replay_present=True,mandatory_stage1_validation_replay_present=True,
@@ -212,5 +235,6 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     for name in ('registered', 'evidence', 'fit-exit', 'audit-exit', 'child-data-ready', 'out'):
         p.add_argument('--'+name, type=Path, required=True)
+    p.add_argument('--research-policy-binding',type=Path)
     a = p.parse_args()
-    seal(a.registered, a.evidence, a.fit_exit, a.audit_exit, a.child_data_ready, a.out)
+    seal(a.registered, a.evidence, a.fit_exit, a.audit_exit, a.child_data_ready, a.out,a.research_policy_binding)

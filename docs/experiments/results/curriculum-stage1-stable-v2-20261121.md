@@ -1,6 +1,30 @@
-# Stable-v2 stage1: interim results and riichi diagnostics
+# Stable-v2 stage1: completed results and riichi diagnostics
 
-2026-11-21, Asia/Dubai. GPU training311884 is active with a fixed four-epoch/584-update budget; dependent audit311887 has not started. This is an interim development report, not a completed model or evidence of v8-level strength. The registered final584 checkpoint remains the sole candidate.
+2026-11-21, Asia/Dubai. GPU training311884 and audit311887 completed0:0. The registered final584 checkpoint is the sole candidate;1,972 saved-final menus and192 cached complete games were independently reconciled by the end audit. This is a completed stage1 development experiment, not evidence that the full route or v8-level strength has been achieved.
+
+## Final64 result
+
+| Policy | Top-two | Net points/match | Hand-win | Dealin | Fourth |
+|---|---:|---:|---:|---:|---:|
+| Initial curriculum, final1162 |51.56%|+18.75|23.93%|18.69%|31.25%|
+| Stable-v2, final584 |59.38%|+1,760.94|26.54%|15.94%|20.31%|
+| Frozen practical v8 |59.38%|+4,290.63|24.32%|10.44%|14.06%|
+
+These are the same8 whole-seed groups ×2 profiles ×4 seats. Stable-v2 improves the first curriculum's development means but still loses net points/risk to v8. Its top-two difference versus v8 is0 with paired95% interval[−11.17,+11.17] percentage points; net difference−2,529.69/match with interval[−8,580.68,+3,521.31]. Dealin difference is+5.50 points, interval[+0.88,+10.12]. These are consumed-development comparisons with eight clusters, not independent confirmation or proof of equivalence/noninferiority.
+
+The matched16 subset at final584 is top-two62.50%, net−1,193.75, hand-win20.07% and dealin12.86%. Its net is lower than the438-point peak+2,431.25, illustrating why neither a16-game peak nor mixed16/64 means should select a checkpoint. The final64 mean remains+1,760.94. Both actual curve and full-grid data are preserved separately.
+
+Final weighted CE is1.311692, plain agreement50.72%, riichi TP26/FN11/TN30/FP40. Acceptance70.27% and correct decline42.86% fail the original both60 gate; the audit retains `passed:false`. Practical v8 itself gives51.35%/44.29% on this consumed imitation diagnostic. The separately bound [research admission amendment](curriculum-transfer-accumulation-20261121.md) accepts the fixed final for a further course without relabeling the original gate, solving riichi or claiming v8 strength. The [calls course](../plans/curriculum-stage2-calls-20261121.md) now continues these exact weights with full replay and a new optimizer.
+
+Final identity: `e608f317c630bf737cac0402b73a2974231c6a8da3c5f26a652d1c18e2d7311f`. All37,168 actual exposures,376 optimizer states, source/data hashes, held-out groups and matched-grid plot inputs pass. Final reload maximum probability discrepancy is1.20e-7. Internal settlement checks do not independently verify han/fu.
+
+## Actual curves and exportable points
+
+Reward/rate curves below use the **same16 matches at every point**, including the final64's matching subset. Thus the final reward curve is−1,193.75/8,000, while the separate full64 result is+1,760.94/8,000. Reward is observed terminal net points/8,000, not an RL loss or a fabricated training reward. Lines connect measured checkpoints; they do not provide independent confidence estimates.
+
+![Actual loss, observed game reward and rate curves](../figures/stage1-stable-v2/curves.png)
+
+[Standalone PDF](../figures/stage1-stable-v2/curves.pdf) · [TRAIN loss points](../figures/stage1-stable-v2/train-loss.csv) · [Validation loss points](../figures/stage1-stable-v2/validation-loss.csv) · [Matched16 game points](../figures/stage1-stable-v2/evaluation-matched16.csv) · [Final64 table](../figures/stage1-stable-v2/evaluation-final64.csv) · [Provenance](../figures/stage1-stable-v2/provenance.json). These exports contain aggregate losses/game statistics, excluding raw hands, per-case predictions, source-count details and gradients.
 
 ## Interim validation and complete-match results
 
@@ -17,6 +41,8 @@ At the203-update health observation, all update records are finite and contiguou
 |292|1.442875|46.81%|13/37|47/70|
 |365|1.336671|48.31%|27/37|31/70|
 |438|1.335966|49.97%|31/37|20/70|
+|511|1.310907|50.94%|30/37|25/70|
+|584|1.311692|50.72%|26/37|30/70|
 
 CE/plain imitation improve, while riichi changes from conservative at73 to over-accepting at146. At219 both acceptance and correct decline improve relative to146, but remain54.05%/48.57%, below the two-sided phase target. At292 acceptance falls to35.14% while correct decline rises to67.14%. At438, acceptance reaches83.78% but correct decline falls to28.57%; the two-sided target is still unmet even though weighted CE improves. Keep the fixed recipe through its registered budget; do not silently select an early point or change inference from these diagnostics.
 
@@ -56,6 +82,6 @@ The data checks also find zero already-declared-self-riichi windows and no missi
 
 The new `tools/curriculum_parent.py` admission path names the audited registered final checkpoint, not the legacy research result's minimum-CE summary. It requires completed fit/audit exits, actual two-sided riichi/basic retention metrics, unchanged inputs and source packages, matching saved-model identity, and held-out/reserved source-group exclusion in the proposed child. Stage2 must retain the original stage1 replay. A seal binds model/data/code/audit artifacts without starting a child fit or resuming an old optimizer.
 
-Five gate tests pass, including rejection of a misleading passed flag, a partial budget, a minimum-CE replacement and a missing quality gate. Real negative checks reject both the still-incomplete stable-v2 fit and the completed original curriculum without a passed riichi gate, writing no parent seal. The completed positive end-to-end sealing/warm-start path cannot be claimed until a real parent passes its final audit and stage target. No stage2 fit is started by these checks.
+The initial five gate tests rejected a misleading passed flag, a partial budget, a minimum-CE replacement and a missing quality gate. Early real negative checks rejected the then-incomplete stable-v2 fit and the completed original curriculum without a passed riichi gate. Those data-only checks started no fit. After actual final completion, the separate prospectively bound research route sealed final584, and course2's preflight and exact adapter/head warm start executed. The original strict gate remains false; the [course2 plan](../plans/curriculum-stage2-calls-20261121.md) records the explicit distinction and actual evidence.
 
 All21 related curriculum checks passed on allocated GPU companion resources. New raw predictions, gradient details, native game events and research weights remain private. The [four-stage goal](../plans/curriculum-optimization-20261121.md), later-course fitting and unseen final comparison remain outstanding.

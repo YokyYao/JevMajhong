@@ -1,6 +1,6 @@
 # Curriculum transfer and accumulation diagnostics
 
-2026-11-21, Asia/Dubai. These changes prepare later courses while both stage1 fits keep their frozen data/source/configuration and fixed584-update budgets. No new course fit, parent seal or replacement production policy is created by these checks. The [full goal](../plans/curriculum-optimization-20261121.md) still requires the four courses and an unseen paired comparison with practical v8.
+2026-11-21, Asia/Dubai. Initial checks prepared later courses while both stage1 fits kept frozen data/source/configuration and fixed584-update budgets. They did not themselves admit a parent or start a fit. Subsequently stable-v2 completed, its separately qualified final was sealed, and the actual calls course started as recorded below. No production policy is replaced. The [full goal](../plans/curriculum-optimization-20261121.md) still requires the four courses and an unseen paired comparison with practical v8.
 
 ## A short final update changes loss composition
 
@@ -28,7 +28,7 @@ An actual path incompatibility was found before child fitting: stage1 protocols 
 
 `tools/check_curriculum_transfer.py` exercised the data/lineage part on real stable-v2 and stage2 artifacts. The pinned lineage/group checks pass:570 parent TRAIN groups,2,416 child TRAIN groups and739 child validation groups, with zero overlap. All9,292 mandatory stage1 replay rows retain the same label and model-visible request. Parent validation, child validation and675 reserved groups remain excluded from child training. The original parent protocol hash remains unchanged. No student is loaded, no parent is admitted and no optimizer update runs.
 
-The positive **complete qualified-parent read and actual child warm start** still need a real final parent that passes its audit and stage criteria. The static/data checks above do not prove that this full path has executed. First-course completion, the later fits and final strength comparison remain outstanding.
+The initial checks above did not execute a positive parent load. That path has now executed after the actual stable-v2 final584 fit/audit: the separate bound research route sealed the parent, preflight312079 passed the full reader and pinned bind-parent/lineage checks, and training312081 loaded all372 adapter tensors and4 head tensors exactly. It uses a frozen base and new optimizer. The original both60 gate remains false. [The calls-course plan](../plans/curriculum-stage2-calls-20261121.md) records the complete scope and fixed budget; later course quality and final strength comparison remain outstanding.
 
 Run all commands in an allocated GPU job with companion CPUs, logs and a timeout:
 
@@ -68,4 +68,6 @@ The [research-parent policy](../../../configs/training/curriculum-research-paren
 
 GPU registration bound the policy at2026-11-20T22:46:51 UTC, while stable-v2 had536 updates and context-v3 had149. Neither final584 evaluation had started. Policy SHA256 is `6ceff847b9ae2362ba079fe42372034c9f7d95f3f2b73b7921b061aa75b3c288`; the binding also freezes both registrations and the actual v8/initial-baseline diagnostic receipts. This prevents changing the research-admission criteria in response to either final584 result.
 
-The policy binding is not a parent seal. The existing strict admission implementation remains strict; implementing and checking the separate amended research-admission route is still pending. No incomplete model, intermediate checkpoint or failing audit may bypass these conditions. Successful research continuation would still leave the full four-course goal, the riichi diagnosis and unseen v8-strength confirmation unfinished.
+The policy binding itself is not a parent seal. The existing default admission remains strict. A separate explicit `--research-policy-binding` route now implements the frozen amendment, with a distinct seal method, preserved original audit grade and rechecked final metrics/paired comparisons.50 curriculum checks reject short grids, worse retention, action-type collapse, missing context evidence, intermediate steps and modified policy values. A real binding check verifies the original registrar, both candidate registrations and actual control diagnostics.
+
+After stable-v2 finished all64 games and audit311887, the new route accepted its actual final: top-two59.375%, net+1,760.9375, dealin15.9437%, plain50.72%, riichi acceptance70.27%/decline42.86%. The strict original gate still fails. These values meet the separately bound **research** conditions and are not a v8-equivalence result. The parent seal records that distinction, protects TRAIN and validation replay, and includes all source/data/model/binding hashes. Preflight and actual tensor warm start have executed as described above; no stage3 or production release is automatic. The full four-course goal, riichi diagnosis and unseen v8-strength confirmation remain unfinished.

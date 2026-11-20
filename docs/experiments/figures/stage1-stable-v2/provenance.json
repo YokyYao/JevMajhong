@@ -1,0 +1,19 @@
+{
+  "status": "aggregate_curve_artifacts_from_actual_completed_fit",
+  "train_loss_points": 584,
+  "validation_loss_points": 9,
+  "game_curve_points": 5,
+  "game_curve_matches_each": 16,
+  "full_stage_end_matches": 64,
+  "source_plot_provenance_sha256": "c712e5d6dcb06afc9a6d40b763b4d1c50d988f667c529e1248549d3a281b9e63",
+  "files": {
+    "validation-loss.csv": "5e5ad120e8cb742164f49828fb291d9d90d3b5b899997fd587c7734406126974",
+    "evaluation-matched16.csv": "72a2921ba97910c343fc8f09d60b3562bddcaf44560d48ded9696570a1cf29a9",
+    "curves.png": "3b31b87b5502c9d01517c0bd9cdfee37dea6e93ac24c5d80265925372901a7ca",
+    "train-loss.csv": "224e186857f5e2995db7add39569d980f2d0a7eea9047ad1be4fb64f6b092621",
+    "curves.pdf": "2d0457d2311edcde5ba9f2cb07f3a4f802c5f50f32cc61cf67cd2f46ce95b239",
+    "evaluation-final64.csv": "3f7f6296d359c64be96446aacb680d1b6283d3113f9bdd6f64f924af6cbc3126"
+  },
+  "raw_hands_predictions_source_counts_and_gradients_excluded": true,
+  "independent_test": false
+}

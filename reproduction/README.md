@@ -91,7 +91,7 @@ The epoch scheduler only changes the pinned trainer's epoch-order RNG; per-item 
 
 The public `tools/curriculum_losses.py` module supports offline core regression checks without importing research files absent from the runtime tree. `tools/check_curriculum_losses.py` separately verifies values/gradients against the restored, digest-checked research package on real expert/simulation/quarantined records. The current trainer stays frozen. [Stage4 native win/decline checks](../docs/experiments/results/curriculum-stage4-interface-20261121.md) also remain separate from data admission and fitting.
 
-The [stable-v2 interim report](../docs/experiments/results/curriculum-stage1-stable-v2-20261121.md) distinguishes actual update/sample integrity from unresolved riichi discrimination. `tools/audit_curriculum_riichi_scores.py` reads saved predictions only; it does not deploy a validation-selected threshold. `tools/curriculum_parent.py` is the explicit final-checkpoint admission interface for a later stage2 continuation. A completed evidence audit and a passed actual stage-quality gate are both required; the legacy minimum-CE summary is not a transfer decision. The current incomplete fit is deliberately rejected, and successful full sealing/warm-start still needs verification after an eligible parent completes.
+The [completed stable-v2 report](../docs/experiments/results/curriculum-stage1-stable-v2-20261121.md) distinguishes actual update/sample integrity from unresolved riichi discrimination and v8-strength gaps. `tools/audit_curriculum_riichi_scores.py` does not deploy a validation-selected threshold. `tools/curriculum_parent.py` defaults to the original strict final-checkpoint admission; legacy minimum CE is not a transfer decision. A separate, explicitly bound research-only amendment now admits the completed final584 without relabeling its failed original riichi gate. Actual sealing, qualified-parent reading and exact adapter/head warm start have executed; [the calls plan](../docs/experiments/plans/curriculum-stage2-calls-20261121.md) records the status.
 
 ## Controlled context-v3 input experiment
 
@@ -116,4 +116,29 @@ Use fresh output directories; preparation/registration reject overwrites. As wit
 
 `tools/preflight_curriculum_context.py` combines registration and actual107-menu input parity on a private copy of a stable-v2 step0 checkpoint. It is an additional diagnostic requiring that checkpoint; the copy is never a training initializer. Use it instead of the standalone registration command, with `--config`, `--registered`, `--base`, `--reference` and `--out` paths. Our recorded preflight311989 completed on a GPU with0 maximum probability difference. All new model checkpoints bind their input schema/feature code/model files in a sidecar; later-course registration must retain the same input contract. The normal initialization remains fresh base with a fresh optimizer and no older adapter.
 
-The [transfer/accumulation report](../docs/experiments/results/curriculum-transfer-accumulation-20261121.md) records prospective later-course ordering and real replay/lineage prechecks. `tools/curriculum_transfer.py` is the explicit qualified-final parent-reader bridge: use its scoped context manager with the pinned initialization module while calling the pinned trainer, retaining the existing bind-parent/group/exact-tensor checks. Its child configuration must supply a seal-bound parent manifest and the exact child data-ready manifest. This is not a continuation command for an unfinished/unqualified model. Full positive parent loading and actual child warm start remain pending; the data checks do not authorize fitting. `tools/curriculum_course_order.py` keeps complete original epochs with all declared strata and rejects tiny tails; it is not used to change active stage1 fits.
+The [transfer/accumulation report](../docs/experiments/results/curriculum-transfer-accumulation-20261121.md) records later-course ordering, replay/lineage checks and the explicit research-admission amendment. `tools/curriculum_transfer.py` retains the pinned bind-parent/group/exact-tensor checks. Its child config supplies a seal-bound parent manifest and exact child data-ready manifest; an unfinished/unqualified model cannot continue. Positive full parent loading and actual tensor warm start have now executed. `tools/curriculum_course_order.py` keeps complete original epochs with all declared strata and rejects tiny tails; it does not change the frozen stage1 recipes.
+
+## Sealed calls-course continuation
+
+The original strict gate remains the default. Our completed stable-v2 final uses the explicit research amendment bound before final games. Preserve the original pass/fail and all prerequisite successful exits. Run within scheduled GPU resources, using real local receipt paths:
+
+```bash
+python tools/curriculum_parent.py \
+  --registered runs/curriculum-optimization-v2/fit-plan/registered.json \
+  --evidence runs/curriculum-optimization-v2/final-evidence-private.json \
+  --fit-exit "$FIT_EXIT_RECEIPT" --audit-exit "$AUDIT_EXIT_RECEIPT" \
+  --child-data-ready runs/curriculum-optimization-v2/stage2-data/data-ready.json \
+  --research-policy-binding runs/curriculum-optimization-v2/research-parent-policy-binding-private.json \
+  --out "$PARENT_SEAL"
+python tools/register_curriculum_course.py \
+  --config configs/training/curriculum-stage2-calls-v1.json --parent-seal "$PARENT_SEAL"
+python tools/train_curriculum_course.py \
+  --registered runs/curriculum-stage2-calls-v1/fit-plan/registered.json
+python tools/audit_curriculum_course.py \
+  --registered runs/curriculum-stage2-calls-v1/fit-plan/registered.json \
+  --out runs/curriculum-stage2-calls-v1/final-evidence-private.json
+```
+
+The research-policy binding must already have been created with the frozen policy and `tools/register_curriculum_research_parent.py` before either final584 game result, as documented in the amendment. Do not backdate it or use an intermediate checkpoint. Aggregate original controls are preserved in [evidence/curriculum-initial-final64.json](evidence/curriculum-initial-final64.json) and [evidence/practical-v8-riichi107.json](evidence/practical-v8-riichi107.json); they contain no raw games or per-case predictions. A new-host experiment with different bundle metadata must explicitly bind its own control identities/prospective policy and source before viewing final outcomes, rather than silently weakening this recorded experiment's hashes. Software checks, research admission and eventual independent strength confirmation remain distinct.
+
+Course2 uses the same adapter/head, a new optimizer,20,237/4,721 expert/replay decisions, two epochs and324 updates.50 curriculum regression checks and the real preflight passed; actual initialization verifies all372 adapter/4 head tensors. The first16 native games after reload match the parent's same16 outcomes. Course2's loss mixture differs from stage1, so preserve separate curves. Stage3/4 and the unseen final comparison are not started by these commands.

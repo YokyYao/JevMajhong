@@ -1,0 +1,2 @@
+local_step,global_step,stage,matches,seed_groups,hand_win_rate,first_rate,top2_rate,fourth_rate,dealin_hand_rate,net_points,reward,checkpoint_sha256
+584,584,stage1-stable-v2,64,8,0.26537698412698413,0.359375,0.59375,0.203125,0.15943700396825397,1760.9375,0.22011718749999998,e608f317c630bf737cac0402b73a2974231c6a8da3c5f26a652d1c18e2d7311f
