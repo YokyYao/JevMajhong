@@ -61,3 +61,26 @@ Use this aligned plot for comparisons: all curve points use the same16 developme
 The initial model is a random Mahjong head/adapter on a pretrained backbone, not a random-action agent; the legal-action/efficiency guard and forced legal wins still apply. Do not call its initial game results a learned Mahjong ability. Stage1 has no win/pass or yaku-scoring supervision. Stage2/3 data are prepared with the same holdout exclusions; their fits and stage4's public data generation are separate registered work and are not automatically launched by this command.
 
 Raw match events and new weights stay local. Only aggregate results/curves are intended for publication. Existing v8 parameters and the Windows tool are unchanged.
+
+## Registered stable-v2 follow-up
+
+The [optimization plan](../docs/experiments/plans/curriculum-optimization-20261121.md) keeps the full four-course goal and records why the first fit is not a v8 replacement. The next fresh-base fit uses the same clean data/loss weights with without-replacement64-record accumulation groups containing both riichi labels, four epochs and584 updates. This changes batch construction and data exposure together; it is not a single-factor ablation. It does not continue the original stage1 or v8 adapter.
+
+After the public source/bootstrap and clean data above are prepared, register a fresh fit inside the GPU allocation:
+
+```bash
+python -m unittest discover -s tests/core -p test_curriculum_order.py -v
+python tools/register_curriculum_stable.py \
+  --config configs/training/curriculum-stage1-stable-v2.json \
+  --base-path "$BASE_SNAPSHOT" \
+  --reference-path models/jev-play-v2
+python tools/train_curriculum_stable.py \
+  --registered runs/curriculum-optimization-v2/fit-plan/registered.json
+python tools/audit_curriculum_fit.py \
+  --registered runs/curriculum-optimization-v2/fit-plan/registered.json \
+  --out runs/curriculum-optimization-v2/final-evidence-private.json
+```
+
+`cluster/curriculum-stage1-stable.slurm` provides a bounded launch. The shipped config reuses the completed original experiment's v8 reference cache and checks its identity/grid/files. If that cache has not been generated, make a local copy of the config, set `reference_evaluation_cache` to null before registration, and pass that config instead; the trainer will compute the same reference once. This does not require any old student weight. Public v8 exports may have a metadata-only file-bundle identity difference; the registrar retains the pinned tensor verification.
+
+The epoch scheduler only changes the pinned trainer's epoch-order RNG; per-item augmentation RNGs remain ordinary. Token admission must preserve the exact data-file IDs/order, each epoch must be a unique complete permutation, and actual optimizer logs must contain both riichi classes at every update. Receipts preserve per-update counts and order digests privately. The final audit reconciles these with observed training logs and optimizer state; its evidence-pass flag is distinct from the stage-quality gate and does not mean the full four-course goal is achieved.
