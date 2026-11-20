@@ -38,6 +38,8 @@ Continue the same student, with basic/call replay and a separately registered ex
 
 This dataset and fit are not yet admitted. Build public, rerunnable state generation and legal win/pass decisions before claiming this skill. The existing early-course path takes legal wins by rule; it cannot teach declining a1000-point win to chase a necessary score. Add and test that action path as part of this course, with a correctness audit of last-hand termination, score transfers, dealer continuation, honba and riichi sticks.
 
+The [native interface audit](../results/curriculum-stage4-interface-20261121.md) has observed legal ron-pass and tsumo-discard declines through completed games. This proves a usable native path, not an endgame label or learned strategy. Preserve the practical v8 win guard in its comparison arm; new student routing must be disclosed rather than weakening the baseline to claim a gain.
+
 Cover starting ranks1–4, meaningful score gaps, direct hit versus tsumo, dealer/nondealer and opponent riichi. Third/fourth should pursue sufficient points for top-two when appropriate; leading players may prefer small fast wins. Do not impose an unconditional rule that avoiding fourth can never decrease while pursuing second. Keep high-risk pursuit distinct from safe holding. Generate paired futures from public information, with enough worlds for reliable labels and reserved whole-group splits. Register per-starting-rank metrics rather than hiding the hard fourth-to-second problem in aggregate accuracy.
 
 ## Common evidence, stopping and final comparison

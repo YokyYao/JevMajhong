@@ -2,8 +2,7 @@ import unittest
 
 import torch
 
-from jevmahjong.training.base_lora import question_loss
-from jevmahjong.training.label_balance import weighted_loss
+from tools.curriculum_losses import question_loss, weighted_loss
 
 
 class MaskedCurriculumTargetTests(unittest.TestCase):

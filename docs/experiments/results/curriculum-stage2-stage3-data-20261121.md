@@ -51,6 +51,8 @@ Of the original simulated targets,1,115 TRAIN and640 validation menus leave some
 
 None of the published per-record metadata retains world count, independent world outcomes, reward formula or continuation-policy version. This audit therefore does not reconstruct or certify independent-world confidence. New simulation labels need their own public-information generator, frozen reward/world budget/policies and whole-source-group splits. Do not invent missing provenance or filter near-uniform labels as if their optimality were known.
 
+The portable public arithmetic in `tools/curriculum_losses.py` is also checked against the actual frozen research losses, rather than relying on a locally installed research module absent from the public runtime tree. On32 expert +128 informative simulated +136 singleton records,592 plain/phase-weighted loss and gradient comparisons have maximum difference0. The frozen fit's package remains unchanged. This fixes a public-CI import dependency without skipping the gradient checks or changing the ongoing trainer.
+
 A proposed starting loss mix is75% expert/25% simulation, with equal mass across the four simulated primary phases. It yields MC per-example phase weights approximately2.00131 closed,5.64936 open,0.95472 call and5.78604 kan, below cap8. This is a bounded proposal, not a completed fit or evidence that it outperforms another mix. Parent retention and matched complete-game outcomes decide its usefulness.
 
 ## Reproduction and identities
@@ -62,6 +64,7 @@ python tools/audit_curriculum_calls.py --data-ready runs/curriculum-reproduction
 python tools/build_curriculum_stage2.py --data-ready runs/curriculum-reproduction-v1/clean-data-v1/data-ready.json --out runs/curriculum-optimization-v2/stage2-data
 python tools/audit_curriculum_simulation.py --data-ready runs/curriculum-reproduction-v1/clean-data-v1/data-ready.json --out runs/curriculum-optimization-v2/stage3-target-audit-private.json
 python tools/build_curriculum_stage3.py --data-ready runs/curriculum-reproduction-v1/clean-data-v1/data-ready.json --out runs/curriculum-optimization-v2/stage3-data
+python tools/check_curriculum_losses.py --registered runs/curriculum-optimization-v2/fit-plan/registered.json --data-ready runs/curriculum-optimization-v2/stage3-data/data-ready.json --out runs/curriculum-optimization-v2/loss-parity-private.json
 ```
 
 Builders reject an existing output directory. In the supervised workspace the corrected call-coverage receipt is named `stage2-coverage-corrected-private.json`; it supersedes the first receipt's crude existing-meld context labels. Training data and operation totals did not change. Data/label/group hashes and all invariants passed in the actual allocated steps, as did two concealed-kan checks and two masked-gradient checks.
