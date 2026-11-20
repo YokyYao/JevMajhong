@@ -2,7 +2,7 @@
 
 Status: training is active. This is a new rank-16 LoRA and pointer head on pinned Qwen3.5-0.8B, with no Mahjong-trained v8/audited176 adapter or head and no v8 replay targets. The backbone is frozen. See the [registered plan](../../plans/mortal-base-training-20261120.md).
 
-GPU job309978 passed preflight and seven checks and encoded all22,321 teacher training decisions. Saved-model validation is complete through update1216, with the observation floor and full exposure satisfied; both LoRA and head changed. Step1152 remains the current candidate, with the lowest CE so far. The512 validation decisions come from128 whole source games separate from the384 training games. This is an inspected development set, not an untouched confirmation test. This pure-teacher phase covers East1–3 non-win menus under the existing serving guard; East4 pursuit and win acceptance receive no direct teacher supervision here, so agreement cannot establish those abilities.
+GPU job309978 passed preflight and seven checks and encoded all22,321 teacher training decisions. Saved-model validation is complete through update1280, with the observation floor and full exposure satisfied; both LoRA and head changed. Step1152 remains the current candidate, with the lowest CE so far. The512 validation decisions come from128 whole source games separate from the384 training games. This is an inspected development set, not an untouched confirmation test. This pure-teacher phase covers East1–3 non-win menus under the existing serving guard; East4 pursuit and win acceptance receive no direct teacher supervision here, so agreement cannot establish those abilities.
 
 | Saved step | Weighted teacher CE ↓ | Weighted agreement | Overall agreement, selected512 menus | Unique training decisions exposed |
 |---|---:|---:|---:|---:|
@@ -26,6 +26,7 @@ GPU job309978 passed preflight and seven checks and encoded all22,321 teacher tr
 | 1088 | 0.76746 | 70.61% | 69.14% | 22,321 |
 | 1152 | 0.75664 | 71.85% | 70.51% | 22,321 |
 | 1216 | 0.76628 | 70.96% | 69.92% | 22,321 |
+| 1280 | 0.78225 | 70.73% | 69.53% | 22,321 |
 
 Step0 is a random decision head on a pretrained backbone, not an old Mahjong policy or a uniform-random action baseline. Agreement depends on this selected/weighted validation mix and is not a win rate.
 
@@ -51,6 +52,7 @@ Step0 is a random decision head on a pretrained backbone, not an old Mahjong pol
 | 1088 | 39 | 63 | 30 | 13 |
 | 1152 | 40 | 63 | 26 | 15 |
 | 1216 | 43 | 63 | 29 | 12 |
+| 1280 | 40 | 63 | 27 | 11 |
 
 The initial learner changed from calling too often to always declining chi/pon at64–128, then began selecting some teacher-positive calls at192. Exact positive-call matches reach44/64 at832, with62/64 negative-call matches. CE reaches a new low at832, but the per-action results remain mixed. No claim of solved decisions or improved playing strength follows from these auxiliary metrics.
 
@@ -80,6 +82,8 @@ At1088, CE improves to0.76746, replacing832 as the current selection and resetti
 At1152, weighted CE improves again to0.75664 and selection moves to1152 with stale0. Exact positive/negative call matches are40/64 and63/64, riichi26/32 and15/32. The model selects chi12 times (all12 action-type matches), pon31 times (30 matches/1 extra), riichi38 times (26 matches/12 extras), ankan3 times (2/6 positives/1 extra) and kakan2 times (1/3 positive/1 extra). There is still no positive daiminkan example or selection. No1152 complete-match score has been measured; training continues under the unchanged1536 cap.
 
 At1216, weighted CE is0.76628, leaving1152 selected with one stale check. Exact positive/negative calls are43/64 and63/64, riichi29/32 and12/32. Riichi is selected46 times with17 extras relative to the teacher; chi12 has no extra selection, pon33 has1 extra, ankan3 has1 extra and kakan2 has1 extra. Positive-kan action-type recall stays3/9. No1216 complete-match score has been measured. Continue the registered schedule rather than treating one auxiliary fluctuation as a strength result.
+
+At1280, weighted CE is0.78225, leaving1152 selected with two stale checks. Exact positive/negative calls are40/64 and63/64, riichi27/32 and11/32. Riichi44 has17 extra selections; chi11 has no extra selection, pon31 has1 extra, ankan4 has3/6 positive matches with1 extra, and kakan2 has1/3 with1 extra. These small kan counts fluctuate while overall loss worsens; no1280 complete-match outcome is available. Preserve the registered four-stale-check stopping rule and the retained best checkpoint.
 
 ## Rare positive-kan exposure
 
