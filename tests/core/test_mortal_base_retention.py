@@ -2,7 +2,7 @@ import copy
 
 import unittest
 
-from tools.build_mortal_base_retention import isolated,terminal_target
+from tools.build_mortal_base_retention import isolated,terminal_target,normalized_source_request
 from jevmahjong.endgame.context import placements
 from jevmahjong.endgame.targeted_refresh import world_design
 
@@ -23,6 +23,29 @@ def terminal_fixture():
 
 
 class MortalBaseRetentionTests(unittest.TestCase):
+    def test_source_display_context_is_replaced_by_real_serving_input(self):
+        source={'state':{'seat':0,'scores':[25000]*4,'hand':'1m',
+            'screen_observation':{'reaction':{'seat':3,'tile':'2m'}}},
+            'questions':{'action':{'type':'choice','instructions':'source',
+                'criteria':{'a0':{'type':'dahai','pai':'1m'},'a1':{'type':'none'}}}}}
+        actual=copy.deepcopy(source);actual['state'].pop('screen_observation')
+        actual['questions']['action']['instructions']='actual-serving'
+        normalized=normalized_source_request(source,actual)
+        self.assertEqual(normalized,actual)
+        self.assertIn('screen_observation',source['state'])
+        self.assertIsNot(normalized,actual)
+
+    def test_normalization_rejects_changed_native_state_or_action_order(self):
+        source={'state':{'seat':0,'scores':[25000]*4},'questions':{'action':{
+            'criteria':{'a0':{'type':'dahai','pai':'1m'},'a1':{'type':'dahai','pai':'2m'}}}}}
+        changed=copy.deepcopy(source);changed['state']['scores'][0]=26000
+        with self.assertRaisesRegex(ValueError,'native public state'):
+            normalized_source_request(source,changed)
+        changed=copy.deepcopy(source)
+        changed['questions']['action']['criteria']=dict(reversed(list(changed['questions']['action']['criteria'].items())))
+        with self.assertRaisesRegex(ValueError,'ordered action support'):
+            normalized_source_request(source,changed)
+
     def test_terminal_target_uses_fresh_prior_not_old_targets(self):
         label=terminal_fixture();prior={'a0':.8,'a1':.2}
         actual=terminal_target(label,prior,['a0','a1'])

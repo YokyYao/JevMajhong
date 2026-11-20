@@ -48,7 +48,8 @@ def fit(c,proof):
     out=ROOT/c['out'];verify(proof)
     data=json.loads((out/'data-ready-private.json').read_text())
     if (data['status']!='fresh_lineage_retention_data_ready' or not data['fresh_foundation_prior']
-            or not data['no_old_prior_or_soft_targets'] or data['train']!=2096 or data['validation']!=520):
+            or not data['no_old_prior_or_soft_targets'] or not data.get('actual_native_serving_input_verified')
+            or data.get('normalized_terminal_requests')!=56 or data['train']!=2096 or data['validation']!=520):
         raise ValueError('Audited fresh-lineage retention data required')
     verify({'files':data['files']});verify({'files':data['source_files']})
     verify(json.loads((out/'registered-data-code-private.json').read_text()))

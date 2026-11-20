@@ -72,6 +72,37 @@ def isolated(train,validation):
         raise ValueError('Whole source game crosses training/validation')
 
 
+def normalized_source_request(source,captured):
+    """Preserve the native state/action mapping while using actual serving text."""
+    if captured is None:raise ValueError('Source menu is forced without a model request')
+    original=source['questions']['action']['criteria'];current=captured['questions']['action']['criteria']
+    if list(original)!=list(current) or original!=current:
+        raise ValueError('Normalization changed ordered action support or features')
+    formatting={'screen_observation','endgame_context'}
+    before={k:v for k,v in source['state'].items() if k not in formatting}
+    after={k:v for k,v in captured['state'].items() if k not in formatting}
+    if before!=after:raise ValueError('Normalization changed the native public state')
+    return copy.deepcopy(captured)
+
+
+def native_requests(c,manifest):
+    """Capture the real agent's request; its dummy answer is never applied."""
+    from tools.build_targeted_endgame import replay
+    from jevmahjong.endgame.fourth_policy import FourthChaseAgent
+    result={}
+    class Capture:
+        def __init__(self):self.payload=None
+        def system_one(self,**payload):
+            self.payload=payload;keys=list(payload['questions']['action']['criteria'])
+            return {'answers':{'action':{'probabilities':{k:1/len(keys) for k in keys}}}}
+    for row in manifest['positions']:
+        env,_=replay({'out':str(ROOT/c['retention_root'])},row,manifest)
+        obs=env.get_observations()[row['seat']];capture=Capture()
+        FourthChaseAgent(capture).act(obs)
+        result[row['id']]=normalized_source_request(row['request'],capture.payload)
+    return result
+
+
 def source_registration(c):
     return registration(c,('configs/training/mortal-base-retention-v1.json',c['foundation_config'],
         'tools/build_mortal_base_retention.py','tools/train_mortal_base_retention.py',
@@ -120,9 +151,9 @@ def prepare(c):
     old=ROOT/c['retention_root'];manifest=json.loads((old/'manifest-private.json').read_text())
     old_ready=json.loads((old/'data-ready-private.json').read_text())
     if digest(manifest['positions'])!=manifest['positions_sha256']:raise ValueError('Endgame manifest changed')
-    requests=[]
+    formatted=native_requests(c,manifest);requests=[]
     for row in manifest['positions']:
-        request=copy.deepcopy(row['request']);request['_meta']=dict(id='base-retention:'+row['id'])
+        request=copy.deepcopy(formatted[row['id']]);request['_meta']=dict(id='base-retention:'+row['id'])
         requests.append(request)
     priors=normal_predictions(parent,requests)
     if bundle_identity(parent)!=identity:raise ValueError('Prior inference modified the foundation')
@@ -137,13 +168,13 @@ def prepare(c):
         if source_files[str(path)]!=old_ready['labels_sha256'][row['id']]:raise ValueError('Raw terminal outcome changed')
         label=json.loads(path.read_text())
         if label['source']!=row:raise ValueError('Endgame source mismatch')
-        request=copy.deepcopy(row['request']);rid='base-retention:'+row['id']
+        request=copy.deepcopy(formatted[row['id']]);rid='base-retention:'+row['id']
         target,details,top2,escape=terminal_target(label,priors[rid],fourth_chase_action_keys(request))
         request['questions']['action'].update(src='retention_outcome',target=target,label=max(target,key=target.get))
         request['_meta']=dict(id=rid,group_id=row['group_id'],split=row['split'],category=row['category'],
             source='terminal_outcomes_with_fresh_foundation_prior',source_initial_placement=row['rank'],
             fresh_top2=top2,fresh_escape=escape,paired_uncertainty=details,
-            old_continuation_dependency=True,not_mortal_teacher_label=True)
+            old_continuation_dependency=True,not_mortal_teacher_label=True,native_serving_input=True)
         (train if row['split']=='train' else val).append(request)
     if len(train)!=2096 or len(val)!=520:raise ValueError('Fixed2096/520 membership differs')
     isolated(train,val)
@@ -163,6 +194,7 @@ def prepare(c):
         counts=dict(Counter(r['questions']['action']['src'] for r in train)),
         files={str(out/(s+'.jsonl')):sha(out/(s+'.jsonl')) for s in ('train','validation')},
         source_files=source_files,fresh_foundation_prior=True,no_old_prior_or_soft_targets=True,
+        actual_native_serving_input_verified=True,normalized_terminal_requests=len(formatted),
         old_continuation_outcomes_reused=True,raw_publication=False,release_qualified=False)
     write(out/'data-ready-private.json',result)
     print(json.dumps({k:v for k,v in result.items() if k not in ('files','source_files','parent_identity')}),flush=True)
