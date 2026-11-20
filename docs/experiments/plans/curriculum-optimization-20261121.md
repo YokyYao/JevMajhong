@@ -1,6 +1,6 @@
 # Curriculum optimization goal: reproduce a full route that matches v8
 
-Goal registered2026-11-21, Asia/Dubai. Complete the fresh-base four-course route with evidence supporting at least comparable play to frozen Jev Play v2/v8. This is an active research goal, not a promised outcome or a completed replication. Keep the practical v8 weights and Windows tool unchanged while researching.
+Goal registered2026-11-21, Asia/Dubai. Complete the fresh-base four-course route with evidence supporting at least comparable play to frozen Jev Play v2/v8. This is an active research goal, not a promised outcome or a completed replication. Keep the practical v8 weights and Windows tool unchanged while researching. Stage2/3 coverage audits and candidate data preparation are now complete; [counts, proposed mixes and simulation-label limitations](../results/curriculum-stage2-stage3-data-20261121.md) are recorded separately. Their fits and transfer parents have not yet been admitted.
 
 ## Evidence motivating this iteration
 
