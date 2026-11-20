@@ -2,7 +2,7 @@
 
 Status: training is active. This is a new rank-16 LoRA and pointer head on pinned Qwen3.5-0.8B, with no Mahjong-trained v8/audited176 adapter or head and no v8 replay targets. The backbone is frozen. See the [registered plan](../../plans/mortal-base-training-20261120.md).
 
-GPU job309978 passed preflight and seven checks and encoded all22,321 teacher training decisions. Saved-model validation is complete through update896, with the observation floor and full exposure satisfied; both LoRA and head changed. Step832 remains the current candidate, with the lowest CE so far. The512 validation decisions come from128 whole source games separate from the384 training games. This is an inspected development set, not an untouched confirmation test. This pure-teacher phase covers East1–3 non-win menus under the existing serving guard; East4 pursuit and win acceptance receive no direct teacher supervision here, so agreement cannot establish those abilities.
+GPU job309978 passed preflight and seven checks and encoded all22,321 teacher training decisions. Saved-model validation is complete through update960, with the observation floor and full exposure satisfied; both LoRA and head changed. Step832 remains the current candidate, with the lowest CE so far. The512 validation decisions come from128 whole source games separate from the384 training games. This is an inspected development set, not an untouched confirmation test. This pure-teacher phase covers East1–3 non-win menus under the existing serving guard; East4 pursuit and win acceptance receive no direct teacher supervision here, so agreement cannot establish those abilities.
 
 | Saved step | Weighted teacher CE ↓ | Weighted agreement | Overall agreement, selected512 menus | Unique training decisions exposed |
 |---|---:|---:|---:|---:|
@@ -21,6 +21,7 @@ GPU job309978 passed preflight and seven checks and encoded all22,321 teacher tr
 | 768 | 0.80443 | 71.14% | 70.12% | 22,321 |
 | 832 | 0.77506 | 74.49% | 73.24% | 22,321 |
 | 896 | 0.78599 | 72.65% | 71.68% | 22,321 |
+| 960 | 0.79435 | 70.57% | 69.53% | 22,321 |
 
 Step0 is a random decision head on a pretrained backbone, not an old Mahjong policy or a uniform-random action baseline. Agreement depends on this selected/weighted validation mix and is not a win rate.
 
@@ -41,6 +42,7 @@ Step0 is a random decision head on a pretrained backbone, not an old Mahjong pol
 | 768 | 42 | 62 | 25 | 13 |
 | 832 | 44 | 62 | 27 | 17 |
 | 896 | 45 | 63 | 27 | 14 |
+| 960 | 41 | 62 | 22 | 15 |
 
 The initial learner changed from calling too often to always declining chi/pon at64–128, then began selecting some teacher-positive calls at192. Exact positive-call matches reach44/64 at832, with62/64 negative-call matches. CE reaches a new low at832, but the per-action results remain mixed. No claim of solved decisions or improved playing strength follows from these auxiliary metrics.
 
@@ -60,6 +62,8 @@ Riichi at768 has25 teacher-positive matches,13 extra declarations,7 misses and19
 At832, riichi has27 positive matches and10 extra declarations; chi has12 positive matches with no extras, and pon has33 matches with2 extras. Ankan falls to2/6 positive matches with1 extra; kakan has1/3 with1 extra. The lower overall CE therefore coexists with weaker positive-kan recall than768. Daiminkan still has no positive teacher labels or selections.
 
 At896, weighted CE increases to0.78599, so832 stays selected with one stale check. Exact positive/negative call matches improve to45/64 and63/64, while riichi has27 positive matches with13 extras. Ankan matches1/6 with1 extra and kakan1/3 with1 extra. Continue the registered observation rule; this single fluctuation does not trigger a restart or establish improving strength.
+
+At960, weighted CE is0.79435 and832 remains selected with two stale checks. Exact positive/negative call matches are41/64 and62/64. Riichi has22 positive action-type matches with12 extras; ankan2/6 with1 extra and kakan1/3 with1 extra. The fit remains active under the four-stale-check rule. If neither1024 nor1088 improves the registered CE threshold, it will stop at1088 and compare the retained832 candidate; a later improvement changes that conditional stopping point. No960 complete-match score has been measured.
 
 ## Rare positive-kan exposure
 
