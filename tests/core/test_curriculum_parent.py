@@ -1,7 +1,7 @@
 import copy
 import unittest
 
-from tools.curriculum_parent import ParentNotReady, require_stage1_candidate, require_child_input_contract
+from tools.curriculum_parent import ParentNotReady, require_stage1_candidate, require_child_input_contract, require_replay
 
 
 class CurriculumParentTests(unittest.TestCase):
@@ -60,3 +60,17 @@ class CurriculumParentTests(unittest.TestCase):
                     dict(evidence,final_raw_public_max_probability_error=1e-3)):
             with self.assertRaises(ParentNotReady):
                 require_stage1_candidate(reg,self.done,bad,self.validation,'final')
+
+    def test_replay_loss_tag_may_change_but_public_input_and_target_must_match(self):
+        row=dict(_meta=dict(id='same',group_id='source'),state=dict(scores=[25000]*4),
+            questions=dict(action=dict(type='choice',instructions='decide',criteria=dict(a=dict(type='none')),
+                label='a',target=None,src='curriculum1:plain')))
+        child=copy.deepcopy(row);child['questions']['action']['src']='curriculum2:plain'
+        require_replay([row],[child])
+        for field,value in (('criteria',dict(a=dict(type='hora'))),('label','changed'),('target',[1.])):
+            bad=copy.deepcopy(child);bad['questions']['action'][field]=value
+            with self.assertRaises(ParentNotReady):require_replay([row],[bad])
+        bad=copy.deepcopy(child);bad['_meta']['group_id']='other'
+        with self.assertRaises(ParentNotReady):require_replay([row],[bad])
+        with self.assertRaises(ParentNotReady):require_replay([row],[])
+        with self.assertRaises(ParentNotReady):require_replay([row],[child,child])

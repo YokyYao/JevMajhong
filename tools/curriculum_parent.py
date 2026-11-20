@@ -82,6 +82,22 @@ def require_child_input_contract(reg, child):
             raise ParentNotReady('Child public feature implementation differs from its parent')
 
 
+def require_replay(parent_rows,child_rows):
+    """Keep inputs, labels, targets and groups; only loss-only annotations may differ."""
+    byid={r['_meta']['id']:r for r in child_rows}
+    if len(byid)!=len(child_rows):raise ParentNotReady('Duplicate child replay IDs')
+    for row in parent_rows:
+        child=byid.get(row['_meta']['id'])
+        if child is None or child['_meta']['group_id']!=row['_meta']['group_id']:
+            raise ParentNotReady('Mandatory parent replay row/group missing')
+        public=lambda r:dict(state=r['state'],questions={name:{k:q[k] for k in ('type','instructions','criteria')}
+            for name,q in r['questions'].items()})
+        if public(row)!=public(child):raise ParentNotReady('Mandatory replay public input changed')
+        for name,q in row['questions'].items():
+            if any(q.get(k)!=child['questions'][name].get(k) for k in ('label','target')):
+                raise ParentNotReady('Mandatory replay supervision changed')
+
+
 def seal(registered, evidence, fit_exit, audit_exit, child_data_ready, out):
     assert os.environ.get('SLURM_JOB_ID') and (os.environ.get('SLURM_JOB_GPUS') or os.environ.get('SLURM_STEP_GPUS'))
     assert not socket.gethostname().startswith(('lo-', 'login'))
@@ -148,9 +164,8 @@ def seal(registered, evidence, fit_exit, audit_exit, child_data_ready, out):
     held = groups(parent_validation) | groups(child_validation) | set(read(reserved_file))
     if groups(parent_train) & groups(child_validation) or groups(child_train) & held:
         raise ParentNotReady('Child or ancestral training intersects a held-out group')
-    child_ids = {r['_meta']['id'] for r in child_train}
-    if not {r['_meta']['id'] for r in parent_train} <= child_ids:
-        raise ParentNotReady('Stage2 omitted mandatory stage1 replay')
+    require_replay(parent_train,child_train)
+    require_replay(parent_validation,child_validation)
     files = dict(reg['inputs'])
     paths = [Path(registered), *required, validation_file, Path(child_data_ready), reserved_file,
              fit/'protocol.json', fit/'initialization-audit.json', fit/'actual-update-proof.json',
@@ -182,7 +197,8 @@ def seal(registered, evidence, fit_exit, audit_exit, child_data_ready, out):
         stage_quality=audit['stage1_advancement'], scheduler_exits=scheduler_receipts,
         group_proof=dict(parent_train_groups=len(groups(parent_train)), child_train_groups=len(groups(child_train)),
             child_validation_groups=len(groups(child_validation)), overlap_with_any_held_group=0,
-            mandatory_stage1_replay_present=True),
+            mandatory_stage1_replay_present=True,mandatory_stage1_validation_replay_present=True,
+            replay_public_inputs_labels_targets_and_groups_equal=True),
         base=c['base'], base_revision=c['base_revision'], optimizer_resumed=False,
         child_fit_started=False, practical_v8_unchanged=True)
     with out.open('x') as f:

@@ -16,7 +16,7 @@ def check(registered,child_data_ready,out):
     assert os.environ.get('SLURM_JOB_ID') and (os.environ.get('SLURM_JOB_GPUS') or os.environ.get('SLURM_STEP_GPUS'))
     assert not socket.gethostname().startswith(('lo-','login'))
     from tools.curriculum_transfer import read,sha,canonical_protocol
-    from tools.curriculum_parent import require_child_input_contract
+    from tools.curriculum_parent import require_child_input_contract,require_replay
     from tools.curriculum_course_order import CourseEpochRandom
     from tools.audit_curriculum_accumulation import suggest_accumulation
     reg=read(registered);child=read(child_data_ready);require_child_input_contract(reg,child)
@@ -36,6 +36,8 @@ def check(registered,child_data_ready,out):
     load=lambda p:[json.loads(s) for s in Path(p).read_text().splitlines() if s]
     parent=load(protocol['trainer_args']['data']);train=load(ROOT/child['files']['train']['path'])
     validation=load(ROOT/child['files']['validation']['path']);train_byid={r['_meta']['id']:r for r in train}
+    require_replay(parent,train)
+    require_replay(load(protocol['trainer_args']['eval_data']),validation)
     assert len(train_byid)==len(train)
     for row in parent:
         assert row['_meta']['id'] in train_byid

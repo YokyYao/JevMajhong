@@ -39,3 +39,11 @@ Preflight311989 completed successfully on ws-l2-010:29 curriculum tests passed a
 A bounded execution check subsequently observed stable-v2 at422 updates/26,904 records and context-v3 at37/2,368. All logged updates are contiguous/finite, both riichi classes occur in every update, and weighted per-source losses reconcile. Every bound input remains unchanged. Stable-v2's first two full epochs each consume exactly8,826/194/272 plain/accept/decline records. The controlled comparison also verifies all372 initial adapter tensors and4 initial head tensors exactly equal, the first-epoch order receipts identical, all original data/labels equal after the declared public transform, and the same reference cache reused. These checks establish execution fidelity, not trained decision quality. Keep initial/noisy transient game points separate from a learned improvement claim.
 
 All preparation, tests, probe and model-path checks run in bounded scheduled GPU allocations with companion CPUs. Public artifacts contain code/configuration and aggregate descriptions; raw hands, predictions, diagnostic details and unreleased research weights remain private.
+
+## First trained development points
+
+These are interim observations, not candidate selection. At73 updates: weighted CE1.857991, plain agreement31.80%, TP16/FN21/TN31/FP39. At146: CE1.507882, plain42.95%, TP30/FN7/TN15/FP55. Increased acceptance does not establish improved discrimination: correct decline is only21.43% at146.
+
+The matching16 games at146 yield top-two37.50%, net−5,668.75/match, hand-win6.15% and dealin11.22%. Stable-v2 at the same update gives43.75%,−3,718.75,16.04% and18.30%. This small consumed grid shows lower dealin alongside much lower winning and worse net for the context variant; it does not establish a favorable policy tradeoff. The logistic probe's diagnostic signal has **not** translated into demonstrated Jev strength at this point. Keep the fixed584 budget and registered final candidate; do not replace a complete result with this early point.
+
+The [transfer/accumulation report](curriculum-transfer-accumulation-20261121.md) records separate later-course context candidates, practical-v8 imitation-gate diagnostics and a prospectively bound research-admission amendment. These do not change this running fit or certify its eventual parent qualification.

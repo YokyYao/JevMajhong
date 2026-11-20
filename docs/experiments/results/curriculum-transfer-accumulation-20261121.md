@@ -44,3 +44,28 @@ python tools/check_curriculum_transfer.py \
 ```
 
 Use fresh destinations; receipts are not overwritten. Public material contains code/tests and this aggregate summary. Original records, order receipts, gradients, predictions and unreleased weights stay private.
+
+## Matching later-course input contracts
+
+`tools/prepare_curriculum_course_context.py` now prepares separate stage2/3 views for a possible context-v3 parent. It preserves every original row ID, group, label/soft target and loss-only tag/weight; only the same `public-riichi-context-v1` reach feature changes. The candidate manifests bind original files, transform/preparation code and input schema. They admit neither a parent nor a fit.
+
+Stage2 has20,237 TRAIN/4,721 validation records:534/121 reach windows gain context and19,703/4,600 other windows remain unchanged after JSON parsing. Both the9,292 TRAIN and1,972 validation stage1 replay inputs/targets/groups match the context-aware parent views. The parent seal now checks full replay payload equality in both splits, not just the presence of TRAIN IDs; loss-only tags may change intentionally.
+
+Stage3's informative kept pools remain22,959/5,905, with587/163 reach windows enriched and22,372/5,742 unchanged. The136/41 single-support quarantined rows remain quarantined and unchanged. These are still candidate files with the original split/exclusion semantics; they are not new optimal-action labels or proof of improved play. The original plain stage2/3 files and both running stage1 fits remain unchanged. All45 current curriculum checks pass, and actual stage2/3 preparations executed on allocated companion resources.
+
+## Prospective research-parent admission amendment
+
+A practical-v8 diagnostic on the same consumed107 validation reach windows gives TP19/FN18/TN31/FP39:51.35% acceptance,44.29% correct decline and47.82% balanced accuracy. Thus v8 itself fails the original requirement that both recalls reach60%. This measures the same flat pointer before the native discard guard. Some groups may have been used by v8 before the new curriculum reservation, so this is not a held-out generalization result, an expert-optimality certificate or an alternative to full-game evaluation.
+
+This evidence shows that the original imitation gate cannot be the sole criterion for whether a fixed final is useful for **further research training**. It does not show that excessive riichi is harmless or that the current student matches v8. Preserve the original gate and its actual pass/fail result in the unchanged end audits. Keep per-class errors and targeted riichi work visible.
+
+The [research-parent policy](../../../configs/training/curriculum-research-parent-v2.json) is an explicit prospective amendment, written **after development inspection**, not the original stage1 preregistration. It keeps sole final584 candidates and all execution, hash, group exclusion, input-contract and replay checks. Research continuation additionally requires:
+
+- The original basic-discard retention limits.
+- Both reach/discard actually chosen and balanced riichi agreement at least the practical-v8 diagnostic, with both recalls still reported. This does not certify the riichi issue as solved.
+- The full64 development matches, not a16-game peak. Top-two/net/dealin must be no worse than the completed initial curriculum baseline:51.5625%,+18.75/match and18.6861% respectively. Practical v8 comparisons and paired intervals are reported separately; these development means do not prove equivalence or noninferiority.
+- A new optimizer, unchanged input schema, and exact TRAIN **and validation** replay in the later course. No automatic release or relaxation of the unseen final comparison.
+
+GPU registration bound the policy at2026-11-20T22:46:51 UTC, while stable-v2 had536 updates and context-v3 had149. Neither final584 evaluation had started. Policy SHA256 is `6ceff847b9ae2362ba079fe42372034c9f7d95f3f2b73b7921b061aa75b3c288`; the binding also freezes both registrations and the actual v8/initial-baseline diagnostic receipts. This prevents changing the research-admission criteria in response to either final584 result.
+
+The policy binding is not a parent seal. The existing strict admission implementation remains strict; implementing and checking the separate amended research-admission route is still pending. No incomplete model, intermediate checkpoint or failing audit may bypass these conditions. Successful research continuation would still leave the full four-course goal, the riichi diagnosis and unseen v8-strength confirmation unfinished.

@@ -1,0 +1,45 @@
+{
+  "schema": "curriculum-research-parent-policy-v2",
+  "purpose": "Prospective admission to a later research course; not completion of stage1 skills or v8 comparability",
+  "applies_to_run_ids": ["jev-curriculum-stable-v2-stage1", "jev-curriculum-context-v3-stage1"],
+  "candidate_rule": "registered_final_full_four_epochs_584_updates",
+  "require_successful_fit_and_full_evidence_audit": true,
+  "require_unchanged_data_source_base_and_exact_model_identity": true,
+  "require_all_train_validation_and_reserved_group_exclusions": true,
+  "require_full_context_serving_audit_when_context_aware": true,
+  "original_two_sided60_gate_remains_in_unchanged_audit": true,
+  "riichi": {
+    "method": "balanced_accuracy_not_below_practical_v8_same_consumed_windows",
+    "windows": 107,
+    "reference_identity": "5ebce6af3777854cbec55ba29db2dc90be0f959193114bb3154179c5552370fa",
+    "reference_counts": {"tp": 19, "fn": 18, "tn": 31, "fp": 39},
+    "require_model_selects_both_reach_and_discard": true,
+    "report_both_class_recalls_and_tradeoffs": true,
+    "does_not_certify_riichi_skill_solved": true
+  },
+  "basic_retention": {
+    "min_plain_exact": 0.4845576407506702,
+    "plain_ce_reference": 1.3489726760783527,
+    "max_plain_ce_factor": 1.05
+  },
+  "complete_match_development": {
+    "matches": 64,
+    "seed_groups": 8,
+    "seed_start": 2026200000,
+    "profiles": ["efficiency", "calling"],
+    "seats": 4,
+    "baseline": "completed_initial_curriculum_stage1_final1162",
+    "baseline_identity": "df349cf925d7b2b85d5cb4b75be47f75ea4c821ba7add8b32ca93dca8bccceeb",
+    "min_top2_rate": 0.515625,
+    "min_net_points": 18.75,
+    "max_dealin_hand_rate": 0.18686135912698412,
+    "compare_to_practical_v8_and_report_paired_intervals": true,
+    "means_are_development_retention_only_not_independent_strength_proof": true
+  },
+  "require_exact_parent_train_and_validation_replay_in_child": true,
+  "require_same_public_input_schema_in_child": true,
+  "optimizer_resume": false,
+  "automatic_release": false,
+  "unseen_final_grid_unchanged": true,
+  "amendment_reason": "Practical v8 itself fails the consumed107-window both-recalls60 imitation gate. Preserve that negative diagnostic, but use complete development games plus basic/replay retention to decide whether a fixed final is useful for the next research course. The new policy is declared after inspecting development results and must not be described as the original stage1 preregistration. It is bound before inspecting either final584 match result."
+}
