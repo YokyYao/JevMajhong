@@ -1,6 +1,6 @@
 # Fresh-base lineage: endgame-retention progress
 
-Status: optimizer updates stopped at new256 after four stale checks beyond the128-update/full-exposure floor. All2,096 admitted examples were exposed. New128 is the selected research checkpoint; its joint loss remains above the parent baseline. GPU job310255 is now completing saved-checkpoint reproduction and the64-game comparison; dependent audit310256 remains required. The [registered plan](../../plans/mortal-base-retention-20261120.md) was unchanged. Selection is not an improvement or release qualification.
+Status: training, complete-game evaluation and final evidence audit are complete. Fitting stopped at new256 and selected new128; all2,096 admitted examples were exposed. Jobs310255 and310256 completed with exit0:0. Top-two is30/64 (46.88%), versus24/64 for the fresh parent and31/64 for the audited176 reference. The [final summary](mortal-base-final.md) reports uncertainty and method limits. The [registered plan](../../plans/mortal-base-retention-20261120.md) was unchanged; no stronger-play or release qualification is established.
 
 ## Parent and actual initialization
 
@@ -71,8 +71,10 @@ These are source strata, not counts of every available call/kan opportunity; a m
 
 There are29 TRAIN positions with a raw empirically higher-valued alternative, but26 keep the parent's target argmax after prior tilt and uncertainty treatment. Those raw maxima are optimistic over reused64 outcomes under old continuation policies; they are not29 expert-confirmed mistakes. The diagnostic identifies sparse direct pressure to change the deterministic serving action. It does not prove that soft training cannot generalize, that all unchanged labels are wrong, or that simply forcing raw maxima would improve play. The active protocol remains frozen; this evidence belongs in the final method analysis, rather than motivating an unrecorded mid-run label change.
 
-## Remaining evaluation
+## Completed evaluation and evidence
 
-After fitting, reload selected/final checkpoints and reproduce their metrics, then run64 new complete East games for the selected retention candidate. Reuse both the audited176 reference games and the fresh1152 foundation games; rerun neither baseline policy. Compare against both with whole-seed uncertainty and independent payment/pool/rank reconciliation. Dependency-bound GPU audit310256 also checks real optimizer states/exposure, exact parent lineage, all56 normalized inputs/targets and source/runtime identities. These reused development comparisons are not independent confirmation.
+Selected new128 and final new256 reproduce saved metrics on normal reload. The selected candidate completed64 new East matches:30/64 top-two (46.88%),23.44% first,23.44% fourth,mean placement2.53125 and−1,634.375 points/game. Relative to fresh1152 this is+9.375pp top-two (whole-seed95% interval[−1.44,+20.19]pp) and+715.625 points/game. Relative to audited176 it is−1.5625pp ([−11.92,+8.79]pp) and−189.0625 points/game. Both baselines were reused without rerunning their policies. This is a promising point-estimate recovery from the weak foundation, not demonstrated improvement over the old reference or independent confirmation.
 
-Optimizer fitting is complete; complete-game evaluation and final evidence remain incomplete. Raw records, detailed predictions and weights stay private; no automatic model/EXE release or main merge follows from this experiment.
+Fit/evaluation310255 and dependency-bound audit310256 completed with controller state COMPLETED and exit0:0. The audit verified real optimizer states/exposure, exact fresh-parent tensors, all56 native inputs and regenerated targets with the fresh prior, normal saved metrics and frozen source/runtime identities. Both comparisons reconciled128 complete-game payment/pool/rank records; this is not an independent han/fu scorer. The formal released model is unchanged. See the [final summary](mortal-base-final.md) for all three policies and next-method recommendations.
+
+Raw records, detailed predictions and research weights remain private; no automatic model/EXE release or main merge follows from this experiment.
