@@ -1,7 +1,7 @@
 import copy
 import unittest
 
-from tools.curriculum_parent import ParentNotReady, require_stage1_candidate
+from tools.curriculum_parent import ParentNotReady, require_stage1_candidate, require_child_input_contract
 
 
 class CurriculumParentTests(unittest.TestCase):
@@ -38,3 +38,12 @@ class CurriculumParentTests(unittest.TestCase):
         bad = dict(self.audit, stage1_advancement=None)
         with self.assertRaises(ParentNotReady):
             require_stage1_candidate(self.reg, self.done, bad, self.validation, 'final')
+
+    def test_context_parent_cannot_silently_use_plain_child(self):
+        reg=copy.deepcopy(self.reg);reg['curriculum']['riichi_input_schema']='public-riichi-context-v1'
+        with self.assertRaises(ParentNotReady):require_child_input_contract(reg,{})
+        require_child_input_contract(self.reg,{})
+
+    def test_plain_parent_cannot_silently_use_context_child(self):
+        with self.assertRaises(ParentNotReady):
+            require_child_input_contract(self.reg,dict(required_input_schema='public-riichi-context-v1'))

@@ -92,3 +92,26 @@ The epoch scheduler only changes the pinned trainer's epoch-order RNG; per-item 
 The public `tools/curriculum_losses.py` module supports offline core regression checks without importing research files absent from the runtime tree. `tools/check_curriculum_losses.py` separately verifies values/gradients against the restored, digest-checked research package on real expert/simulation/quarantined records. The current trainer stays frozen. [Stage4 native win/decline checks](../docs/experiments/results/curriculum-stage4-interface-20261121.md) also remain separate from data admission and fitting.
 
 The [stable-v2 interim report](../docs/experiments/results/curriculum-stage1-stable-v2-20261121.md) distinguishes actual update/sample integrity from unresolved riichi discrimination. `tools/audit_curriculum_riichi_scores.py` reads saved predictions only; it does not deploy a validation-selected threshold. `tools/curriculum_parent.py` is the explicit final-checkpoint admission interface for a later stage2 continuation. A completed evidence audit and a passed actual stage-quality gate are both required; the legacy minimum-CE summary is not a transfer decision. The current incomplete fit is deliberately rejected, and successful full sealing/warm-start still needs verification after an eligible parent completes.
+
+## Controlled context-v3 input experiment
+
+The [context report](../docs/experiments/results/curriculum-riichi-context-20261121.md) describes the public feature transform, diagnostic probe and controlled fresh-base recipe. A probe is not loaded into Jev. The active stable-v2 files must remain unchanged. Inside scheduled GPU resources, after stable-v2 registration provides the original admitted data identities:
+
+```bash
+python tools/prepare_curriculum_riichi_context.py \
+  --registered runs/curriculum-optimization-v2/fit-plan/registered.json \
+  --out runs/curriculum-optimization-v2/riichi-context-data
+python -m unittest discover -s tests/core -p 'test_curriculum*py'
+python tools/register_curriculum_context.py \
+  --config configs/training/curriculum-stage1-context-v3.json \
+  --base-path "$BASE_SNAPSHOT" --reference-path models/jev-play-v2
+python tools/train_curriculum_context.py \
+  --registered runs/curriculum-context-v3/fit-plan/registered.json
+python tools/audit_curriculum_context_fit.py \
+  --registered runs/curriculum-context-v3/fit-plan/registered.json \
+  --out runs/curriculum-context-v3/final-evidence-private.json
+```
+
+Use fresh output directories; preparation/registration reject overwrites. As with stable-v2, a missing original reference cache requires setting `reference_evaluation_cache` to null in a local config before registration. `cluster/curriculum-stage1-context.slurm` runs an already registered manifest on bounded GPU resources; queue its final audit only after a successful fit, cancelling invalid dependencies.
+
+`tools/preflight_curriculum_context.py` combines registration and actual107-menu input parity on a private copy of a stable-v2 step0 checkpoint. It is an additional diagnostic requiring that checkpoint; the copy is never a training initializer. Use it instead of the standalone registration command, with `--config`, `--registered`, `--base`, `--reference` and `--out` paths. Our recorded preflight311989 completed on a GPU with0 maximum probability difference. All new model checkpoints bind their input schema/feature code/model files in a sidecar; later-course registration must retain the same input contract. The normal initialization remains fresh base with a fresh optimizer and no older adapter.

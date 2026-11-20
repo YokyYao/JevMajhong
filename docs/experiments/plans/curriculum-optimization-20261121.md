@@ -4,6 +4,8 @@ Goal registered2026-11-21, Asia/Dubai. Complete the fresh-base four-course route
 
 The [stable-v2 interim report](../results/curriculum-stage1-stable-v2-20261121.md) records the first full epoch,146-step development games, saved-score discrimination diagnostics and explicit final-parent admission checks. Riichi is still unstable; no threshold is deployed and no active recipe is changed from those inspected labels.
 
+Update: stable-v2 has completed292-step development games, with top-two62.50% but net+187.50/match versus v8's+3,612.50 on the same16-game grid. A separately registered [context-v3 controlled experiment](../results/curriculum-riichi-context-20261121.md) tests a label-independent public riichi representation from fresh base, keeping all stable-v2 data, labels, training settings and evaluation seeds. The diagnostic probe is never a Jev serving component. Checkpoint input contracts and raw-public inference parity are required; later plain-input course datasets are not silently admitted for a context-aware parent. The active stable-v2 budget remains unchanged.
+
 ## Evidence motivating this iteration
 
 The [completed initial stage1](../results/curriculum-stage1-20261120.md) trained1,162 updates/two epochs successfully. Final weighted validation CE improved from2.473897 to1.329124 and ordinary-discard agreement from15.07% to50.46%. However, it accepted54/70 teacher-decline riichi windows. Its final64 development matches yielded top-two51.56%, net+18.75/match and dealin18.69%, versus v8's59.38%,+4,290.625 and10.44%. Eight-seed paired intervals remain wide. A normal training exit or lower aggregate loss is not the full goal.

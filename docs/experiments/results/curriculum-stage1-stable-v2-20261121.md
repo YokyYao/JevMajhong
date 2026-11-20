@@ -14,10 +14,13 @@ At the203-update health observation, all update records are finite and contiguou
 |73|1.891910|30.99%|5/37|66/70|
 |146|1.546582|44.13%|18/37|24/70|
 |219|1.438572|47.77%|20/37|34/70|
+|292|1.442875|46.81%|13/37|47/70|
 
-CE/plain imitation improve, while riichi changes from conservative at73 to over-accepting at146. At219 both acceptance and correct decline improve relative to146, but remain54.05%/48.57%, below the two-sided phase target. Keep the fixed recipe through its registered budget; do not silently select an early point or change inference from these diagnostics. Update219 has no new game evaluation; the next saved-checkpoint development games are at292.
+CE/plain imitation improve, while riichi changes from conservative at73 to over-accepting at146. At219 both acceptance and correct decline improve relative to146, but remain54.05%/48.57%, below the two-sided phase target. At292 acceptance falls to35.14% while correct decline rises to67.14%; the two-sided target is still unmet. Keep the fixed recipe through its registered budget; do not silently select an early point or change inference from these diagnostics.
 
 The matching16-game development grid at146 gives hand-win16.04%, dealin18.30%, first12.50%, top-two43.75%, fourth25.00% and net−3,718.75 points/match. The initial grid is top-two6.25%/net−11,437.50. Frozen v8 on the same16-game subset gives top-two62.50%/net+3,612.50. Only two seed groups underlie these points; they are not independent confirmation or a precise population-strength estimate. V8's cached reference is reused without new games.
+
+At292 the matching16-game grid gives hand-win18.62%, dealin16.21%, first31.25%, top-two62.50%, fourth25.00% and net+187.50/match. Matching the reference's top-two point while trailing its net points does not establish v8-level play. The [public-context diagnostic and controlled variant](curriculum-riichi-context-20261121.md) are separate from this still-frozen run.
 
 ## Discrimination is weak, not just a convenient threshold problem
 

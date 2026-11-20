@@ -62,6 +62,17 @@ def require_stage1_candidate(reg, completion, audit, validation, identity):
         raise ParentNotReady('Parent bundle is not the audited registered final checkpoint')
 
 
+def require_child_input_contract(reg, child):
+    schema=reg['curriculum'].get('riichi_input_schema')
+    if schema != child.get('required_input_schema'):
+        raise ParentNotReady('Parent and child require the same public input schema')
+    if schema:
+        feature=ROOT/'tools/curriculum_riichi_context.py'
+        expected=reg['inputs'].get(str(feature.resolve()))
+        if not expected or child.get('feature_code_sha256')!=expected or sha(feature)!=expected:
+            raise ParentNotReady('Child public feature implementation differs from its parent')
+
+
 def seal(registered, evidence, fit_exit, audit_exit, child_data_ready, out):
     assert os.environ.get('SLURM_JOB_ID') and (os.environ.get('SLURM_JOB_GPUS') or os.environ.get('SLURM_STEP_GPUS'))
     assert not socket.gethostname().startswith(('lo-', 'login'))
@@ -105,6 +116,7 @@ def seal(registered, evidence, fit_exit, audit_exit, child_data_ready, out):
     if args['max_steps'] != reg['registered_final_step'] or args.get('early_stop_patience', 0) != 0:
         raise ParentNotReady('Parent did not use the fixed registered budget')
     child = read(child_data_ready)
+    require_child_input_contract(reg,child)
     if child['status'] != 'stage2_data_prepared_pending_parent_and_fit_registration':
         raise ParentNotReady('This seal requires the prepared stage2 replay dataset')
     for spec in child['files'].values():
