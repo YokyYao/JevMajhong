@@ -11,6 +11,7 @@ from PIL import Image
 from .engine import Board, parse_melds, reaction_candidates, self_kan_candidates
 from .tiles import mjai, normal, parse
 from .table_counters import TableCounterReader
+from .tile_profile import face_region
 
 
 def crop(image, rect):
@@ -199,7 +200,7 @@ class ScreenStateReader:
                 for rect in rects:
                     area = crop(board_image, rect)
                     for confidence in (.50, .30):
-                        detected = detector.detect(area, confidence=confidence)
+                        detected = detector.detect(area, confidence=confidence, region='meld')
                         detected = [d for d in detected if d.box[2] - d.box[0] >= board_image.width * .023
                                     and d.box[3] - d.box[1] >= board_image.height * .038]
                         detected.sort(key=lambda d: d.box[0])
@@ -348,7 +349,9 @@ class ScreenStateReader:
             area = crop(image, region['rect'])
             red, green, blue = np.asarray(area.convert('RGB'), dtype=float).transpose(2, 0, 1)
             glow = (green > 96) & (green > red * 1.25) & (green > blue * .90)
-            for tile in detector.detect(area, confidence=.12):
+            rotation = int(region.get('rotation', 0))
+            context = face_region(f'river{seat}', rotation)
+            for tile in detector.detect(area, confidence=.12, region=context, rotate_faces=rotation):
                 x, y, right, bottom = map(round, tile.box)
                 width, height = right - x, bottom - y
                 if width < image.width * .014 or height < image.height * .02:
@@ -417,10 +420,12 @@ class ScreenStateReader:
             if not allowed or f'river{seat}' not in regions:
                 continue
             region = regions[f'river{seat}']
-            area = crop(image, region['rect']).rotate(int(region.get('rotation', 0)), expand=True)
+            rotation = int(region.get('rotation', 0))
+            area = crop(image, region['rect']).rotate(rotation, expand=True)
             array = np.asarray(area).astype(float)
             green = (array[:, :, 1] > 180) & (array[:, :, 1] > array[:, :, 0] * 1.2) & (array[:, :, 1] > array[:, :, 2] * 1.1)
-            for detection in detector.detect(area, confidence=.01, allowed_tiles=allowed):
+            context = face_region(f'river{seat}', rotation)
+            for detection in detector.detect(area, confidence=.01, allowed_tiles=allowed, region=context):
                 x1, y1, x2, y2 = [int(v) for v in detection.box]
                 pad = max(8, (y2 - y1) // 3)
                 border = green.copy()

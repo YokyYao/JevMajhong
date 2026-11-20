@@ -9,6 +9,8 @@ from threading import RLock
 import numpy as np
 from PIL import Image, ImageChops, ImageOps
 
+from .tile_profile import TileFaceClassifier, checked_session, face_region, rotate_boxes
+
 DETECTOR_REVISION = 'eb360862738a5d4edcaaf5fdb2de566a30a8a78e'
 DETECTOR_URL = f'https://raw.githubusercontent.com/ssttkkl/mahjong-utils-app/{DETECTOR_REVISION}/mahjong-detector/src/desktopMain/resources/best.fp16.onnx'
 DETECTOR_SHA = '70caa1c6b6809345695cf3a1794a97772edb055356afccdf8e441f14e025797e'
@@ -142,25 +144,48 @@ def red_five(image, detection):
 
 
 class TileDetector:
-    def __init__(self, path, templates=None):
+    def __init__(self, path, templates=None, profile=None):
         self.path, self.session = Path(path), None
         self.loaded_path = None
         self.templates = templates
+        self.profile = profile
+        self.classifier = None
+
+    @property
+    def model_path(self):
+        return self.profile.detector if self.profile else self.path
 
     def load(self):
         import onnxruntime as ort
-        if hashlib.sha256(self.path.read_bytes()).hexdigest() != DETECTOR_SHA:
-            raise ValueError('识别模型缺失或校验失败，请运行安装脚本')
+
         options = ort.SessionOptions()
         options.intra_op_num_threads = 2
-        self.session = ort.InferenceSession(str(self.path), sess_options=options, providers=['CPUExecutionProvider'])
-        self.names = ast.literal_eval(self.session.get_modelmeta().custom_metadata_map['names'])
-        self.loaded_path = self.path.resolve()
+        model_path = self.model_path
+        classifier = None
+        if self.profile:
+            session = checked_session(model_path, self.profile.detector_sha256, options)
+            classifier = TileFaceClassifier(self.profile, options)
+        else:
+            if hashlib.sha256(model_path.read_bytes()).hexdigest() != DETECTOR_SHA:
+                raise ValueError('识别模型缺失或校验失败，请运行安装脚本')
+            session = ort.InferenceSession(str(model_path), sess_options=options, providers=['CPUExecutionProvider'])
+        names = ast.literal_eval(session.get_modelmeta().custom_metadata_map['names'])
+        self.names, self.session, self.classifier = names, session, classifier
+        self.loaded_path = model_path.resolve()
 
-    def detect(self, image, confidence=.50, allowed_tiles=None):
-        if self.session is None or self.loaded_path != self.path.resolve():
+    def detect(self, image, confidence=.50, allowed_tiles=None, *, region='', rotate_faces=0):
+        if self.session is None or self.loaded_path != self.model_path.resolve():
             self.load()
         image = image.convert('RGB')
+        if self.classifier is not None and region and rotate_faces:
+            # The glow detector needs screen coordinates. Detect in the same
+            # orientation used for river training, then map the boxes back.
+            turned = image.rotate(rotate_faces, expand=True)
+            values = self.detect(turned, confidence, allowed_tiles, region=region)
+            boxes = rotate_boxes([d.box for d in values], turned.size, -rotate_faces % 360)
+            for detection, box in zip(values, boxes, strict=True):
+                detection.box = box
+            return values
         width, height = image.size
         gray = ImageOps.autocontrast(ImageOps.grayscale(image)).convert('RGB')
         scale = 640 / max(width, height)
@@ -171,8 +196,8 @@ class TileDetector:
         tensor = np.asarray(padded).transpose(2, 0, 1)[None].astype(np.float16) / np.float16(255)
         prediction = self.session.run(None, {self.session.get_inputs()[0].name: tensor})[0][0].T
         scores = prediction[:, 4:]
-        if allowed_tiles is not None:
-            allowed = set(allowed_tiles)
+        allowed = None if allowed_tiles is None else set(allowed_tiles)
+        if allowed is not None:
             scores = scores.copy()
             for label in range(scores.shape[1]):
                 tile = HONORS.get(self.names[label], self.names[label])
@@ -192,7 +217,14 @@ class TileDetector:
             detected = Detection(tile, float(score), box)
             detected.tile = red_five(image, detected)
             detections.append(detected)
-        return sorted(nms(detections), key=lambda d: (round(d.box[1] / max(8, (d.box[3] - d.box[1]) * .65)), d.box[0]))
+        values = nms(detections)
+        if self.classifier is not None and region and values:
+            labels = self.classifier.classify(image, [d.box for d in values], region, allowed)
+            for detection, label in zip(values, labels, strict=True):
+                if label is not None:
+                    detection.tile = label
+                    detection.tile = red_five(image, detection)
+        return sorted(values, key=lambda d: (round(d.box[1] / max(8, (d.box[3] - d.box[1]) * .65)), d.box[0]))
 
     def regions(self, image, regions):
         found = {}
@@ -203,7 +235,8 @@ class TileDetector:
             rotation = int(region.get('rotation', 0))
             if rotation:
                 crop = crop.rotate(rotation, expand=True)
-            values = self.detect(crop)
+            context = face_region(name, rotation)
+            values = self.detect(crop, region=context)
             if name == 'hand':
                 if values:
                     tallest = max(d.box[3] - d.box[1] for d in values)
@@ -219,7 +252,7 @@ class TileDetector:
                     if -1 not in occupied and len(set(occupied)) == len(values):
                         missing = next(i for i in range(len(boxes)) if i not in occupied)
                         left, _, right, _ = boxes[missing]
-                        weaker = [d for d in self.detect(crop, confidence=.25)
+                        weaker = [d for d in self.detect(crop, confidence=.25, region='hand')
                                   if left <= (d.box[0] + d.box[2]) / 2 < right
                                   and d.box[3] - d.box[1] >= tallest * .75]
                         if len(weaker) == 1:
@@ -239,7 +272,7 @@ class TileDetector:
                             confidence = min(best.confidence, .69) if self.templates and self.templates.vectors() else best.confidence
                             segmented.append(Detection(best.tile, confidence, box))
                         else:
-                            single = self.detect(crop.crop(box))
+                            single = self.detect(crop.crop(box), region='hand')
                             if single:
                                 best = max(single, key=lambda d: d.confidence)
                                 confidence = min(best.confidence * .9, .69) if self.templates and self.templates.vectors() else best.confidence * .9
@@ -288,7 +321,7 @@ class TileDetector:
             return
         area.paste(ImageChops.darker(now_face, old_face), face)
         center = (current.box[0] + current.box[2]) / 2
-        match = next((candidate for candidate in self.detect(area)
+        match = next((candidate for candidate in self.detect(area, region='hand')
                       if candidate.box[0] <= center <= candidate.box[2]
                       and candidate.tile == previous.tile and candidate.confidence >= .9), None)
         if match:

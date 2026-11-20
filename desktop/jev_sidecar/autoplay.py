@@ -24,29 +24,49 @@ class RiichiFlow:
     def reset(self):
         self.hand = None
         self.tile = None
+        self.slots = ()
         self.started = 0.
         self.clicked = False
 
-    def begin(self, hand, tile):
+    def begin(self, hand, tile, detections=()):
         self.hand, self.tile = Counter(hand), tile
+        self.slots = tuple(detections)
         self.started, self.clicked = time.monotonic(), False
 
     def plan(self, detections, screen, hand_rect, image_size):
         if self.hand is None:
             return None
         current = Counter(d.tile for d in detections)
-        if time.monotonic() - self.started > 25 or (len(detections) >= 13 and sum((current - self.hand).values()) > 2):
+        selecting = screen.get('riichi_selecting')
+        if time.monotonic() - self.started > 25 or (
+            not selecting and len(detections) >= 13 and sum((current - self.hand).values()) > 2
+        ):
             self.reset()
             return None
-        if not screen.get('riichi_selecting'):
+        if not selecting:
             if screen.get('own_riichi') and self.hand - current == Counter([self.tile]) and not current - self.hand:
                 self.reset()
             return None
-        # Greyed non-discardable tiles may lose one detection. The original
-        # complete hand validated the chosen discard; never substitute another.
-        if self.clicked or current - self.hand or sum((self.hand - current).values()) > 1:
+        if self.clicked:
             return None
-        return tile_click(self.tile, detections, hand_rect, image_size)
+        if not current - self.hand and sum((self.hand - current).values()) <= 1:
+            return tile_click(self.tile, detections, hand_rect, image_size)
+        # Greyed-out tiles can all be misclassified during selection. Require
+        # the chosen tile itself to match its slot and identity before pressing riichi.
+        if len(self.slots) != 14:
+            return None
+        aligned = {}
+        for index, original in enumerate(self.slots):
+            center = (original.box[0] + original.box[2]) / 2
+            tolerance = (original.box[2] - original.box[0]) * .24
+            matches = [d for d in detections if abs((d.box[0] + d.box[2]) / 2 - center) <= tolerance]
+            if len(matches) == 1:
+                aligned[index] = matches[0]
+        if len(aligned) < 11:
+            return None
+        choices = [aligned[i] for i, original in enumerate(self.slots)
+                   if original.tile == self.tile and i in aligned and aligned[i].tile == self.tile]
+        return tile_click(self.tile, choices, hand_rect, image_size)
 
 
 def tile_click(tile, detections, hand_rect, image_size):

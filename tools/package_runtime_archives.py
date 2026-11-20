@@ -13,7 +13,7 @@ def sha256(path):
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
-def package(source, output, group_limit=1_500_000_000, version='0.4.3'):
+def package(source, output, group_limit=1_500_000_000, version='0.4.4'):
     source, output = Path(source), Path(output)
     output.mkdir(parents=True, exist_ok=True)
     files = sorted((p for p in source.rglob('*') if p.is_file()),
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     parser.add_argument('--output', type=Path, default=Path('release'))
     parser.add_argument('--baseline', type=Path)
     parser.add_argument('--baseline-config', type=Path, default=Path('desktop/windows/runtime-baseline.json'))
-    parser.add_argument('--version', default='0.4.3')
+    parser.add_argument('--version', default='0.4.4')
     parser.add_argument('--compatible-manifest', type=Path, action='append', default=[])
     args = parser.parse_args()
     if args.baseline:

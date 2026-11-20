@@ -22,10 +22,12 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDialog, QFil
 from .engine import Adviser, Board, parse_melds, decision_identity
 from .tiles import name, parse
 from .vision import Templates, TileDetector, hand_boxes
+from .tile_profile import TileVisionProfile
 from .screen_state import ScreenStateReader
 from .window_capture import CaptureUnavailable, GameWindowCapture
 from .dataset import DecisionRecorder
 from .autoplay import AutoPlayer, RiichiFlow, plan_click, call_options_click, escape_pressed
+from .match_series import MatchSeries, read_match_page, shows_table
 from .unified_policy import MODEL_ID, MODEL_NAME, default_checkpoint
 
 ROOT = Path(sys.executable).parent if getattr(sys, 'frozen', False) else Path(__file__).resolve().parents[2]
@@ -148,7 +150,7 @@ class Task(QRunnable):
 class Sidecar(QMainWindow):
     model_phase = Signal(str)
 
-    def __init__(self, demo=False):
+    def __init__(self, demo=False, tile_profile=None):
         super().__init__()
         self.setWindowTitle('Jev 雀魂助手')
         self.resize(360, 350)
@@ -180,6 +182,7 @@ class Sidecar(QMainWindow):
         self.screen_riichi = {}
         self.autoplayer = AutoPlayer()
         self.riichi_flow = RiichiFlow()
+        self.match_series = MatchSeries()
         self.auto_result = None
         self.auto_hand = None
         self.auto_screen = None
@@ -204,7 +207,9 @@ class Sidecar(QMainWindow):
         self.load_settings()
         self.regions.setdefault('hand', {'rect': [.10, .76, .76, .23], 'rotation': 0, 'include_drawn': True})
         self.templates = Templates(CONFIG.parent / 'templates')
-        self.detector = TileDetector(self.detector_path.text(), self.templates)
+        self.detector = TileDetector(self.detector_path.text(), self.templates, tile_profile)
+        if tile_profile:
+            self.detector_path.setToolTip(f'正在使用指定的实验识别模型：{tile_profile.detector}')
         self.timer = QTimer(self)
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.tick)
@@ -234,8 +239,23 @@ class Sidecar(QMainWindow):
         layout.addLayout(header)
         self.auto_execute = QCheckBox('自动执行推荐 · Esc 停止')
         self.auto_execute.setToolTip('仅在雀魂前台执行；切到其他应用暂停点击，后台截图识别继续。')
-        self.auto_execute.toggled.connect(lambda enabled: (self.autoplayer.reset(), self.riichi_flow.reset()))
+        self.auto_execute.toggled.connect(self.auto_execution_changed)
         layout.addWidget(self.auto_execute)
+        series_row = QHBoxLayout()
+        self.series_enabled = QCheckBox('连打')
+        self.series_enabled.setToolTip('可手动进入第一场，或从当前结算接续。到设定场数后停在终局，按 Esc 可停止。')
+        self.series_total = QSpinBox()
+        self.series_total.setRange(1, 99)
+        self.series_total.setValue(5)
+        self.series_total.setSuffix(' 场')
+        self.series_total.setAccessibleName('连打总场数')
+        self.series_progress = QLabel('')
+        self.series_progress.setObjectName('muted')
+        self.series_enabled.toggled.connect(self.series_changed)
+        series_row.addWidget(self.series_enabled)
+        series_row.addWidget(self.series_total)
+        series_row.addWidget(self.series_progress, 1)
+        layout.addLayout(series_row)
         self.readiness = QLabel('Jev 未就绪 · 启动后自动加载')
         self.readiness.setWordWrap(True)
         self.readiness.setObjectName('muted')
@@ -735,6 +755,14 @@ class Sidecar(QMainWindow):
 
     def recognize_frame(self, image, regions, manual, force_meld_rescan=False):
         selection = self.call_selection
+        series = self.match_series
+        series_revision = series.revision if series.enabled and not manual else None
+        table_visible = False
+        if series_revision is not None:
+            page = read_match_page(image, self.screen_reader.ocr_engine)
+            table_visible = shows_table(image)
+            if page or (series.phase in ('settlement', 'queued', 'complete') and not table_visible):
+                return {'_series': (series_revision, page, False), '_series_only': True}, manual
         found = self.detector.regions(image, {k: v for k, v in regions.items() if k not in ('meld0','counters')})
         previous = self.previous_glare_frame
         hand = found.get('hand', [])
@@ -749,6 +777,8 @@ class Sidecar(QMainWindow):
             self.previous_glare_frame = None
         found['_screen'] = self.screen_reader.read(image, regions, self.detector, found,
                                                   force_meld_rescan=force_meld_rescan)
+        if series_revision is not None:
+            found['_series'] = (series_revision, None, table_visible and len(hand) >= 2)
         found['_image_size'] = image.size
         if selection:
             _, _, options, selected, label = selection
@@ -769,6 +799,10 @@ class Sidecar(QMainWindow):
 
     def recognized(self, result):
         regions, manual = result
+        if '_series' in regions:
+            self.advance_match_series(*regions['_series'])
+        if regions.get('_series_only'):
+            return
         self.current_sample = regions.get('_sample')
         screen = regions.get('_screen', {})
         self.update_counters(screen.get('counters', {}))
@@ -933,10 +967,21 @@ class Sidecar(QMainWindow):
         melds = [parse_melds(edit.text()) for edit in self.meld_edits]
         if self.live.isChecked() and self.auto_melds is not None:
             melds[0] = self.auto_melds
+        rivers = []
+        for i, edit in enumerate(self.rivers):
+            text = edit.text()
+            river = None
+            if text.strip() or i in self.river_known or self.confirmed.isChecked():
+                try:
+                    river = parse(text)
+                except ValueError:
+                    # An impossible recognized river is unknown and should not block a valid draw.
+                    if not (self.live.isChecked() and i in self.river_known):
+                        raise
+            rivers.append(river)
         known_riichi = sorted(set([i for i, c in enumerate(self.reach) if c.isChecked()] +
                                  ([0] if self.live.isChecked() and self.screen_riichi.get('own_riichi') else [])))
-        return Board(hand=hand, rivers=[parse(e.text()) if e.text().strip() or i in self.river_known or self.confirmed.isChecked() else None
-                                      for i, e in enumerate(self.rivers)],
+        return Board(hand=hand, rivers=rivers,
                      indicators=parse(self.dora.text()), melds=melds,
                      riichi=known_riichi, confirmed_metadata=['riichi'] if known_riichi else [],
                      scores=[int(x) for x in self.scores.text().split()], dealer=self.dealer.currentIndex(),
@@ -1058,9 +1103,54 @@ class Sidecar(QMainWindow):
             self.status.setText('建议已更新 · 监测出牌完成，下一次决策自动刷新' if self.live.isChecked() else '建议已更新 · 手动模式')
 
     def check_auto_stop(self):
-        if self.auto_execute.isChecked() and sys.platform == 'win32' and escape_pressed():
+        if (self.auto_execute.isChecked() or self.series_enabled.isChecked()) and sys.platform == 'win32' and escape_pressed():
             self.auto_execute.setChecked(False)
+            self.series_enabled.setChecked(False)
             self.status.setText('Esc 已停止自动点击；截图识别继续')
+
+    def auto_execution_changed(self, enabled):
+        self.autoplayer.reset()
+        self.riichi_flow.reset()
+        if not enabled:
+            self.series_enabled.setChecked(False)
+
+    def series_changed(self, enabled):
+        self.series_total.setEnabled(not enabled)
+        if enabled:
+            self.match_series.start(self.series_total.value())
+            self.series_progress.setText(f'0/{self.match_series.total} 已结算')
+        else:
+            self.match_series.stop()
+            self.series_progress.clear()
+
+    def advance_match_series(self, revision, page, playing):
+        series = self.match_series
+        if revision != series.revision or not self.auto_execute.isChecked() or not self.live.isChecked():
+            return
+        if page or (not playing and series.phase in ('settlement', 'queued', 'complete')):
+            self.call_selection = None
+            self.autoplayer.reset()
+            self.riichi_flow.reset()
+            self.wait_for_frame('对局结束', '已达设定场数' if series.phase == 'complete' else '正在核对结算与下一场按钮')
+        completed = series.completed
+        plan = series.observe(page, playing)
+        if series.completed != completed:
+            self.series_progress.setText(f'{series.completed}/{series.total} 已结算')
+            self.debug_event('series_finished_match', completed=series.completed, total=series.total)
+            if series.phase == 'complete':
+                self.wait_for_frame('对局结束', '已达设定场数')
+        if (plan is None or self.recognized_frame_started is None
+                or time.monotonic() - self.recognized_frame_started > 3):
+            return
+        try:
+            self.autoplayer.clicker(self.window_capture, plan.x, plan.y, self.window_table_rect)
+        except RuntimeError as error:
+            self.status.setText(str(error))
+            return
+        series.clicked(page)
+        self.status.setText('已自动点击：' + plan.label)
+        self.debug_event('series_click', action=plan.label, stage=page.kind,
+                         completed=series.completed, total=series.total)
 
     def try_auto_execute(self):
         if not self.auto_execute.isChecked() or not self.live.isChecked() or not self.auto_result or self.call_selection:
@@ -1102,7 +1192,7 @@ class Sidecar(QMainWindow):
                         return
                     self.pause_after_call()
                 if action == 'reach':
-                    self.riichi_flow.begin(hand, top['tile'])
+                    self.riichi_flow.begin(hand, top['tile'], self.latest_detections)
                     self.screen_reader.expected_riichi_hand = list(hand)
                     self.screen_reader.expected_riichi_tile = top['tile']
                 self.status.setText('已自动点击：' + plan.label + ' · 等待操作完成')
@@ -1216,6 +1306,7 @@ class Sidecar(QMainWindow):
             'window_table_rect': self.window_table_rect,
             'monitor': self.monitor.currentIndex(), 'checkpoint': self.checkpoint.text(),
             'model_id': MODEL_ID,
+            'series_total': self.series_total.value(),
             'detector': self.detector_path.text()}, ensure_ascii=False, indent=2), encoding='utf-8')
 
     def load_settings(self):
@@ -1226,6 +1317,8 @@ class Sidecar(QMainWindow):
             if 'hand' in self.regions:
                 self.regions['hand'] = include_drawn_tile(self.regions['hand'])
             self.monitor.setCurrentIndex(min(data.get('monitor', 0), self.monitor.count() - 1))
+            if isinstance(data.get('series_total'), int):
+                self.series_total.setValue(data['series_total'])
             checkpoint = data.get('checkpoint')
             if (isinstance(checkpoint, str) and checkpoint.strip()
                     and Path(checkpoint).is_dir()
@@ -1251,13 +1344,20 @@ def main():
     parser.add_argument('--demo', action='store_true')
     parser.add_argument('--minimized', action='store_true', help='Keep automatic capture running in the background')
     parser.add_argument('--preview', type=Path, help='Render a demo panel to PNG, including headless environments')
+    parser.add_argument('--tile-vision-profile', type=Path, help='Use a local experimental tile recognition profile')
     args = parser.parse_args()
     app = QApplication(sys.argv[:1])
     font_path = Path(os.environ.get('JEV_FONT', ROOT / 'assets/NotoSansSC.ttf'))
     if font_path.is_file():
         QFontDatabase.addApplicationFont(str(font_path))
     app.setStyleSheet(STYLE)
-    window = Sidecar(demo=args.demo or bool(args.preview))
+    profile_path = args.tile_vision_profile
+    if profile_path is None and getattr(sys, 'frozen', False):
+        bundled = ROOT / 'assets' / 'tile-vision' / 'profile.json'
+        if bundled.is_file():
+            profile_path = bundled
+    tile_profile = TileVisionProfile.read(profile_path) if profile_path else None
+    window = Sidecar(demo=args.demo or bool(args.preview), tile_profile=tile_profile)
     window.dock()
     window.showMinimized() if args.minimized else window.show()
     if not args.demo and not args.preview:

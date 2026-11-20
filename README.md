@@ -7,11 +7,11 @@
 [下载 Windows 安装程序](https://github.com/YokyYao/JevMajhong/releases/latest) · [桌面使用说明](desktop/README.md) · [模型目录](weights/README.md) · [训练与评测](docs/training.md) · [实验记录](docs/experiments/README.md)
 
 
-Windows 0.4.3 支持复用已安装的运行环境：覆盖安装时只下载变更的程序和模型，保留截图校准及基座缓存；环境缺失或损坏时自动补齐。[升级说明](desktop/README.md)
+Windows 0.4.4 支持复用已安装的运行环境：覆盖安装时只下载变更的程序和模型，保留截图校准及基座缓存；环境缺失或损坏时自动补齐。[升级说明](desktop/README.md)
 
 ## 当前模型：Jev Play v2
 
-Windows **0.4.3** 默认使用 **Jev Play v2**。0.4.0 至 0.4.3 使用相同的模型参数。桌面修复见[发布说明](desktop/RELEASE_NOTES.md)。
+Windows **0.4.4** 默认使用 **Jev Play v2**。0.4.0 至 0.4.4 使用相同的模型参数。桌面修复见[发布说明](desktop/RELEASE_NOTES.md)。
 
 | 项目 | 说明 |
 | --- | --- |

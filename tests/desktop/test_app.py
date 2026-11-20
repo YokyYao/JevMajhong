@@ -13,6 +13,22 @@ from desktop.jev_sidecar.vision import Detection, Templates, TileDetector, nms, 
 
 
 class TileTests(unittest.TestCase):
+    def test_riichi_flow_uses_the_frozen_slot_when_grey_tiles_are_misread(self):
+        from desktop.jev_sidecar.autoplay import RiichiFlow
+        hand = parse('4456m2346p11567s3m')
+        original = [Detection(t, .95, (i * 20, 1, i * 20 + 18, 45)) for i, t in enumerate(hand)]
+        flow = RiichiFlow()
+        flow.begin(hand, '6p', original)
+        grey = [Detection('8p' if i in (4, 6, 8, 9, 12) else d.tile, .90, d.box)
+                for i, d in enumerate(original)]
+        screen = {'riichi_selecting': True}
+        plan = flow.plan(grey, screen, (0, .7, 1, .3), (300, 100))
+        self.assertIsNotNone(plan)
+        self.assertEqual(plan.label, '打 6p')
+        self.assertAlmostEqual(plan.x, (7 * 20 + 9) / 300)
+        grey[7], grey[8] = Detection('8p', .9, grey[7].box), Detection('6p', .9, grey[8].box)
+        self.assertIsNone(flow.plan(grey, screen, (0, .7, 1, .3), (300, 100)))
+
     def test_riichi_flow_keeps_chosen_discard_when_grey_tile_is_missing(self):
         from desktop.jev_sidecar.autoplay import RiichiFlow
         flow = RiichiFlow()
@@ -340,6 +356,24 @@ class VisionTests(unittest.TestCase):
 
 
 class InterfaceTests(unittest.TestCase):
+    def test_invalid_live_river_is_unknown_without_blocking_a_draw(self):
+        from desktop.jev_sidecar.app import Sidecar
+        with tempfile.TemporaryDirectory() as temporary, patch('desktop.jev_sidecar.app.CONFIG', Path(temporary) / 'settings.json'):
+            panel = Sidecar(demo=True)
+            self.addCleanup(panel.close)
+            panel.timer.stop()
+            panel.rivers[1].setText('88888m')
+            panel.rivers[3].setText('1z')
+            panel.river_known.update((1, 3))
+            with patch.object(panel.live, 'isChecked', return_value=True):
+                board = panel.board()
+                self.assertIsNone(board.rivers[1])
+                self.assertEqual(board.rivers[3], ['1z'])
+                self.assertTrue(candidates(board))
+            with patch.object(panel.live, 'isChecked', return_value=False):
+                with self.assertRaisesRegex(ValueError, '超过4张'):
+                    panel.board()
+
     def test_repeated_missing_melds_request_fresh_analysis_without_clicking(self):
         from desktop.jev_sidecar.app import Sidecar
         with tempfile.TemporaryDirectory() as temporary, patch('desktop.jev_sidecar.app.CONFIG', Path(temporary) / 'settings.json'):

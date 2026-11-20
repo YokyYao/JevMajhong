@@ -1,7 +1,7 @@
 name: Build Windows app
 on:
   push:
-    branches: [release/jev-play-v2, release/windows-component-upgrade, release/windows-0.4.3]
+    branches: [release/jev-play-v2, release/windows-component-upgrade, release/windows-0.4.4]
     paths: [desktop/release-request.json]
   workflow_dispatch:
     inputs:
@@ -15,7 +15,7 @@ concurrency:
   group: windows-desktop-release
   cancel-in-progress: true
 env:
-  RELEASE_TAG: desktop-v0.4.3
+  RELEASE_TAG: desktop-v0.4.4
   HF_HUB_DISABLE_XET: '1'
   HF_HUB_DISABLE_TELEMETRY: '1'
 jobs:
@@ -29,14 +29,14 @@ jobs:
           python-version: '3.12.10'
       - name: Verify the requested Jev Play v2 release identity
         run: |
-          python -c "import json; from pathlib import Path; r=json.loads(Path('desktop/release-request.json').read_text()); i=json.loads(Path('desktop/jev_sidecar/play_v2_identity.json').read_text()); m=json.loads(Path('weights/jev-play-v2/manifest.json').read_text()); assert r['version']=='0.4.3' and r['model_id']==i['model_id']==m['model_id']=='jev-play-v2'; assert r['identity_sha256']==i['identity_sha256']; assert r['archive_sha256']==m['archive_sha256']; assert i['source_step']==2088 and i['parameter_values_unchanged']"
+          python -c "import json; from pathlib import Path; r=json.loads(Path('desktop/release-request.json').read_text()); i=json.loads(Path('desktop/jev_sidecar/play_v2_identity.json').read_text()); m=json.loads(Path('weights/jev-play-v2/manifest.json').read_text()); assert r['version']=='0.4.4' and r['model_id']==i['model_id']==m['model_id']=='jev-play-v2'; assert r['identity_sha256']==i['identity_sha256']; assert r['archive_sha256']==m['archive_sha256']; assert i['source_step']==2088 and i['parameter_values_unchanged']"
       - name: Install frozen-app build dependencies
         run: |
           python -m unittest tests.desktop.test_archives
           python -m pip install --no-cache-dir -c desktop/constraints-runtime.txt -r desktop/requirements-ui.txt
           python -m pip install --no-cache-dir -c desktop/constraints-runtime.txt torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
           python -m pip install --no-cache-dir -c desktop/constraints-runtime.txt -r desktop/requirements-model.txt "pyinstaller==6.22.3"
-          python -m unittest tests.desktop.test_call_policy tests.desktop.test_app
+          python -m unittest tests.desktop.test_call_policy tests.desktop.test_app tests.desktop.test_match_series
           python -m unittest tests.desktop.test_unified_policy tests.desktop.test_kans
       - name: Prepare verified model and local recognition assets
         run: |
@@ -65,7 +65,7 @@ jobs:
           New-Item release -ItemType Directory -Force | Out-Null
           python tools/fetch_runtime_baseline.py
           if ($LASTEXITCODE -ne 0) { throw 'Baseline verification failed' }
-          python tools/package_runtime_archives.py --baseline runs/runtime-baseline --version 0.4.3
+          python tools/package_runtime_archives.py --baseline runs/runtime-baseline --version 0.4.4
           if ($LASTEXITCODE -ne 0) { throw 'Runtime archive build failed' }
           python -c "import json; from pathlib import Path; m=json.loads(Path('release/runtime-manifest.json').read_text()); print({k:v for k,v in m.items() if k not in ('required_runtime_files','application_files','model_files')}); assert m['application_download_bytes'] < 200000000, 'Unexpected full-runtime update'"
           $compiler = 'C:/Program Files (x86)/Inno Setup 6/ISCC.exe'
@@ -103,7 +103,7 @@ jobs:
           $existing = gh release view $env:RELEASE_TAG --json isDraft --jq '.isDraft' 2>$null
           if ($LASTEXITCODE -eq 0 -and $existing -ne 'true') { throw 'Never overwrite a published release' }
           if ($LASTEXITCODE -ne 0) {
-            gh release create $env:RELEASE_TAG --draft --target $env:GITHUB_SHA --title 'Jev Play v2 - Windows 0.4.3' --notes-file desktop/RELEASE_NOTES.md
+            gh release create $env:RELEASE_TAG --draft --target $env:GITHUB_SHA --title 'Jev Play v2 - Windows 0.4.4' --notes-file desktop/RELEASE_NOTES.md
           }
           $assets = (Get-ChildItem release -File).FullName
           gh release upload $env:RELEASE_TAG @assets --clobber
