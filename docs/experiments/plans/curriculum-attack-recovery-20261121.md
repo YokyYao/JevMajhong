@@ -41,7 +41,7 @@ No stage4 auto-launch or Windows replacement. Preserve failures and complete exp
 
 ## Actual readiness and execution
 
-GPU preparation312297 on ws-l4-004 passed91 curriculum regressions and verified the actual audited failed parent, exact replay/group ancestry and pinned `bind_parent`. Registration and169-file launch binding are written before the first update. Actual model tensor initialization and parameter updates are still pending at this report. Source CI must pass before training submission.
+GPU preparation312297 on ws-l4-004 passed91 curriculum regressions and verified the actual audited failed parent, exact replay/group ancestry and pinned `bind_parent`. Registration and169-file launch binding were written before the first update. Source99731a98 passed core/desktop CI44854563641 before submission. Training312301 is now running on ws-l2-010, with final audit312304 afterok fit. Actual initialization verifies all372 adapter/4 head tensors exactly, frozen base, new optimizer and zero ancestral validation overlap. It is in baseline validation at this observation; real optimizer changes and policy effects remain pending.
 
 New entry points are `tools/register_curriculum_attack_recovery.py`, `tools/train_curriculum_attack_recovery.py` and `tools/audit_curriculum_attack_recovery.py`. Use `seal_recovery` in `tools/curriculum_calls_recovery_parent.py` to create a fresh explicit experimental seal from the completed calls registration, audit, fit/audit exit receipts, captured scheduler journal and unchanged attack data manifest. Then register inside the GPU allocation:
 
