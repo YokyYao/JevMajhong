@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from tools.curriculum_calls_parent import qualify, scheduler_snapshot
+from tools.curriculum_calls_parent import qualify, scheduler_snapshot, balanced
 from tools.curriculum_parent import ParentNotReady
 
 
@@ -33,6 +33,12 @@ class CallsParentTests(unittest.TestCase):
 
     def test_complete_final_can_qualify(self):
         self.assertTrue(qualify(self.reg, self.done, self.audit, self.curve, self.summary)['passed'])
+
+    def test_real_sparse_counter_format_keeps_implicit_zeros_without_relaxing_counts(self):
+        self.assertEqual(balanced(dict(fn=88,tn=108)),.5)
+        self.assertAlmostEqual(balanced(dict(tp=88,tn=3,fp=105)),.5*(1+3/108))
+        for bad in (dict(fn=88,tn=108,tp=True),dict(fn=88,tn=108,fp=-1),dict(fn=88,tn=108,tp=None)):
+            with self.assertRaises(ParentNotReady):balanced(bad)
 
     def test_flag_does_not_hide_actual_call_collapse_or_net_loss(self):
         bad = copy.deepcopy(self.curve)

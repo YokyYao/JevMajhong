@@ -25,13 +25,16 @@ METHOD = 'curriculum_registered_calls_final_v1'
 
 
 def balanced(counts):
-    if any(type(counts.get(k)) is not int or counts[k] < 0 for k in ('tp', 'fn', 'tn', 'fp')):
+    # The frozen calls auditor serializes Counter as a sparse dictionary:
+    # omitted entries mean zero, e.g. the initial always-decline kan policy.
+    values = {k: counts.get(k, 0) for k in ('tp', 'fn', 'tn', 'fp')}
+    if any(type(v) is not int or v < 0 for v in values.values()):
         raise ParentNotReady('Invalid operation counts')
-    positive = counts['tp']+counts['fn']
-    negative = counts['tn']+counts['fp']
+    positive = values['tp']+values['fn']
+    negative = values['tn']+values['fp']
     if not positive or not negative:
         raise ParentNotReady('Choosing and declining must both be represented')
-    return .5*(counts['tp']/positive+counts['tn']/negative)
+    return .5*(values['tp']/positive+values['tn']/negative)
 
 
 def qualify(reg, completion, audit, curve, final_summary):
