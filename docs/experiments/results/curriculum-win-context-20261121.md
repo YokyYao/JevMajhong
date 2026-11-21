@@ -31,4 +31,6 @@ python tools/audit_curriculum_win_context.py \
 
 These commands require a bounded scheduler GPU allocation, including their companion CPU work. Use a new output path to repeat an audit. The new aggregate has no hidden hands, future worlds or per-window records.
 
-Next establish public-information hidden-world sampling and consistent full-match continuations, then sufficient paired accept/decline labels across ranks, score gaps, dealer/extension, ron/tsumo and defensive contexts. The old hand-only targets cannot stand in for terminal top-two labels. No labels, optimizer updates, stage4 admission, terminal-policy improvement or v8 parity follow from this interface audit.
+The [subsequent inventory and prior check](curriculum-public-inventory-20261121.md) adds8 distinct calling-profile matches. They include one actual red winning tile and four called river/meld duplicate occurrences. Robbed kan remains fixture-only. A public-inventory/riichi-constrained prior sampler passed288 allocations across36 windows, without constructing native continuation environments or labels.
+
+Next establish history-consistent hidden-world environments and full-match continuations, then sufficient paired accept/decline labels across ranks, score gaps, dealer/extension, ron/tsumo and defensive contexts. The old hand-only targets cannot stand in for terminal top-two labels. No labels, optimizer updates, stage4 admission, terminal-policy improvement or v8 parity follow from this interface audit.

@@ -1,6 +1,6 @@
 # Stage3 attack/risk: fixed-final candidate recipe
 
-2026-11-21, Asia/Dubai. This recipe is implemented and prechecked while the registered calls course is still running. GPU fit312276 is queued after successful calls audit312082; attack audit312277 depends on fit312276. Invalid dependencies automatically cancel. **Queued is not started: no attack parent is sealed, no attack fit is registered, and no attack optimizer has started.** The launch first requires successful calls-final324 training, its full audit and its original quality targets. The [active four-course goal](curriculum-optimization-20261121.md), stage4 and reserved unseen v8 comparison remain required.
+2026-11-21, Asia/Dubai. **This original qualified-parent recipe has zero updates and was rejected before fitting.** Calls-final324 completed and its software audit312082 passed, but its original quality target failed: full64 net+484.38 versus parent+1,760.94. Queued fit312276 exited1:0 at that check; dependent audit312277 was cancelled. No parent was sealed, no attack fit was registered and no optimizer started. Keep this recipe and failure intact; a follow-up requires a separate prospective experiment rather than changing the original gate. The [active four-course goal](curriculum-optimization-20261121.md), stage4 and reserved unseen v8 comparison remain required.
 
 ## Parent and data
 
