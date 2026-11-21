@@ -1,6 +1,6 @@
 # Public riichi context: diagnostic evidence and controlled fresh-base fit
 
-2026-11-21, Asia/Dubai. This is a development experiment within the [four-course goal](../plans/curriculum-optimization-20261121.md). The practical v8 policy and active stable-v2 inputs remain unchanged. A diagnostic classifier is not a new Jev policy or evidence of improved game strength.
+2026-11-21, Asia/Dubai. This development control within the [four-course goal](../plans/curriculum-optimization-20261121.md) has now completed584 updates,64 final games and its full audit. Its observed game means are worse than the plain stable-v2 parent and v8; it is not selected for continuation. The main calls course continues the completed plain stable-v2. Practical v8 and Windows remain unchanged. A diagnostic classifier is not a new Jev policy or evidence of improved game strength.
 
 ## Why test the representation
 
@@ -34,7 +34,7 @@ Registration does not admit later courses with the original plain input. Any chi
 
 Parent admission also requires the full context serving audit: all saved contracts verified, all107 raw-public validation reach menus checked with finite probability error below5e-5, and the final policy contract matching the completed audit. A passing core-audit output alone is rejected for a context-aware parent. The final input-contract file becomes a bound parent artifact. A regression checks the complete-evidence fixture as well as missing menus, excessive error and nonfinite error; it is not a claim that a real fitted parent has passed. All34 curriculum checks pass after adding this guard.
 
-Preflight311989 completed successfully on ws-l2-010:29 curriculum tests passed and all107 real-model public/enriched serving comparisons had maximum probability error0. A further7 parent-gate tests, including schema-mismatch rejection, passed in the active GPU allocation. Fresh-base context-v3 training311995 has started on ws-l2-010; audit311996 is queued with an `afterok` dependency and invalid-dependency cancellation. No trained context-v3 quality result exists at this point.
+Preflight311989 completed successfully on ws-l2-010:29 curriculum tests passed and all107 real-model public/enriched serving comparisons had maximum probability error0. A further7 parent-gate tests, including schema-mismatch rejection, passed in the active GPU allocation. Fresh-base training311995 and its afterok audit311996 have now both completed with scheduler/exit receipts0:0; the final result follows below.
 
 A bounded execution check subsequently observed stable-v2 at422 updates/26,904 records and context-v3 at37/2,368. All logged updates are contiguous/finite, both riichi classes occur in every update, and weighted per-source losses reconcile. Every bound input remains unchanged. Stable-v2's first two full epochs each consume exactly8,826/194/272 plain/accept/decline records. The controlled comparison also verifies all372 initial adapter tensors and4 initial head tensors exactly equal, the first-epoch order receipts identical, all original data/labels equal after the declared public transform, and the same reference cache reused. These checks establish execution fidelity, not trained decision quality. Keep initial/noisy transient game points separate from a learned improvement claim.
 
@@ -47,3 +47,24 @@ These are interim observations, not candidate selection. At73 updates: weighted 
 The matching16 games at146 yield top-two37.50%, net−5,668.75/match, hand-win6.15% and dealin11.22%. Stable-v2 at the same update gives43.75%,−3,718.75,16.04% and18.30%. This small consumed grid shows lower dealin alongside much lower winning and worse net for the context variant; it does not establish a favorable policy tradeoff. The logistic probe's diagnostic signal has **not** translated into demonstrated Jev strength at this point. Keep the fixed584 budget and registered final candidate; do not replace a complete result with this early point.
 
 The [transfer/accumulation report](curriculum-transfer-accumulation-20261121.md) records separate later-course context candidates, practical-v8 imitation-gate diagnostics and a prospectively bound research-admission amendment. These do not change this running fit or certify its eventual parent qualification.
+
+## Completed final584 result
+
+Training311995 finished at04:33:54 Dubai; audit311996 finished04:35:58, both COMPLETED/0:0. All37,168 exposures and376 optimizer states reconcile. The final1,972-menu reload has maximum probability error1.28e-7; every saved input contract passes, and all107 raw-public reach menus have maximum serving error6.97e-8.192 complete cached/reference/student games reconcile with the internal settlement ledger. These are software/evidence checks, not independent han/fu verification or a playing-strength pass.
+
+All four epoch order digests exactly match stable-v2, in addition to the previously verified372 adapter and4 head initialization tensors. The same rows/labels and fixed optimization/evaluation recipe were retained. The intended treatment is the added public input representation; different encoded inputs also change the resulting optimization trajectory.
+
+| Final64 metric | Plain stable-v2 | Context-v3 | Frozen v8 |
+|---|---:|---:|---:|
+| First |35.94%|26.56%|42.19%|
+| Top-two |59.38%|50.00%|59.38%|
+| Fourth |20.31%|32.81%|14.06%|
+| Net points/match |+1,760.94|−332.81|+4,290.63|
+| Hand-win |26.54%|19.60%|24.32%|
+| Dealin |15.94%|19.06%|10.44%|
+
+Against plain stable-v2, the whole-seed paired net delta is−2,093.75 with nominal95% interval[−6,306.25,+2,118.75]; the top-two delta is−9.375 points with interval[−31.54,+12.79]. These intervals remain broad. Against v8, net delta is−4,623.44[−9,211.06,−35.81], dealin delta+8.62 points[+1.49,+15.74], and fourth delta+18.75 points[+3.97,+33.53]. This is consumed eight-seed development evidence, not an unseen final test or a universal claim about all public feature engineering.
+
+Final weighted CE is1.314969, ordinary exact agreement49.49%, and riichi TP/FN/TN/FP29/8/29/41: acceptance78.38%, correct decline41.43%. The original both60 riichi gate remains false. The diagnostic logistic probe's75.21% balanced result did not transfer to comparable Jev playing strength under this fixed recipe. Do not deploy the probe, promote an intermediate peak or replace the main parent with this control. Its completed negative result is retained; continue the already registered plain-parent calls route and the separately specified risk/endgame work.
+
+The matching final16 curve subset is top-two37.50%/net−5,756.25, distinct from the full64 mean above. Raw curves/CSV remain in the audited run; no synthetic probe probability is a model curve point. New weights, raw game records and per-case scores remain private.
