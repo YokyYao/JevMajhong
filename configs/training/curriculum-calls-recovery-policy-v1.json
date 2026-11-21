@@ -1,0 +1,28 @@
+{
+  "method": "curriculum_calls_experimental_recovery_v1",
+  "experiment_run_id": "jev-curriculum-stage3-attack-recovery-v2",
+  "created_after_inspecting_calls_final_results": true,
+  "prospective_for_future_recovery_updates_only": true,
+  "original_calls_quality_must_remain_failed": true,
+  "only_original_failed_component_allowed": "nonnegative_final64_net_gain_over_parent",
+  "calls_parent_identity": "136a230dc227356aa7c8e95031210414a4078dacf7b4d38c4e03cd8cf71ef016",
+  "calls_final_step": 324,
+  "calls_final_matches": 64,
+  "calls_registration": "runs/curriculum-stage2-calls-v1/fit-plan/registered.json",
+  "calls_evidence": "runs/curriculum-stage2-calls-v1/final-evidence-private.json",
+  "pre_calls_reference": "runs/curriculum-optimization-v2/stage1-fit/evaluations/step-000584",
+  "research_admission_is_not_qualified_advancement": true,
+  "experiment_question": "Can the previously prepared masked own-win/speed/dealin targets recover complete-game utility after expert-only calls training?",
+  "same_prepared_attack_data_and_numerical_recipe": true,
+  "fixed_final_step": 362,
+  "recovery_targets": {
+    "min_final64_net_gain_over_pre_calls_stage1": 0.0,
+    "min_final64_top2_gain_over_pre_calls_stage1": 0.0,
+    "min_hand_win_gain_over_calls_parent": 0.0,
+    "max_dealin_gain_over_calls_parent": 0.0
+  },
+  "original_attack_quality_also_reported": true,
+  "minimum_loss_or_small_grid_selection": false,
+  "reserved_final_v8_test_unchanged": true,
+  "automatic_release": false
+}
