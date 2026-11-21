@@ -2,6 +2,8 @@
 
 2026-11-21, Asia/Dubai. This prepares terminal-placement data while risk-recovery312301 is training. No stage4 labels or optimizer updates are admitted. The active fit's169 bound inputs remain unchanged.
 
+Verified implementation revision: `8ab68651173fa282c1b0f5e71d3c93489f34e941`; core/desktop CI44860074940 passed with107 curriculum checks.
+
 ## Native reaction-cache issue and correction
 
 RiichiEnv0.4.11's [hand setter](https://github.com/smly/RiichiEnv/blob/cd450aef2cc3d0dc8654bf81f314c0c82f9c9829/riichienv-python/src/env.rs#L153) updates the concealed hands. During a discard response, [legal actions read the existing claim cache](https://github.com/smly/RiichiEnv/blob/cd450aef2cc3d0dc8654bf81f314c0c82f9c9829/riichienv-core/src/state/legal_actions.rs#L252). Replacing hidden hands alone can therefore preserve offers for an old hand and miss a new opponent ron/call. This matters directly to accept/decline counterfactuals.
@@ -44,6 +46,8 @@ A controlled custom physical wall additionally produces a native no-yaku tempora
 `tools/curriculum_endgame_contexts.py` replays the same per-hand wall and legal action prefix with new score tables. It reverses the prefix's accepted riichi deposits to obtain valid starting scores, retaining the current stick bank. Every context of a source wall must share one training/validation group.
 
 One inspected source hand was reproduced under five contexts: holding first, holding second, third with a3,000-point gap to second, and fourth with5,000/13,000-point gaps. All hand information and legal menus were identical apart from scores; ten accept/decline complete-match fixtures reconciled. This is five views of one source hand. It is not five independent examples of an optimal action.
+
+A supplemental publicly selected nondealer/open-hand source also passed five-context replay and ten complete fixtures. Its large-gap fourth-place acceptance still ended outside the top two. These fixed-future coverage examples supply no estimates of the best action; admitted labels require fresh paired world samples and a validated continuation teacher.
 
 `tools/curriculum_endgame_ledger.py` supports declared initial score/stick tables, including nonuniform scores and a carried pool. It checks hand handovers, deposits, win/draw transfers, terminal tied-leader pool assignment and total100,000-point conservation. It preserves the original64 fixture outcomes and enables the ten augmented-context fixtures. Independent han/fu verification remains separate.
 
