@@ -43,7 +43,7 @@ def validate_recipe(c, data, train):
     return steps
 
 
-def register(config, parent_seal):
+def register(config, parent_seal, operation_diagnostic=None):
     assert os.environ.get('SLURM_JOB_ID') and (os.environ.get('SLURM_JOB_GPUS') or os.environ.get('SLURM_STEP_GPUS'))
     assert not socket.gethostname().startswith(('lo-', 'login'))
     c, sealed = read(config), read(parent_seal)
@@ -73,6 +73,16 @@ def register(config, parent_seal):
     c.update(data_ready=str(ready.resolve()), data_root=str(Path(data['reserved_groups']).parent), riichi_input_schema=pc.get('riichi_input_schema'),
         parent_seal=str(parent_seal.resolve()), parent_identity=sealed['model']['identity_sha256'],
         parent_evaluation_cache=str((ROOT/pc['out']/'evaluations'/f"step-{sealed['selected_step']:06d}").resolve()))
+    if operation_diagnostic:
+        from tools.audit_curriculum_attack import reference_operations
+        diagnostic = read(operation_diagnostic)
+        predictions = operation_diagnostic.parent/'v8-menu-predictions-private.jsonl'
+        if (diagnostic['attack_data_ready_sha256'] != sha(ready)
+            or diagnostic['current_calls_registration_sha256'] != sha(sealed['parent_registration'])):
+            raise ValueError('Cached operation diagnostic uses another dataset or parent registration')
+        reference_operations(held, rows(predictions), diagnostic, c['reference_identity'])
+        c['reference_operation_diagnostic'] = dict(summary=str(operation_diagnostic.resolve()), summary_sha256=sha(operation_diagnostic),
+            predictions=str(predictions.resolve()), predictions_sha256=sha(predictions))
     plan = ROOT/c['plan_root']
     if plan.exists() or (ROOT/c['out']).exists():
         raise ValueError('Never overwrite or silently restart an attack fit')
@@ -106,11 +116,15 @@ def register(config, parent_seal):
     paths += [ROOT/'tools'/name for name in ('train_curriculum_attack.py', 'audit_curriculum_attack.py', 'curriculum_attack_profile.py',
         'curriculum_attack_losses.py', 'curriculum_calls_parent.py', 'curriculum_course_order.py', 'curriculum_losses.py',
         'build_curriculum_stage2.py', 'evaluate_curriculum.py',
-        'plot_curriculum.py', 'plot_curriculum_fixed_grid.py')]
+        'curriculum_operation_coverage.py', 'plot_curriculum.py', 'plot_curriculum_fixed_grid.py')]
     paths += [ROOT/'tests/core'/name for name in ('test_curriculum_attack_course.py', 'test_curriculum_calls_parent.py', 'test_curriculum_attack_profile.py')]
     paths += [ROOT/'cluster/curriculum-stage3.slurm', ROOT/'cluster/curriculum-stage3-audit.slurm']
     bound = dict(sealed['bound_files'])
     bound.update({str(p.resolve()): sha(p) for p in paths})
+    if c.get('reference_operation_diagnostic'):
+        spec = c['reference_operation_diagnostic']
+        for key in ('summary', 'predictions'):
+            bound[spec[key]] = spec[key+'_sha256']
     if data.get('source_world_audit'):
         spec = data['source_world_audit']
         if sha(spec['path']) != spec['sha256']:
@@ -132,5 +146,6 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--config', type=Path, required=True)
     p.add_argument('--parent-seal', type=Path, required=True)
+    p.add_argument('--operation-diagnostic', type=Path)
     a = p.parse_args()
-    register(a.config.resolve(), a.parent_seal.resolve())
+    register(a.config.resolve(), a.parent_seal.resolve(), a.operation_diagnostic.resolve() if a.operation_diagnostic else None)

@@ -6,7 +6,8 @@ import unittest
 
 from tools.curriculum_attack_losses import mixture
 from tools.curriculum_attack_profile import profile, target_ce
-from tools.audit_curriculum_attack import quality, paired_comparison
+from tools.audit_curriculum_attack import quality, paired_comparison, reference_operations, operation_rates
+from tools.curriculum_operation_coverage import OPERATIONS
 from tools.register_curriculum_attack import validate_recipe
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -75,6 +76,25 @@ class AttackProfileTests(unittest.TestCase):
 
 
 class AttackQualityTests(unittest.TestCase):
+    def test_cached_operation_predictions_are_recomputed_and_identity_checked(self):
+        r = dict(_meta=dict(id='expert', group_id='g', label_type='expert_replay'),
+            questions=dict(action=dict(criteria=dict(a=dict(type='daiminkan'),b=dict(type='none')),label='b')))
+        counts = {op: {k:0 for k in ('tp','fn','tn','fp')} for op in OPERATIONS}
+        counts['daiminkan']['tn'] = 1
+        d = dict(status='calls_data_token_and_reference_diagnostic_complete', reference_identity='v8',
+            reference_menus=1, reference_operation_counts=counts)
+        predictions = [dict(id='expert',group_id='g',probabilities=dict(a=.1,b=.9))]
+        self.assertEqual(reference_operations([r],predictions,d,'v8'),counts)
+        for identity, values in (('another',predictions),('v8',[]),
+                                 ('v8',[dict(predictions[0],probabilities=dict(a=.9,b=.1))])):
+            with self.assertRaises(ValueError):reference_operations([r],values,d,identity)
+
+    def test_operation_report_exposes_asymmetric_acceptance_and_decline(self):
+        value = operation_rates(dict(daiminkan=dict(tp=88,fn=0,tn=3,fp=105)))['daiminkan']
+        self.assertEqual(value['observed_acceptance_recall'],1.)
+        self.assertAlmostEqual(value['observed_decline_recall'],3/108)
+        self.assertAlmostEqual(value['balanced_agreement'],.5*(1+3/108))
+
     def test_better_simulated_ce_does_not_hide_dealin_or_net_regression(self):
         c = json.loads((ROOT/'configs/training/curriculum-stage3-attack-v1.json').read_text())
         initial = dict(stratum_accuracy={'expert:plain': .5}, riichi_type_counts=dict(tp=1, fn=1, tn=1, fp=1),

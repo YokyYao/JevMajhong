@@ -48,6 +48,8 @@ The final candidate's development aims, relative to its actual step0, are:
 
 Report full hand-win/first/top-two/fourth results and whole-seed paired95% intervals against both parent and frozen v8. These are development targets, not equivalence or independent strength proof. An imitation gain cannot hide a failed game/risk target. A failed completed recipe remains a documented result and needs a diagnosed new experiment, not silent promotion or changed thresholds.
 
+The [pre-fit daiminkan investigation](../results/curriculum-calls-data-diagnostic-20261121.md) confirms341 selected/321 other-action expert TRAIN examples plus109 labelled MC contrasts. Frozen v8 correctly declines67/108 observed negatives versus the student's3/108 at162. All22,959/5,905 records pass real tokenizer admission. Keep the existing mixture for its planned risk-training test; no blind duplication, forced labels or active-fit change follows. Final audit output now exposes every operation's separate acceptance/decline rates and can recheck an explicitly bound cached v8 menu diagnostic. Aggregate call agreement alone does not establish that this failure has disappeared. Budget, data, losses and quality thresholds remain unchanged.
+
 Use the existing development grid:8 logical seeds2026200000–2026200007 ×4 seats ×2 opponent profiles. All three opponents are EfficiencyAgent in the ordinary profile. The calling profile replaces the next-seat opponent with CallingOpponent. Cache parent64 and v864 only after identity/grid checks; do not recompute them at every point. New student games total96, and the complete audit reconciles224 games including references.
 
 Curve points always use the same first-two-seed16-match subset, including the final64 subset. Keep the separate full64 mean in its own CSV/table. Do not join different objective mixtures into a single smooth loss line, label synthetic arithmetic probes as model observations, or use the reserved final seeds2026300000–2026300031 for tuning. PNG/PDF plus aggregate CSV/provenance exports remain required.
@@ -66,7 +68,8 @@ python tools/curriculum_calls_parent.py \
   --out "$CALLS_FINAL_SEAL"
 python tools/register_curriculum_attack.py \
   --config configs/training/curriculum-stage3-attack-v1.json \
-  --parent-seal "$CALLS_FINAL_SEAL"
+  --parent-seal "$CALLS_FINAL_SEAL" \
+  --operation-diagnostic runs/curriculum-stage3-attack-v1/calls-data-audit-v1/summary-private.json
 python tools/train_curriculum_attack.py \
   --registered runs/curriculum-stage3-attack-v1/fit-plan/registered.json
 python tools/audit_curriculum_attack.py \
@@ -76,6 +79,8 @@ python tools/audit_curriculum_attack.py \
 ```
 
 The registrar binds source, prepared data, parent seal, actual trainer arguments, tests, scripts and cached reference files before fitting. Actual launchers/audit bindings must also be hashed before the first update. `cluster/curriculum-stage3.slurm` provides GPU1/CPU4/48GB with a6-hour limit; its audit template provides45 minutes. Submit the audit afterok the fit, cancelling invalid dependencies. Both produce logs and exit receipts; all foreground subprocesses have time limits. No login computation, CPU-only workaround, unmanaged background work or model publication occurs.
+
+Run `tools/audit_curriculum_calls_data.py` as documented in the investigation before using `--operation-diagnostic`; it generates that host's fixed reference cache. The flag is optional for the minimal reproduction route and its absence stays explicit. In the supervised main route this available cache will be bound. It changes final diagnostic reporting, not gradients, early stopping or candidate selection.
 
 The final audit rechecks exact step0 parent tensors and native subset; all362 actual updates,10-source exposures and optimizer state; every stored validation profile; a reload of all5,905 final menus; complete-game ledgers and paired results; source/input hashes; and figure provenance. Software-evidence pass is separate from stage3 quality pass.
 

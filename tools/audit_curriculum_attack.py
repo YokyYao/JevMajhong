@@ -1,6 +1,6 @@
 """Audit the full mixed-target attack fit, reload and matched complete games."""
 import argparse
-from collections import Counter
+from collections import Counter, defaultdict
 import gc
 import json
 import math
@@ -15,6 +15,7 @@ sys.path.insert(0, str(ROOT))
 from tools.curriculum_parent import read, rows, sha, require_replay
 from tools.curriculum_calls_parent import verify_calls_parent, balanced
 from tools.curriculum_attack_profile import profile
+from tools.curriculum_operation_coverage import OPERATIONS
 
 
 def write(path, value):
@@ -59,6 +60,44 @@ def paired_comparison(final, reference):
         mean = statistics.mean(values)
         radius = 2.3646242510102993*statistics.stdev(values)/math.sqrt(len(values))
         result[name] = dict(gain=mean, ci95=[mean-radius, mean+radius], seed_groups=len(values))
+    return result
+
+
+def reference_operations(records, predictions, diagnostic, reference_identity):
+    """Recheck cached flat v8 choices; no fresh inference or expert certificate."""
+    if diagnostic.get('status') != 'calls_data_token_and_reference_diagnostic_complete' or diagnostic.get('reference_identity') != reference_identity:
+        raise ValueError('Wrong frozen operation reference')
+    selected = {r['_meta']['id']: r for r in records if r['_meta']['label_type'] == 'expert_replay'
+        and {c['type'] for c in r['questions']['action']['criteria'].values()} & OPERATIONS}
+    if len(predictions) != len(selected) or {p['id'] for p in predictions} != set(selected):
+        raise ValueError('Reference menu identities or coverage differ')
+    counts = {op: Counter() for op in OPERATIONS}
+    for p in predictions:
+        row = selected[p['id']]
+        q = row['questions']['action']
+        probabilities = p['probabilities']
+        if (p['group_id'] != row['_meta']['group_id'] or set(probabilities) != set(q['criteria'])
+            or any(not math.isfinite(v) or v < 0 for v in probabilities.values())
+            or abs(sum(probabilities.values())-1) > 1e-5):
+            raise ValueError('Reference public menu or probabilities differ')
+        actual = q['criteria'][max(probabilities, key=probabilities.get)]['type']
+        truth = q['criteria'][q['label']]['type']
+        for op in {c['type'] for c in q['criteria'].values()} & OPERATIONS:
+            yes, chosen = truth == op, actual == op
+            counts[op]['tp' if yes and chosen else 'fn' if yes else 'fp' if chosen else 'tn'] += 1
+    value = {op: {k: c[k] for k in ('tp', 'fn', 'tn', 'fp')} for op, c in counts.items()}
+    if diagnostic['reference_menus'] != len(predictions) or value != diagnostic['reference_operation_counts']:
+        raise ValueError('Cached operation summary differs from actual predictions')
+    return value
+
+
+def operation_rates(counts):
+    result = {}
+    for op, c in counts.items():
+        pos, neg = c['tp']+c['fn'], c['tn']+c['fp']
+        result[op] = dict(counts=c, observed_acceptance_recall=c['tp']/pos if pos else None,
+            observed_decline_recall=c['tn']/neg if neg else None,
+            balanced_agreement=.5*(c['tp']/pos+c['tn']/neg) if pos and neg else None)
     return result
 
 
@@ -198,6 +237,20 @@ def audit(registered, out, binding=None):
     assert all(zero_summary[k] == v for k, v in read(fit/'evaluations/reference-parent/summary.json')['curve_grid_subset'].items())
     comparisons = {name: paired_comparison(games[f'step-{last:06d}'], games[name]) for name in ('reference-parent', 'reference-v8')}
     grade = quality(c, curve[0], curve[-1], comparisons['reference-parent'])
+    reference_diagnostic = None
+    if c.get('reference_operation_diagnostic'):
+        spec = c['reference_operation_diagnostic']
+        for key in ('summary', 'predictions'):
+            assert sha(spec[key]) == spec[key+'_sha256']
+        diagnostic = read(spec['summary'])
+        assert diagnostic['attack_data_ready_sha256'] == sha(c['data_ready'])
+        assert diagnostic['current_calls_registration_sha256'] == sha(seal['parent_registration'])
+        reference_counts = reference_operations(held, rows(spec['predictions']), diagnostic, c['reference_identity'])
+        assert set(reference_counts) == set(curve[-1]['operation_type_counts'])
+        for op, values in reference_counts.items():
+            assert sum(values.values()) == sum(curve[-1]['operation_type_counts'][op].values())
+        reference_diagnostic = dict(reference=operation_rates(reference_counts),
+            note='Consumed expert-menu diagnostic, possibly seen during v8 training; not independent strength or optimality.')
     for ext in ('png', 'pdf'):
         assert (fit/'metrics'/f'curriculum-curves.{ext}').stat().st_size > 1000
     plot = read(fit/'metrics/plot-data-provenance.json')
@@ -213,6 +266,9 @@ def audit(registered, out, binding=None):
         comparison_to_parent=comparisons['reference-parent'], comparison_to_v8=comparisons['reference-v8'],
         original_stage1_advancement=seal['original_stage1_advancement'], original_stage2_advancement=seal['stage_quality'],
         stage3_advancement=grade, source_and_data_hashes_unchanged=True, heldout_groups_excluded=True,
+        initial_operation_diagnostic=operation_rates(curve[0]['operation_type_counts']),
+        final_operation_diagnostic=operation_rates(curve[-1]['operation_type_counts']),
+        cached_v8_operation_diagnostic=reference_diagnostic,
         exact_train_and_validation_replay=True, MC_unknown_actions_masked=True,
         MC_labels_are_conditional_not_expert_truth=True, development_grid_not_independent_confirmation=True,
         independent_han_fu_scoring=False, automatic_stage4_started=False, automatic_release=False)
