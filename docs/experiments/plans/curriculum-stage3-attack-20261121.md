@@ -1,6 +1,6 @@
 # Stage3 attack/risk: fixed-final candidate recipe
 
-2026-11-21, Asia/Dubai. This recipe is implemented and prechecked while the registered calls course is still running. **No attack parent is sealed, no attack fit is registered, and no attack optimizer has started.** Actual registration waits for successful calls-final324 training, its full audit and its original quality targets. The [active four-course goal](curriculum-optimization-20261121.md), stage4 and reserved unseen v8 comparison remain required.
+2026-11-21, Asia/Dubai. This recipe is implemented and prechecked while the registered calls course is still running. GPU fit312276 is queued after successful calls audit312082; attack audit312277 depends on fit312276. Invalid dependencies automatically cancel. **Queued is not started: no attack parent is sealed, no attack fit is registered, and no attack optimizer has started.** The launch first requires successful calls-final324 training, its full audit and its original quality targets. The [active four-course goal](curriculum-optimization-20261121.md), stage4 and reserved unseen v8 comparison remain required.
 
 ## Parent and data
 
@@ -87,5 +87,7 @@ The final audit rechecks exact step0 parent tensors and native subset; all362 ac
 ## What has actually passed
 
 The real prepared-data precheck already verifies API replay, ancestry,160 loss/gradient comparisons with zero difference and two complete sampler permutations. The new entry precheck compares portable target CE to the frozen research implementation on all5,905 real validation menus: maximum difference0. Those probability vectors are synthetic arithmetic fixtures, with no model loaded, optimizer updates or curve points.65 curriculum regression checks pass, including5 new checks for masked validation, invalid/dropped predictions, fixed362-step selection, quality regressions and whole-seed pairing.
+
+All71 curriculum regressions and GitHub core/desktop CI44850971429 passed before submission. The calls-parent reader now accepts omitted zero-valued Counter keys from the actual frozen auditor; positive/negative coverage, integer validity and all original quality thresholds remain enforced. This compatibility fix and the launch/audit source bindings were frozen before queueing, without changing active calls training files.
 
 Actual qualified-parent loading, real trainer callbacks/updates, final inference reload and full attack audit still require the completed calls parent. There is no attack performance result yet. All new weights and per-record predictions/source/world/order details stay private. Only source, tests, plans and aggregate results are intended for this research PR; the practical v8 Windows tool remains unchanged.
