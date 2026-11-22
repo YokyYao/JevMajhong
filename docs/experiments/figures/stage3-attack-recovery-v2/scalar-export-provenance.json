@@ -1,0 +1,21 @@
+{
+  "method": "exact_scalar_columns_of_original_aggregate_train_csv_v1",
+  "rows": 362,
+  "source_aggregate_csv_sha256": "df16ae922f667782ee9a25607fecb542e7cf41148ef4aa5fe9bb791ec83a8bdc",
+  "exported_file": "train-curve.csv",
+  "exported_sha256": "fd2367e26289ea7fe6c9ec26d6076dc6a5ac0a6d045242d59baf039d12372ff4",
+  "columns": [
+    "local_step",
+    "global_step",
+    "stage",
+    "records_seen",
+    "loss",
+    "ce",
+    "grad_norm",
+    "lr",
+    "utc"
+  ],
+  "smoothing": false,
+  "new_training_or_simulations": false,
+  "raw_hands_predictions_targets_and_weights_included": false
+}
