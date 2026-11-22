@@ -1,0 +1,26 @@
+{
+  "method": "aggregate_only_fixed_riichi_mechanisms_export_v1",
+  "source_summary_sha256": "bf7aa9977f39f0a8a15ac71ddf87e82402659ed8b3f018b6c330297f4aa0853b",
+  "source_binding_sha256": "7e95c1ebe2d2d419098ede1aaad6f46981c4771e03d9e58cfc7d857a79ad6b0d",
+  "export_code_sha256": "7af281eb03a45c58df0be72dca545fd378e44ab863f1320154a0b816a0c2e8fb",
+  "steps": [
+    0,
+    76,
+    152,
+    228
+  ],
+  "published_scalar_rows": 12,
+  "actual_updates_checked": 228,
+  "no_case_ids_groups_hands_labels_predictions_or_per_update_weights_exported": true,
+  "measured_loss_weights_are_not_gradients": true,
+  "retrospective_development_diagnostic_not_causal_ablation": true,
+  "no_policy_or_training_change": true,
+  "goal_achieved": false,
+  "outputs": {
+    "riichi-weight-intervals.csv": "75a456853e3762456254ea8b0c335d9493c015c50125bbec35d2472934476e2e",
+    "riichi-snapshot-metrics.csv": "8010bc20884bb828a6043747c79c519aabd93bfdce72e556a7e387d80b7d4dc3",
+    "riichi-mechanisms.svg": "aa6204db325794375aeec8b1cc4fe63626b6b650a17fd50981d7f5d63e716af2",
+    "riichi-mechanisms.png": "79ade5f1d53c1392eb4d964331f6f03bbfcf509247261eaeda4cd55924556af9",
+    "riichi-mechanisms.pdf": "4d08251c9db77295d3a30afee22d5f3245275a2d660994fc17f0cb47f5d49855"
+  }
+}
