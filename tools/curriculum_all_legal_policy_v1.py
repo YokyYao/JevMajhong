@@ -9,14 +9,14 @@ class AllLegalPolicyAgent:
     Compute the old guard only as a shadow diagnostic. It never changes the
     experimental choice. This is an ablation agent, not a deployment default.
     """
-    def __init__(self, client):
+    def __init__(self, client, validator=None):
         self.client = client
+        self.validator = validator
         self.choices = Counter()
         self.shadow = Counter()
 
     def act(self, obs):
         from riichienv import ActionType
-        from jevany.api import validate_distribution
         from jevmahjong.core.state import legal_candidates, build_request
         from jevmahjong.evaluation.agents import guarded_indices
         actions = legal_candidates(obs)
@@ -25,10 +25,14 @@ class AllLegalPolicyAgent:
         for action in actions:
             if action.action_type in (ActionType.RON, ActionType.TSUMO):
                 return action
+        validator = self.validator
+        if validator is None:
+            from jevany.api import validate_distribution
+            validator = validate_distribution
         request, actions, features = build_request(obs)
         answer = self.client.system_one(**request)
         keys = list(request['questions']['action']['criteria'])
-        probabilities, _ = validate_distribution(answer['answers']['action']['probabilities'], keys)
+        probabilities, _ = validator(answer['answers']['action']['probabilities'], keys)
         best = max(range(len(actions)), key=lambda i: probabilities[i])
         old_allowed = set(guarded_indices(obs, actions, features)) | {i for i, f in enumerate(features) if not f}
         self.shadow['model_decisions'] += 1

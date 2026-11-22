@@ -1,7 +1,7 @@
 import json
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from riichienv import ActionType
 from tools.curriculum_all_legal_policy_v1 import AllLegalPolicyAgent
 
@@ -17,12 +17,14 @@ class AllLegalPolicyTests(unittest.TestCase):
         def answer(**value):
             calls.append(value)
             return {'answers':{'action':{'probabilities':{'a':0.1,'b':0.9}}}}
-        agent=AllLegalPolicyAgent(SimpleNamespace(system_one=answer))
+        validator=Mock(return_value=([0.1,0.9],None))
+        agent=AllLegalPolicyAgent(SimpleNamespace(system_one=answer),validator=validator)
         with patch('jevmahjong.core.state.legal_candidates',return_value=actions), \
              patch('jevmahjong.core.state.build_request',return_value=(request,actions,[{'sh':0},{'sh':1}])), \
              patch('jevmahjong.evaluation.agents.guarded_indices',return_value=[0]):
             self.assertIs(agent.act(SimpleNamespace()),actions[1])
         self.assertEqual(calls,[request])
+        validator.assert_called_once_with({'a':0.1,'b':0.9},['a','b'])
         self.assertEqual(agent.shadow['raw_choice_excluded_by_original_guard'],1)
 
     def test_native_win_and_single_action_do_not_call_the_model(self):
@@ -40,10 +42,12 @@ class AllLegalPolicyTests(unittest.TestCase):
         actions=[self.action(ActionType.DISCARD,'dahai') for _ in range(2)]
         request=dict(state={},questions={'action':{'criteria':{'a':{},'b':{}}}})
         client=SimpleNamespace(system_one=lambda **kw:{'answers':{'action':{'probabilities':{'unknown':1.0}}}})
+        validator=Mock(side_effect=ValueError('Rejected distribution'))
         with patch('jevmahjong.core.state.legal_candidates',return_value=actions), \
              patch('jevmahjong.core.state.build_request',return_value=(request,actions,[{},{}])):
             with self.assertRaises((ValueError,KeyError)):
-                AllLegalPolicyAgent(client).act(SimpleNamespace())
+                AllLegalPolicyAgent(client,validator=validator).act(SimpleNamespace())
+        validator.assert_called_once_with({'unknown':1.0},['a','b'])
 
 
 if __name__=='__main__':unittest.main()
