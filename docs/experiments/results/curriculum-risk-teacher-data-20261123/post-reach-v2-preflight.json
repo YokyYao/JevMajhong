@@ -1,0 +1,49 @@
+{
+  "status": "version2_selector_all1393_native_pending_reach_cases_preflighted",
+  "counts": {
+    "basic:train": {
+      "native_pending_acceptance_false": 1075,
+      "source_selected_reach": 1075,
+      "following_discard_forced": 651,
+      "following_multi_action_already_recorded": 116,
+      "version2_would_capture": 308,
+      "following_multi_action_missing_from_all_three_teacher_cohorts": 308
+    },
+    "basic:validation": {
+      "native_pending_acceptance_false": 287,
+      "source_selected_reach": 287,
+      "following_discard_forced": 177,
+      "following_multi_action_already_recorded": 35,
+      "version2_would_capture": 75,
+      "following_multi_action_missing_from_all_three_teacher_cohorts": 75
+    },
+    "advanced:train": {
+      "native_pending_acceptance_false": 26,
+      "source_selected_reach": 26,
+      "following_discard_forced": 15,
+      "following_multi_action_already_recorded": 7,
+      "version2_would_capture": 4,
+      "following_multi_action_missing_from_all_three_teacher_cohorts": 4
+    },
+    "advanced:validation": {
+      "native_pending_acceptance_false": 5,
+      "source_selected_reach": 5,
+      "following_discard_forced": 3,
+      "following_multi_action_already_recorded": 2
+    }
+  },
+  "total": {
+    "native_pending_acceptance_false": 1393,
+    "source_selected_reach": 1393,
+    "following_discard_forced": 846,
+    "following_multi_action_already_recorded": 160,
+    "version2_would_capture": 387,
+    "following_multi_action_missing_from_all_three_teacher_cohorts": 387
+  },
+  "all_existing_three_teacher_contexts_checked": 44964,
+  "no_new_teacher_labels_or_training_rows": true,
+  "no_model_loaded_or_updated": true,
+  "missing_coverage_not_proof_of_causal_playing_strength_failure": true,
+  "current_data_fit_serving_and_source_bindings_unchanged": true,
+  "raw_cases_private": true
+}

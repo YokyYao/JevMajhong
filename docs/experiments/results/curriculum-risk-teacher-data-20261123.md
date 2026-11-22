@@ -84,18 +84,29 @@ from other tenpai examples is impossible. It motivates a separately versioned
 data preparation, without changing the current hard-CE or RI-loss control.
 These checks create no new supervision and leave the current fit unchanged.
 
-The [new post-reach data plan](../plans/curriculum-post-reach-teacher-data-20261123.md)
-is now executing in bounded GPU315823 on ws-l1-002, after198 curriculum checks
-and compilation of its new entries. It regenerates the same actual256 source
-trajectories and captures every missing immediate post-reach multi-action
-discard, without outcome filtering or a new student. Independent GPU315825 is
-queued after successful collection with invalid-dependency cancellation. The
-expected312/75 counts come from the completed context audit and must be matched
-by complete collection, not met by selecting a convenient subset. Neither job
-changes the already running hard-CE fit or registered RI-loss control. Collection
-and independent audit of the missing387 labels are not yet complete at this
-revision. The [aggregate coverage check](curriculum-risk-teacher-data-20261123/reach-followup-coverage.json)
-contains counts only; detailed source contexts remain private.
+The first post-reach collector315823 passes198 unit checks but captures no rows
+in its first32 complete matches. It incorrectly requires own `riichi_declared`
+before the declaration discard. Native probe315828 executes16 real source
+reaches; all16 following observations still have that acceptance flag false.
+315823 is cancelled, as is its unstarted audit315825. Their original frozen
+sources/bindings and empty partial attempt are preserved and never admitted.
+Passing those unit checks did not establish the native selection semantics.
+
+The [corrected v2 plan](../plans/curriculum-post-reach-teacher-data-v2-20261123.md)
+uses the immediately previous actual same-seat native reach action, independently
+of the later acceptance flag. GPU315848 on ws-l1-002 passes202 curriculum checks
+and preflights the selector against all1,393 actual native reach followups:
+every acceptance flag is still false, and precisely the independently missing
+312 TRAIN/75 validation windows would be captured. The
+[aggregate preflight](curriculum-risk-teacher-data-20261123/post-reach-v2-preflight.json)
+records this check without raw source contexts. Actual same256-trajectory
+collection is now running, with independent GPU315849 queued after successful
+collection and invalid-dependency cancellation. These are data preparation,
+not a new student. Complete collection must match312/75 without selecting a
+convenient subset. Neither job changes the running hard-CE fit or registered
+RI-loss control; actual missing-label collection/audit are not yet complete.
+The [original aggregate coverage check](curriculum-risk-teacher-data-20261123/reach-followup-coverage.json)
+also remains available. Detailed source contexts and raw labels stay private.
 
 ## Basic fit and reproducibility boundary
 
