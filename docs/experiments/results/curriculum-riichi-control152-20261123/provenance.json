@@ -1,0 +1,41 @@
+{
+  "method": "real_riichi_class_curves_minimal_public_scalars_v1",
+  "registration_sha256": "62604405150d54fc6dfed833edfabb79c53cc9fcbd8a44646bb206e02a3315f2",
+  "export_source_sha256": "ab0bbae65c77b5e81eaa481b58005f90d826068561c1e135bd6352325a72108f",
+  "captured_journal_sha256": {
+    "train_metrics.jsonl": "0bd8a456320d59a8f7167ed50317dbe89251cb2384827c420a293ee12c020ecc",
+    "validation_metrics.jsonl": "4f9df394247580de6a56ae70f745ff5f66f49f30293f4af764ea7dbc4b58f549",
+    "evaluation_metrics.jsonl": "927a53e46c8fcff8a9bf4d86f18c2ef4ca9866157266545221de635fe1560d86"
+  },
+  "actual_train_through": 152,
+  "actual_validation_steps": [
+    0,
+    76,
+    152
+  ],
+  "actual_matched16_steps": [
+    0,
+    152
+  ],
+  "actual_final64_steps": [],
+  "registered_final_step": 608,
+  "independent_full_final_audit_checked": false,
+  "loss_is_RI_class_objective": true,
+  "ce_is_original_action_CE": true,
+  "supervised_reward": null,
+  "game_reward_definition": "terminal_raw_net_points_div8000_v1",
+  "snapshot_may_lag_live_training": true,
+  "source_journals_captured_privately": true,
+  "no_gradient_source_per_update_diagnostics_raw_hands_or_weights_in_public": true,
+  "no_new_inference_games_updates_smoothing_or_synthetic_observations": true,
+  "goal_achieved": false,
+  "output_files": {
+    "riichi-class-curves.svg": "21406ca78e4f2f7c563ee5dce3d4871d41271e53686c606718055bd5cc681d40",
+    "evaluation-final64.csv": "2a3b0aba20a6ce205326bfdda72071b8242a5edc670551a5b6782d4050003eff",
+    "riichi-class-curves.png": "fd60008db9a6a6f1896b2d2ea6ba049e343e0c22c8b5b84acef179b248f062ac",
+    "riichi-class-curves.pdf": "12f6784d0ad85a0c1433897acd6be0a265e3cae0bf46f0167db6a0c2a48b6cae",
+    "validation-curve.csv": "fcacc3191f0da1c4a8594cea21400b285318ddfcfce89c8ef875ca4cfbbbd71a",
+    "train-curve.csv": "2c1b0d6ef9544d7955a6a4f58acb844de247fcd41eaa459061b85a2d89d984df",
+    "evaluation-matched16.csv": "919e619bf26533cbb96e201b6c973f7598c4c83b40a7cb5ff344dfef90a46436"
+  }
+}
