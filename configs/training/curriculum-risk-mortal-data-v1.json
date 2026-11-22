@@ -1,0 +1,16 @@
+{
+  "method":"same_basic_families_additional_closed_risk_mortal_choices_v1",
+  "parent_source":"runs/curriculum-basic-teacher-data-v1/data",
+  "source_registration":"runs/curriculum-optimization-v2/fit-plan/registered.json",
+  "teacher_root":"../jev-baseline-evaluation",
+  "out":"runs/curriculum-risk-teacher-data-v1/data",
+  "source_games":256,
+  "preserve_all_parent_family_splits":true,
+  "require_identical_complete_parent_trajectories":true,
+  "capture":["closed_discard_under_riichi"],
+  "existing_teacher_audits":["runs/curriculum-basic-teacher-data-v1/audit-v1","runs/curriculum-advanced-teacher-data-v1/audit-v1"],
+  "exclude_existing_teacher_contexts":true,
+  "keep_current_guard_unchanged":true,
+  "filter_by_success_or_selected_action":false,
+  "automatic_student_fit":false
+}
