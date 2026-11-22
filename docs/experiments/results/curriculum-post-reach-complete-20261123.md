@@ -104,13 +104,43 @@ counts do not themselves establish whether a move was good. These results
 support further investigation of the filter, not a stable improvement claim.
 
 The [remaining-six-seed extension](../plans/curriculum-guard-extension-20261123.md)
-is registered and GPU315879 is submitted. It reuses the16 completed all-legal
+completes in GPU315879 with scheduler/exit0:0. It reuses the16 completed all-legal
 matches and original64 guarded reference matches; only48 additional all-legal
-games are generated. It reports the remaining-six and combined-eight seed
-results separately, with exploratory seed-cluster intervals. This followup is
-chosen after seeing the first two groups and remains consumed development
-evidence. No training data, active serving route, release, reference cache or
-unopened final grid is changed.
+games are generated. All cached/reused/new event ledgers, terminal scores,
+ranks and hand statistics, complete grids, bindings and parameter identities
+are rechecked. Each arm now contains64 matches over eight logical seeds.
+
+| Fixed v8, same64 consumed development matches | Original guard | All legal candidates |
+|---|---:|---:|
+| Net points/match |+4,290.63|+5,584.38|
+| Top two |59.38%|64.06%|
+| Hand win |24.32%|26.16%|
+| Deal-in |10.44%|11.84%|
+| Fourth |14.06%|14.06%|
+
+The all-eight paired net gain is+1,293.75, with an exploratory seed-cluster95%
+interval[−827.45,+3,414.95]. Top-two change is+4.6875 percentage points,
+interval[−3.0877,+12.4627]. Deal-in change is+1.3951 percentage points,
+interval[−0.8179,+3.6080]. The remaining-six-only net gain is+862.50,
+interval[−946.67,+2,671.67]; its top-two change is+2.0833 percentage points.
+The first two inspected groups remain separate above. The extension is chosen
+after seeing those first groups, so neither the combined grid nor its interval
+is an independent final test or proof of a stable improvement. The observed
+gain accompanies a higher deal-in mean; no live guard is removed.
+
+The experimental agent's225/5,760 model decisions select an action excluded by
+the old guard. This denominator covers its full matches, unlike the earlier
+teacher-target exclusion count restricted to closed defensive windows; the
+percentages must not be treated as the same diagnostic. Raw logs/probabilities
+stay private. No training data, active serving route, release, reference cache
+or unopened final grid is changed. Later risk recipes need an explicit
+execution contract and matched comparison, because learning labels alone
+cannot make an excluded target executable.
+
+Extension sourcef14aa02d000eb853d401d72df60fa1c213a4c343 passes core/desktop
+CI45073028126 (137364025908/137364026201). This preserves the preceding
+helper's real-runtime preflight and the actual completed event evidence; it
+does not qualify a new student or a production route.
 
 No new weights are promoted or published. This draft does not merge into main
 or replace production v8/Windows. All computation remains inside bounded
