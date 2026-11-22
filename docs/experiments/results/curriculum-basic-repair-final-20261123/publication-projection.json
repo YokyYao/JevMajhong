@@ -1,0 +1,26 @@
+{
+  "status": "audited_real_curves_publication_projection_ready",
+  "train_columns": [
+    "local_step",
+    "loss",
+    "ce",
+    "lr",
+    "head_lr_derived",
+    "records_seen"
+  ],
+  "per_update_gradient_norm_source_counts_and_source_ce_omitted": true,
+  "original_train_csv_sha256": "c0876120ad1f6bc3f3f5bccd475008f479c905636c4e2619a97a6f15f319b7fa",
+  "projected_train_csv_sha256": "8cbebba23486fc4220cdb4f8831291ce6c5ba87d04d7e0cfc37889eb9d945cfb",
+  "plotted_loss_ce_lr_and_exposure_values_preserved": true,
+  "raw_hands_labels_predictions_and_weights_copied": false,
+  "no_new_model_updates_or_games": true,
+  "files": {
+    "figure-provenance.json": "baa68a4d93af502c5d3903424f0308380daf87278cd8623391a93e494684a253",
+    "evaluation-final64.csv": "4d51b46d4d745b3fc04b610bebf92afcbc26c9a15c8379deee87cf0036519503",
+    "provenance.json": "e204f6337bf82902d2194c2c87ce95cf3fa91b28cee7f0d06dbc80b6f257d693",
+    "evaluation-matched16.csv": "a41011af2583de6bce5f1a8d1f5e0d23c94e51db5e77068304a2db73159efd9b",
+    "train-curve.csv": "8cbebba23486fc4220cdb4f8831291ce6c5ba87d04d7e0cfc37889eb9d945cfb",
+    "basic-repair-curves.svg": "927c1391bdd1506e0b96ba3025947efe5eb509478d03b2da7abe512147099e03",
+    "validation-curve.csv": "6297456d97cf46df0745ab76c18dc55481d60dd48acfcf27dae9b03b60453294"
+  }
+}

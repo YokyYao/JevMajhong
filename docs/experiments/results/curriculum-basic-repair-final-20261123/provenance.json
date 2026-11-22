@@ -1,0 +1,134 @@
+{
+  "method": "scalar_only_registered_basic_repair_curves_v1",
+  "registered_final_step": 608,
+  "original_sources": {
+    "runs/curriculum-basic-repair-v1/stage1-fit/metrics/train_metrics.jsonl": "d87a35c0d0236a8ae40d2de1cf55154ee1713895d2c40876533412e9ec1dab8a",
+    "runs/curriculum-basic-repair-v1/stage1-fit/metrics/validation_metrics.jsonl": "0ce94830ed78ef32dd377c7475ef6df50ec01e848d51fa6c68fa73df532b2641",
+    "runs/curriculum-basic-repair-v1/stage1-fit/metrics/evaluation_metrics.jsonl": "c02b9a5276e05783f24b64f70cdfd00782eef6cdf2a0262342888defdf356ee3",
+    "runs/curriculum-basic-repair-v1/stage1-fit/metrics/plot-data-provenance.json": "a893666a41259a7a7ca02c122cf36092204503b3f994797d57404c0d9edb093b"
+  },
+  "matched16_curve_steps": [
+    0,
+    152,
+    304,
+    456,
+    608
+  ],
+  "final64_separate": true,
+  "source_quality": {
+    "original_aggregate_gate": {
+      "passed": false,
+      "riichi_acceptance": 0.8672839506172839,
+      "riichi_correct_decline": 0.32792207792207795,
+      "min_both_riichi_recall": 0.6,
+      "min_plain_exact": 0.4845576407506702,
+      "max_plain_ce": 1.4164213098822704,
+      "development_gate_not_match_strength_proof": true
+    },
+    "unchanged_legacy_gate": {
+      "passed": false,
+      "riichi_acceptance": 0.918918918918919,
+      "riichi_correct_decline": 0.37142857142857144
+    },
+    "independent_teacher_source_gate": {
+      "passed": false,
+      "riichi_acceptance": 0.8606271777003485,
+      "riichi_correct_decline": 0.31512605042016806
+    },
+    "all_source_quality_passed": false,
+    "not_policy_strength_proof": true
+  },
+  "final_comparison_to_v8": {
+    "top2": {
+      "gain": -0.15625,
+      "ci95": [
+        -0.4557605062060246,
+        0.1432605062060246
+      ],
+      "seed_groups": 8
+    },
+    "net_points": {
+      "gain": -4968.75,
+      "ci95": [
+        -12329.378497994727,
+        2391.878497994727
+      ],
+      "seed_groups": 8
+    },
+    "hand_win": {
+      "gain": -0.001980744949494949,
+      "ci95": [
+        -0.12808244371526595,
+        0.12412095381627604
+      ],
+      "seed_groups": 8
+    },
+    "dealin": {
+      "gain": 0.06364650974025973,
+      "ci95": [
+        -0.01809847765210483,
+        0.14539149713262428
+      ],
+      "seed_groups": 8
+    },
+    "fourth": {
+      "gain": 0.15625,
+      "ci95": [
+        0.03450813755512132,
+        0.27799186244487867
+      ],
+      "seed_groups": 8
+    }
+  },
+  "comparison_to_plain584": {
+    "comparison_to_completed_plain584": {
+      "top2": {
+        "gain": -0.15625,
+        "ci95": [
+          -0.47591772390066106,
+          0.16341772390066106
+        ],
+        "seed_groups": 8
+      },
+      "net_points": {
+        "gain": -2439.0625,
+        "ci95": [
+          -7040.360530212743,
+          2162.2355302127426
+        ],
+        "seed_groups": 8
+      },
+      "hand_win": {
+        "gain": -0.02418154761904762,
+        "ci95": [
+          -0.12234618487381003,
+          0.0739830896357148
+        ],
+        "seed_groups": 8
+      },
+      "dealin": {
+        "gain": 0.008649553571428568,
+        "ci95": [
+          -0.08485895835059312,
+          0.10215806549345027
+        ],
+        "seed_groups": 8
+      },
+      "fourth": {
+        "gain": 0.09375,
+        "ci95": [
+          -0.16069984294691286,
+          0.34819984294691286
+        ],
+        "seed_groups": 8
+      }
+    },
+    "matches_per_policy": 64,
+    "consumed_development_grid_not_independent_test": true,
+    "final_reserved_grid_unopened": true
+  },
+  "raw_hands_labels_worlds_per_record_predictions_and_weights_exported": false,
+  "original_inputs_unchanged": true,
+  "final_reserved_test_unopened": true,
+  "goal_achieved": false
+}
