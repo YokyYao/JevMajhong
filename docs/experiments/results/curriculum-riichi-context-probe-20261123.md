@@ -111,3 +111,8 @@ are added. Code, plan and aggregate evidence are public. Per-case context,
 predictions, training details and probe parameters remain private. The live
 model, Windows release and main branch are unchanged; the four-course goal
 is still active and unachieved.
+
+Published source27092fd2677fc914a55d2ab338b532ce5a852c2a passes GitHub
+CI45082727644, both core and Windows desktop jobs. The four published source,
+test, plan and initial aggregate-report contents are read back exactly at that
+commit; this later report-only addition records the successful CI receipt.
