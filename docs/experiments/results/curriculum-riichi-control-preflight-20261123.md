@@ -64,9 +64,12 @@ identical, with no truncation. Managed entry Python compilation and Slurm shell
 syntax checks pass. No language-model parameters are loaded or updated. All
 previous source/active/history bindings remain unchanged.
 
-The managed workflow is prepared to wait for the actual original608 audit and
-terminal-archive task. After source CI is verified, a bounded GPU job may be
-queued with those dependencies. It will launch the fresh control only after
+Source commit926c418b6f6c4041566284c523d2d361377ce727 passes core/desktop
+CI45065955748. Managed GPU fit315768 is now PENDING afterok315509 (the actual
+original608 audit/terminal/scalar archive chain), with independent audit315769
+afterok315768 and terminal/scalar archive315770 afterok315769. All use
+kill-on-invalid-dependency cleanup. No control model is training yet.
+The fit job will launch the fresh control only after
 recomputing the **completed** original source-quality failure; if all source
 grades pass, it records an explicit skip with no model. Separate afterok audit
 and terminal/scalar-artifact jobs either follow successful fit or record the
