@@ -63,6 +63,44 @@ establish which individual RI/discard actions caused it, nor prove the later
 calls/risk courses would fix it. The current comparison isolates the registered
 loss change, but the observed effect's size and generalization remain uncertain.
 
+## What accounts for the observed point gap
+
+Additional bounded GPU316020 completes0:0 on ws-l3-004 and reads only the
+same48 audited complete-game records. Each controlled player's actual native
+ledger components sum exactly to its reported net points. Per-match means are:
+
+| Actual settlement component | Hard CE152 | Class loss152 | Frozen v8 |
+|---|---:|---:|---:|
+| Own win income |+8,668.75|+3,637.50|+9,712.50|
+| Ron payments |−2,131.25|−5,150.00|−2,300.00|
+| Other players' tsumo payments |−2,343.75|−2,837.50|−2,175.00|
+| Draw settlement |+2,375.00|+250.00|−375.00|
+| Riichi deposits |−1,812.50|−1,437.50|−1,250.00|
+
+Against Hard CE152, lower own-win income accounts for−5,031.25 points/match,
+higher ron payments−3,018.75, draw settlement−2,125.00 and tsumo payments−493.75;
+lower riichi deposits offset+375.00. These sum to the observed−10,293.75 gap.
+Own-win income is total income per match, not average value per winning hand.
+This is an accounting decomposition of the selected games, not an independent
+hand-score implementation or a causal action-value estimate.
+
+The class control has10 own wins over99 hands, versus22/101 for Hard CE152
+and24/108 for v8. It declares RI23 times, versus29 and20. Its19 ron-payment
+events include17 without its own prior RI declaration and two after declaration;
+the original control has14 such events (ten without/four after). Therefore
+this observed loss cannot simply be described as more RI declarations or more
+RI deposits. It also does not prove that all17 non-RI discards were avoidable.
+Trajectory-dependent action counts are not operation acceptance rates or
+comparable opportunity menus. Full final diagnostics should inspect ordinary
+non-RI discard risk and open-hand progression as well as RI imitation.
+
+Reconstructed completed wins include two closed seven-pairs-only shapes in
+each fresh152 arm (two of10 class-control wins, two of22 hard-CE wins); none
+in these24 v8 wins. These tiny counts exclude unsuccessful pursuits. The parser
+reports all meld hands separately, including ankan, and does not establish
+rare-yaku mastery, excess seven-pairs pursuit or a training-mixture cause. Do
+not replace the earlier larger historical shape audit with this small sample.
+
 Continue the full frozen608 budget and retain all unfavorable observations;
 do not select the original recipe's favorable152 midpoint, choose the new
 minimum-loss checkpoint or waive the source gate after seeing games. Later
