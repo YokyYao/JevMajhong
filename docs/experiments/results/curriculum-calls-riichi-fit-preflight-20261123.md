@@ -47,3 +47,9 @@ only after the running basic control's complete evidence decides parent
 qualification. No scheduler fit chain or automatic release is submitted by
 this preflight. Public output is source, recipe and aggregate evidence; new
 raw hands/labels/predictions/per-menu diagnostics and weights remain private.
+
+Source commit d786f9dc45e85c802c8783a981bd0a47afcd9c47 passes GitHub
+CI45079610087, both core and Windows desktop jobs. All nine published files
+are read back at that exact commit and match their local publication contents.
+The active basic control retains its original frozen source and pre-launch CI;
+this follow-up does not change the running experiment or authorize a child fit.
