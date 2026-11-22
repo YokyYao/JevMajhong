@@ -128,3 +128,18 @@ aggregate diagnostics and selected real scalar/figure artifacts are published.
 TRAIN IDs, case losses, individual gradients, full captured journals and new
 research weights remain private. This diagnostic is separate from the active
 fit's immutable executable source.
+
+Source506fb1ba3758598658522134b431a20ac267d4bb passes GitHubCI45084501183,
+both core and Windows desktop jobs. All ten published source/plan/test/report/
+selected-artifact files are read back exactly at that commit.
+
+A separate [conditional calls launch template](../../../cluster/curriculum-calls-riichi-retention-fit-v1.slurm)
+now explicitly invokes the prepared RI-retention trainer. The older preserved
+template invokes the hard-CE trainer and has an8h limit. The new template allows
+12h with a710-minute child timeout for the larger97,420-exposure course and
+its validations; this is a scheduling allowance, not a measured calls runtime
+or a change to epochs/learning rate/candidate. GPU316061 on ws-l3-004 completes
+0:0 and checks shell syntax and the correct trainer CLI without model loading,
+registration or fitting. It is added after the gradient-source CI commit and
+has this separate GPU check. Use it only after actual parent qualification,
+registration and managed launch checks; no calls training is submitted here.
