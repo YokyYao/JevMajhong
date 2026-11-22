@@ -86,9 +86,31 @@ shortcuts now require neither a model call nor the optional package. Corrected
 source6ba1b79509b7763035a01ef62ad60a9a9db2a869 passes core/desktop CI45072032807.
 GPU315864 is then released. It passes205 curriculum checks and16 actual native
 source-menu preflights across the available split/reason/threat cells, with the
-real pinned JevAny validator and clearly synthetic unique preferences. The
-unchanged-guard arm is now running; its actual model/game outcome is not yet
-complete at this report revision.
+real pinned JevAny validator and clearly synthetic unique preferences. It
+completes all32 matches with actual scheduler/exit0:0. Every original-guard
+trajectory reproduces the cached16-game subset exactly.
+
+| Fixed v8, same16 consumed development matches | Original guard | All legal candidates |
+|---|---:|---:|
+| Net points/match |+3,612.50|+6,200.00|
+| Top two |62.50%|75.00%|
+| Hand win |22.37%|25.94%|
+| Deal-in |10.34%|14.51%|
+
+The paired net gain is+2,587.50, but the individual logical-seed gains are−1,000
+and+6,175; deal-in rises4.17 percentage points.70 of1,787 experimental model
+decisions select a legal action the original guard would exclude. Those shadow
+counts do not themselves establish whether a move was good. These results
+support further investigation of the filter, not a stable improvement claim.
+
+The [remaining-six-seed extension](../plans/curriculum-guard-extension-20261123.md)
+is registered and GPU315879 is submitted. It reuses the16 completed all-legal
+matches and original64 guarded reference matches; only48 additional all-legal
+games are generated. It reports the remaining-six and combined-eight seed
+results separately, with exploratory seed-cluster intervals. This followup is
+chosen after seeing the first two groups and remains consumed development
+evidence. No training data, active serving route, release, reference cache or
+unopened final grid is changed.
 
 No new weights are promoted or published. This draft does not merge into main
 or replace production v8/Windows. All computation remains inside bounded
