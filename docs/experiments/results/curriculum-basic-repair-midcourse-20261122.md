@@ -105,3 +105,29 @@ python tools/audit_curriculum_riichi_execution.py \
 Run only in bounded scheduler GPU allocations. The audit commands require the
 corresponding private source/cache artifacts; they are not downloadable public
 test data.
+
+## Update: completed228 validation, still no new game point
+
+The full3,266-menu validation at228 completed with weighted CE1.298851,
+ordinary-discard agreement48.37% and plain CE1.403418. Legacy confusion is
+TP8/FN29/TN56/FP14; teacher confusion is TP86/FN201/TN204/FP34. Aggregate
+riichi acceptance is94/324=29.01%, correct refusal260/308=84.42%. Compare152's
+322/324=99.38% acceptance and9/308=2.92% correct refusal: the bias switches
+direction rather than demonstrating stable mastery. The source-specific grade
+still fails. Exact decline-discard agreement62.01% is a different metric from
+correctly choosing the non-riichi class84.42%; do not conflate them.
+
+No228 game evaluation was registered; the next matched16 point is304. Lower
+validation CE alone does not establish better match reward, top-two or net
+points. The fixed0.5 class/eligibility diagnostic can be repeated on the saved
+228 probabilities without new labels/inference/games or changing active action
+selection. The original608 final candidate and four full epochs remain fixed.
+
+GPU315639 subsequently completes the fixed diagnostic with exit0:0. Riichi
+probability AUC improves from152's0.579/0.588 to228's0.648/0.658 for legacy/
+teacher. This is evidence of improved ranking on these held-out examples,
+alongside an unstable actual action threshold; it does not establish a single
+cause or better match strength. Fixed full-menu0.5 class decoding gives legacy
+TP3/FN34/TN65/FP5 and teacher TP35/FN252/TN228/FP10, missing still more positive
+cases. Native guarded teacher argmax gives TP88/FN199/TN201/FP37, only a small
+change from raw86/201/204/34. No diagnostic decoder/threshold was deployed.
