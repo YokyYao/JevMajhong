@@ -109,8 +109,12 @@ tensors/data/source weights/sampler/LR/plain serving/full608 budget and changes
 only binary RI loss from logsumexp-discard to best-discard margin, retaining
 conditional-discard/plain CE. It records the changed objective and original
 hard CE separately. Actual initial tensor/prediction/game equality is required
-before its first update. Initial validation/equality checks are in progress at
-this report revision; no new-control strength result follows yet. This is a new experiment, not continuation of a failed
+before its first update. All372+4 initial tensors, all3,266 initial predictions
+(maximum probability error0) and all16 initial game outcomes now match the
+original fresh control. Actual optimization is running; the first8-update
+proof confirms nonzero fresh LoRA B and changed head parameters.11 updates
+have been observed, with the complete608 budget retained; no post-training
+strength result is available yet. This is a new experiment, not continuation of a failed
 student or a minimum-loss checkpoint selection.
 
 The independently audited312/75 missing post-reach decisions remain outside
@@ -127,3 +131,7 @@ teacher labels/traces/predictions, per-record diagnostics and new weights stay
 private. Source/plans/aggregate evidence and real curves are the only public
 outputs. No main merge, later-course qualification or production replacement
 is authorized by this report; the full four-course/v8 objective is unachieved.
+
+The curve-export source0e4d11da4b6c25407c2359180aa72fca4e1e5fd1 passes GitHub
+CI45074416478. Report/figure/CSV publication is separate from the unchanged
+executable source used by the active RI-loss control.
