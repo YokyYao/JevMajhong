@@ -1,0 +1,47 @@
+{
+  "method": "real_riichi_class_curves_minimal_public_scalars_v1",
+  "registration_sha256": "62604405150d54fc6dfed833edfabb79c53cc9fcbd8a44646bb206e02a3315f2",
+  "export_source_sha256": "ab0bbae65c77b5e81eaa481b58005f90d826068561c1e135bd6352325a72108f",
+  "captured_journal_sha256": {
+    "train_metrics.jsonl": "92b2c69538d9435329be985e17032afcbeb9ac67e24bc9f9991721ea3f590581",
+    "validation_metrics.jsonl": "69780831eb60803d9832548dbbae1a69bb9bed28c97aadb7dfba53e94dcfda8f",
+    "evaluation_metrics.jsonl": "2914c077f74eeff3c90b8ad3a295fa509a464a64b619cb86b8c1d8ef5e3e077b"
+  },
+  "actual_train_through": 456,
+  "actual_validation_steps": [
+    0,
+    76,
+    152,
+    228,
+    304,
+    380,
+    456
+  ],
+  "actual_matched16_steps": [
+    0,
+    152,
+    304,
+    456
+  ],
+  "actual_final64_steps": [],
+  "registered_final_step": 608,
+  "independent_full_final_audit_checked": false,
+  "loss_is_RI_class_objective": true,
+  "ce_is_original_action_CE": true,
+  "supervised_reward": null,
+  "game_reward_definition": "terminal_raw_net_points_div8000_v1",
+  "snapshot_may_lag_live_training": true,
+  "source_journals_captured_privately": true,
+  "no_gradient_source_per_update_diagnostics_raw_hands_or_weights_in_public": true,
+  "no_new_inference_games_updates_smoothing_or_synthetic_observations": true,
+  "goal_achieved": false,
+  "output_files": {
+    "riichi-class-curves.svg": "359a306ba472642ddc1adcebe3919c6ca3cd1a00b8902de1a50db17c717c94b4",
+    "evaluation-final64.csv": "2a3b0aba20a6ce205326bfdda72071b8242a5edc670551a5b6782d4050003eff",
+    "evaluation-matched16.csv": "352f2c853ce6637186c32c5421f78b1cb8facba39d9d4b09d2ffa51f945d19f3",
+    "train-curve.csv": "83d497f416696224bc0c5088a23d84be5ff29f148e86518315baea39d701f5e7",
+    "riichi-class-curves.png": "aa355b20926db7ded8ce9db1db60e07cd178f9deabf6ec6e911e1142b53e7e78",
+    "riichi-class-curves.pdf": "e434f99f8767b66f22900743975df11464f161a848a6009c717855d93f6d0211",
+    "validation-curve.csv": "20f1c81b30d6e44c02a8bf1937c786efc73d920e393d2808be13e10cea395bd2"
+  }
+}
