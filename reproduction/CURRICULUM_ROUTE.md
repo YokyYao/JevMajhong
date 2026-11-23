@@ -7,7 +7,7 @@ and teacher labeling are separate work; its complete fit/audit chain is queued
 behind actual qualified parents, data and real-model integration. Its student
 fit is not yet admitted or started.
 See [research PR8](https://github.com/YokyYao/JevMajhong/pull/8) for dated live
-job snapshots. This index does not claim that the curriculum matches v8.
+implementation and aggregate result reports. This index does not claim that the curriculum matches v8.
 
 The [historical guide](README.md) preserves earlier recipes and negative
 outcomes. Its1162-step, stable-v2, calls324 and risk-recovery branches are
@@ -37,9 +37,9 @@ flowchart TD
 |---|---|---|
 | **1: basic decisions** | Ordinary discard and riichi/decline decisions |14285 TRAIN/3266 validation, six strata, four epochs,57140 exposures,608 updates. Completed; the distinct RI selector is separately documented.|
 | **2: calls and follow-up** | Chi, pon, ankan, daiminkan, kakan, pass and post-call discard |49022/12479 rows,13 strata, two epochs,98044 exposures,388 updates. Completed with the same adapter/head and a new optimizer.|
-| **3A: efficiency and attack/defense** | Ordinary hand completion, risk under opponents' riichi, useful calls and executable defensive choices |87595/23688 rows, two epochs,175190 exposures,2400 updates. Active recovery job318979; final audit318980.|
-| **3B: yaku and route selection** | Retain useful tiles, pursue feasible routes and abandon unsuitable routes |91247/24516 rows, two epochs,182494 exposures,2500 updates. Preparation318984 →fit318985 →audit318986 waits for actual qualified3A final.|
-| **4: terminal placement** | Pursue top two when behind and take useful small wins/retain position when ahead |80% replay/20% across32 new pools; actual counts/exposures and two-epoch budget await data. Qualified-parent319359 →registration319401 →integration319427 →full fit319480 →audit319482 is queued, not started.|
+| **3A: efficiency and attack/defense** | Ordinary hand completion, risk under opponents' riichi, useful calls and executable defensive choices |87595/23688 rows, two epochs,175190 exposures,2400 updates. Active;1200 validation and native games complete.|
+| **3B: yaku and route selection** | Retain useful tiles, pursue feasible routes and abandon unsuitable routes |91247/24516 rows, two epochs,182494 exposures,2500 updates. Preparation, fit and independent audit wait for actual qualified3A final.|
+| **4: terminal placement** | Pursue top two when behind and take useful small wins/retain position when ahead |80% replay/20% across32 new pools; actual counts/exposures and two-epoch budget await data. Qualified-parent admission, registration, integration, full fit and independent audit are queued, not started.|
 
 The base is Qwen/Qwen3.5-0.8B revision
 `2fc06364715b967f1860aea9cf38778875588b17`. The student begins with a fresh
@@ -56,6 +56,14 @@ selector, input projection or event-forwarding loop is a different policy,
 even when every model tensor is unchanged.
 
 ## Learning targets and data roles
+
+The third course has two explicit parts. **3A is efficiency and attack/defense**:
+complete hands sooner, choose useful calls/kan, and balance attack against
+deal-in risk. **3B is yaku and route selection**: retain key tiles for feasible
+routes and learn when to pursue or abandon them, including targeted rare-yaku
+opportunities. Course4 then applies score gaps and remaining rounds to placement
+decisions. These are learning targets; a queued course or covered label does
+not establish an acquired ability.
 
 Course1 teaches actions, not a rule that wind tiles must always be discarded.
 Value winds can form yaku; isolated guest winds still depend on shape,
@@ -100,7 +108,7 @@ reach, so its soft target can supervise the full RI0.5 class probability.
 The broad win-control cohort has96/22 views from70/17 families, with actual
 native score/source reconstruction. It includes sufficient-behind,
 leading-control and valuable-still-behind ron/tsumo cases. Its full current
-menus require13408 terminal arms; labeling/merge319017/319028 are queued.
+menus require13408 terminal arms; labeling and merge are queued.
 Public no-ura solo score only chooses cohorts; it never becomes a forced
 accept label.
 [Win controls](../docs/experiments/plans/curriculum-rank-win-controls-20261123.md).
@@ -112,8 +120,8 @@ open kakan sources first execute pon and the mandatory discard. All108
 inputs replay/encode,216 scripted accept/special one-model-call checks
 passed and source quarantine is0. These are deliberately constructed
 conditional opportunities, not natural match-frequency or strength data.
-Array319102 and merge319103 will generate paired preferences; combined
-catalog319104 waits for these and the earlier coherent data.
+The queued label collection and merge will generate paired preferences;
+the combined catalog waits for these and the earlier coherent data.
 [Fresh sources](../docs/experiments/plans/curriculum-targeted-win-sources-20261123.md)
 and [label recipe](../docs/experiments/plans/curriculum-targeted-win-labels-20261123.md).
 
@@ -170,12 +178,12 @@ and [development assessment](../docs/experiments/plans/curriculum-placement-asse
 
 ## Current3A recovery and weight integrity
 
-Original3A job318606 completed600 updates/full validation, then failed
+An earlier3A attempt completed600 updates/full validation, then failed
 because native evaluation requested a checkpoint before it was saved.
 Only its step0 weights exist. Its unsaved600 updates are not ancestors of
 the current candidate and cannot supply a600-step strength result.
 
-Recovery318979 uses a fresh output, the exact sealed calls388 parameters,
+The current recovery uses a fresh output, the exact sealed calls388 parameters,
 the same data/order/seed/gradient recipe and the original2400 budget.
 A real two-update upstream integration verifies save ordering; those
 control weights/updates are not a student parent or curve point.
@@ -217,6 +225,7 @@ matched16 development result; the sample sizes must not be mixed.
 |---|---:|---:|---:|
 |3A step0, complete-legal RI0.5|17.75%|56.25%|+387.50|
 |3A saved step600, same policy|19.57%|68.75%|+1887.50|
+|3A saved step1200, same policy|17.82%|62.50%|+1912.50|
 |Frozen practical v8|22.37%|62.50%|+3612.50|
 
 Step600 gains1500 points/match over its zero baseline but remains1725 below
@@ -224,7 +233,11 @@ v8. This small consumed result does not prove stable improvement or parity.
 RI balanced accuracy also declined70.33% →62.59%; its score-shift diagnostic
 is descriptive, not a causal gradient explanation. Actual0/600 curves and
 limitations are in the [result report](../docs/experiments/curriculum-3A-step600-20261123.md).
-The registered budget remains2400; the next full evaluation is1200.
+The complete1200 validation and matched16 games are also available in the
+[1200-step report](../docs/experiments/curriculum-3A-step1200-20261124.md).
+Net points are only25 above600, with lower hand-win/first/top-two rates;
+there is no clear further strength gain. The registered budget remains2400;
+the next full evaluation is1800. No intermediate point is promoted to final.
 
 Final comparison still uses the unopened32 logical seeds2026300000–
 2026300031, four seats and two profiles:256 complete East matches per
