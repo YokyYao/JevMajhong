@@ -1,0 +1,52 @@
+{
+  "method": "real_calls13_minimal_curves_v1",
+  "registered_sha256": "6cc8011a0ca388507bb2223ae59c09bd7bbc62f0b7f0af13df0d2ed6764a42ae",
+  "exporter_source_sha256": "33395d639bb03eeaec31b0d3c7fd4eb17ac43885c70dbcc5e2073544fa946cd2",
+  "captured_journal_sha256": {
+    "train_metrics.jsonl": "2a86b5d28d8f508d86b1d94581d23ee934d3f4cfba08c0f4a2551c5347ecae2c",
+    "validation_metrics.jsonl": "1d3f94fb2b6599ecf9ae64491119429a5c453682df4028611f96d488396b6808",
+    "evaluation_metrics.jsonl": "47dc2f459b0a7e19fc0fb38c6ec08edb3dffbc232cef7761765d960dabf6d868",
+    "final-evidence-private.json": "1e92c52497ca7e9ded08e0fe6d50b1175afa66eb172f6f821965aa4a878e0fac"
+  },
+  "actual_train_through": 388,
+  "actual_validation_steps": [
+    0,
+    194,
+    388
+  ],
+  "actual_matched16_steps": [
+    0,
+    194,
+    388
+  ],
+  "actual_final64_steps": [
+    388
+  ],
+  "checked_cached_validation_menus": 37437,
+  "checked_actual_native_ledgers": 96,
+  "registered_final_step": 388,
+  "loss_method": "calls13_basic_maxclass_rest_ce_v1",
+  "original_action_ce_separate": true,
+  "supervised_reward": null,
+  "game_reward_definition": "terminal_raw_net_points_div8000_v1",
+  "independent_full_final_audit_checked": true,
+  "stage2_advancement": {
+    "passed": true,
+    "development_only_not_strength_proof": true
+  },
+  "snapshots_private": true,
+  "publication_ready_not_automatically_published": true,
+  "no_raw_cases_predictions_gradients_sources_per_update_or_weights_in_public": true,
+  "no_new_model_inference_games_updates_smoothing_or_synthetic_observations": true,
+  "goal_achieved": false,
+  "output_files": {
+    "train-curve.csv": "e15f87f3febae8734f210e922f5064248911f76d46237524f3eb5433136cef5d",
+    "operation-validation.csv": "16578d9d86e2764f0cffaa1a047e6ee86e6b78e3c0f73883f8f784d585e5fd46",
+    "evaluation-final64.csv": "99579891a9e65444addf7d1fc15dc3205c6d6393c797d728c891402be54750e5",
+    "validation-curve.csv": "ed03caebc5fc09127d812dc25983d506ac0b531195f891bca5b51cf495035692",
+    "calls13-curves.pdf": "92a5dde792ca43b57cb38b1e03e9355594373ea52e77af3fea1f848f68937a55",
+    "calls13-curves.png": "5b28a3e3d50e6913d1b79b48b6bb82fd4092223afe46ceaa538ad2f6574ffc3a",
+    "evaluation-matched16.csv": "c957113fc1d0640d42ebd0b6a11a37221fd2bded8cd188369f9302ef4d53afdd",
+    "calls13-curves.svg": "f93cf20d4e3b8cd1d2ad45b36fc320e5daa675d7d5452b6fdf46ac245ab4a35f"
+  }
+}
