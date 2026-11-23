@@ -139,7 +139,12 @@ Source records/families and actual repeated exposures must be counted
 separately. Preserving old replay does not mean every row must appear in
 every update. Sparse new pools cannot receive large claimed loss mass by
 silently exceeding scalar caps or pretending replicas add independent
-examples. Actual course4 mixing and fit admission still remain to do.
+examples. A count-only proposal now assigns80% replay loss mass and20%
+equally across32 new pools, with at most8 virtual repeats per original and
+a scalar weight cap16. It leaves validation and all original records alone.
+Its actual-count preparation waits for data3; it does not admit a parent,
+sampler, optimizer or student fit.
+[Placement exposure proposal](../docs/experiments/plans/curriculum-placement-mix-20261123.md).
 
 ## Current3A recovery and weight integrity
 
