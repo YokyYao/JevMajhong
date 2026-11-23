@@ -1,0 +1,20 @@
+{
+  "method": "reused_train_small_win_paired_world_stability_v1",
+  "data_root": "runs/curriculum-reused-terminal-v1",
+  "source_registration": "runs/curriculum-calls-classroute-v1/fit-plan/registered.json",
+  "contexts": ["third_gap3000", "fourth_gap5000"],
+  "win_kinds": ["ron", "tsumo"],
+  "families_per_bucket": 2,
+  "unique_families_across_buckets": true,
+  "maximum_opponent_riichi": 1,
+  "matched_leading_control": "hold_second",
+  "worlds_per_block": 16,
+  "planner_block_seeds": [202611231100, 202611231101],
+  "expected_views": 16,
+  "expected_source_families": 8,
+  "expected_terminal_arms": 1024,
+  "continuation": "ordinary_frozen_v8_future_wins_forced",
+  "teacher_or_target_admission": false,
+  "student_fit": false,
+  "out": "runs/curriculum-terminal-world-stability-v1/pilot-v1"
+}
