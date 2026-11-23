@@ -1,0 +1,8 @@
+{
+  "method": "audited_curriculum_union_reusable_sidecar_catalog_v1",
+  "source_audit": "runs/curriculum-progression-union-v1/audit-v1/summary-private.json",
+  "out": "runs/curriculum-data-catalog-v1/catalog-v1",
+  "source_rows_are_immutable": true,
+  "new_simulation": false,
+  "automatic_training": false
+}
