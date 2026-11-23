@@ -1,0 +1,125 @@
+"""Merge fixed terminal candidate labels with exact lineage and outcome checks."""
+from collections import Counter, defaultdict
+import json
+import math
+import os
+from pathlib import Path
+import socket
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]; sys.path.insert(0, str(ROOT))
+from tools.curriculum_calls_post_reach_data_v1 import gpu_only, write
+from tools.curriculum_transfer import read, sha
+from tools.curriculum_rank_win_controls_v1 import soft_target, METHOD
+from tools.curriculum_endgame_ledger import ledger
+
+
+def merge():
+    gpu_only(); root = ROOT/'runs/curriculum-rank-win-controls-v1'
+    reg = read(root/'registered-private.json'); c = reg['config']
+    if any(sha(p) != h for p, h in {**reg['files'], **reg['active_fit_files']}.items()):
+        raise ValueError('Frozen source/active fit changed')
+    selected = {s['id']: s for s in reg['selected']}; labels = {}; quarantined = {}; contexts = defaultdict(Counter)
+    total = Counter(); bound = dict(reg['files'])
+    # Equal soft mass permits the registered current-reference tiebreak regardless of menu order.
+    bound[str(Path(__file__).resolve())] = sha(__file__)
+    bound[str((ROOT/'cluster/curriculum-rank-win-controls-v1.slurm').resolve())] = sha(ROOT/'cluster/curriculum-rank-win-controls-v1.slurm')
+    for shard in range(c['shards']):
+        folder = root/'shards'/f'shard-{shard:02d}'; summary = read(folder/'summary-private.json')
+        launch = read(folder/'registered-private.json')
+        if (summary['status'] != 'fixed_rank_win_controls_label_shard_complete_candidate_targets_not_fit_admitted'
+                or launch['parent_registration_sha256'] != sha(root/'registered-private.json')
+                or summary['teacher_model'] != reg['continuation_model']['identity_sha256']):
+            raise ValueError('All exact completed shards with unchanged teacher required')
+        expected = reg['selected'][shard*c['views_per_shard']:(shard+1)*c['views_per_shard']]
+        if launch['selected'] != expected: raise ValueError('Shard selection changed')
+        for name, digest in summary['files'].items():
+            path = folder/name
+            if sha(path) != digest: raise ValueError('Completed shard output changed')
+            bound[str(path.resolve())] = digest
+        for name in ('summary-private.json', 'registered-private.json'):
+            bound[str((folder/name).resolve())] = sha(folder/name)
+        for line in (folder/'labels-private.jsonl').open():
+            row = json.loads(line); rid = row['_meta']['id']; spec = selected[rid]; q = row['questions']['action']
+            if (rid in labels or row['_meta']['group_id'] != spec['group'] or row['_meta']['split'] != spec['split']
+                    or row['_meta']['score_context'] != spec['context']
+                    or q['src'] != 'curriculum4:rank_win:control:'+spec['bucket']
+                    or set(q['target']) != set(q['criteria'])
+                    or any(not math.isfinite(v) or v < 0 for v in q['target'].values())
+                    or abs(sum(q['target'].values())-1) > 1e-12
+                    or not 2 <= sum(v > 0 for v in q['target'].values()) <= 16
+                    or q['label'] not in q['target']
+                    or q['target'][q['label']] < max(q['target'].values())-1e-12):
+                raise ValueError('Candidate target, public source identity or group changed')
+            if any(v<=0 for v in q['target'].values()) or not row['_meta']['rank_teacher']['current_complete_legal_menu']:
+                raise ValueError('All current legal win/continuation actions must be labelled from actual worlds')
+            labels[rid] = row
+        for line in (folder/'quarantine-private.jsonl').open():
+            row = json.loads(line); rid = row['source_id']
+            if rid in quarantined or row['reason'] != 'public_prior_sampling_exhausted' or not row['no_partial_target_admitted']:
+                raise ValueError('Explicit bounded sampler quarantine required')
+            quarantined[rid] = row
+        for index, spec in enumerate(expected):
+            path = folder/'cases-private'/f'case-{index:03d}.json'
+            if spec['id'] in quarantined:
+                if path.exists(): raise ValueError('Quarantined view has an admitted case')
+                continue
+            case = read(path); pairs = [p for block in case['blocks'] for p in block['pairs']]
+            if (case['source_id'] != spec['id'] or case['group'] != spec['group']
+                    or len(case['blocks']) != 2 or len(pairs) != 32
+                    or case['teacher_model'] != reg['continuation_model']['identity_sha256']):
+                raise ValueError('Complete paired32-world case required')
+            for pair in pairs:
+                for outcome in pair.values():
+                    ledger(outcome['merged_mjai_log'], outcome['terminal_scores'])
+                    if not outcome['full_match_completed'] or not outcome['opponents_no_legal_win_declines_verified']:
+                        raise ValueError('Complete native observer-aware terminal outcome required')
+            first = case['blocks'][0]
+            from tools.audit_curriculum_history_worlds import derived_seed
+            actual = soft_target(pairs, first['candidates'], spec['public_rank'],
+                seed=derived_seed(first['public_seed'], 512))
+            if actual != case['soft_label'] or labels[spec['id']] != case['candidate_label']:
+                raise ValueError('Saved target does not reconstruct from actual paired worlds')
+            cc = contexts[spec['split']+':'+spec['bucket']]; cc['views'] += 1
+            cc['alternative_soft_argmax'] += actual['label'] != first['baseline']
+            cc['block_agreement'] += actual['independent_block_choices_agree']
+            cc['leave_one_agreement'] += actual['every_leave_one_world_choice_agrees']
+            bound[str(path.resolve())] = sha(path)
+        total.update(summary['counts'])
+    if set(labels) & set(quarantined) or set(labels) | set(quarantined) != set(selected):
+        raise ValueError('Every fixed view must appear exactly once, including quarantine')
+    out = root/'merged-v1'; out.mkdir(parents=True, exist_ok=False); files = {}
+    with (out/'catalog-private.jsonl').open('x') as catalog:
+        for split in ('train', 'validation'):
+            pool = [labels[s['id']] for s in reg['selected'] if s['split'] == split and s['id'] in labels]
+            path = out/f'{split}-rank-win-controls-targets-private.jsonl'
+            with path.open('x') as stream:
+                for row in pool:
+                    m = row['_meta']; q = row['questions']['action']
+                    stream.write(json.dumps(row, separators=(',', ':'))+'\n')
+                    catalog.write(json.dumps(dict(id=m['id'], group=m['group_id'], physical=m['physical_id'],
+                        split=split, context=m['score_context'], public_rank=m['placement']['rank'],
+                        source=q['src'], phase=m['category'], label=q['label'],
+                        target_support=[k for k, v in q['target'].items() if v > 0],
+                        teacher_preference_uncertainty=1-max(q['target'].values())))+'\n')
+            files[split] = dict(path=str(path.relative_to(ROOT)), sha256=sha(path),
+                records=len(pool), groups=len({r['_meta']['group_id'] for r in pool}))
+    if any(sha(p) != h for p, h in reg['files'].items()): raise ValueError('Frozen recipe changed')
+    ready = dict(status='actual_rank32_full_menu_win_control_targets_generated_route_and_fit_pending',
+        method=METHOD, files=files, selected_views=118, labelled_views=len(labels), quarantined_views=len(quarantined),
+        counts=dict(total), by_context={k: dict(v) for k, v in contexts.items()},
+        all_original_families_and_partitions_preserved=True, uncertainty_not_positive_only_filtered=True,
+        calibrated_teacher_optimality=False, student_updates=0, ordinary_v8_continuation_with_public_heuristic_opponents=True,
+        complete_current_win_menu_targets_generated=True, all_late_input_and_closed_loop_contract_pending=True,
+        raw_rows_walls_outcomes_private=True, final_grid_unused=True,
+        job_id=os.environ['SLURM_JOB_ID'], node=socket.gethostname())
+    write(out/'data-ready-private.json', ready)
+    bound[str((root/'registered-private.json').resolve())] = sha(root/'registered-private.json')
+    write(out/'completion-binding-private.json', dict(files=bound))
+    write(out/'summary-public.json', {k: v for k, v in ready.items() if k != 'files'})
+    print(json.dumps(read(out/'summary-public.json')), flush=True)
+
+
+if __name__ == '__main__': merge()
+
+

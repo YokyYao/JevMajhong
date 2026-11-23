@@ -1,0 +1,46 @@
+{
+  "method": "public32_rank_priority_complete_current_win_menu_controls_v1",
+  "source_registration": "runs/curriculum-progression-v1/fit-plan/registered.json",
+  "data_root": "runs/curriculum-reused-terminal-v1",
+  "out": "runs/curriculum-rank-win-controls-v1",
+  "quotas": {
+    "train": {
+      "sufficient_behind:ron": 16,
+      "sufficient_behind:tsumo": 16,
+      "leading_accept_control:ron": 16,
+      "leading_accept_control:tsumo": 16,
+      "valuable_still_behind:ron": 16,
+      "valuable_still_behind:tsumo": 16
+    },
+    "validation": {
+      "sufficient_behind:ron": 4,
+      "sufficient_behind:tsumo": 4,
+      "leading_accept_control:ron": 4,
+      "leading_accept_control:tsumo": 4,
+      "valuable_still_behind:ron": 4,
+      "valuable_still_behind:tsumo": 2
+    }
+  },
+  "expected_selected": {
+    "train": 96,
+    "validation": 22
+  },
+  "outer_seeds": [
+    202611233000,
+    202611233001
+  ],
+  "worlds_per_block": 16,
+  "future_planner_seed": 202611233002,
+  "maximum_current_actions": 16,
+  "future_worlds": 4,
+  "maximum_future_plans_per_outer_arm": 4,
+  "bootstrap_samples": 512,
+  "views_per_shard": 30,
+  "shards": 4,
+  "maximum_outer_terminal_arms": 60416,
+  "no_outcome_based_selection": true,
+  "student_fit": false,
+  "final_grid_opened": false,
+  "raw_private": true
+}
+
