@@ -98,6 +98,14 @@ matched leading controls. It compares hora with native ron pass or one
 guarded tsumo discard. Its uncertain two-arm targets remain explicitly
 partial; they do not identify untested legal actions.
 
+This cohort has now completed and merged255 valid targets:210 TRAIN views
+from46 retained source groups and45 validation views from10 groups. Eight
+sampling-exhausted views remain quarantined. These are teacher preferences,
+not student match results; they have not entered the active3A fit.
+The [categorized data report](../docs/experiments/curriculum-terminal-win-data-20261124.md)
+separates score contexts, source groups, uncertainty and the remaining
+terminal-data work.
+
 The additional non-win cohort plans96 TRAIN/24 validation views from24/6
 families, covering draw, post-call and call-response decisions in four score
 contexts. Ordinary proposals test at most four candidates. A complete
