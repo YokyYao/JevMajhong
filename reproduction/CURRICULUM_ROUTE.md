@@ -146,6 +146,14 @@ Its actual-count preparation waits for data3; it does not admit a parent,
 sampler, optimizer or student fit.
 [Placement exposure proposal](../docs/experiments/plans/curriculum-placement-mix-20261123.md).
 
+Current partitions are defined by the frozen files and group membership,
+not inherited source metadata: actual3B validation contains5146 rows still
+tagged source-train and219 without a source split. Current file IDs and
+families remain disjoint. The placement membership adapter preserves raw
+objects while supplying verified partition views and replica provenance.
+Full57-source integration still waits for the completed labels.
+[Current partition compatibility](../docs/experiments/plans/curriculum-placement-partition-20261123.md).
+
 ## Current3A recovery and weight integrity
 
 Original3A job318606 completed600 updates/full validation, then failed
