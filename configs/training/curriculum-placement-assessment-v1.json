@@ -1,0 +1,15 @@
+{
+  "method": "placement_final_budget_fresh64_top2_and_early_retention_v1",
+  "status": "prospective_freeze_in_launch_before_first_student_update",
+  "final_candidate_only": true,
+  "intermediate_early_stopping": false,
+  "minimum_final64_top2_gain_over_child_policy_zero": 0.0,
+  "max_early_plain_agreement_drop_per_source": 0.03,
+  "max_early_RI_balanced_accuracy_drop_per_source": 0.03,
+  "max_mean_original_five_call_balanced_accuracy_drop": 0.03,
+  "require_complete_early_retention_coverage": true,
+  "conditional_fourth_escape_veto": false,
+  "net_points_is_development_veto": false,
+  "independent_v8_top2_and_net_points_proof_still_required": true,
+  "automatic_release": false
+}
