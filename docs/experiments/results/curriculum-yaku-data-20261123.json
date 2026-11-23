@@ -1,0 +1,126 @@
+{
+  "status": "exact_replay_and_normalized_targeted_yaku_corpus_prepared_not_fit_admitted",
+  "method": "exact_progression_replay_plus_normalized_targeted_yaku_teacher_v2",
+  "coverage": {
+    "train": {
+      "replay_records": 87595,
+      "new_source_records": 3652,
+      "new_admitted_records": 3652,
+      "new_unique_groups": 201,
+      "sources": {
+        "curriculum2:basic:legacy:plain": 8826,
+        "curriculum2:basic:legacy:riichi_yes": 194,
+        "curriculum2:basic:legacy:riichi_no": 272,
+        "curriculum2:basic:teacher:plain": 3106,
+        "curriculum2:basic:teacher:riichi_yes": 1075,
+        "curriculum2:basic:teacher:riichi_no": 812,
+        "curriculum2:advanced:legacy:post_meld": 5590,
+        "curriculum2:advanced:legacy:call": 3569,
+        "curriculum2:advanced:legacy:kan": 1786,
+        "curriculum2:advanced:teacher:call": 13399,
+        "curriculum2:advanced:teacher:post_meld": 9352,
+        "curriculum2:advanced:teacher:kan": 729,
+        "curriculum2:followup:teacher:post_reach_discard": 312,
+        "curriculum3:teacher:closed_discard_under_riichi": 6860,
+        "curriculum3:teacher:ordinary_completion": 28991,
+        "curriculum3:mc:call_window": 1503,
+        "curriculum3:mc:closed_discard": 717,
+        "curriculum3:mc:kan_window": 248,
+        "curriculum3:mc:open_discard": 254,
+        "curriculum3B:teacher:kokushi": 488,
+        "curriculum3B:teacher:chuuren": 677,
+        "curriculum3B:teacher:suuankou": 663,
+        "curriculum3B:teacher:daisangen": 730,
+        "curriculum3B:teacher:chiitoitsu": 732,
+        "curriculum3B:teacher:unselected_random_initial_hand_control": 362
+      },
+      "new_routes": {
+        "kokushi": 488,
+        "chuuren": 677,
+        "suuankou": 663,
+        "daisangen": 730,
+        "chiitoitsu": 732,
+        "unselected_random_initial_hand_control": 362
+      },
+      "new_phases": {
+        "closed_discard": 2504,
+        "kan_window": 74,
+        "call_window": 538,
+        "open_discard": 536
+      }
+    },
+    "validation": {
+      "replay_records": 23688,
+      "new_source_records": 828,
+      "new_admitted_records": 828,
+      "new_unique_groups": 45,
+      "sources": {
+        "curriculum2:basic:legacy:plain": 1865,
+        "curriculum2:basic:legacy:riichi_no": 70,
+        "curriculum2:basic:legacy:riichi_yes": 37,
+        "curriculum2:basic:teacher:plain": 769,
+        "curriculum2:basic:teacher:riichi_yes": 287,
+        "curriculum2:basic:teacher:riichi_no": 238,
+        "curriculum2:advanced:legacy:call": 961,
+        "curriculum2:advanced:legacy:kan": 568,
+        "curriculum2:advanced:legacy:post_meld": 1220,
+        "curriculum2:advanced:teacher:call": 3674,
+        "curriculum2:advanced:teacher:kan": 214,
+        "curriculum2:advanced:teacher:post_meld": 2501,
+        "curriculum2:followup:teacher:post_reach_discard": 75,
+        "curriculum3:teacher:closed_discard_under_riichi": 1948,
+        "curriculum3:teacher:ordinary_completion": 8077,
+        "curriculum3:mc:closed_discard": 457,
+        "curriculum3:mc:call_window": 477,
+        "curriculum3:mc:kan_window": 150,
+        "curriculum3:mc:open_discard": 100,
+        "curriculum3B:teacher:kokushi": 107,
+        "curriculum3B:teacher:chuuren": 182,
+        "curriculum3B:teacher:suuankou": 147,
+        "curriculum3B:teacher:daisangen": 145,
+        "curriculum3B:teacher:chiitoitsu": 206,
+        "curriculum3B:teacher:unselected_random_initial_hand_control": 41
+      },
+      "new_routes": {
+        "kokushi": 107,
+        "chuuren": 182,
+        "suuankou": 147,
+        "daisangen": 145,
+        "chiitoitsu": 206,
+        "unselected_random_initial_hand_control": 41
+      },
+      "new_phases": {
+        "closed_discard": 517,
+        "kan_window": 32,
+        "call_window": 128,
+        "open_discard": 151
+      }
+    }
+  },
+  "tokens": {
+    "train": {
+      "encoded_new_rows": 3652,
+      "max_new_packed": 1319,
+      "max_new_state": 550
+    },
+    "validation": {
+      "encoded_new_rows": 828,
+      "max_new_packed": 1125,
+      "max_new_state": 565
+    }
+  },
+  "quarantine": {},
+  "blocked_new_families": 0,
+  "original_replay_objects_labels_and_partitions_unchanged": true,
+  "original_replay_native_encoder_and_soft_mask_audit_reused": true,
+  "new_source_routes_are_private_metadata_not_inputs": true,
+  "actual_new_labels_preserved_and_encoded": true,
+  "cross_split_family_and_public_input_overlap": 0,
+  "teacher_labels_not_optimality_proof": true,
+  "exact_stage3B_mix_and_parent_not_registered": true,
+  "backbone_loaded": false,
+  "optimizer_updates": 0,
+  "active_stage3A_unchanged": true,
+  "job_id": "318695",
+  "node": "ws-l1-002"
+}

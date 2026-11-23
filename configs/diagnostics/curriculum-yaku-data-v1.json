@@ -1,0 +1,13 @@
+{
+  "method": "exact_progression_replay_plus_normalized_targeted_yaku_teacher_v1",
+  "replay_audit": "runs/curriculum-progression-union-v1/audit-v1/summary-private.json",
+  "source_registration": "runs/curriculum-progression-v1/fit-plan/registered.json",
+  "out": "runs/curriculum-yaku-scenarios-v1/data-v1",
+  "new_teacher_sources": [
+    ["initial", "runs/curriculum-yaku-scenarios-v1/teacher-v1/summary-private.json", "actual_mortal_yaku_initial_choices_collected_not_stage3B_fit_admitted"],
+    ["continuation", "runs/curriculum-yaku-scenarios-v1/trajectories-v1/summary-private.json", "actual_yaku512_first_hands_settled_and_observed_continuation_labels_collected_not_fit_ready"]
+  ],
+  "original_replay_objects_unchanged": true,
+  "source_route_is_visible_input": false,
+  "automatic_fit": false
+}
