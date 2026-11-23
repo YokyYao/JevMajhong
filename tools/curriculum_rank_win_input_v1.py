@@ -57,21 +57,22 @@ def checked_context(request):
     return copy.deepcopy(context)
 
 
-def serving_request(request):
-    from jevmahjong.policy.unified import serving_request as ordinary
+def serving_request(request, normalizer=None):
+    if normalizer is None:
+        from jevmahjong.policy.unified import serving_request as normalizer
     if 'win_context' not in request['state']:
-        return ordinary(request)
+        return normalizer(request)
     context = checked_context(request)
     raw = copy.deepcopy(request); raw['state'].pop('win_context')
-    normalized = ordinary(raw)
+    normalized = normalizer(raw)
     normalized['state']['win_context'] = context
     normalized['questions']['action']['instructions'] = INSTRUCTION
     return normalized
 
 
-def training_record(row):
+def training_record(row, normalizer=None):
     """Same visible request as inference, retaining source labels only outside it."""
-    result = serving_request(row)
+    result = serving_request(row, normalizer)
     if '_meta' in row: result['_meta'] = copy.deepcopy(row['_meta'])
     for name, q in row['questions'].items():
         for field in ('label', 'target', 'src'):
@@ -101,10 +102,11 @@ def continuation_keys(obs, request, actions, features):
     return result
 
 
-def select(request, probabilities, continuation):
-    from jevany.api import validate_distribution
+def select(request, probabilities, continuation, validator=None):
+    if validator is None:
+        from jevany.api import validate_distribution as validator
     criteria = request['questions']['action']['criteria']; keys = list(criteria)
-    values, _ = validate_distribution(dict(probabilities), keys)
+    values, _ = validator(dict(probabilities), keys)
     wins = [k for k, v in criteria.items() if v['type'] == 'hora']
     if (len(wins) != 1 or not continuation or len(continuation) != len(set(continuation))
             or not set(continuation) <= set(keys)-set(wins)
