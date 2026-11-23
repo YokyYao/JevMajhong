@@ -132,6 +132,8 @@ def verify(reg,registered):
         ROOT/'tools/run_curriculum_confirmation_v1.py',ROOT/'tools/curriculum_confirmation_runtime_v1.py',
         ROOT/'tools/curriculum_confirmation_contract_v1.py',ROOT/'tools/curriculum_confirmation_native_v1.py',
         ROOT/'tools/curriculum_confirmation_stats_v1.py',ROOT/'tools/play_curriculum_placement_v1.py',
+        ROOT/'tools/audit_curriculum_confirmation_v1.py',ROOT/'tools/finish_curriculum_confirmation_audit_v1.py',
+        ROOT/'cluster/curriculum-confirmation-run-v1.slurm',ROOT/'cluster/curriculum-confirmation-audit-v1.slurm',
         ROOT/'tools/evaluate_curriculum_riichi_class_route_v2.py',
         ROOT/'tools/curriculum_calls_post_reach_data_v1.py',ROOT/'tools/curriculum_transfer.py']
     # The registration cannot hash itself; the runner records its actual hash
