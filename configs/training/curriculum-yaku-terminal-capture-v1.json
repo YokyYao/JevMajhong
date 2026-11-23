@@ -1,0 +1,8 @@
+{
+  "status": "planned_terminal_capture_not_child_parent_or_fit_admission",
+  "parent_run": "runs/curriculum-yaku-course-v1",
+  "fit_job": 318985,
+  "audit_job": 318986,
+  "out": "runs/curriculum-placement-course-v1/parent-terminal-v1",
+  "automatic_fit": false
+}
