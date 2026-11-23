@@ -28,6 +28,7 @@ PUBLIC_FILES = (
     'tools/play_curriculum_placement_v1.py', 'tools/curriculum_checkpoint_evaluation_fence_v1.py',
     'tools/curriculum_placement_runtime_v1.py', 'tests/core/test_curriculum_placement_runtime_v1.py',
     'tools/train_curriculum_placement_course_v1.py', 'tools/evaluate_curriculum_placement_course_v1.py',
+    'cluster/curriculum-placement-register-v1.slurm',
 )
 
 

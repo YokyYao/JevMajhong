@@ -21,6 +21,13 @@ placement student fit or real-model integration result is claimed by this
 document. The separately bound launch/preflight and independent audit still
 need to be completed before the fit is scheduled.
 
+The bounded GPU wrapper `cluster/curriculum-placement-register-v1.slurm` can
+follow the actual successful parent seal. It checks the scheduler allocation,
+runs the recipe contract checks and writes the budget registration. It has a
+20-minute wall limit, scheduler log and exit receipt. It neither loads the
+student model nor submits a fit; registration can finish while the remaining
+launch integration is still being prepared.
+
 ## Data and optimization
 
 - Replay retains 80% of loss mass, preserving the relative weights of all25
