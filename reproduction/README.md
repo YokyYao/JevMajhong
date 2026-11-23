@@ -1,4 +1,33 @@
-# Curriculum stage1 reproduction
+# Curriculum reproduction: current route and historical recipes
+
+**Start with [the current four-course route](CURRICULUM_ROUTE.md).** The
+commands and dated reports below preserve historical experiments, including
+failed quality grades. Running the first command block below reproduces the
+earlier1162-update experiment, **not the current student's parameter ancestry**.
+
+The current student starts from the fixed Qwen3.5-0.8B base with a fresh
+rank16 LoRA and256-dimensional pointer head. Its actual ancestry is basic
+final608 → calls/post-call final388 →3A efficiency/attack-defense. Qualified
+3A final is intended to continue into3B yaku/route selection, then qualified
+3B into course4 terminal placement. These later lessons continue the same
+adapter/head with newly registered optimizers; v8 and Mortal parameters do
+not initialize this student.
+
+Current3A data preparation and training are separate from the historical
+risk-recovery branch below. See the route index for each actual dataset,
+loss mix, budget, parent selection and plan. In particular,3A learns hand
+efficiency/attack-defense;3B adds targeted feasible-yaku routes. A data
+coverage check does not establish that a rare yaku has been learned.
+
+The complete end-to-end reproduction recipe is still in progress:3A is
+running,3B/course4 have not trained, and the independent v8 comparison has
+not opened. Some local provenance/audit receipts must be regenerated from
+their real inputs on a new host. Do not fabricate private receipts or treat
+historical control weights as current parents. Public inputs/source bootstrap
+instructions below remain useful; raw new traces and research weights are
+not included in this guide.
+
+## Historical stage1 reproduction
 
 This is the newly registered basic-discard/riichi course, not a replay of every historical v8 experiment. The student initializes a fresh rank16 LoRA and256-dimensional action head on pinned Qwen3.5-0.8B. No v7/v8/Mortal weights initialize it. The frozen v8 export is used only by a separate evaluation process.
 
