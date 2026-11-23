@@ -17,7 +17,7 @@ from tools.curriculum_calls_post_reach_data_v1 import gpu_only, write
 from tools.curriculum_calls_classroute_parent_v1 import verify_parent
 from tools.curriculum_calls_classroute_v1 import METHOD, profile, require_recipe, warmstart_parity, COMPONENTS
 from tools.curriculum_calls_fit import balanced, retention
-from tools.evaluate_curriculum_calls_classroute_v1 import policy_contract
+from tools.evaluate_curriculum_calls_classroute_v1 import policy_contract, require_step0_equivalence
 
 
 def audit(registered, out):
@@ -51,6 +51,8 @@ def audit(registered, out):
     assert exact['adapter_tensors'] == 372 and exact['head_tensors'] == 4
     warm = read(fit/'warmstart-validation-private.json')
     assert warm['exact_tensors'] == exact and warm['checked_before_first_optimizer_update']
+    require_step0_equivalence(bundle(zero), c, warm)
+    assert warm['step0_policy_identity'] == policy_contract(bundle(zero), reg)[1]
     assert read(fit/'warmstart-games-private.json') == dict(matches=16, exact_parent_event_outcomes=True,
         checked_before_first_update=True, parent_policy_identity=c['parent_policy_identity'])
     train = rows(ROOT/data['files']['train']['path']); validation = rows(ROOT/data['files']['validation']['path'])

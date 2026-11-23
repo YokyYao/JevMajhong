@@ -56,6 +56,12 @@ mandatory even though cached data preflight passed. A scoped verifier hook
 retains the pinned trainer's ancestral group and tensor-load checks without
 editing that immutable package.
 
+Serialized bundle identity includes head metadata about its run and optimizer
+step. A newly saved step-zero bundle can therefore have different bytes while
+its adapter/head tensors and behavior are identical. Record both identities;
+require numeric equivalence and the full behavior checks, rather than equating
+metadata hashes or rewriting the child's identity to its parent's.
+
 Child validation retains original raw probabilities/CE/raw metrics and reports
 separate selector-based agreement and per-source RI/five-call confusions.
 Cached agreement, as before, considers all listed candidates and does not

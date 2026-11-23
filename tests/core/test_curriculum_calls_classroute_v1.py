@@ -10,6 +10,7 @@ from tools import curriculum_calls_classroute_v1 as course
 from tools.curriculum_calls_riichi_retention_v1 import annotate as old_annotate, parts as old_parts
 from tools.curriculum_calls_classroute_parent_v1 import require_policy_grade
 from tools.curriculum_parent import ParentNotReady
+from tools.evaluate_curriculum_calls_classroute_v1 import require_step0_equivalence
 from tests.core import test_curriculum_calls_repair as fixtures
 
 
@@ -109,6 +110,21 @@ class CallsClassRouteTests(unittest.TestCase):
         self.assertEqual(course.warmstart_parity(parent, before, child, after)['checked_basic_menus'], 3266)
         after[-1]['p'] = [.5000001, .4999999]
         with self.assertRaises(ValueError): course.warmstart_parity(parent, before, child, after)
+
+    def test_different_step0_metadata_requires_exact_numeric_equivalence_not_equal_bundle_hash(self):
+        c = dict(parent_identity='parent-bytes', parent_policy_identity='parent-policy')
+        identity = {'identity_sha256': 'new-run-metadata-bytes'}
+        proof = dict(checked_before_first_optimizer_update=True,
+            parent_parameter_bundle_identity='parent-bytes', parent_policy_identity='parent-policy',
+            step0_serialized_bundle_identity='new-run-metadata-bytes',
+            exact_tensors=dict(parent_adapter_exact=True, parent_head_exact=True, adapter_tensors=372, head_tensors=4),
+            basic_validation_prediction_and_choice_parity=dict(checked_basic_menus=3266,
+                same_selected_choices=True, max_probability_error=0.))
+        require_step0_equivalence(identity, c, proof)
+        for name in ('parent_parameter_bundle_identity', 'step0_serialized_bundle_identity'):
+            with self.assertRaises(ValueError): require_step0_equivalence(identity, c, dict(proof, **{name: 'wrong'}))
+        broken = copy.deepcopy(proof); broken['exact_tensors']['parent_head_exact'] = False
+        with self.assertRaises(ValueError): require_step0_equivalence(identity, c, broken)
 
 
 if __name__ == '__main__': unittest.main()

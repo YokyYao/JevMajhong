@@ -64,9 +64,10 @@ def run(registered):
             parent_p = read(ROOT/parent['curriculum']['out']/'training-run/training_eval/step-000608/development/rows.json')
             child_p = read(out/'training-run/training_eval/step-000000/development/rows.json')
             parity = warmstart_parity(parent_rows, parent_p, child_rows, child_p)
-            if policy_identity != c['parent_policy_identity']: raise ValueError('Step zero route identity differs')
             warm = dict(exact_tensors=exact, basic_validation_prediction_and_choice_parity=parity,
-                parent_policy_identity=policy_identity, checked_before_first_optimizer_update=True)
+                parent_policy_identity=c['parent_policy_identity'], parent_parameter_bundle_identity=c['parent_identity'],
+                step0_serialized_bundle_identity=identity['identity_sha256'], step0_policy_identity=policy_identity,
+                checked_before_first_optimizer_update=True)
             write(out/'warmstart-validation-private.json', warm)
         for label, cache, expected in (('reference-v8', c['reference_evaluation_cache'], c['reference_identity']),
                                        ('reference-parent', c['parent_evaluation_cache'], c['parent_identity'])):

@@ -27,6 +27,22 @@ def policy_contract(identity, reg):
     return spec, hashlib.sha256(json.dumps(spec, sort_keys=True).encode()).hexdigest()
 
 
+def require_step0_equivalence(identity, c, proof):
+    # head.pt includes run/step/optimizer metadata, so a newly serialized
+    # step-zero bundle need not have its parent's byte identity. Require the
+    # actual exact-tensor/probability/choice proof, not equal metadata hashes.
+    exact = proof.get('exact_tensors', {}); parity = proof.get('basic_validation_prediction_and_choice_parity', {})
+    if (proof.get('checked_before_first_optimizer_update') is not True
+            or proof.get('parent_parameter_bundle_identity') != c['parent_identity']
+            or proof.get('parent_policy_identity') != c['parent_policy_identity']
+            or proof.get('step0_serialized_bundle_identity') != identity['identity_sha256']
+            or exact.get('parent_adapter_exact') is not True or exact.get('parent_head_exact') is not True
+            or exact.get('adapter_tensors') != 372 or exact.get('head_tensors') != 4
+            or parity.get('checked_basic_menus') != 3266 or parity.get('same_selected_choices') is not True
+            or not 0 <= parity.get('max_probability_error', float('inf')) < 5e-5):
+        raise ValueError('Step zero requires full numeric parent-policy equivalence, not a metadata identity claim')
+
+
 def evaluate(registered, checkpoint, step, groups):
     gpu_only(); reg = read(registered); c = reg['curriculum']
     if groups not in (2, 8) or step not in (0, 194, 388) or (groups == 8) != (step == 388):
@@ -41,8 +57,8 @@ def evaluate(registered, checkpoint, step, groups):
     for path, expected in reg['inputs'].items():
         if sha(path) != expected: raise ValueError('Registered input changed: '+path)
     identity = bundle(checkpoint); spec, policy_identity = policy_contract(identity, reg)
-    if step == 0 and (identity['identity_sha256'] != c['parent_identity'] or policy_identity != c['parent_policy_identity']):
-        raise ValueError('Step zero must be the exact distinct parent policy')
+    if step == 0:
+        require_step0_equivalence(identity, c, read(ROOT/c['out']/'warmstart-validation-private.json'))
     directory = ROOT/c['out']/'evaluations'/f'step-{step:06d}'; directory.mkdir(parents=True, exist_ok=False)
     seeds = list(range(c['curve_seed_start'], c['curve_seed_start']+groups))
     write(directory/'protocol.json', dict(checkpoint=identity, policy=spec, policy_identity=policy_identity,
