@@ -1,0 +1,20 @@
+{
+  "method":"riichi_full_class_0_5_then_guarded_discard_v1",
+  "source_registration":"runs/curriculum-riichi-class-control-v1/fit-plan/registered.json",
+  "checkpoint":"runs/curriculum-riichi-class-control-v1/stage1-fit/training-run/checkpoints/step-000608",
+  "parameter_identity":"8f295f24188790e07140d86eeec8e3bdd47ed5fd52dd2d318b044fa2dd69c236",
+  "out":"runs/curriculum-riichi-class-route-v2/trial-v1",
+  "audit_out":"runs/curriculum-riichi-class-route-v2/audit-v1",
+  "logical_seed_start":2026200000,
+  "seed_groups":8,
+  "profiles":["efficiency","calling"],
+  "seats":4,
+  "baseline_reproduction_matches":16,
+  "candidate_matches":64,
+  "game_mode":"4p-red-east",
+  "threshold":0.5,
+  "primary_metric":"terminal_net_points",
+  "parameter_updates":0,
+  "automatic_parent_admission":false,
+  "automatic_release":false
+}
