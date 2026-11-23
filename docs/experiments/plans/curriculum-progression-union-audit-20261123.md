@@ -1,6 +1,6 @@
 # Independent progression union audit
 
-After the separately versioned v2 preparation succeeds, capture its actual
+After the separately versioned v3 preparation succeeds, capture its actual
 scheduler terminal and shell exit. The audit must validate both before reading
 the produced union. Preserve the failed v1 and all original sources unchanged.
 Run the one-hour GPU scheduler entry with `JEV_UNION_PREP_JOB` identifying that
@@ -12,8 +12,10 @@ VAL. The MC membership is independently derived by subtracting clean stage2 IDs
 from clean stage3, preserving original row objects/soft probabilities/support
 and permitting only its previously prepared private loss tag. Compare136/41
 singleton-support quarantined rows against their original full clean sources.
-Source-file splits remain authoritative for historical records without a row
-field; explicit teacher splits and all group/input/ID exclusions still apply.
+Source-file splits remain authoritative for historical records with missing or
+stale origin markers; exact original objects stay unchanged. Explicit Mortal
+family splits and all group/input/ID exclusions still apply. This plan/helper
+were corrected before their first execution; no bound audit version is changed.
 
 Materialize and tokenize all111,283 union records through the pinned actual
 serving preprocessor, without loading policy/backbone weights. Require no state

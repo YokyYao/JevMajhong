@@ -18,10 +18,10 @@ from tools.curriculum_calls_post_reach_data_v1 import gpu_only, write
 def audit(source, out, terminal, exit_path):
     gpu_only()
     from tools.seal_curriculum_basic_repair_v2 import scheduler_exit
-    scheduler_exit(read(exit_path), terminal.read_text(), ROOT/'cluster/curriculum-progression-union-v2.slurm')
+    scheduler_exit(read(exit_path), terminal.read_text(), ROOT/'cluster/curriculum-progression-union-v3.slurm')
     ready = read(source/'data-ready-private.json'); binding = read(source/'preparation-binding-private.json')
-    if ready['status'] != 'progression_union_v2_prepared_not_independently_audited_or_fit_admitted':
-        raise ValueError('Actually completed separately versioned v2 union required')
+    if ready['status'] != 'progression_union_v3_prepared_not_independently_audited_or_fit_admitted':
+        raise ValueError('Actually completed separately versioned v3 union required')
     files = dict(binding['files']); active = dict(binding['active_fit_files'])
     for path in (Path(__file__), ROOT/'cluster/curriculum-progression-union-audit-v1.slurm',
                  ROOT/'docs/experiments/plans/curriculum-progression-union-audit-20261123.md',
@@ -54,7 +54,7 @@ def audit(source, out, terminal, exit_path):
         files[str(path)] = spec['sha256']; result = [json.loads(line) for line in path.open()]
         if len(result) != spec.get('records', spec.get('rows')): raise ValueError('Row count differs')
         return result
-    c = load('configs/diagnostics/curriculum-progression-union-v2.json')
+    c = load('configs/diagnostics/curriculum-progression-union-v3.json')
     old = load(c['calls_manifest']); risk = load(c['risk_manifest']); ordinary = load(c['ordinary_manifest'])
     legacy = load(c['legacy_mc_manifest']); clean = load(c['clean_manifest']); reserved = set(load(c['reserved_groups']))
     recipe = tomllib.loads(Path(reg['training_config']['trainer_config']).read_text())
@@ -94,7 +94,7 @@ def audit(source, out, terminal, exit_path):
                 row = json.loads(line)
                 if row != source_row: raise ValueError('Merged row differs from its exact original source object')
                 meta = row['_meta']; q = row['questions']['action']; rid = meta['id']
-                if rid in ids[split] or meta.get('split', split) != split: raise ValueError('Repeated ID or changed file partition')
+                if rid in ids[split]: raise ValueError('Repeated source decision ID')
                 if 'source_logical_seed' in meta and meta.get('split') != split: raise ValueError('Teacher family split missing or changed')
                 ids[split].add(rid); groups[split].add(meta['group_id']); key = fingerprint(row)
                 cc['same_split_identical_public_inputs'] += key in inputs[split]; inputs[split].add(key)

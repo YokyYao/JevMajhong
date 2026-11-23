@@ -17,4 +17,4 @@ export OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 PYTHONUNBUFFER
 export HF_HUB_OFFLINE=1 TOKENIZERS_PARALLELISM=false
 hostname
 timeout --signal=TERM --kill-after=15s 1m .venv/bin/python tools/check_gpu.py
-timeout --signal=TERM --kill-after=30s 58m .venv/bin/python tools/audit_curriculum_progression_union_v1.py --source runs/curriculum-progression-union-v1/data-v2 --out runs/curriculum-progression-union-v1/audit-v1 --terminal runs/curriculum-progression-union-v1/preparation-v2-terminal-scheduler-private.txt --exit "logs/curriculum-progression-union-v2-exit-$JEV_UNION_PREP_JOB.json"
+timeout --signal=TERM --kill-after=30s 58m .venv/bin/python tools/audit_curriculum_progression_union_v1.py --source runs/curriculum-progression-union-v1/data-v3 --out runs/curriculum-progression-union-v1/audit-v1 --terminal runs/curriculum-progression-union-v1/preparation-v3-terminal-scheduler-private.txt --exit "logs/curriculum-progression-union-v3-exit-$JEV_UNION_PREP_JOB.json"
