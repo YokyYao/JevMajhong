@@ -1,9 +1,11 @@
 # Current four-course reproduction route
 
-Evidence snapshot: 2026-11-23, Asia/Dubai. Courses1 and2 in the current
+Evidence snapshot: 2026-11-24, Asia/Dubai. Courses1 and2 in the current
 parameter ancestry are complete. Course3A is the active fixed2400-update
 fit;3B is queued behind its qualified final audit. Course4 source acquisition
-and teacher labeling are separate work; its student fit is not admitted.
+and teacher labeling are separate work; its complete fit/audit chain is queued
+behind actual qualified parents, data and real-model integration. Its student
+fit is not yet admitted or started.
 See [research PR8](https://github.com/YokyYao/JevMajhong/pull/8) for dated live
 job snapshots. This index does not claim that the curriculum matches v8.
 
@@ -37,7 +39,7 @@ flowchart TD
 | **2: calls and follow-up** | Chi, pon, ankan, daiminkan, kakan, pass and post-call discard |49022/12479 rows,13 strata, two epochs,98044 exposures,388 updates. Completed with the same adapter/head and a new optimizer.|
 | **3A: efficiency and attack/defense** | Ordinary hand completion, risk under opponents' riichi, useful calls and executable defensive choices |87595/23688 rows, two epochs,175190 exposures,2400 updates. Active recovery job318979; final audit318980.|
 | **3B: yaku and route selection** | Retain useful tiles, pursue feasible routes and abandon unsuitable routes |91247/24516 rows, two epochs,182494 exposures,2500 updates. Preparation318984 →fit318985 →audit318986 waits for actual qualified3A final.|
-| **4: terminal placement** | Pursue top two when behind and take useful small wins/retain position when ahead |Public-world targets, replay and conditional controls are being prepared. Source mix, explicit repeats/exposures, qualified parent, update budget and student fit remain unregistered.|
+| **4: terminal placement** | Pursue top two when behind and take useful small wins/retain position when ahead |80% replay/20% across32 new pools; actual counts/exposures and two-epoch budget await data. Qualified-parent319359 →registration319401 →integration319427 →full fit319480 →audit319482 is queued, not started.|
 
 The base is Qwen/Qwen3.5-0.8B revision
 `2fc06364715b967f1860aea9cf38778875588b17`. The student begins with a fresh
@@ -154,6 +156,18 @@ objects while supplying verified partition views and replica provenance.
 Full57-source integration still waits for the completed labels.
 [Current partition compatibility](../docs/experiments/plans/curriculum-placement-partition-20261123.md).
 
+The full fit now has an executable dependent launch. It verifies the real
+two-update integration's saved optimizer/tensors/losses and successful GPU
+terminal, then binds the original prospective assessment and independent
+auditor before the first candidate update. Integration control weights are
+excluded from ancestry. The candidate continues actual qualified final3B
+with a new optimizer and must run a fresh64-game child-policy zero baseline.
+It cannot reuse parent outcomes after changing late instructions/dispatch.
+The complete two-epoch final candidate is retained despite intermediate noise;
+its64-game endpoint and the common16-cell plotted subset remain separate.
+[Full placement launch](../docs/experiments/plans/curriculum-placement-launch-20261124.md)
+and [development assessment](../docs/experiments/plans/curriculum-placement-assessment-20261124.md).
+
 ## Current3A recovery and weight integrity
 
 Original3A job318606 completed600 updates/full validation, then failed
@@ -196,8 +210,21 @@ different-sized samples into an apparent improvement trajectory.
 
 These are development means from eight logical seed groups. The calls
 mean does not establish parity; same parameters with changed dispatch are
-not the same policy. New3A post-update native outcomes are not available
-at this snapshot; the first scheduled point is600.
+not the same policy. These64-game baselines are distinct from the following
+matched16 development result; the sample sizes must not be mixed.
+
+| Same consumed16-match grid (two logical seeds) | Hand win | Top two | Net points/match |
+|---|---:|---:|---:|
+|3A step0, complete-legal RI0.5|17.75%|56.25%|+387.50|
+|3A saved step600, same policy|19.57%|68.75%|+1887.50|
+|Frozen practical v8|22.37%|62.50%|+3612.50|
+
+Step600 gains1500 points/match over its zero baseline but remains1725 below
+v8. This small consumed result does not prove stable improvement or parity.
+RI balanced accuracy also declined70.33% →62.59%; its score-shift diagnostic
+is descriptive, not a causal gradient explanation. Actual0/600 curves and
+limitations are in the [result report](../docs/experiments/curriculum-3A-step600-20261123.md).
+The registered budget remains2400; the next full evaluation is1200.
 
 Final comparison still uses the unopened32 logical seeds2026300000–
 2026300031, four seats and two profiles:256 complete East matches per
