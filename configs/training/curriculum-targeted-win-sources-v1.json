@@ -1,0 +1,31 @@
+{
+  "method": "fresh_canonical_full_wall_delayed_native_win_special_sources_v1",
+  "seed_start": 2026611000,
+  "kinds": [
+    "win_reach",
+    "win_ankan",
+    "win_kakan"
+  ],
+  "families_per_kind": {
+    "train": 8,
+    "validation": 4
+  },
+  "score_contexts": [
+    "hold_second",
+    "third_gap3000",
+    "fourth_gap5000"
+  ],
+  "honba": 0,
+  "sticks": 0,
+  "source_registration": "runs/curriculum-progression-v1/fit-plan/registered.json",
+  "out": "runs/curriculum-targeted-win-v1/source-v1",
+  "maximum_native_batches_per_prefix": 64,
+  "planned_families": 36,
+  "planned_views": 108,
+  "maximum_current_actions": 16,
+  "maximum_future_terminal_arms": 55296,
+  "no_labels": true,
+  "student_fit": false,
+  "raw_private": true
+}
+
