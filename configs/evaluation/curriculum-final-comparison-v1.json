@@ -1,0 +1,56 @@
+{
+  "status": "statistical_plan_only_not_candidate_or_execution_admitted",
+  "method": "paired_logical_seed_mean_t_df31_v1",
+  "game_mode": "4p-red-east",
+  "rule": "GameRule.default_mjsoul",
+  "seed_namespace": "spaced-v1",
+  "seed_start": 2026300000,
+  "seed_groups": 32,
+  "seats": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "opponent_profiles": [
+    "efficiency",
+    "calling"
+  ],
+  "matches_per_policy": 256,
+  "reference_parameter_identity": "5ebce6af3777854cbec55ba29db2dc90be0f959193114bb3154179c5552370fa",
+  "reference_policy": "frozen_practical_v8_original_PolicyAgent",
+  "candidate_rule": "qualified_full_curriculum_registered_final_checkpoint_only",
+  "candidate_parameter_identity": null,
+  "candidate_policy_identity": null,
+  "candidate_loop_requires_explicit_current_public_event": true,
+  "primary_metrics": [
+    "top2_rate",
+    "net_points"
+  ],
+  "primary_regression_margins": {
+    "top2_rate": 0,
+    "net_points": 0
+  },
+  "statistics_unit": "logical_seed_mean_of_four_seats_and_two_profiles",
+  "interval": "paired_t_df31_95_percent_two_sided",
+  "primary_joint_lower_bound_method": "Bonferroni_two97.5_percent_one_sided_lower_bounds_alpha0.05",
+  "secondary_metrics": [
+    "hand_win_rate",
+    "first_rate",
+    "fourth_rate",
+    "dealin_hand_rate"
+  ],
+  "zero_difference_interval_is_not_equivalence_proof": true,
+  "no_conditional_fourth_escape_veto": true,
+  "task_completion_or_release_automatic": false,
+  "reserved_test_opened": false,
+  "required_before_execution": [
+    "bind_exact_candidate_and_reference_model_policy_source_runtime_identities",
+    "bind_current_3A_3B_stage4_final_receipts_and_full_weight_ancestry",
+    "freeze_full_statistical_acceptance_and_secondary_risk_interpretation",
+    "verify_source_group_and_seed_exclusions_without_consuming_final_outcomes",
+    "native_ledger_reconstruction_for_every_completed_match"
+  ],
+  "raw_matches_private": true
+}
+

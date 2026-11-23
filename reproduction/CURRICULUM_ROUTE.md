@@ -1,186 +1,212 @@
 # Current four-course reproduction route
 
-Evidence snapshot: 2026-11-23, Asia/Dubai. The active calls fit has at least
-63 of 388 optimizer updates and remains RUNNING on its allocated GPU. Its
-independent final audit is waiting on successful completion. There is no
-post-update calls validation/game result yet. This index describes the current
-parameter ancestry and remaining work; it does not declare the curriculum
-complete or the student comparable to v8.
+Evidence snapshot: 2026-11-23, Asia/Dubai. Courses1 and2 in the current
+parameter ancestry are complete. Course3A is the active fixed2400-update
+fit;3B is queued behind its qualified final audit. Course4 source acquisition
+and teacher labeling are separate work; its student fit is not admitted.
+See [research PR8](https://github.com/YokyYao/JevMajhong/pull/8) for dated live
+job snapshots. This index does not claim that the curriculum matches v8.
 
-The [original reproduction guide](README.md) retains executable historical
-recipes and their outcomes. Its original 1,162-step and stable-v2 584-step
-students are separate experiments, not ancestors of the current student.
-The [initial four-course plan](../docs/experiments/plans/curriculum-reproduction-20261120.md)
-states the overall objective; its dated status is not a live training monitor.
+The [historical guide](README.md) preserves earlier recipes and negative
+outcomes. Its1162-step, stable-v2, calls324 and risk-recovery branches are
+not parents of the current student. The current route reorganizes the
+lessons of v8; it is not a byte-for-byte replay of v8's historical training.
 
-## Actual current parameter ancestry
+## Actual parameter ancestry and four courses
 
 ```mermaid
 flowchart TD
     A[Fixed Qwen base; fresh rank16 LoRA and 256-dimensional pointer]
-    B[Course 1: max-class RI control; final 608 updates]
-    C[Same 608 weights; separately tested full-class RI selector]
-    D[Course 2: continue the same adapter and pointer; new optimizer]
-    E[Course 3: risk and executable defensive choices; not fitted]
-    F[Course 4: terminal placement; not fitted]
-    G[Unopened final complete-East comparison against frozen v8]
-    A --> B --> C --> D
-    D -. qualified future parent .-> E
-    E -. separately admitted labels and fit .-> F
-    F -. frozen final candidate .-> G
+    B[1: basic discard and riichi; final608]
+    C[Same weights; explicit full-class RI selector]
+    D[2: calls and post-call play; final388]
+    E[Same weights; complete-legal execution control]
+    F[3A: efficiency and attack/defense; fixed2400 in progress]
+    G[3B: yaku and route selection; fixed2500 queued]
+    H[4: terminal placement; sources and labels, fit pending]
+    I[Unopened independent final comparison with frozen v8]
+    A --> B --> C --> D --> E --> F
+    F -. qualified final parent .-> G
+    G -. qualified parent and admitted data .-> H
+    H -. frozen final candidate .-> I
 ```
 
-The student base is `Qwen/Qwen3.5-0.8B`, revision
-`2fc06364715b967f1860aea9cf38778875588b17`. Course 1 uses initialization seed
-2026112002 and starts with a fresh adapter/head, not previously trained Mahjong
-parameters. Its initialization is numerically checked against the fresh
-same-budget hard-CE control. That control is an experimental prerequisite and
-comparison, not a trained-weight parent. v8 is a frozen evaluation reference;
-Mortal supplies some supervised actions, not student initialization weights.
-
-The fixed research package digest is
-`7a6e9471c95d529ecdc5d0a66cd240ae17d1f5914d76ce8dbd61ad45ce7104bc`;
-the JevAny package digest is
-`84fe7f0201a8d9928aabe4770912bf25e76c4916c1eded3011cf8f02862b758d`.
-Use the pinned bootstrap/dependencies in the original guide. A different
-selection rule is a different policy even if every parameter is identical.
-
-| Step in this route | Actual training/data | Evidence and present limit |
+| Course | What it learns | Actual data, budget and current state |
 |---|---|---|
-| Course 1, ordinary discard/RI | 14,285 TRAIN / 3,266 validation; six strata; four complete epochs; accumulation 94; 608 updates / 57,140 exposures | Fit and independent audit complete. The original raw selector still fails source-specific RI refusal. [Completed result and real curves](../docs/experiments/results/curriculum-riichi-control-final-20261123.md). |
-| Distinct RI selection policy | No new training/data. Exactly one reach plus discards: choose reach at raw reach probability >=0.5; otherwise select a guarded discard. Other menus retain their existing dispatch. | Actual 16 baseline event/outcome reproductions and 64 candidate matches, independently audited. Its source metrics pass under this distinct selector; the old raw failure stays recorded. [Native comparison](../docs/experiments/results/curriculum-riichi-class-route-20261123.md). |
-| Course 2, calls and followup | 49,022 TRAIN / 12,479 validation; 13 strata; accumulation 253; two full epochs; final 388 updates / 98,044 exposures | Currently fitting with the distinct RI selector, the same adapter/head and a new optimizer. No new call-strength result yet. [Frozen plan](../docs/experiments/plans/curriculum-calls-classroute-20261123.md), [launch evidence](../docs/experiments/results/curriculum-calls-classroute-launch-20261123.md). |
-| Course 3, attack/risk | Preserve basic/calls replay and separately admit risk labels with executable candidates | A prospective defensive scope is native-interface audited, including corrected menzen/ankan diagnostics. It is not used by the current fit. No course-3 fit belongs to this current ancestry. [Scope evidence](../docs/experiments/results/curriculum-defensive-scope-20261123.md). |
-| Course 4, terminal placement | Public scores, dealer/seat/wind, honba/sticks, remaining rounds and reliable full-terminal targets | Source windows, win-source/history/world interfaces exist; current-route labels and fitting remain unadmitted. [World/teacher preparation](../docs/experiments/plans/curriculum-live-worlds-20261122.md). |
+| **1: basic decisions** | Ordinary discard and riichi/decline decisions |14285 TRAIN/3266 validation, six strata, four epochs,57140 exposures,608 updates. Completed; the distinct RI selector is separately documented.|
+| **2: calls and follow-up** | Chi, pon, ankan, daiminkan, kakan, pass and post-call discard |49022/12479 rows,13 strata, two epochs,98044 exposures,388 updates. Completed with the same adapter/head and a new optimizer.|
+| **3A: efficiency and attack/defense** | Ordinary hand completion, risk under opponents' riichi, useful calls and executable defensive choices |87595/23688 rows, two epochs,175190 exposures,2400 updates. Active recovery job318979; final audit318980.|
+| **3B: yaku and route selection** | Retain useful tiles, pursue feasible routes and abandon unsuitable routes |91247/24516 rows, two epochs,182494 exposures,2500 updates. Preparation318984 →fit318985 →audit318986 waits for actual qualified3A final.|
+| **4: terminal placement** | Pursue top two when behind and take useful small wins/retain position when ahead |Public-world targets, replay and conditional controls are being prepared. Source mix, explicit repeats/exposures, qualified parent, update budget and student fit remain unregistered.|
 
-Earlier calls324 and risk-recovery362 fits belong to the old stable-v2 branch.
-Their negative outcomes remain in the original guide/results; they do not
-provide course-2/3 completion for the new ancestry. Likewise, a prepared
-dataset, passing sampler, successful job exit or static selector audit is not
-a demonstrated improvement in complete-match play.
+The base is Qwen/Qwen3.5-0.8B revision
+`2fc06364715b967f1860aea9cf38778875588b17`. The student begins with a fresh
+rank16 adapter/256-dimensional pointer; it does not initialize from v8 or
+Mortal parameters. Later courses continue the same adapter/head and reset
+the optimizer as registered. No external residual decision network is added.
 
-## Data, supervision and limitations
+The pinned research-package digest is
+`7a6e9471c95d529ecdc5d0a66cd240ae17d1f5914d76ce8dbd61ad45ce7104bc`;
+JevAny is
+`84fe7f0201a8d9928aabe4770912bf25e76c4916c1eded3011cf8f02862b758d`.
+Use the source/bootstrap instructions in the historical guide. A different
+selector, input projection or event-forwarding loop is a different policy,
+even when every model tensor is unchanged.
 
-The current basic course retains all 9,292/1,972 admitted legacy decisions and
-adds 4,993/1,294 true-trajectory Mortal decisions from 256 source families
-(205 TRAIN / 51 validation). Every source family keeps its split. The original
-675 reserved ancestral source groups remain excluded. See the
-[basic data report](../docs/experiments/results/curriculum-basic-teacher-data-20261122.md).
-Supervised validation is not an unseen test for v8, which trained on some
-original source data. Teacher actions are not certified optimal decisions.
+## Learning targets and data roles
 
-Course 2 keeps every previous 48,710/12,404 replay/call row unchanged and adds
-312/75 distinct immediate post-reach decisions. Those followups reuse the
-same source families; they do not add independent matches and all have zero
-opponent RI. The [integration audit](../docs/experiments/results/curriculum-calls13-prerequisites-20261123.md)
-preserves labels, visible inputs, source groups and ancestral exclusions.
+Course1 teaches actions, not a rule that wind tiles must always be discarded.
+Value winds can form yaku; isolated guest winds still depend on shape,
+turn and risk. Legal wins/yaku recognition are supplied by the native rule
+engine. Course1/2 results do not establish learned hand scoring or a
+win-versus-continue strategy.
 
-| Course-2 component | TRAIN / validation decisions | Loss mass |
+Course3A loss mass is55% calls/basic replay,15% risk,20% ordinary completion
+and10% masked Monte Carlo targets. Hard RI windows use the explicit full
+reach-versus-discard class objective. Untested MC alternatives are masked,
+rather than converted into negative labels.
+[3A plan](../docs/experiments/plans/curriculum-progression-fit-20261123.md).
+
+Course3B keeps all original replay objects and adds3652/828 decisions from
+201/45 targeted families. Its loss mass is80% replay and20% across kokushi,
+chuuren, suuankou, daisangen, chiitoitsu and an unselected random-hand
+control. These teach route-related actions; they are not proof that a
+student can name every yaku, compute han/fu or reliably complete rare hands.
+[3B plan](../docs/experiments/plans/curriculum-yaku-launch-20261123.md).
+
+Mortal supplies earlier expert/source-play actions. The terminal teacher is
+separate approximate public-world search with frozen-v8 ordinary continuation,
+two efficiency opponents and one calling opponent. Original private Mortal
+histories are not installed into counterfactual sampled hands. Public
+32-world outcomes and bootstrap preferences are neither expert optimality
+labels nor calibrated win probabilities.
+
+## Terminal data and explicit one-model execution
+
+The earlier263-view win cohort concentrates on insufficient small wins and
+matched leading controls. It compares hora with native ron pass or one
+guarded tsumo discard. Its uncertain two-arm targets remain explicitly
+partial; they do not identify untested legal actions.
+
+The additional non-win cohort plans96 TRAIN/24 validation views from24/6
+families, covering draw, post-call and call-response decisions in four score
+contexts. Ordinary proposals test at most four candidates. A complete
+reach/discard window instead tests every legal discard plus the unique
+reach, so its soft target can supervise the full RI0.5 class probability.
+[Full-RI proposal/loss](../docs/experiments/plans/curriculum-rank-nonwin-full-riichi-20261123.md).
+
+The broad win-control cohort has96/22 views from70/17 families, with actual
+native score/source reconstruction. It includes sufficient-behind,
+leading-control and valuable-still-behind ron/tsumo cases. Its full current
+menus require13408 terminal arms; labeling/merge319017/319028 are queued.
+Public no-ura solo score only chooses cohorts; it never becomes a forced
+accept label.
+[Win controls](../docs/experiments/plans/curriculum-rank-win-controls-20261123.md).
+
+Fresh targeted acquisition has completed72/36 unlabelled views from24/12
+distinct canonical families:8/4 families per operation for win/reach,
+win/ankan and win/kakan. Every case follows actual native turns in East4;
+open kakan sources first execute pon and the mandatory discard. All108
+inputs replay/encode,216 scripted accept/special one-model-call checks
+passed and source quarantine is0. These are deliberately constructed
+conditional opportunities, not natural match-frequency or strength data.
+Array319102 and merge319103 will generate paired preferences; combined
+catalog319104 waits for these and the earlier coherent data.
+[Fresh sources](../docs/experiments/plans/curriculum-targeted-win-sources-20261123.md)
+and [label recipe](../docs/experiments/plans/curriculum-targeted-win-labels-20261123.md).
+
+Each tested action completes32 matched public worlds in two independent
+blocks.512 bootstrap replicates retain uncertainty; exhausted sampling is
+quarantined without partial labels or outcome-based replacements. Future
+win replanning stays bounded/two-arm even for complete CURRENT menus.
+The priority is terminal top two, then better final rank, then bounded net
+points when initially third/fourth. Leading exact objective ties take the
+win/ordinary reference. There is no per-state fourth-escape veto and no
+reward for merely increasing calls or kan.
+
+The current all-late projection supplies coherent placement instructions.
+The explicit complete-win policy uses the same shared model to compare
+legal current hora/discard/riichi/call/kan alternatives, while early and
+unsupported robbed-kan shortcuts remain. The native loop must pass
+`current_public_event`: reconstructed observations had empty event lists.
+The old interface failed before model inference; its failed proof is
+preserved. The corrected263-view/526-choice proof and118-view/419-choice
+complete-menu proof passed, with tiny frozen-model probes. These prove
+interfaces, not learned decisions.
+[Event repair](../docs/experiments/plans/curriculum-native-public-event-20261123.md).
+
+Source records/families and actual repeated exposures must be counted
+separately. Preserving old replay does not mean every row must appear in
+every update. Sparse new pools cannot receive large claimed loss mass by
+silently exceeding scalar caps or pretending replicas add independent
+examples. Actual course4 mixing and fit admission still remain to do.
+
+## Current3A recovery and weight integrity
+
+Original3A job318606 completed600 updates/full validation, then failed
+because native evaluation requested a checkpoint before it was saved.
+Only its step0 weights exist. Its unsaved600 updates are not ancestors of
+the current candidate and cannot supply a600-step strength result.
+
+Recovery318979 uses a fresh output, the exact sealed calls388 parameters,
+the same data/order/seed/gradient recipe and the original2400 budget.
+A real two-update upstream integration verifies save ordering; those
+control weights/updates are not a student parent or curve point.
+The main run proved372 adapter/four head tensors, all12479 inherited
+validation-menu probabilities with zero error and exact16-game identity
+before updating. Real raw-input LoRA/head changes are recorded.
+
+Native evaluation now waits for the complete model AND optimizer state.
+3A saves every100 updates and3B every125, while their original600/625
+validation/game cadences remain unchanged. The original final advancement
+grade is not waived. No live job was restarted for these changes.
+[Recovery plan](../docs/experiments/plans/curriculum-save-order-recovery-20261123.md).
+
+## Real curves, development evidence and final comparison
+
+Per-update journals retain actual loss/CE/source counts/gradient/LR and
+local/effective-ancestry global steps. Discarded fits and control tests do
+not become cumulative student updates. SFT training reward is null.
+Reward, hand-win/first/top-two/fourth/net/deal-in curves use actual complete
+matches; teacher preference or declining validation loss is not win rate.
+
+Use separate loss panels for changed objectives and mark optimizer/policy
+transitions. Intermediate curves use the fixed16-match development subset;
+the final64 result retains its separate full-grid table. Do not join
+different-sized samples into an apparent improvement trajectory.
+
+| Same consumed64-match development grid | Top two | Net points/match |
 |---|---:|---:|
-| Six basic discard/RI replay strata | 14,285 / 3,266 | 63.70% |
-| Post-meld discards, both sources | 14,942 / 3,721 | 11.4333% |
-| Chi/pon response windows, both sources | 16,968 / 4,635 | 11.4333% |
-| Kan windows, both sources | 2,515 / 782 | 11.4333% |
-| Distinct immediate post-reach discards | 312 / 75 | 2.00% |
+|Calls388 with its original guarded route|65.625%|+2656.25|
+|Same calls388 parameters, complete-legal route|59.375%|+2457.81|
+|Frozen practical v8|59.375%|+4290.63|
 
-Rounded masses above are explanatory; the exact configuration/registration is
-authoritative. All 13 strata occur in every actual accumulation group, without
-replacement within each epoch; the tail is 193 decisions. Basic RI retains
-max-discard-class plus conditional-discard CE; other action targets use CE.
-The serving rule uses full-class probability, a different boundary from the
-max-class training loss. Keep actual selected RI recalls separate from raw
-metrics; falling loss does not prove stable or improved RI decisions.
+These are development means from eight logical seed groups. The calls
+mean does not establish parity; same parameters with changed dispatch are
+not the same policy. New3A post-update native outcomes are not available
+at this snapshot; the first scheduled point is600.
 
-These are decision-window targets, not a final-yaku classification curriculum
-or a prescribed yaku mixture. Legal wins are executed by a rule. The current
-course has no learned win/pass scoring claim, seven-pairs bonus/penalty or
-rare-yaku reward. The native Nine Gates/pure Nine Gates fixtures verify rule
-recognition and legal win execution only, not learned hand construction.
-Endgame decisions to decline an insufficient small win need a new admitted
-action/label contract; the existing forced-win shortcut cannot learn that by
-changing reward alone.
+Final comparison still uses the unopened32 logical seeds2026300000–
+2026300031, four seats and two profiles:256 complete East matches per
+policy. Pair statistics by whole seed, not256 independent matches.
+The new [statistical plan](../docs/experiments/plans/curriculum-final-comparison-20261123.md)
+makes matrix validation and32-cluster uncertainty arithmetic executable
+without playing those seeds. Candidate/policy/source identities and the
+full acceptance/secondary-risk interpretation still must be frozen before
+opening the final grid. A crossing-zero interval is not a noninferiority
+test. Neither a stage exit, synthetic check nor this index completes the
+goal.
 
-## What has actually been checked in the running fit
+The historical guide contains executable earlier recipes. This remains
+an incomplete end-to-end reproduction artifact: finish the actual courses,
+reliable labels/mix, portable stage registrations, curves, final candidate
+seal and independent v8 evidence. New hosts must regenerate public sources
+and bind their own actual paths/resources/receipts instead of fabricating
+our private audit caches or job IDs.
 
-The complete course-2 source is frozen at
-`e73fb33088dfed9467df4cea15c768362f5025ba`. Its configuration is
-[`curriculum-calls-classroute-v1.json`](../configs/training/curriculum-calls-classroute-v1.json),
-with seed 2026112209, adapter LR 1e-5, head LR 5e-5 and stage offset 608.
-The offset tracks this parameter chain, not updates in discarded experiments.
-The final candidate is local step 388, not a minimum-CE or favorable midpoint.
-
-Before any update, the actual fit verifies all 372 adapter/four head tensors,
-all 3,266 basic validation probabilities (maximum difference zero), identical
-selected actions and 16 exactly identical native parent event/outcomes.
-At least eight updates then demonstrate changed adapter/head parameters and
-no cached encoder features. These checks prove execution/transfer integrity;
-they do not prove improved strategy.
-
-The active handles are fit 316781 and after-success audit 316782. The fit has
-one GPU/four companion CPUs/48GB and a 12-hour limit, with timeout, logs and
-shell exit receipt; invalid audit dependencies are automatically cancelled.
-The registration's initial `registered_not_started` string is immutable
-registration-time metadata. Query the actual scheduler to determine whether
-the job is currently live, terminal or missing; neither that old string nor
-an append-only status snapshot substitutes for live scheduler evidence.
-
-No active/successful/failed bound source or output is edited. Repairs require
-new versions and fresh output paths. All compute, including data processing,
-tests, hashing, plotting and inference, runs inside finite scheduled GPU jobs.
-Login is limited to light file work and scheduler submission/query/cancellation.
-
-## Real curves and evaluation still required
-
-Course 1 has published actual per-update loss and separate matched-grid game
-curves in its completed report. Course 2 journals actual loss each update;
-formal validation/native game points are 0/194/388. Supervised reward is null.
-Evaluation reward is actual terminal net points / 8,000, alongside hand-win,
-deal-in, first/top-two/fourth rates. Do not join losses across changed objectives
-or replace a 16-match curve point with a 64-match stage-end mean.
-
-The [current exporter evidence](../docs/experiments/results/curriculum-calls-curves-ready-20261123.md)
-records a verified real 43-update snapshot, all 12,479 initial cached validation
-menus and 16 initial native games. That baseline-only plot remains private
-until post-update observations exist. Use the frozen exporter with a fresh
-output directory at each later snapshot; its first-launch template already
-has outputs and must not overwrite them. Final export additionally requires
-the actual independent final audit, rather than treating training exit as a
-quality pass.
-
-| Same consumed 64-match development grid | Current ancestry's raw course-1 final | Same weights, distinct RI selector | Frozen v8 |
-|---|---:|---:|---:|
-| Net points / complete East match | +176.56 | +967.19 | +4,290.63 |
-| Top two | 46.88% | 51.56% | 59.38% |
-| Hand win | 17.13% | 19.63% | 24.32% |
-| Deal-in | 14.43% | 15.37% | 10.44% |
-
-These are development results from eight logical seed groups, four seats and
-two opponent profiles. The selector-minus-raw net interval crosses zero;
-the selector's mean remains below v8. This is neither stable improvement nor
-evidence of parity. Paired uncertainty groups by logical seed, not by 64
-independent matches. The source-linked native comparison retains the full
-intervals and unfavorable results.
-
-Next finish the unchanged full calls course and independent audit, then
-assess source-specific RI retention, all five call operations' positive and
-negative cases, post-meld play and full-match outcomes. Any later risk scope
-requires a separate same-weight native comparison on the actual completed
-calls parent before a risk fit. Placement still requires reliable terminal
-labels, admitted replay/mix and a separately frozen fit.
-
-Final success remains the predeclared unopened 32 logical seeds x four seats
-x two profiles: **256 complete East matches per policy**, with the final
-student and frozen v8 under identical rules/seeds/seats. Freeze its candidate
-and statistical acceptance rule before opening those seeds; do not use them
-to choose a training checkpoint. A development interval crossing zero is not
-a noninferiority test. That final comparison has not been run.
-
-This is not yet a one-command, completed end-to-end reproduction. Historical
-private receipts/caches cannot be invented on another host: regenerate the
-publicly specified sources and bind a new experiment's actual resources,
-paths and immutable receipts before its outcomes. Fixed numerical recipes,
-input/model tensor checks and actual trajectories are the reproducibility
-targets; byte-identical CUDA weights across hardware are not promised.
-Publish code/plans and aggregate evidence/minimal real curves only. New raw
-hands, labels, probabilities, trajectories, gradients and research weights
-remain private. Main, the practical v8 model and Windows releases are unchanged.
+All computation, including source preparation/tests/plotting, runs in
+bounded scheduler GPU allocations with logs/exits. No login computation,
+CPU-only workaround, unbounded poller or unmanaged background process.
+Source/config/plans and aggregates may be published; raw hands/labels/
+walls/traces/gradients and research weights remain private. Main, practical
+v8 and Windows releases are unchanged.
