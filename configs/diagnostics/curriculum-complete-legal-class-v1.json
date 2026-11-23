@@ -1,0 +1,14 @@
+{
+  "method": "complete_native_legal_menu_with_fixed_full_class_RI0_5_v1",
+  "expected_teacher_rows": 82419,
+  "expected_ordinary_guard_exclusions": {"train": 418, "validation": 93},
+  "native_subset": "first_per_cohort_split_label_kind_saved_guard_reason_plus_first_each_offered_kind",
+  "synthetic_target_preference": 0.95,
+  "RI_boundary_probabilities": [0.4, 0.5, 0.6],
+  "native_subset_checks_every_candidate": true,
+  "native_ron_and_tsumo_shortcuts_required": true,
+  "new_source_games": 0,
+  "student_optimizer_updates": 0,
+  "automatic_fit_or_release": false,
+  "actual_completed_parent_native_comparison_required_before_fit": true
+}
