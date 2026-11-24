@@ -3,12 +3,15 @@
 Evidence snapshot: 2026-11-24, Asia/Dubai. Courses1 and2 in the current
 parameter ancestry are complete. The original fixed2400-update Course3A
 completed with a passing execution audit but failed its strategy advancement
-conditions. A controlled RI-paired-order retry is now training from the same
-qualified calls388 parent. A new conditional Course3B preparation/fit/audit
-chain is queued after that retry's terminal capture; it still requires the
-actual original strategy grade to pass before registration. Course4 requires
-a newly qualified3B and fresh registration. The obsolete original model chain
-has been canceled. Course4 source acquisition and teacher labeling continue
+conditions. The same-parent RI-paired-order retry has also completed2400
+updates, full validation,64 development matches and its independent execution
+audit, but failed strategy admission. Its final top-two rate is48.4375% and
+net points+1087.50/match, below same-grid v8's59.375%/+4290.625.
+Both conditional3B/placement model chains have been canceled before student
+updates; their actual terminals are preserved. The next controlled3A objective
+retains the exact calls13 replay loss. Its six tests and all87595 TRAIN-row
+loss checks pass, but registration/inheritance/launch work is still pending.
+Course4 source acquisition and teacher labeling continue
 independently. Neither3B nor4 student fit is yet admitted or started.
 See [research PR8](https://github.com/YokyYao/JevMajhong/pull/8) for dated live
 implementation and aggregate result reports. This index does not claim that the curriculum matches v8.
@@ -33,11 +36,12 @@ flowchart TD
     C[Same weights; explicit full-class RI selector]
     D[2: calls and post-call play; final388]
     E[Same weights; complete-legal execution control]
-    F[3A: efficiency and attack/defense; paired-order retry active]
-    G[3B: yaku and route selection; conditional2500 chain queued]
+    F[3A: parent-loss control preparing; two failed controls retained]
+    G[3B: yaku and route selection; data prepared, parent pending]
     H[4: terminal placement; sources and labels, fit pending]
     I[Unopened independent final comparison with frozen v8]
-    A --> B --> C --> D --> E --> F
+    A --> B --> C --> D --> E
+    E -. separate new registration .-> F
     F -. qualified final parent .-> G
     G -. qualified parent and admitted data .-> H
     H -. frozen final candidate .-> I
@@ -47,8 +51,8 @@ flowchart TD
 |---|---|---|
 | **1: basic decisions** | Ordinary discard and riichi/decline decisions |14285 TRAIN/3266 validation, six strata, four epochs,57140 exposures,608 updates. Completed; the distinct RI selector is separately documented.|
 | **2: calls and follow-up** | Chi, pon, ankan, daiminkan, kakan, pass and post-call discard |49022/12479 rows,13 strata, two epochs,98044 exposures,388 updates. Completed with the same adapter/head and a new optimizer.|
-| **3A: efficiency and attack/defense** | Ordinary hand completion, risk under opponents' riichi, useful calls and executable defensive choices |87595/23688 rows, two epochs,175190 exposures,2400 updates per attempt. Original final failed strategy admission; the same-parent RI-paired-order retry is actually training.|
-| **3B: yaku and route selection** | Retain useful tiles, pursue feasible routes and abandon unsuitable routes |91247/24516 rows, two epochs,182494 exposures,2500 updates. Data are prepared; a new conditional preparation/fit/audit chain is queued behind paired3A terminal capture. Student registration still requires actual qualified3A final.|
+| **3A: efficiency and attack/defense** | Ordinary hand completion, risk under opponents' riichi, useful calls and executable defensive choices |87595/23688 rows, two epochs,175190 exposures,2400 updates per attempt. Original and paired-order finals both failed strategy admission. A separate parent-loss control is being prepared; no new fit started.|
+| **3B: yaku and route selection** | Retain useful tiles, pursue feasible routes and abandon unsuitable routes |91247/24516 rows, two epochs,182494 exposures,2500 updates. Data are prepared; the failed-parent conditional chain was canceled. New student registration still requires an actual qualified3A final.|
 | **4: terminal placement** | Pursue top two when behind and take useful small wins/retain position when ahead |80% replay/20% across32 new pools; actual counts/exposures and two-epoch budget await data. Labeling continues; qualified-parent admission, registration, integration and full student fit/audit are not started.|
 
 The base is Qwen/Qwen3.5-0.8B revision
@@ -82,8 +86,10 @@ engine. Course1/2 results do not establish learned hand scoring or a
 win-versus-continue strategy.
 
 Course3A loss mass is55% calls/basic replay,15% risk,20% ordinary completion
-and10% masked Monte Carlo targets. Hard RI windows use the explicit full
-reach-versus-discard class objective. Untested MC alternatives are masked,
+and10% masked Monte Carlo targets. The two completed controls used the explicit
+full reach-versus-discard class objective. The next separate control will
+retain the parent's exact13-source replay objective while keeping the six
+new sources and source masses unchanged. Untested MC alternatives are masked,
 rather than converted into negative labels.
 [3A plan](../docs/experiments/plans/curriculum-progression-fit-20261123.md).
 
@@ -93,7 +99,10 @@ TRAIN daiminkan positives but none in281 offered new-teacher windows; source
 scalar weighting makes hard other-action mass about2.96 times hard daiminkan
 mass. This is a data-design gap, not a causal gradient diagnosis or proof that
 the teacher should have called. Existing six-case mask/Q checks are explicitly
-limited. The active paired fit's data and numerical recipe remain frozen.
+limited. Both completed controls' inputs and numerical recipes remain frozen.
+The [new native kan-source pilot](../docs/experiments/curriculum-kan-source-pilot-20261124.md)
+has189 replayed cases and183 actual Mortal labels. It adds ankan/kakan
+positives but no daiminkan positives; it remains separate from student fits.
 
 Course3B keeps all original replay objects and adds3652/828 decisions from
 201/45 targeted families. Its loss mass is80% replay and20% across kokushi,
@@ -106,8 +115,9 @@ The [paired-parent continuation entry](../docs/experiments/plans/curriculum-pair
 reuses that exact3B numerical recipe, prepared data, weights/orders and actual
 full-validation/I/O integrations. Only explicit parent/runtime references and
 output identities change. Its source was bound during the actual paired3A fit;
-six admission/terminal-bridge checks passed. Conditional scheduler dependencies
-are queued but do not admit a parent. The original final-only grade, tensor/full
+six admission/terminal-bridge checks passed. The actual failed final was
+rejected, and the dependent student jobs were canceled without updates.
+The original final-only grade, tensor/full
 prediction/native zero-baseline proofs and new-optimizer requirement remain.
 
 Mortal supplies earlier expert/source-play actions. The terminal teacher is
@@ -238,15 +248,21 @@ matches. Its independent execution audit passed, but strategy admission failed.
 The [final report](../docs/experiments/curriculum-3A-final2400-20261124.md)
 retains the negative result, all five real curve points and remaining call gaps.
 
-The active [RI-paired-order retry](../docs/experiments/plans/curriculum-riichi-paired-replay-20261124.md)
-starts again from the exact qualified calls388 parent with a fresh optimizer.
+The completed [RI-paired-order retry](../docs/experiments/plans/curriculum-riichi-paired-replay-20261124.md)
+started again from the exact qualified calls388 parent with a fresh optimizer.
 Data, loss masses, learning rates, two-epoch exposure budget, execution policy
 and original advancement conditions remain unchanged; only within-block RI
 positive/negative sample order changes. Before its first update,372 LoRA/four
 head tensors and all12479 inherited validation predictions matched the parent
 exactly. The failed original3A2400 is a retained control, not a parameter parent.
-Its2400 updates do not count toward the new student's ancestry. Improvement
-from pairing is still unproven.
+Its2400 updates do not count toward the paired student's ancestry. Pairing
+did not improve the final point estimates or resolve source-specific RI
+retention. The [audited final report](../docs/experiments/curriculum-3A-paired-final2400-20261124.md)
+preserves real curves, paired intervals and the failure. The next
+[parent-loss control](../docs/experiments/plans/curriculum-3A-parent-loss-retention-20261124.md)
+also starts from the same qualified calls388, excluding both failed3A runs
+from its parameter ancestry. Its objective preflight is complete, but no
+new registration or student fit has yet been admitted.
 
 ## Real curves, development evidence and final comparison
 
@@ -267,6 +283,7 @@ different-sized samples into an apparent improvement trajectory.
 |Same calls388 parameters, complete-legal route|59.375%|+2457.81|
 |Frozen practical v8|59.375%|+4290.63|
 |Original3A final2400, complete-legal RI0.5|50.000%|+1559.38|
+|Paired-order3A final2400, same complete-legal policy|48.4375%|+1087.50|
 
 These are development means from eight logical seed groups. The calls
 mean does not establish parity; same parameters with changed dispatch are
@@ -307,8 +324,8 @@ now record56.25% top two and−62.50 net points/match on the same consumed16
 cells, versus the original-order600's68.75% and+1887.50. Its full-validation
 loss is lower at1.191926, but pooled RI balanced accuracy is only62.96%
 and daiminkan remains0/88. This is not observed policy improvement or a
-final admission result. The registered2400-update retry continues unchanged;
-neither intermediate checkpoint is promoted and3B remains conditional.
+final admission result. The registered2400-update retry has now completed
+and failed; neither intermediate checkpoint was promoted.
 
 At [paired-order1200](../docs/experiments/curriculum-3A-paired-step1200-20261124.md),
 the same16 development cells produced75.00% top two and+2387.50 net points/match,
@@ -326,8 +343,9 @@ paired1200's75.00%,14.05% and+2387.50. Same-grid v8 has62.50% top two and
 point improves over its own1200 but does not establish an ordering advantage
 or stable v8 parity. Teacher-source RI decline remains142/238=59.66%, below
 the unchanged60% condition; daiminkan is4/88. Actual0/600/1200/1800 curves
-and80 reconstructed native ledgers are preserved. Training continues toward
-the unchanged final2400 candidate;3B remains conditional.
+and80 reconstructed native ledgers are preserved. The subsequent final2400
+matched16 subset fell to62.50% top two and+925.00 points; its full64 result
+and failed advancement are in the audited final report. No3B parent is admitted.
 
 The [120-view non-win placement cohort](../docs/experiments/curriculum-rank-nonwin-data-20261124.md)
 is now labelled, merged and classified:96 TRAIN/24 validation,24/6 families,
@@ -336,14 +354,15 @@ branches, complete data preparation and qualified-parent admission remain
 pending; this data milestone does not start Course4.
 
 The [paired-parent Course4 continuation](../docs/experiments/plans/curriculum-paired-placement-continuation-20261124.md)
-is now source-bound and conditionally queued, with18 source/contract checks
-passed in an actual allocated GPU job. It waits for the new3B final2500's
+was source-bound and conditionally queued, with18 source/contract checks
+passed in an actual allocated GPU job. It required a qualified3B final2500's
 original qualification and preserved successful terminals, plus complete
-expanded placement data. It then registers the unchanged Course4 recipe,
+expanded placement data. Its implementation then registers the Course4 recipe,
 runs the actual isolated integration and starts the full student only if
-these prerequisites pass. The child has no parent seal, registration or
-student updates yet. This closes the scheduling link, not the learning
-objective or final independent confirmation.
+these prerequisites pass. The actual3A parent failed, so the dependent
+Course4 model jobs were canceled and their actual terminals preserved.
+The child has no parent seal, registration or student updates. A new chain
+needs a genuinely qualified parent; source-data jobs continue independently.
 
 The intended curriculum is basic decisions → calls →3A tile efficiency and
 attack/defence →3B yaku and route selection → terminal placement. Calls-course
@@ -358,7 +377,7 @@ The [prepared3B dataset card](../docs/experiments/curriculum-3B-dataset-card-202
 lists actual route/context counts, family splits and the distinction between
 row counts and loss weights. New pools cover kokushi, chuuren, suuankou,
 daisangen, chiitoitsu and ordinary controls, with equal3⅓% source loss mass
-each within the20% new-data allocation. These rows are not in the current3A
+each within the20% new-data allocation. These rows are not in either completed3A
 fit; neither this coverage nor teacher agreement proves learned rare-yaku
 play. No new admission rule or test games are introduced by the card.
 
