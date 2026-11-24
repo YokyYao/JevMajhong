@@ -1,0 +1,104 @@
+# Retained-parent Stage 3A: 1,200-update development results
+
+The saved 1,200-update model improves top-two rate by 12.5 percentage points
+and net points by 3,162.50 per match relative to this trial's 600-update model.
+It still trails frozen practical v8 by 1,325 points per match, has a lower
+hand-win rate, and fails the unchanged riichi-retention diagnostics. These
+mixed development results do not establish stable improvement or v8 parity.
+
+## Training and checkpoint ancestry
+
+This trial continues the qualified calls388 weights, following basic608 from
+the fixed Qwen base. It does not restart from base at each stage and does not
+inherit either failed Stage 3A control. It starts a new optimizer while retaining
+the exact inherited calls13 replay objective. The frozen recipe has 87,595
+TRAIN rows, 23,688 validation menus, 19 source strata and 2,400 optimizer updates
+over two epochs. Source masses remain 55% inherited replay, 15% risk teacher,
+20% ordinary-completion teacher and 10% equally mixed four-phase masked MC.
+
+At step 1,200, full validation completed before the checkpoint was saved;
+the saved checkpoint was then reloaded for its 16 scheduled native matches.
+Training subsequently resumed into epoch two. Neither intermediate strength
+nor a low validation loss changes the registered final-only advancement rule.
+
+Checkpoint bundle identity:
+`d86892fc74f59b4c31f9028d87eca889347cd3f9406feefbf0f02b91c6fc6733`.
+
+## Same-cell native development comparison
+
+Each row uses the same two consumed logical seeds, four seats and two opponent
+profiles: 16 complete East matches per policy. The prior paired-order control
+is included to distinguish recovery within this trial from superiority over
+the previous objective.
+
+| Policy | First | Top two | Net points / match | Hand-win rate | Deal-in rate | Fourth |
+|---|---:|---:|---:|---:|---:|---:|
+| Parent0, complete-legal |31.25%|56.25%|+387.50|17.75%|7.69%|18.75%|
+| Retained600 |18.75%|62.50%|−875.00|16.72%|4.65%|25.00%|
+| Retained1200 |31.25%|75.00%|+2,287.50|14.05%|7.30%|25.00%|
+| Prior paired-order control1200 |25.00%|75.00%|+2,387.50|14.05%|6.41%|18.75%|
+| Frozen practical v8 |62.50%|62.50%|+3,612.50|22.37%|10.34%|31.25%|
+
+Relative to Retained600, hand-win rate falls 2.67 points while deal-in rate
+rises 2.65 points. Relative to the prior paired1200 control, top-two rate is
+unchanged and net points are 100 lower per match. The retained replay change
+therefore has not demonstrated an overall native advantage over that control.
+Hand-win and deal-in figures are per-match hand ratios averaged across matches.
+
+![Actual native development curves through 1200](figures/curriculum-3A-retained1200-native-20261125.svg)
+
+Reward is the actual native terminal raw net score divided by 8,000; it is
+not a separate win-probability estimate or a per-update reinforcement signal.
+Lines connect only the actual 0/600/1200 evaluations. The dashed reference is
+v8 on these exact same 16 cells. Two logical seed clusters are insufficient
+for an independent strength claim; no confidence band is inferred here.
+
+## Full validation and retention
+
+| Full validation diagnostic | Parent0 | Retained600 | Retained1200 |
+|---|---:|---:|---:|
+| Canonical weighted target CE |1.136669|1.110398|1.082483|
+| Retained weighted objective |1.137405|1.112241|1.085674|
+| Legacy RI correct decline |50/70 ·71.43%|43/70 ·61.43%|36/70 ·51.43%|
+| Teacher RI correct decline |176/238 ·73.95%|158/238 ·66.39%|133/238 ·55.88%|
+| Legacy RI balanced accuracy |70.85%|67.20%|63.55%|
+| Teacher RI balanced accuracy |70.42%|68.04%|65.57%|
+
+At 1,200, RI acceptance is 28/37 legacy and 216/287 teacher. Correct decline
+falls below the original 60% floor in both sources. Balanced accuracy falls
+7.30/4.85 percentage points from the parent, exceeding the original 3-point
+retention allowance. The retention diagnostic fails despite lower aggregate CE.
+Correct decline measures held-out label agreement; these labels do not prove
+that every corresponding strategic choice is optimal.
+
+Plain-label agreement gains 0.43/1.56 points over the parent; mean five-call
+balanced accuracy gains 0.79 points and equal-phase masked-MC CE improves
+0.08927. Those aggregate improvements do not cancel the RI-specific regression.
+
+![Actual training loss and full validation through 1200](figures/curriculum-3A-retained1200-loss-20261125.svg)
+
+The loss figure uses all 1,200 real optimizer journal entries, with a 50-update
+moving mean, and all three actual full-validation observations. The training
+prefix accounts for exactly 87,595 consumed examples. No synthetic software
+test journal is used as training evidence.
+
+## Evidence and next decision
+
+An independent saved-result analysis checked all 23,688 validation prediction
+IDs across all 19 sources and reconstructed 80 native match ledgers across
+the five compared policies. Immutable private validation/journal snapshots,
+checkpoint identities and completion bindings preserve the underlying evidence.
+The analysis and plotting loaded no model and generated no additional games;
+both ran as finite companion steps inside the existing scheduled GPU allocation.
+
+Continue the frozen 2,400-update trial, observing 1,800 and final 2,400 before
+the original final qualification and independent audit. If final qualification
+fails, retain its evidence and revise the next trial prospectively; do not
+admit a failed parent to Stage 3B or relabel an intermediate peak as the final
+candidate. The next diagnosis must explain RI decline and lower hand-win rate,
+alongside aggregate loss and score gains.
+
+The independent final grid remains unopened. Main, production v8 and Windows
+releases are unchanged. This report publishes aggregate results and figures
+only; raw hands, labels, logs, gradients, simulation worlds and research weights
+remain private.
