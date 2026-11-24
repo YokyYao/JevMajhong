@@ -13,8 +13,10 @@ retains the exact calls13 replay loss. All87595 TRAIN-row loss checks, nine
 objective/recipe tests and full23688 cached validation reconstruction passed.
 It has a separate registration and actual GPU job322022, started at18:32:06
 Dubai on November24, with audit322023 and terminal capture322024. Preparation
-is complete and the fit process has started; model initialization and exact
-inheritance proofs still precede its first update. No new playing-strength
+is complete; four actual updates/292 exposures have been observed. Exact
+372-adapter/four-head tensor inheritance, all12479 inherited menus with zero
+probability error, and16 baseline event records passed before its first update.
+No new playing-strength
 result is available. See the [launch snapshot](../docs/experiments/curriculum-3A-parent-loss-launch-20261124.md).
 Course4 source acquisition and teacher labeling continue
 independently. Neither3B nor4 student fit is yet admitted or started.
@@ -159,7 +161,10 @@ native score/source reconstruction. It includes sufficient-behind,
 leading-control and valuable-still-behind ron/tsumo cases. Its full current
 menus require13408 terminal arms. All118 views have now been processed:
 116 labels and two quarantined views across the four completed shards.
-Merge and targeted follow-up data work remain separate from the active3A fit.
+Merge and coherent input preparation are complete, giving91647 TRAIN/24607
+validation rows before the remaining targeted additions. Targeted follow-up
+labeling is running separately from the active3A fit. See the
+[complete-menu control report](../docs/experiments/curriculum-terminal-full-menu-controls-20261124.md).
 Public no-ura solo score only chooses cohorts; it never becomes a forced
 accept label.
 [Win controls](../docs/experiments/plans/curriculum-rank-win-controls-20261123.md).

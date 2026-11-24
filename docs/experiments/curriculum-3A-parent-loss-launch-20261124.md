@@ -15,10 +15,13 @@ has actually been registered and submitted; it is not just a proposed plan.
 |TRAIN/VAL|87595/23688 original rows, unchanged19 source masses and paired order|
 |Fit budget|Two epochs,175190 exposures,2400 updates; sole final candidate|
 
-Preparation has completed and the fit process is running. At this snapshot
-the actual model initialization/tensor/full-menu inheritance proofs are still
-pending; they must pass before the first update. A running job alone does not
-prove parameter updates or playing-strength gains. The previous same-profile
+Preparation has completed and the fit process is running. Subsequent startup
+verification observed four actual optimizer updates/292 exposures. Before
+the first update, all372 adapter tensors and four head tensors matched the
+qualified parent exactly, all12479 inherited validation menus matched with
+maximum probability difference0, and16 baseline games matched the parent's
+complete-legal events exactly. The base remains frozen and the optimizer is
+new. Actual updates do not prove playing-strength gains. The previous same-profile
 fit took10h31 including validation/simulation; this is a planning estimate,
 not a new measured duration or completion guarantee.
 
