@@ -263,6 +263,12 @@ opening the final grid. A crossing-zero interval is not a noninferiority
 test. Neither a stage exit, synthetic check nor this index completes the
 goal.
 
+The [JSON source-evidence helper](../docs/experiments/plans/curriculum-confirmation-json-sources-20261124.md)
+now distinguishes exact hash-bound protected-range declarations from actual
+reserved-seed data occurrences. Its actual307-artifact current subset and26
+confirmation checks are complete; future3B/placement ancestry and full receipt
+closure still require the final producer. No reserved native games were opened.
+
 The historical guide contains executable earlier recipes. This remains
 an incomplete end-to-end reproduction artifact: finish the actual courses,
 reliable labels/mix, portable stage registrations, curves, final candidate
