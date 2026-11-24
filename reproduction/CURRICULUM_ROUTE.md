@@ -473,6 +473,15 @@ The actual checked coverage is48/57 sources; nine collecting targeted pools,
 full validation/mixture, qualified parent and actual model integration/fit
 remain required. No available-data check admits a smaller placement task.
 
+The [retained placement trainer/auditor interfaces](../docs/experiments/curriculum-placement-retained-interface-20261124.md)
+are now source-bound with seven software tests passed. The actual nested
+tracker/pinned journal and complete journal-evidence function agree on all
+ten components for synthetic57-source observations and reject corrupted
+accounting. Numerical budgets, real64/16 policy baselines and original grade
+rules are retained. No fourth-course model, parent seal, registration or
+job was created. Actual parent/data producers, full validation, isolated
+real-model integration, fit and final source closure remain required.
+
 The historical guide contains executable earlier recipes. This remains
 an incomplete end-to-end reproduction artifact: finish the actual courses,
 reliable labels/mix, portable stage registrations, curves, final candidate
