@@ -23,6 +23,14 @@ independently. Neither3B nor4 student fit is yet admitted or started.
 See [research PR8](https://github.com/YokyYao/JevMajhong/pull/8) for dated live
 implementation and aggregate result reports. This index does not claim that the curriculum matches v8.
 
+The first100-update checkpoint of the retained-parent control has been saved;
+its7300 exposures and all376 optimizer-state counters were checked without
+inference or extra updates. Full new strategy evaluation remains pending.
+The separate [net-point exporter](../docs/experiments/plans/curriculum-net-points-export-20261124.md)
+is bound to job322103 after the original audit322023. Existing loss/reward/rate
+exports remain unchanged; the added PNG/PDF separates matched16 trajectories
+from final64 results and retains failed grades instead of implying admission.
+
 The conditional3B chain also has a separate finite
 [actual-terminal preservation task](../docs/experiments/plans/curriculum-yaku-terminal-capture-20261124.md),
 bound before preparation/fit starts and queued after its independent audit.

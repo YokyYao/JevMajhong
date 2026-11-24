@@ -15,8 +15,10 @@ has actually been registered and submitted; it is not just a proposed plan.
 |TRAIN/VAL|87595/23688 original rows, unchanged19 source masses and paired order|
 |Fit budget|Two epochs,175190 exposures,2400 updates; sole final candidate|
 
-Preparation has completed and the fit process is running. Subsequent startup
-verification observed four actual optimizer updates/292 exposures. Before
+Preparation has completed and the fit process is running. The first100-update
+checkpoint has been saved, with7300 exposures. Its actual optimizer file was
+loaded inside the GPU allocation and all376 optimizer states were at100;
+this read-only inspection made no model forwards or updates. Before
 the first update, all372 adapter tensors and four head tensors matched the
 qualified parent exactly, all12479 inherited validation menus matched with
 maximum probability difference0, and16 baseline games matched the parent's
@@ -42,6 +44,16 @@ checkpoints and0/600/1200/1800/2400 validation/native points preserve actual
 loss/reward/hand-win/top-two/net histories. The audit independently checks
 all optimizer states, source exposures, reloaded full validation menus and
 native settlement ledgers. No automatic3B/4 fit or release is admitted.
+
+The separate [net-point export](plans/curriculum-net-points-export-20261124.md)
+is bound as job322103 after the original independent audit322023. Its version2
+entry accepts the actual retained-parent method and preserves stage/method,
+final model identity and original strategy grade. It produces a matched16
+trajectory and a separate full64 comparison in PNG/PDF. An actual preflight
+on the completed historical paired control reproduced its five original
+net-point values; that historical figure is not a new candidate result.
+The active fit/audit recipe is unchanged and its new net-point plot remains
+pending until the actual full fit and independent audit finish.
 
 Source and [launch contract](plans/curriculum-3A-parent-loss-launch-20261124.md)
 are published on the research branch. Main, the Windows model and frozenv8
