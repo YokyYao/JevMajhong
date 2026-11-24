@@ -455,6 +455,13 @@ arms passed on an allocated node. No live writer was canceled or resumed;
 future attempts require genuine terminal evidence and preserve complete
 cases, fixed populations/32 worlds and explicit sampling quarantines.
 
+Its [full recovered-data pipeline](../docs/experiments/curriculum-targeted-win-resumed-pipeline-20261124.md)
+is also source-bound. Six tests and rejection of the actual incomplete shard
+passed. The original full108-view merge changes only its root; the original
+coherent projection changes only control/output paths. No partial collection
+was merged and no new pipeline job was submitted. Actual full collection,
+merge, projection and qualified-parent/mix admission remain pending.
+
 The historical guide contains executable earlier recipes. This remains
 an incomplete end-to-end reproduction artifact: finish the actual courses,
 reliable labels/mix, portable stage registrations, curves, final candidate
