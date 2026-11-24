@@ -81,6 +81,14 @@ reach-versus-discard class objective. Untested MC alternatives are masked,
 rather than converted into negative labels.
 [3A plan](../docs/experiments/plans/curriculum-progression-fit-20261123.md).
 
+The [exact current operation-label classification](../docs/experiments/curriculum-operation-label-balance-20261124.md)
+separates hard and masked-MC labels by operation and source. It finds341 legacy
+TRAIN daiminkan positives but none in281 offered new-teacher windows; source
+scalar weighting makes hard other-action mass about2.96 times hard daiminkan
+mass. This is a data-design gap, not a causal gradient diagnosis or proof that
+the teacher should have called. Existing six-case mask/Q checks are explicitly
+limited. The active paired fit's data and numerical recipe remain frozen.
+
 Course3B keeps all original replay objects and adds3652/828 decisions from
 201/45 targeted families. Its loss mass is80% replay and20% across kokushi,
 chuuren, suuankou, daisangen, chiitoitsu and an unselected random-hand
