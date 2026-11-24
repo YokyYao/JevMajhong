@@ -1,0 +1,19 @@
+{
+  "status": "planned_not_registered_or_fit_admitted",
+  "run_id": "jev-curriculum-placement-paired-parent-v1",
+  "stage": "stage4-placement-paired-parent-v1",
+  "plan_root": "runs/curriculum-placement-paired-v1/fit-plan",
+  "out": "runs/curriculum-placement-paired-v1/stage4-fit",
+  "seed": 2026112306,
+  "epochs": 2,
+  "batch": 1,
+  "learning_rate": 0.000003,
+  "head_learning_rate": 0.000015,
+  "loss_method": "placement_soft_full_RI_class2_tested_action_mask_v1",
+  "selection_method": "all_late_same_model_complete_current_win_menu_and_full_RI_route_v2",
+  "placement_input_schema": "all_late_terminal_top2_instruction_public_win_source_v1",
+  "new_optimizer": true,
+  "optimizer_resume": false,
+  "final_candidate_only": true,
+  "automatic_release": false
+}

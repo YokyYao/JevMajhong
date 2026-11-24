@@ -324,6 +324,25 @@ zero cross-split record/family/physical overlap and no quarantine. Other win
 branches, complete data preparation and qualified-parent admission remain
 pending; this data milestone does not start Course4.
 
+The [paired-parent Course4 continuation](../docs/experiments/plans/curriculum-paired-placement-continuation-20261124.md)
+is now source-bound and conditionally queued, with18 source/contract checks
+passed in an actual allocated GPU job. It waits for the new3B final2500's
+original qualification and preserved successful terminals, plus complete
+expanded placement data. It then registers the unchanged Course4 recipe,
+runs the actual isolated integration and starts the full student only if
+these prerequisites pass. The child has no parent seal, registration or
+student updates yet. This closes the scheduling link, not the learning
+objective or final independent confirmation.
+
+The intended curriculum is basic decisions → calls →3A tile efficiency and
+attack/defence →3B yaku and route selection → terminal placement. Calls-course
+operation coverage and3A's contextual use of calls are different learning
+scopes.3B includes targeted feasible-yaku scenarios; neither legal-action
+coverage nor recognising a rare yaku alone demonstrates a learned route.
+Course4 covers chasing a better place, quick small wins when useful and
+protecting a lead. Actual evidence, rather than stage names, determines
+whether each stage is qualified.
+
 Final comparison still uses the unopened32 logical seeds2026300000–
 2026300031, four seats and two profiles:256 complete East matches per
 policy. Pair statistics by whole seed, not256 independent matches.
