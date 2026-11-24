@@ -482,6 +482,21 @@ rules are retained. No fourth-course model, parent seal, registration or
 job was created. Actual parent/data producers, full validation, isolated
 real-model integration, fit and final source closure remain required.
 
+The [retained3A600 milestone](../docs/experiments/curriculum-3A-retained600-20261124.md)
+is now complete: all23688 validation menus and scheduled16 native games.
+Correct RI decline is61.43% legacy/66.39% teacher, better than the paired
+control's42.86%/43.70%, but below parent0. Legacy balanced retention fails
+the original3-point allowance. Same16 top two rises56.25%→62.50%, while net
+points fall+387.50→−875.00. Only two consumed logical seeds are represented;
+no strength/parity claim or checkpoint promotion follows. Training continues.
+
+A [finite after-terminal bridge](../docs/experiments/curriculum-retained-yaku-bridge-20261124.md)
+is now queued as322577 after actual terminal-capture322024, with six tests
+passed and the real held dependency bound. It preserves the capture's actual
+exit, rechecks the original final qualification and invokes the frozen3B
+launcher only on success. No continuous observer or child model is started
+by queuing this job; failures/invalid dependencies prevent child computation.
+
 The historical guide contains executable earlier recipes. This remains
 an incomplete end-to-end reproduction artifact: finish the actual courses,
 reliable labels/mix, portable stage registrations, curves, final candidate
