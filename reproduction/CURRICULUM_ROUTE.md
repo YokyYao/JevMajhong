@@ -438,6 +438,15 @@ reserved-seed data occurrences. Its actual307-artifact current subset and26
 confirmation checks are complete; future3B/placement ancestry and full receipt
 closure still require the final producer. No reserved native games were opened.
 
+The [retained-parent3B entry](../docs/experiments/curriculum-yaku-retained-entry-20261124.md)
+is now implemented and source-bound during the live3A fit at366 updates.
+Eight meaningful guard/runtime tests and the actual tracker/journal/auditor
+loss-loop integration passed with explicitly synthetic software inputs.
+The entry preserves the prepared3B data, numerical budget and evaluation
+rules and continues the qualified3A weights. No3B jobs, parent seal or model
+registration were created; actual final3A qualification and genuine terminal
+evidence remain prerequisites, followed by the full model warm-start proof.
+
 The historical guide contains executable earlier recipes. This remains
 an incomplete end-to-end reproduction artifact: finish the actual courses,
 reliable labels/mix, portable stage registrations, curves, final candidate
