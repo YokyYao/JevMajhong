@@ -447,6 +447,14 @@ rules and continues the qualified3A weights. No3B jobs, parent seal or model
 registration were created; actual final3A qualification and genuine terminal
 evidence remain prerequisites, followed by the full model warm-start proof.
 
+The [targeted terminal-label continuation](../docs/experiments/curriculum-targeted-win-resume-20261124.md)
+is now source-bound before any timeout. The first two actual views required
+about75 minutes, raising a capacity warning for27 views in12 hours. Seven
+recovery tests and full ledger/target reconstruction of their768 complete
+arms passed on an allocated node. No live writer was canceled or resumed;
+future attempts require genuine terminal evidence and preserve complete
+cases, fixed populations/32 worlds and explicit sampling quarantines.
+
 The historical guide contains executable earlier recipes. This remains
 an incomplete end-to-end reproduction artifact: finish the actual courses,
 reliable labels/mix, portable stage registrations, curves, final candidate
