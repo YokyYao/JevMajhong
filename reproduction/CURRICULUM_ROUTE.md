@@ -9,8 +9,13 @@ audit, but failed strategy admission. Its final top-two rate is48.4375% and
 net points+1087.50/match, below same-grid v8's59.375%/+4290.625.
 Both conditional3B/placement model chains have been canceled before student
 updates; their actual terminals are preserved. The next controlled3A objective
-retains the exact calls13 replay loss. Its six tests and all87595 TRAIN-row
-loss checks pass, but registration/inheritance/launch work is still pending.
+retains the exact calls13 replay loss. All87595 TRAIN-row loss checks, nine
+objective/recipe tests and full23688 cached validation reconstruction passed.
+It has a separate registration and actual GPU job322022, started at18:32:06
+Dubai on November24, with audit322023 and terminal capture322024. Preparation
+is complete and the fit process has started; model initialization and exact
+inheritance proofs still precede its first update. No new playing-strength
+result is available. See the [launch snapshot](../docs/experiments/curriculum-3A-parent-loss-launch-20261124.md).
 Course4 source acquisition and teacher labeling continue
 independently. Neither3B nor4 student fit is yet admitted or started.
 See [research PR8](https://github.com/YokyYao/JevMajhong/pull/8) for dated live
@@ -36,7 +41,7 @@ flowchart TD
     C[Same weights; explicit full-class RI selector]
     D[2: calls and post-call play; final388]
     E[Same weights; complete-legal execution control]
-    F[3A: parent-loss control preparing; two failed controls retained]
+    F[3A: parent-loss control running; two failed controls retained]
     G[3B: yaku and route selection; data prepared, parent pending]
     H[4: terminal placement; sources and labels, fit pending]
     I[Unopened independent final comparison with frozen v8]
@@ -51,7 +56,7 @@ flowchart TD
 |---|---|---|
 | **1: basic decisions** | Ordinary discard and riichi/decline decisions |14285 TRAIN/3266 validation, six strata, four epochs,57140 exposures,608 updates. Completed; the distinct RI selector is separately documented.|
 | **2: calls and follow-up** | Chi, pon, ankan, daiminkan, kakan, pass and post-call discard |49022/12479 rows,13 strata, two epochs,98044 exposures,388 updates. Completed with the same adapter/head and a new optimizer.|
-| **3A: efficiency and attack/defense** | Ordinary hand completion, risk under opponents' riichi, useful calls and executable defensive choices |87595/23688 rows, two epochs,175190 exposures,2400 updates per attempt. Original and paired-order finals both failed strategy admission. A separate parent-loss control is being prepared; no new fit started.|
+| **3A: efficiency and attack/defense** | Ordinary hand completion, risk under opponents' riichi, useful calls and executable defensive choices |87595/23688 rows, two epochs,175190 exposures,2400 updates per attempt. Original and paired-order finals both failed strategy admission. Separate registered parent-loss control job322022 is running; its final result is pending.|
 | **3B: yaku and route selection** | Retain useful tiles, pursue feasible routes and abandon unsuitable routes |91247/24516 rows, two epochs,182494 exposures,2500 updates. Data are prepared; the failed-parent conditional chain was canceled. New student registration still requires an actual qualified3A final.|
 | **4: terminal placement** | Pursue top two when behind and take useful small wins/retain position when ahead |80% replay/20% across32 new pools; actual counts/exposures and two-epoch budget await data. Labeling continues; qualified-parent admission, registration, integration and full student fit/audit are not started.|
 
@@ -87,7 +92,7 @@ win-versus-continue strategy.
 
 Course3A loss mass is55% calls/basic replay,15% risk,20% ordinary completion
 and10% masked Monte Carlo targets. The two completed controls used the explicit
-full reach-versus-discard class objective. The next separate control will
+full reach-versus-discard class objective. The running separate control will
 retain the parent's exact13-source replay objective while keeping the six
 new sources and source masses unchanged. Untested MC alternatives are masked,
 rather than converted into negative labels.
@@ -152,7 +157,9 @@ reach, so its soft target can supervise the full RI0.5 class probability.
 The broad win-control cohort has96/22 views from70/17 families, with actual
 native score/source reconstruction. It includes sufficient-behind,
 leading-control and valuable-still-behind ron/tsumo cases. Its full current
-menus require13408 terminal arms; labeling and merge are queued.
+menus require13408 terminal arms. All118 views have now been processed:
+116 labels and two quarantined views across the four completed shards.
+Merge and targeted follow-up data work remain separate from the active3A fit.
 Public no-ura solo score only chooses cohorts; it never becomes a forced
 accept label.
 [Win controls](../docs/experiments/plans/curriculum-rank-win-controls-20261123.md).
