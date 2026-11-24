@@ -310,6 +310,20 @@ and daiminkan remains0/88. This is not observed policy improvement or a
 final admission result. The registered2400-update retry continues unchanged;
 neither intermediate checkpoint is promoted and3B remains conditional.
 
+At [paired-order1200](../docs/experiments/curriculum-3A-paired-step1200-20261124.md),
+the same16 development cells produced75.00% top two and+2387.50 net points/match,
+compared with original-order1200's62.50% and+1912.50. Hand-win rate fell to14.05%,
+RI balanced accuracy remains64.95%, and daiminkan is2/88. Two consumed seed
+groups cannot establish stable improvement or parity; the unchanged final2400
+rule and original admission conditions still apply. Actual0/600/1200 curves
+are preserved in the report.
+
+The [120-view non-win placement cohort](../docs/experiments/curriculum-rank-nonwin-data-20261124.md)
+is now labelled, merged and classified:96 TRAIN/24 validation,24/6 families,
+zero cross-split record/family/physical overlap and no quarantine. Other win
+branches, complete data preparation and qualified-parent admission remain
+pending; this data milestone does not start Course4.
+
 Final comparison still uses the unopened32 logical seeds2026300000–
 2026300031, four seats and two profiles:256 complete East matches per
 policy. Pair statistics by whole seed, not256 independent matches.
