@@ -24,6 +24,29 @@ nor a low validation loss changes the registered final-only advancement rule.
 Checkpoint bundle identity:
 `d86892fc74f59b4c31f9028d87eca889347cd3f9406feefbf0f02b91c6fc6733`.
 
+### Environment observation during the continuing trial
+
+A finite companion step in the same GPU allocation recorded the environment
+while this trial continued beyond 1,200 updates. All 11 tracked package versions
+match the previously published [stage1 runtime list](../../reproduction/curriculum-runtime.txt),
+including Transformers 5.21.0, PEFT 0.21.2 and RiichiEnv 0.4.11.
+
+| Observed component | Value |
+|---|---|
+| Python |CPython 3.12.3|
+| PyTorch |2.11.0+cu128|
+| PyTorch compiled CUDA |12.8|
+| GPU |NVIDIA RTX 5000 Ada Generation, 32,760 MiB|
+| NVIDIA driver |570.195.03|
+| GPU compute capability |8.9|
+
+The full inventory of 141 installed distributions and actual allocation are
+preserved privately with hashes. This is a current companion-process observation,
+not a retroactive record of training startup or proof of identical package
+binaries/bitwise reproduction. Fresh-process kernel or determinism flags are
+not attributed to the trainer. No packages, model parameters or active training
+configuration were changed by the capture.
+
 ## Same-cell native development comparison
 
 Each row uses the same two consumed logical seeds, four seats and two opponent
