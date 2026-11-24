@@ -13,7 +13,7 @@ retains the exact calls13 replay loss. All87595 TRAIN-row loss checks, nine
 objective/recipe tests and full23688 cached validation reconstruction passed.
 It has a separate registration and actual GPU job322022, started at18:32:06
 Dubai on November24, with audit322023 and terminal capture322024. Preparation
-is complete; four actual updates/292 exposures have been observed. Exact
+is complete and actual optimizer updates are running. Exact
 372-adapter/four-head tensor inheritance, all12479 inherited menus with zero
 probability error, and16 baseline event records passed before its first update.
 No new playing-strength
@@ -110,6 +110,12 @@ limited. Both completed controls' inputs and numerical recipes remain frozen.
 The [new native kan-source pilot](../docs/experiments/curriculum-kan-source-pilot-20261124.md)
 has189 replayed cases and183 actual Mortal labels. It adds ankan/kakan
 positives but no daiminkan positives; it remains separate from student fits.
+The [expanded daiminkan context cohort](../docs/experiments/curriculum-daiminkan-context-sources-20261124.md)
+adds554 native opportunities (412 TRAIN/142 validation) from576 fixed plans,
+covering closed/value-pon/simple-pon hands and all three discarder roles.
+Twenty-two prefix quarantines are preserved. Original32-family partitions
+are retained. Teacher322084 and terminal capture322085 are queued; no new
+teacher result or student gain is claimed, and the active3A recipe is unchanged.
 
 Course3B keeps all original replay objects and adds3652/828 decisions from
 201/45 targeted families. Its loss mass is80% replay and20% across kokushi,
