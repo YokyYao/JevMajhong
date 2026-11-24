@@ -296,6 +296,14 @@ evidence of parity. Both original-source RI decline accuracies were below60%,
 and source-specific retention failed. No intermediate point was promoted;
 the current retry keeps the original admission criteria.
 
+The controlled retry's [actual600-step report and curves](../docs/experiments/curriculum-3A-paired-step600-20261124.md)
+now record56.25% top two and−62.50 net points/match on the same consumed16
+cells, versus the original-order600's68.75% and+1887.50. Its full-validation
+loss is lower at1.191926, but pooled RI balanced accuracy is only62.96%
+and daiminkan remains0/88. This is not observed policy improvement or a
+final admission result. The registered2400-update retry continues unchanged;
+neither intermediate checkpoint is promoted and3B remains conditional.
+
 Final comparison still uses the unopened32 logical seeds2026300000–
 2026300031, four seats and two profiles:256 complete East matches per
 policy. Pair statistics by whole seed, not256 independent matches.
