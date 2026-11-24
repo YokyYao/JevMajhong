@@ -84,12 +84,60 @@ test journal is used as training evidence.
 
 ## Evidence and next decision
 
+### Saved-data diagnosis of RI drift
+
+A finite full-epoch journal analysis confirms that all four inherited RI
+strata were consumed; the decline examples were not accidentally omitted.
+
+| RI replay stratum | Actual TRAIN examples / epoch | Registered loss mass | Updates containing the stratum |
+|---|---:|---:|---:|
+| Legacy decline |272|2.145894%|260/1200|
+| Legacy accept |194|2.145894%|192/1200|
+| Teacher decline |812|3.985231%|746/1200|
+| Teacher accept |1075|3.985231%|845/1200|
+
+Accept and decline have equal registered loss mass within each origin despite
+different raw counts. A separate complete scan of all 87,595 TRAIN and 23,688
+validation menus finds no reach option in either new hard-label teacher
+stratum (risk discards and ordinary-completion discards). Across all hard-label
+TRAIN strata, source mass times the fraction labelled reach at a reach window
+is 6.1884%, versus 6.3087% for another action at such a window. These are target
+exposure masses, not measured gradient magnitudes. Fifty closed-discard MC
+menus and three kan MC menus also offer reach with soft targets; they are not
+converted into hard accept/decline labels by this analysis.
+
+The same 632 held-out basic RI menus show a broad upward reach-probability
+shift, affecting both target classes:
+
+| Held-out source | Mean reach probability at0 | At600 | At1200 | Correct→wrong / wrong→correct, 0→1200 |
+|---|---:|---:|---:|---:|
+| Legacy decline |0.4105|0.4392|0.4755|14 / 0|
+| Legacy accept |0.5609|0.5845|0.6045|0 / 2|
+| Teacher decline |0.4018|0.4254|0.4725|44 / 1|
+| Teacher accept |0.5585|0.5897|0.6273|2 / 26|
+
+No previously strong decline with reach probability at most0.2 crosses0.5;
+the observed wrong-way changes occur among less decisive examples. This is
+consistent with a shared decision-bias drift, rather than absence of decline
+training or a large excess of hard positive reach targets. It does not identify
+the causal parameter gradients, prove cross-task interference, or establish
+that changing the serving threshold would improve play. The threshold remains
+fixed; validation examples are not reused for training.
+
+For the next prospective recipe, diagnose the actual TRAIN class gradients
+and parent-behavior retention before adding more positive reach examples or
+simply increasing epochs. The inherited max-discard class loss and full-class
+serving decision are distinct mathematical quantities; prior full-group
+controls also failed, so objective alignment alone is not yet a proven fix.
+Preserve current data, objective and optimizer for the registered live trial.
+
 An independent saved-result analysis checked all 23,688 validation prediction
 IDs across all 19 sources and reconstructed 80 native match ledgers across
 the five compared policies. Immutable private validation/journal snapshots,
 checkpoint identities and completion bindings preserve the underlying evidence.
-The analysis and plotting loaded no model and generated no additional games;
-both ran as finite companion steps inside the existing scheduled GPU allocation.
+The analysis, RI diagnostics and plotting loaded no model and generated no
+additional games; all ran as finite companion steps inside the existing
+scheduled GPU allocation, with recorded successful exits.
 
 Continue the frozen 2,400-update trial, observing 1,800 and final 2,400 before
 the original final qualification and independent audit. If final qualification
