@@ -13,6 +13,12 @@ independently. Neither3B nor4 student fit is yet admitted or started.
 See [research PR8](https://github.com/YokyYao/JevMajhong/pull/8) for dated live
 implementation and aggregate result reports. This index does not claim that the curriculum matches v8.
 
+The conditional3B chain also has a separate finite
+[actual-terminal preservation task](../docs/experiments/plans/curriculum-yaku-terminal-capture-20261124.md),
+bound before preparation/fit starts and queued after its independent audit.
+Seven terminal/receipt/exclusive-I/O checks passed. This task preserves
+failed outcomes too; it does not admit Course4 or change any strategy grade.
+
 The [historical guide](README.md) preserves earlier recipes and negative
 outcomes. Its1162-step, stable-v2, calls324 and risk-recovery branches are
 not parents of the current student. The current route reorganizes the
