@@ -4,10 +4,12 @@ Evidence snapshot: 2026-11-24, Asia/Dubai. Courses1 and2 in the current
 parameter ancestry are complete. The original fixed2400-update Course3A
 completed with a passing execution audit but failed its strategy advancement
 conditions. A controlled RI-paired-order retry is now training from the same
-qualified calls388 parent. Course3B and Course4 student fits require a newly
-qualified parent and fresh registration; their obsolete model dependency chain
+qualified calls388 parent. A new conditional Course3B preparation/fit/audit
+chain is queued after that retry's terminal capture; it still requires the
+actual original strategy grade to pass before registration. Course4 requires
+a newly qualified3B and fresh registration. The obsolete original model chain
 has been canceled. Course4 source acquisition and teacher labeling continue
-independently. Its student fit is not yet admitted or started.
+independently. Neither3B nor4 student fit is yet admitted or started.
 See [research PR8](https://github.com/YokyYao/JevMajhong/pull/8) for dated live
 implementation and aggregate result reports. This index does not claim that the curriculum matches v8.
 
@@ -26,7 +28,7 @@ flowchart TD
     D[2: calls and post-call play; final388]
     E[Same weights; complete-legal execution control]
     F[3A: efficiency and attack/defense; paired-order retry active]
-    G[3B: yaku and route selection; fixed2500 awaits qualified parent]
+    G[3B: yaku and route selection; conditional2500 chain queued]
     H[4: terminal placement; sources and labels, fit pending]
     I[Unopened independent final comparison with frozen v8]
     A --> B --> C --> D --> E --> F
@@ -40,7 +42,7 @@ flowchart TD
 | **1: basic decisions** | Ordinary discard and riichi/decline decisions |14285 TRAIN/3266 validation, six strata, four epochs,57140 exposures,608 updates. Completed; the distinct RI selector is separately documented.|
 | **2: calls and follow-up** | Chi, pon, ankan, daiminkan, kakan, pass and post-call discard |49022/12479 rows,13 strata, two epochs,98044 exposures,388 updates. Completed with the same adapter/head and a new optimizer.|
 | **3A: efficiency and attack/defense** | Ordinary hand completion, risk under opponents' riichi, useful calls and executable defensive choices |87595/23688 rows, two epochs,175190 exposures,2400 updates per attempt. Original final failed strategy admission; the same-parent RI-paired-order retry is actually training.|
-| **3B: yaku and route selection** | Retain useful tiles, pursue feasible routes and abandon unsuitable routes |91247/24516 rows, two epochs,182494 exposures,2500 updates. Data are prepared; student fit/audit need a qualified3A final and new parent registration.|
+| **3B: yaku and route selection** | Retain useful tiles, pursue feasible routes and abandon unsuitable routes |91247/24516 rows, two epochs,182494 exposures,2500 updates. Data are prepared; a new conditional preparation/fit/audit chain is queued behind paired3A terminal capture. Student registration still requires actual qualified3A final.|
 | **4: terminal placement** | Pursue top two when behind and take useful small wins/retain position when ahead |80% replay/20% across32 new pools; actual counts/exposures and two-epoch budget await data. Labeling continues; qualified-parent admission, registration, integration and full student fit/audit are not started.|
 
 The base is Qwen/Qwen3.5-0.8B revision
@@ -85,6 +87,14 @@ chuuren, suuankou, daisangen, chiitoitsu and an unselected random-hand
 control. These teach route-related actions; they are not proof that a
 student can name every yaku, compute han/fu or reliably complete rare hands.
 [3B plan](../docs/experiments/plans/curriculum-yaku-launch-20261123.md).
+
+The [paired-parent continuation entry](../docs/experiments/plans/curriculum-paired-yaku-continuation-20261124.md)
+reuses that exact3B numerical recipe, prepared data, weights/orders and actual
+full-validation/I/O integrations. Only explicit parent/runtime references and
+output identities change. Its source was bound during the actual paired3A fit;
+six admission/terminal-bridge checks passed. Conditional scheduler dependencies
+are queued but do not admit a parent. The original final-only grade, tensor/full
+prediction/native zero-baseline proofs and new-optimizer requirement remain.
 
 Mortal supplies earlier expert/source-play actions. The terminal teacher is
 separate approximate public-world search with frozen-v8 ordinary continuation,
