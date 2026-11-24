@@ -37,7 +37,7 @@ flowchart TD
 |---|---|---|
 | **1: basic decisions** | Ordinary discard and riichi/decline decisions |14285 TRAIN/3266 validation, six strata, four epochs,57140 exposures,608 updates. Completed; the distinct RI selector is separately documented.|
 | **2: calls and follow-up** | Chi, pon, ankan, daiminkan, kakan, pass and post-call discard |49022/12479 rows,13 strata, two epochs,98044 exposures,388 updates. Completed with the same adapter/head and a new optimizer.|
-| **3A: efficiency and attack/defense** | Ordinary hand completion, risk under opponents' riichi, useful calls and executable defensive choices |87595/23688 rows, two epochs,175190 exposures,2400 updates. Active;1200 validation and native games complete.|
+| **3A: efficiency and attack/defense** | Ordinary hand completion, risk under opponents' riichi, useful calls and executable defensive choices |87595/23688 rows, two epochs,175190 exposures,2400 updates. Active;1800 full validation and native games complete.|
 | **3B: yaku and route selection** | Retain useful tiles, pursue feasible routes and abandon unsuitable routes |91247/24516 rows, two epochs,182494 exposures,2500 updates. Preparation, fit and independent audit wait for actual qualified3A final.|
 | **4: terminal placement** | Pursue top two when behind and take useful small wins/retain position when ahead |80% replay/20% across32 new pools; actual counts/exposures and two-epoch budget await data. Qualified-parent admission, registration, integration, full fit and independent audit are queued, not started.|
 
@@ -234,6 +234,7 @@ matched16 development result; the sample sizes must not be mixed.
 |3A step0, complete-legal RI0.5|17.75%|56.25%|+387.50|
 |3A saved step600, same policy|19.57%|68.75%|+1887.50|
 |3A saved step1200, same policy|17.82%|62.50%|+1912.50|
+|3A saved step1800, same policy|24.46%|87.50%|+4881.25|
 |Frozen practical v8|22.37%|62.50%|+3612.50|
 
 Step600 gains1500 points/match over its zero baseline but remains1725 below
@@ -241,11 +242,15 @@ v8. This small consumed result does not prove stable improvement or parity.
 RI balanced accuracy also declined70.33% →62.59%; its score-shift diagnostic
 is descriptive, not a causal gradient explanation. Actual0/600 curves and
 limitations are in the [result report](../docs/experiments/curriculum-3A-step600-20261123.md).
-The complete1200 validation and matched16 games are also available in the
-[1200-step report](../docs/experiments/curriculum-3A-step1200-20261124.md).
-Net points are only25 above600, with lower hand-win/first/top-two rates;
-there is no clear further strength gain. The registered budget remains2400;
-the next full evaluation is1800. No intermediate point is promoted to final.
+The [1200-step report](../docs/experiments/curriculum-3A-step1200-20261124.md)
+recorded only25 more net points than600, with lower hand-win/first/top-two rates.
+The [1800-step report](../docs/experiments/curriculum-3A-step1800-20261124.md)
+now records+2968.75 net points and+25 percentage points top two over1200 on
+the same16 cells. Its mean exceeds same-grid v8 by1268.75 points, but two
+consumed seed groups cannot establish stable improvement or parity. Original
+legacy RI acceptance is19/37 and source-specific quality remains unmet.
+The registered budget remains2400; the next endpoint includes the full64
+development comparison. No intermediate point is promoted to final.
 
 Final comparison still uses the unopened32 logical seeds2026300000–
 2026300031, four seats and two profiles:256 complete East matches per
