@@ -54,9 +54,49 @@ both new permutations and use a fresh run directory. This is a new3A attempt,
 not continuation of the active3A parameters and not a rewrite of its history.
 Its parameter ancestry would remain basic608→calls388→new3A2400.
 
-An actual fit still needs its own immutable registration, bound launcher,
-warm-start proofs and full training/audit implementation. The sampler and this
-count-only preflight do not admit or start it. Keep the original2400 final
+The conditional entry point is now implemented in
+`tools/curriculum_progression_paired_v1.py`. Its registrar rejects an
+unfinished control, a successful original grade, or a failed experiment
+without an actual RI failure. It retains the original failed grade, verifies
+the successful original fit terminal and independent audit, and seals a fresh
+registration only after confirming the same qualified calls388 initializer.
+The active3A checkpoint is a control, never the initializer of this retry.
+
+The trainer delegates to the original3A driver and changes its epoch-order
+RNG factory only. It retains the original tensor/menu/game warm-start checks,
+loss components, checkpoint fence, native evaluator and independent final
+auditor. A separate strict comparison rejects changes to base/parent,
+numerical settings, learning rate, seed, exposure or original advancement
+criteria. Control and retry output directories are isolated.
+
+Five additional entry-point checks passed. The real TRAIN driver preflight
+reproduced both complete original and proposed order hashes, reconciled all
+2400 prospective update-count records, preserved baseline/global RNG states,
+and rejected duplicate candidate RNGs, an extra epoch and a corrupt expected
+order before mutation. The bounded shell template passed syntax checking.
+These are sampler/entry-point checks; they do not exercise actual model
+warm-start, registration against a completed original control, or a model fit.
+The original fit is still running, so the retry has **not registered or started**.
+
+After the original final/audit actually qualifies this conditional experiment,
+the bounded GPU template can be submitted from the repository root (create
+`logs/` first, and use the cluster's permitted node/partition settings):
+
+```bash
+task_fit_id=$(sbatch --parsable --export=ALL,JEV_PAIRED_PHASE=run \
+  cluster/curriculum-progression-paired-v1.slurm)
+sbatch --parsable --dependency="afterok:${task_fit_id}" --kill-on-invalid-dep=yes \
+  --time=02:00:00 \
+  --export="ALL,JEV_PAIRED_PHASE=audit,JEV_PAIRED_FIT_JOB=${task_fit_id}" \
+  cluster/curriculum-progression-paired-v1.slurm
+```
+
+Registration refuses an existing retry directory; it never overwrites a run.
+Fit and audit have finite GPU allocations, logs, subprocess deadlines and exit
+receipts. The template does not rewire existing3B jobs. A subsequently qualified
+retry would need its own explicit next-course parent seal/registration.
+
+Keep the original2400 final
 selection, full validation, common16 development curves, final64 comparison
 and original advancement thresholds. Compare its outcome with the completed
 original fit, both parent execution routes and frozen v8; retain all failed
