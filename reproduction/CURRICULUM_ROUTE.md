@@ -318,6 +318,17 @@ groups cannot establish stable improvement or parity; the unchanged final2400
 rule and original admission conditions still apply. Actual0/600/1200 curves
 are preserved in the report.
 
+At [paired-order1800](../docs/experiments/curriculum-3A-paired-step1800-20261124.md),
+full23688-menu validation and the same16 development games are complete.
+Top two is87.50%, hand win22.45% and net points+4306.25/match, compared with
+paired1200's75.00%,14.05% and+2387.50. Same-grid v8 has62.50% top two and
++3612.50 points, while original-order1800 has87.50% and+4881.25. Thus this
+point improves over its own1200 but does not establish an ordering advantage
+or stable v8 parity. Teacher-source RI decline remains142/238=59.66%, below
+the unchanged60% condition; daiminkan is4/88. Actual0/600/1200/1800 curves
+and80 reconstructed native ledgers are preserved. Training continues toward
+the unchanged final2400 candidate;3B remains conditional.
+
 The [120-view non-win placement cohort](../docs/experiments/curriculum-rank-nonwin-data-20261124.md)
 is now labelled, merged and classified:96 TRAIN/24 validation,24/6 families,
 zero cross-split record/family/physical overlap and no quarantine. Other win
