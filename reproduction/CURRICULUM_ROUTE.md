@@ -1,11 +1,13 @@
 # Current four-course reproduction route
 
 Evidence snapshot: 2026-11-24, Asia/Dubai. Courses1 and2 in the current
-parameter ancestry are complete. Course3A is the active fixed2400-update
-fit;3B is queued behind its qualified final audit. Course4 source acquisition
-and teacher labeling are separate work; its complete fit/audit chain is queued
-behind actual qualified parents, data and real-model integration. Its student
-fit is not yet admitted or started.
+parameter ancestry are complete. The original fixed2400-update Course3A
+completed with a passing execution audit but failed its strategy advancement
+conditions. A controlled RI-paired-order retry is now training from the same
+qualified calls388 parent. Course3B and Course4 student fits require a newly
+qualified parent and fresh registration; their obsolete model dependency chain
+has been canceled. Course4 source acquisition and teacher labeling continue
+independently. Its student fit is not yet admitted or started.
 See [research PR8](https://github.com/YokyYao/JevMajhong/pull/8) for dated live
 implementation and aggregate result reports. This index does not claim that the curriculum matches v8.
 
@@ -23,8 +25,8 @@ flowchart TD
     C[Same weights; explicit full-class RI selector]
     D[2: calls and post-call play; final388]
     E[Same weights; complete-legal execution control]
-    F[3A: efficiency and attack/defense; fixed2400 in progress]
-    G[3B: yaku and route selection; fixed2500 queued]
+    F[3A: efficiency and attack/defense; paired-order retry active]
+    G[3B: yaku and route selection; fixed2500 awaits qualified parent]
     H[4: terminal placement; sources and labels, fit pending]
     I[Unopened independent final comparison with frozen v8]
     A --> B --> C --> D --> E --> F
@@ -37,9 +39,9 @@ flowchart TD
 |---|---|---|
 | **1: basic decisions** | Ordinary discard and riichi/decline decisions |14285 TRAIN/3266 validation, six strata, four epochs,57140 exposures,608 updates. Completed; the distinct RI selector is separately documented.|
 | **2: calls and follow-up** | Chi, pon, ankan, daiminkan, kakan, pass and post-call discard |49022/12479 rows,13 strata, two epochs,98044 exposures,388 updates. Completed with the same adapter/head and a new optimizer.|
-| **3A: efficiency and attack/defense** | Ordinary hand completion, risk under opponents' riichi, useful calls and executable defensive choices |87595/23688 rows, two epochs,175190 exposures,2400 updates. Active;1800 full validation and native games complete.|
-| **3B: yaku and route selection** | Retain useful tiles, pursue feasible routes and abandon unsuitable routes |91247/24516 rows, two epochs,182494 exposures,2500 updates. Preparation, fit and independent audit wait for actual qualified3A final.|
-| **4: terminal placement** | Pursue top two when behind and take useful small wins/retain position when ahead |80% replay/20% across32 new pools; actual counts/exposures and two-epoch budget await data. Qualified-parent admission, registration, integration, full fit and independent audit are queued, not started.|
+| **3A: efficiency and attack/defense** | Ordinary hand completion, risk under opponents' riichi, useful calls and executable defensive choices |87595/23688 rows, two epochs,175190 exposures,2400 updates per attempt. Original final failed strategy admission; the same-parent RI-paired-order retry is actually training.|
+| **3B: yaku and route selection** | Retain useful tiles, pursue feasible routes and abandon unsuitable routes |91247/24516 rows, two epochs,182494 exposures,2500 updates. Data are prepared; student fit/audit need a qualified3A final and new parent registration.|
+| **4: terminal placement** | Pursue top two when behind and take useful small wins/retain position when ahead |80% replay/20% across32 new pools; actual counts/exposures and two-epoch budget await data. Labeling continues; qualified-parent admission, registration, integration and full student fit/audit are not started.|
 
 The base is Qwen/Qwen3.5-0.8B revision
 `2fc06364715b967f1860aea9cf38778875588b17`. The student begins with a fresh
@@ -172,30 +174,32 @@ objects while supplying verified partition views and replica provenance.
 Full57-source integration still waits for the completed labels.
 [Current partition compatibility](../docs/experiments/plans/curriculum-placement-partition-20261123.md).
 
-The full fit now has an executable dependent launch. It verifies the real
+The full-fit implementation has an executable dependent launch. It verifies the real
 two-update integration's saved optimizer/tensors/losses and successful GPU
 terminal, then binds the original prospective assessment and independent
 auditor before the first candidate update. Integration control weights are
 excluded from ancestry. The candidate continues actual qualified final3B
 with a new optimizer and must run a fresh64-game child-policy zero baseline.
 It cannot reuse parent outcomes after changing late instructions/dispatch.
+The old model dependency chain was canceled after the original3A failed;
+this implementation is not an active or admitted placement student fit.
 The complete two-epoch final candidate is retained despite intermediate noise;
 its64-game endpoint and the common16-cell plotted subset remain separate.
 [Full placement launch](../docs/experiments/plans/curriculum-placement-launch-20261124.md)
 and [development assessment](../docs/experiments/plans/curriculum-placement-assessment-20261124.md).
 
-## Current3A recovery and weight integrity
+## 3A recovery, controlled retry and weight integrity
 
 An earlier3A attempt completed600 updates/full validation, then failed
 because native evaluation requested a checkpoint before it was saved.
 Only its step0 weights exist. Its unsaved600 updates are not ancestors of
 the current candidate and cannot supply a600-step strength result.
 
-The current recovery uses a fresh output, the exact sealed calls388 parameters,
+The completed save-order recovery used a fresh output, the exact sealed calls388 parameters,
 the same data/order/seed/gradient recipe and the original2400 budget.
 A real two-update upstream integration verifies save ordering; those
 control weights/updates are not a student parent or curve point.
-The main run proved372 adapter/four head tensors, all12479 inherited
+That run proved372 adapter/four head tensors, all12479 inherited
 validation-menu probabilities with zero error and exact16-game identity
 before updating. Real raw-input LoRA/head changes are recorded.
 
@@ -204,6 +208,21 @@ Native evaluation now waits for the complete model AND optimizer state.
 validation/game cadences remain unchanged. The original final advancement
 grade is not waived. No live job was restarted for these changes.
 [Recovery plan](../docs/experiments/plans/curriculum-save-order-recovery-20261123.md).
+
+The original final2400 then completed its full validation and64 development
+matches. Its independent execution audit passed, but strategy admission failed.
+The [final report](../docs/experiments/curriculum-3A-final2400-20261124.md)
+retains the negative result, all five real curve points and remaining call gaps.
+
+The active [RI-paired-order retry](../docs/experiments/plans/curriculum-riichi-paired-replay-20261124.md)
+starts again from the exact qualified calls388 parent with a fresh optimizer.
+Data, loss masses, learning rates, two-epoch exposure budget, execution policy
+and original advancement conditions remain unchanged; only within-block RI
+positive/negative sample order changes. Before its first update,372 LoRA/four
+head tensors and all12479 inherited validation predictions matched the parent
+exactly. The failed original3A2400 is a retained control, not a parameter parent.
+Its2400 updates do not count toward the new student's ancestry. Improvement
+from pairing is still unproven.
 
 ## Real curves, development evidence and final comparison
 
@@ -223,6 +242,7 @@ different-sized samples into an apparent improvement trajectory.
 |Calls388 with its original guarded route|65.625%|+2656.25|
 |Same calls388 parameters, complete-legal route|59.375%|+2457.81|
 |Frozen practical v8|59.375%|+4290.63|
+|Original3A final2400, complete-legal RI0.5|50.000%|+1559.38|
 
 These are development means from eight logical seed groups. The calls
 mean does not establish parity; same parameters with changed dispatch are
@@ -235,6 +255,7 @@ matched16 development result; the sample sizes must not be mixed.
 |3A saved step600, same policy|19.57%|68.75%|+1887.50|
 |3A saved step1200, same policy|17.82%|62.50%|+1912.50|
 |3A saved step1800, same policy|24.46%|87.50%|+4881.25|
+|3A final2400, same-policy matched subset|19.22%|62.50%|+2300.00|
 |Frozen practical v8|22.37%|62.50%|+3612.50|
 
 Step600 gains1500 points/match over its zero baseline but remains1725 below
@@ -249,8 +270,13 @@ now records+2968.75 net points and+25 percentage points top two over1200 on
 the same16 cells. Its mean exceeds same-grid v8 by1268.75 points, but two
 consumed seed groups cannot establish stable improvement or parity. Original
 legacy RI acceptance is19/37 and source-specific quality remains unmet.
-The registered budget remains2400; the next endpoint includes the full64
-development comparison. No intermediate point is promoted to final.
+The [final2400 report and actual curves](../docs/experiments/curriculum-3A-final2400-20261124.md)
+show that this process high point did not persist. Final64 net points were
+2731.25 below v8 and top two9.375 percentage points lower. Eight-seed paired
+intervals crossed zero, so this is neither a stable-inferiority claim nor
+evidence of parity. Both original-source RI decline accuracies were below60%,
+and source-specific retention failed. No intermediate point was promoted;
+the current retry keeps the original admission criteria.
 
 Final comparison still uses the unopened32 logical seeds2026300000–
 2026300031, four seats and two profiles:256 complete East matches per
