@@ -343,6 +343,14 @@ Course4 covers chasing a better place, quick small wins when useful and
 protecting a lead. Actual evidence, rather than stage names, determines
 whether each stage is qualified.
 
+The [prepared3B dataset card](../docs/experiments/curriculum-3B-dataset-card-20261124.md)
+lists actual route/context counts, family splits and the distinction between
+row counts and loss weights. New pools cover kokushi, chuuren, suuankou,
+daisangen, chiitoitsu and ordinary controls, with equal3⅓% source loss mass
+each within the20% new-data allocation. These rows are not in the current3A
+fit; neither this coverage nor teacher agreement proves learned rare-yaku
+play. No new admission rule or test games are introduced by the card.
+
 Final comparison still uses the unopened32 logical seeds2026300000–
 2026300031, four seats and two profiles:256 complete East matches per
 policy. Pair statistics by whole seed, not256 independent matches.
