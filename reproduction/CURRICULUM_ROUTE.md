@@ -139,8 +139,12 @@ previous Class2 replay loss. All91247 actual TRAIN materializations/targets
 were checked, with zero objective/CE differences and zero representative
 weighted-gradient differences across25 sources. Four tests pass. These are
 synthetic-logit contracts, not model predictions or3B admission. Six new-route
-losses and the original80%/20% masses remain unchanged. Validation/trainer/
-auditor registration still requires the actual qualified3A final.
+losses and the original80%/20% masses remain unchanged. The separate validation
+adapter also passed all24516 actual menus with label-independent synthetic
+probabilities: canonical CE and every unchanged classification metric match,
+while retained objective/signed accounting is recomputed. These are software
+contracts, not model validation scores. Trainer/auditor registration and actual
+model evaluation still require the qualified3A final.
 
 The [paired-parent continuation entry](../docs/experiments/plans/curriculum-paired-yaku-continuation-20261124.md)
 reuses that exact3B numerical recipe, prepared data, weights/orders and actual
