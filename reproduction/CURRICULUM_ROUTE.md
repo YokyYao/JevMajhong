@@ -132,6 +132,16 @@ control. These teach route-related actions; they are not proof that a
 student can name every yaku, compute han/fu or reliably complete rare hands.
 [3B plan](../docs/experiments/plans/curriculum-yaku-launch-20261123.md).
 
+For a future qualified retained-parent3A, a separate
+[3B replay-loss continuity module](../docs/experiments/curriculum-yaku-parent-loss-continuity-20261124.md)
+preserves all nineteen inherited objective functions instead of restoring the
+previous Class2 replay loss. All91247 actual TRAIN materializations/targets
+were checked, with zero objective/CE differences and zero representative
+weighted-gradient differences across25 sources. Four tests pass. These are
+synthetic-logit contracts, not model predictions or3B admission. Six new-route
+losses and the original80%/20% masses remain unchanged. Validation/trainer/
+auditor registration still requires the actual qualified3A final.
+
 The [paired-parent continuation entry](../docs/experiments/plans/curriculum-paired-yaku-continuation-20261124.md)
 reuses that exact3B numerical recipe, prepared data, weights/orders and actual
 full-validation/I/O integrations. Only explicit parent/runtime references and
