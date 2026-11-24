@@ -462,6 +462,17 @@ coherent projection changes only control/output paths. No partial collection
 was merged and no new pipeline job was submitted. Actual full collection,
 merge, projection and qualified-parent/mix admission remain pending.
 
+The [prospective retained-parent placement objective](../docs/experiments/curriculum-placement-retained-loss-20261124.md)
+now prevents the old fourth-course wrapper from silently restoring the old3B
+replay formula. Every91647 currently prepared TRAIN row passes exact objective/
+CE continuity and48 representative source gradients match. The first full
+preflight found two terminal rows whose upstream normalization differs from
+raw labels by at most1.11e-16; v2 aligns annotation to that exact materialized
+target without altering raw labels. Five v2 loss and five v2 metric tests pass.
+The actual checked coverage is48/57 sources; nine collecting targeted pools,
+full validation/mixture, qualified parent and actual model integration/fit
+remain required. No available-data check admits a smaller placement task.
+
 The historical guide contains executable earlier recipes. This remains
 an incomplete end-to-end reproduction artifact: finish the actual courses,
 reliable labels/mix, portable stage registrations, curves, final candidate
