@@ -58,6 +58,31 @@ must not be confused with the37 classified direct protocol binary inputs.
 Two earlier data roots have no flat manifest at that location and still require
 their original pool receipts and specialized producer evidence.
 
+## Additional checks on the four-manifest upstream subset
+
+The stored-source checks were extended to this specific upstream subset:
+
+| Artifact type | Actual scope | Observed result |
+|---|---:|---|
+|Raw PT rollout sources|891 files;27,927 stored rows|All have actual raw-rollout schema; no reserved-seed semantic occurrence|
+|JSON artifacts|365 files|No reserved-seed occurrence; stable files|
+|SQLite catalogs/pools|2 files;754,765 examined rows|No reserved-seed literal/numeric occurrence; no unclassified BLOB cells|
+
+The PT check reused759 previous file proofs only after exact current hash and
+bound-proof checks, and newly scanned132 files. Across all891 files it covers
+10,279,818,637 bytes,10,286 counterfactual windows and171,600 stored future-seed
+fields. These stored-row/window totals are not independent training situations
+or expert labels, and do not reproduce the selection/reward calculation.
+
+SQLite connections were immutable and read only. The catalog inspection reads
+source identity/locator metadata. The pool case-payload query is restricted to
+already-produced TRAIN and validation cases; no test case payload was opened.
+Literal/numeric scans do not infer opaque or otherwise encoded seed semantics.
+
+The source-path mismatch, historical-source mapping, two earlier pool roots,
+complete source-family exclusion and final candidate evidence remain unfinished.
+These additional checks do not establish a final source seal or model strength.
+
 ## What this does and does not establish
 
 This is actual frozen-reference ancestry and explicit-input evidence. It does
