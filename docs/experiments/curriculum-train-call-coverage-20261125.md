@@ -108,8 +108,11 @@ from a pure unseen-generalization explanation. It does not justify repeating
 all data for more epochs indiscriminately. A call-specific revision should
 separately examine operation/source/class presentation and loss mass, and the
 quality of the positive/negative context pairs. The separately queued expanded
-real-teacher kan-window diagnostic must likewise report actual outcomes; its
-future output cannot be assumed to contain positives.
+real-teacher context cohort has now completed:537 neural labels from554 valid
+opportunities, with0/395 TRAIN daiminkan positives and2/142 validation positives.
+The two validation positives remain held out;395 additional TRAIN passes are
+not silently appended to the frozen trial. See the
+[actual context-teacher report](curriculum-daiminkan-context-teacher-20261125.md).
 
 Prioritize independently generated, family-separated situations with a credible
 reason to call **and** counterexamples where passing is better. Keep provenance,
