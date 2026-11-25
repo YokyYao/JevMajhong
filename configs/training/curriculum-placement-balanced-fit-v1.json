@@ -1,0 +1,22 @@
+{
+  "status": "planned_not_registered_or_fit_admitted",
+  "run_id": "jev-curriculum-placement-balanced-parent-v1",
+  "stage": "stage4-placement-balanced-parent-v1",
+  "plan_root": "runs/curriculum-placement-balanced-parent-v1/fit-plan",
+  "out": "runs/curriculum-placement-balanced-parent-v1/stage4-fit",
+  "seed": 2026112306,
+  "epochs": 2,
+  "batch": 1,
+  "learning_rate": 0.000003,
+  "head_learning_rate": 0.000015,
+  "loss_method": "placement57_retained25_replay_upstream_normalized_terminal_alignment_v2",
+  "parent_loss_method": "yaku25_exact_retained19_replay_and_unchanged_six_route_losses_v1",
+  "retained_parent_replay_objective_explicit": true,
+  "upstream_normalized_terminal_alignment_required": true,
+  "selection_method": "all_late_same_model_complete_current_win_menu_and_full_RI_route_v2",
+  "placement_input_schema": "all_late_terminal_top2_instruction_public_win_source_v1",
+  "new_optimizer": true,
+  "optimizer_resume": false,
+  "final_candidate_only": true,
+  "automatic_release": false
+}
