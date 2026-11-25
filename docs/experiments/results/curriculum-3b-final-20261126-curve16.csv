@@ -1,0 +1,56 @@
+kind,metric,label,step,value,change_from_initial,change_from_previous
+validation,loss,Validation objective,0,1.0492375956337903,0.0,0
+validation,loss,Validation objective,625,1.0424206692181557,-0.006816926415634583,-0.006816926415634583
+validation,loss,Validation objective,1250,1.0244702591820378,-0.024767336451752442,-0.01795041003611786
+validation,loss,Validation objective,1875,1.0064156002373037,-0.04282199539648657,-0.018054658944734125
+validation,loss,Validation objective,2500,1.0062133482944353,-0.04302424733935495,-0.0002022519428683811
+validation,ce,Validation weighted target CE,0,1.038893870170814,0.0,0
+validation,ce,Validation weighted target CE,625,1.0348643494872654,-0.00402952068354856,-0.00402952068354856
+validation,ce,Validation weighted target CE,1250,1.0178677807069523,-0.02102608946386164,-0.01699656878031308
+validation,ce,Validation weighted target CE,1875,1.0003304201818464,-0.038563449988967546,-0.017537360525105905
+validation,ce,Validation weighted target CE,2500,0.9995731734507568,-0.03932069672005711,-0.000757246731089567
+validation,natural_target_ce,Validation natural target CE,0,0.9319505447905346,0.0,0
+validation,natural_target_ce,Validation natural target CE,625,0.9334459992320066,0.0014954544414719217,0.0014954544414719217
+validation,natural_target_ce,Validation natural target CE,1250,0.9175847953402105,-0.014365749450324095,-0.015861203891796016
+validation,natural_target_ce,Validation natural target CE,1875,0.8985461623811134,-0.03340438240942123,-0.019038632959097135
+validation,natural_target_ce,Validation natural target CE,2500,0.8964059127893264,-0.035544632001208276,-0.0021402495917870468
+validation,new_route_objective,New-route weighted objective contribution,0,0.18540688183074966,0.0,0
+validation,new_route_objective,New-route weighted objective contribution,625,0.17971264283770158,-0.005694238993048079,-0.005694238993048079
+validation,new_route_objective,New-route weighted objective contribution,1250,0.17105167560462903,-0.014355206226120631,-0.008660967233072553
+validation,new_route_objective,New-route weighted objective contribution,1875,0.16657496160908117,-0.01883192022166849,-0.00447671399554786
+validation,new_route_objective,New-route weighted objective contribution,2500,0.16562617080584247,-0.019780711024907194,-0.0009487908032387027
+evaluation,top2_rate,Top-two rate,0,0.875,0.0,0
+evaluation,top2_rate,Top-two rate,625,0.8125,-0.0625,-0.0625
+evaluation,top2_rate,Top-two rate,1250,0.9375,0.0625,0.125
+evaluation,top2_rate,Top-two rate,1875,0.9375,0.0625,0.0
+evaluation,top2_rate,Top-two rate,2500,0.8125,-0.0625,-0.125
+evaluation,net_points,Net points per match,0,4306.25,0.0,0
+evaluation,net_points,Net points per match,625,10412.5,6106.25,6106.25
+evaluation,net_points,Net points per match,1250,6350.0,2043.75,-4062.5
+evaluation,net_points,Net points per match,1875,10037.5,5731.25,3687.5
+evaluation,net_points,Net points per match,2500,8218.75,3912.5,-1818.75
+evaluation,hand_win_rate,Hand win rate,0,0.2244543650793651,0.0,0
+evaluation,hand_win_rate,Hand win rate,625,0.25629960317460315,0.031845238095238065,0.031845238095238065
+evaluation,hand_win_rate,Hand win rate,1250,0.330109126984127,0.10565476190476189,0.07380952380952382
+evaluation,hand_win_rate,Hand win rate,1875,0.2683531746031746,0.04389880952380951,-0.061755952380952384
+evaluation,hand_win_rate,Hand win rate,2500,0.22437996031746033,-7.440476190476164e-05,-0.04397321428571427
+evaluation,dealin_hand_rate,Dealin hand rate,0,0.06421130952380952,0.0,0
+evaluation,dealin_hand_rate,Dealin hand rate,625,0.0367063492063492,-0.027504960317460317,-0.027504960317460317
+evaluation,dealin_hand_rate,Dealin hand rate,1250,0.05128968253968254,-0.01292162698412698,0.014583333333333337
+evaluation,dealin_hand_rate,Dealin hand rate,1875,0.08774801587301588,0.023536706349206363,0.03645833333333334
+evaluation,dealin_hand_rate,Dealin hand rate,2500,0.057539682539682536,-0.006671626984126981,-0.030208333333333344
+evaluation,first_rate,First-place rate,0,0.5625,0.0,0
+evaluation,first_rate,First-place rate,625,0.5,-0.0625,-0.0625
+evaluation,first_rate,First-place rate,1250,0.5625,0.0,0.0625
+evaluation,first_rate,First-place rate,1875,0.8125,0.25,0.25
+evaluation,first_rate,First-place rate,2500,0.625,0.0625,-0.1875
+evaluation,fourth_rate,Fourth-place rate,0,0.125,0.0,0
+evaluation,fourth_rate,Fourth-place rate,625,0.125,0.0,0.0
+evaluation,fourth_rate,Fourth-place rate,1250,0.0,-0.125,-0.125
+evaluation,fourth_rate,Fourth-place rate,1875,0.0625,-0.0625,0.0625
+evaluation,fourth_rate,Fourth-place rate,2500,0.125,0.0,0.0625
+evaluation,reward,Match reward (net /8000),0,0.5382812499999999,0.0,0
+evaluation,reward,Match reward (net /8000),625,1.3015625000000002,0.7632812500000002,0.7632812500000002
+evaluation,reward,Match reward (net /8000),1250,0.7937500000000001,0.25546875000000013,-0.5078125000000001
+evaluation,reward,Match reward (net /8000),1875,1.2546875,0.71640625,0.4609374999999999
+evaluation,reward,Match reward (net /8000),2500,1.02734375,0.48906250000000007,-0.22734374999999996
