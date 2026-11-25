@@ -55,8 +55,34 @@ The1,279 matching upstream inputs include365 JSON,891 PT,12 Python,9 JSONL
 and2 SQLite files. Hash agreement does not classify their source semantics or
 replace raw-rollout/SQLite checks. In particular, this larger upstream graph
 must not be confused with the37 classified direct protocol binary inputs.
-Two earlier data roots have no flat manifest at that location and still require
-their original pool receipts and specialized producer evidence.
+Two earlier data roots have no flat manifest at that location. Their original
+pool identities and selected-mixture reproduction are checked below; upstream
+raw-pool generation and source-family evidence remain unfinished.
+
+## Byte-exact early-mixture reproduction
+
+Both earlier data roots were regenerated from their actual original pool
+SQLite files and pool receipts, using the original seed/mixture and each
+training protocol's exact archived `base_lora_mix.py`. Only output directories
+changed. The numerical selection/materialization loop was unchanged.
+
+| Original selected dataset | TRAIN records | Validation records | Actual reproduction |
+|---|---:|---:|---|
+|`balanced-base-lora-data-v2`|32,768|256|Both full JSONL files and selection manifest byte exact|
+|`unified-winrisk-data-v1-r2`|32,768|400|Both full JSONL files and selection manifest byte exact|
+
+This covers four full JSONL files, two complete selection manifests,65,536
+TRAIN records and656 validation records. Group counts, unique-position counts
+and mixture-stratum accounting also match. Original sources, manifests, pool
+databases and current student inputs remained unchanged. Reproduced files stay
+private and do not initialize or modify the student.
+
+The first attempt reproduced one root, then stopped at its strict archived
+module-path check because a different historical package was cached in that
+process. Preserve that failure and first result. Fresh isolated processes then
+ran both original loops successfully, retaining the strict import-path check.
+This reproduces selected data from frozen pools, not the upstream generation
+of those pools, complete raw reward targets or any model-training outcome.
 
 ## Additional checks on the four-manifest upstream subset
 
@@ -79,8 +105,8 @@ source identity/locator metadata. The pool case-payload query is restricted to
 already-produced TRAIN and validation cases; no test case payload was opened.
 Literal/numeric scans do not infer opaque or otherwise encoded seed semantics.
 
-The source-path mismatch, historical-source mapping, two earlier pool roots,
-complete source-family exclusion and final candidate evidence remain unfinished.
+The source-path mismatch, historical-source mapping, upstream generation of the
+two earlier pools, complete source-family exclusion and final candidate evidence remain unfinished.
 These additional checks do not establish a final source seal or model strength.
 
 ## What this does and does not establish
