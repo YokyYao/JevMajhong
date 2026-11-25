@@ -87,10 +87,27 @@ the pinned augmentation and token encoding intact. Three regression tests cover
 metadata stripping, all physical epoch positions and rejection of missing or
 repeated targets. The composed mathematical loss itself is unchanged.
 
-The isolated repaired full-model control is checking combined input admission,
-two real optimizer updates, complete optimizer state and saved adapter/head
-prediction reload. It cannot qualify a strategy and must never initialize a
-future course. Full fit registration, original source-quality/native
+The repaired isolated control subsequently passed:
+
+- All92570 unique TRAIN requests pass the actual pinned loader/token encoder;
+  zero are rejected. Canonical loader changes are metadata-only.
+- All372 inherited LoRA and4 head tensors equal the qualified initializer before
+  updates. A new AdamW optimizer starts empty; no failed control is resumed.
+- Two actual updates consume the exact first146 positions/weights of the frozen
+  first-epoch plan. Those positions cover14 sources and every RI source in both
+  updates. They do not constitute full-epoch or all-source backward coverage.
+- The recorded optimized loss reconciles to original objective plus weighted
+  parent KL. Both adapter and head change, with376 actual optimizer states at2.
+- All saved trainable tensors reload exactly. All optimizer moments are finite
+  and restore exactly, as does the complete learning-rate scheduler state.
+- Reloaded predictions on fixed representative menus from all19 sources have
+  maximum probability difference0. The original initializer bundle is unchanged.
+
+The control creates no native matches and infers no VAL/test request. Its two
+updates are integration observations, not strength evidence or a separate fitted
+candidate. Its private weights must never initialize a future course. The full
+2596-update standby fit remains unregistered and unstarted. Full fit registration,
+original source-quality/native
 criteria, actual milestone loss/reward/win/top-two/net curves and the unopened v8
 confirmation remain unfinished. See the [fixed data recipe](plans/curriculum-ri-augmented-data-20261125.md)
 and [prospective retention objective](plans/curriculum-ri-parent-anchor-20261125.md).
