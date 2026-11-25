@@ -181,9 +181,27 @@ Their actual roles and seed/source-family semantics still need review. Among
 them are58 numeric wall-file paths and two archives. Header-only inspection
 finds30,787 archive members:30,785 compressed `.zst` members and two directories,
 with no links or unusual absolute/parent paths. Member payloads were not
-opened or extracted. Ten extensionless files also have only metadata inventory
-at this point. Path shapes and archive headers are not semantic classifications
-or proof that the protected source distribution was unused.
+opened or extracted. Path shapes and archive headers are not semantic
+classifications or proof that the protected source distribution was unused.
+
+The ten extensionless files are now classified by exact membership in the
+original protocols' pinned pretrained-base file maps: they are resolved cache
+blobs for the shared base/tokenizer/configuration assets, not raw rollouts.
+Their named memberships, fixed base revision and hashes match; model weights
+were not loaded by this classification.
+
+The58 added numeric wall files were also inspected with the weights-only raw
+rollout loader. All have the actual raw-row schema, covering621,756,799 bytes,
+2,202 stored rows,719 counterfactual windows and11,504 future-seed fields.
+No reserved logical-seed literal/numeric occurrence was found, and all files
+remained stable. Together with the earlier891-file subset, these checks now
+cover949 distinct source paths,30,129 stored rows and183,104 future-seed fields.
+Counts describe stored artifacts; overlapping records are not new independent
+training examples. This check does not infer opaque encodings or establish
+complete engine-stream/source-family exclusion.
+
+Additional JSON/JSONL/SQLite semantics, actual archive-source roles and full
+recursive source-family/teacher/target evidence remain unfinished.
 
 The joined inventory prevents treating the earlier subset as the whole source
 graph. It still does not admit the reference/future candidate to final games,
