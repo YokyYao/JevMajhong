@@ -38,6 +38,26 @@ actual complete bundle membership, not treated as raw rollout data. Optimizer
 states were inspected as saved training state; they were never loaded into a
 student or used to initialize this reproduction.
 
+## Upstream producer-manifest gap
+
+Four of the six original data roots have flat producer-input manifests. Their
+union names1,280 distinct original paths with no conflicting declared hashes.
+Of these,1,279 current paths match the recorded hash. One current source module,
+`jevmahjong/data/bootstrap_targets.py`, differs from its historical declaration.
+The original strict verification failed and its source/log/exit are preserved.
+
+An exact archived copy matching that declaration was found. This is recovery
+evidence, not a replacement of the original path or proof that the whole graph
+has passed. Neither the original manifest nor current code was rewritten.
+Admission of any explicit historical source mapping remains unfinished.
+
+The1,279 matching upstream inputs include365 JSON,891 PT,12 Python,9 JSONL
+and2 SQLite files. Hash agreement does not classify their source semantics or
+replace raw-rollout/SQLite checks. In particular, this larger upstream graph
+must not be confused with the37 classified direct protocol binary inputs.
+Two earlier data roots have no flat manifest at that location and still require
+their original pool receipts and specialized producer evidence.
+
 ## What this does and does not establish
 
 This is actual frozen-reference ancestry and explicit-input evidence. It does
