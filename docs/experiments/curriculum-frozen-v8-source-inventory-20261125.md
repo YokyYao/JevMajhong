@@ -38,7 +38,7 @@ actual complete bundle membership, not treated as raw rollout data. Optimizer
 states were inspected as saved training state; they were never loaded into a
 student or used to initialize this reproduction.
 
-## Upstream producer-manifest gap
+## Upstream producer manifests and recovered historical code
 
 Four of the six original data roots have flat producer-input manifests. Their
 union names1,280 distinct original paths with no conflicting declared hashes.
@@ -46,10 +46,22 @@ Of these,1,279 current paths match the recorded hash. One current source module,
 `jevmahjong/data/bootstrap_targets.py`, differs from its historical declaration.
 The original strict verification failed and its source/log/exit are preserved.
 
-An exact archived copy matching that declaration was found. This is recovery
-evidence, not a replacement of the original path or proof that the whole graph
-has passed. Neither the original manifest nor current code was rewritten.
-Admission of any explicit historical source mapping remains unfinished.
+An exact archived copy matching that declaration was found and is an actual
+code input bound by the original ancestor protocols. A separate explicit
+historical-code mapping now verifies that one Python module against both its
+original manifest declaration and that ancestral code binding. All four
+manifests also match the derivation-input hashes in their actual producer
+receipts. The resulting accounting is1,279 unchanged original inputs plus one
+exact historical Python source. There are zero data or model-weight aliases.
+
+The mapping preserves the original path and expected hash, separately records
+the current file's different identity, and binds the exact archived bytes.
+It does not overwrite the original path, manifest or failed strict check, and
+does not execute the archived code. Five focused tests passed, including
+rejection of data aliases, unbound/changed archives, changed manifests,
+different module paths and symlink redirection. This closes the identified
+historical-code lookup gap; it does not establish full source-family exclusion
+or reproduce the upstream data/reward generation.
 
 The1,279 matching upstream inputs include365 JSON,891 PT,12 Python,9 JSONL
 and2 SQLite files. Hash agreement does not classify their source semantics or
@@ -105,8 +117,8 @@ source identity/locator metadata. The pool case-payload query is restricted to
 already-produced TRAIN and validation cases; no test case payload was opened.
 Literal/numeric scans do not infer opaque or otherwise encoded seed semantics.
 
-The source-path mismatch, historical-source mapping, upstream generation of the
-two earlier pools, complete source-family exclusion and final candidate evidence remain unfinished.
+Upstream generation of the two earlier pools, complete source-family exclusion
+and final candidate evidence remain unfinished.
 These additional checks do not establish a final source seal or model strength.
 
 ## What this does and does not establish
