@@ -165,6 +165,31 @@ Complete upstream source-family/target evidence and final candidate evidence
 remain unfinished.
 These additional checks do not establish a final source seal or model strength.
 
+## Joined actual protocol and reproduced-producer input graph
+
+The six actual ancestor protocols, four original data manifests and four
+reproduced raw-pool manifests are now joined into one resolved inventory:
+14 roots,6,329 declared edges and2,017 unique resolved artifacts. Every
+resolved file hash matches its bound source evidence, including the one
+explicit historical Python mapping. Seven original relative binding keys
+are resolved only for lookup; original manifests and declarations remain
+unchanged. The initial strict lookup failure and its original source/log/exit
+are preserved, and the separate corrected inventory completed successfully.
+
+This adds147 artifacts beyond the previous protocol/four-manifest subset.
+Their actual roles and seed/source-family semantics still need review. Among
+them are58 numeric wall-file paths and two archives. Header-only inspection
+finds30,787 archive members:30,785 compressed `.zst` members and two directories,
+with no links or unusual absolute/parent paths. Member payloads were not
+opened or extracted. Ten extensionless files also have only metadata inventory
+at this point. Path shapes and archive headers are not semantic classifications
+or proof that the protected source distribution was unused.
+
+The joined inventory prevents treating the earlier subset as the whole source
+graph. It still does not admit the reference/future candidate to final games,
+close recursive source-family provenance or reproduce the original simulation
+outcomes. Original sources and the active student remain unchanged.
+
 ## What this does and does not establish
 
 This is actual frozen-reference ancestry and explicit-input evidence. It does
