@@ -106,8 +106,34 @@ The repaired isolated control subsequently passed:
 The control creates no native matches and infers no VAL/test request. Its two
 updates are integration observations, not strength evidence or a separate fitted
 candidate. Its private weights must never initialize a future course. The full
-2596-update standby fit remains unregistered and unstarted. Full fit registration,
-original source-quality/native
+2596-update standby fit remains unregistered and unstarted.
+
+## Complete course entry prepared
+
+The full trainer, saved-checkpoint native evaluator, independent final auditor
+and finite scheduler lifecycle are now prepared. The augmented-data parent
+bridge passed actual ancestor-group checks against the qualified initialization.
+The full24998/original23688/new1310 metric formatter passed a structural contract
+fixture using the original cached0 predictions and uniform new-cohort scores.
+That fixture is explicitly not a new model evaluation and never enters actual
+training targets, curves or advancement evidence.
+
+Five focused tests passed for full-completion gating, qualified-current bypass,
+frozen recipe/initializer/quality-cohort protection, the one-cardinality profile
+extension and rollback restricted to verified owned jobs. Actual public entry
+imports and numerical hook identity also pass on an allocated GPU node. The
+original current-trial runtime and numerical implementations remain unchanged.
+
+A finite activation job is waiting on the current trial's terminal capture.
+It submits no student fit until the current full fit, independent audit and
+recorded successful phase exits exist with the unchanged failed strategy grade.
+A qualified current final skips this alternative and keeps its existing3B path.
+Future fit submission depends on successful activation itself; no held student
+job can be released by a failed activation. All phases have GPU allocation,
+time limits, logs and exit receipts. The [complete course recipe](plans/curriculum-ri-anchor-fit-20261125.md)
+declares full0/649/1298/1947/2596 observations and final-only selection.
+
+Original source-quality/native
 criteria, actual milestone loss/reward/win/top-two/net curves and the unopened v8
 confirmation remain unfinished. See the [fixed data recipe](plans/curriculum-ri-augmented-data-20261125.md)
 and [prospective retention objective](plans/curriculum-ri-parent-anchor-20261125.md).
