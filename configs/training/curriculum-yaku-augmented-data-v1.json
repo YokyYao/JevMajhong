@@ -1,0 +1,22 @@
+{
+  "method": "exact_augmented19_replay_plus_existing_normalized_six_yaku_routes_v1",
+  "out": "runs/curriculum-yaku-augmented-data-v1/data-v1",
+  "augmented19_binding": "runs/curriculum-ri-augmented-data-v1/data-v1/completion-binding-private.json",
+  "original_yaku_ready": "runs/curriculum-yaku-scenarios-v1/data-v2/data-ready-private.json",
+  "original_yaku_audit_binding": "runs/curriculum-yaku-scenarios-v1/data-v2/completion-binding-private.json",
+  "expected_parent": {"train": 92570, "validation": 24998},
+  "expected_original_yaku": {"train": 91247, "validation": 24516},
+  "expected_old19": {"train": 87595, "validation": 23688},
+  "expected_routes": {"train": 3652, "validation": 828},
+  "expected_union": {"train": 96222, "validation": 25826},
+  "source_mass": "unchanged_yaku25_parent19_times0.8_plus_six_routes_each0.2_div6",
+  "baseline_seed": 2026112305,
+  "exposure_seeds": [20261125031, 20261125032],
+  "epochs": 2,
+  "accumulation": 73,
+  "max_repeat": 8,
+  "max_example_weight": 16.0,
+  "student_fit_automatic": false,
+  "parent_admitted": false,
+  "final_confirmation_opened": false
+}
