@@ -59,6 +59,30 @@ raw rows/unaffected sources/duplicate and soft-label rejection.
 
 ## Admission before any new training
 
+### Completed numerical adapter checks
+
+`tools/curriculum_call_type_loss_v1.py` now implements the replacement scalar
+with all original calls13 objective components. Its batch adapter invokes the
+original encoder first, then attaches loss-only metadata to the returned
+materialized question; the encoded token object and raw request stay unchanged.
+The scalar replaces the former uniform source scalar exactly once. Observer
+accounting records source/class counts, effective mass and weighted objective
+components separately from standard target CE.
+
+The actual full-data check covered all49,022 TRAIN materializations and weighted
+objectives with maximum difference0 from the intended formula. All29,539 rows
+outside the four changed sources exactly preserve their old weighted objectives.
+For22 observed source/class representatives, float64 **synthetic-logit gradients**
+match exactly and the actual pinned tokenizer emits identical encodings before
+and after annotation. Three additional tests cover loss/gradient replacement,
+post-encoding attachment and corruption/double-annotation/augmentation rejection.
+
+These checks load a tokenizer without loading backbone or student weights. They run
+no optimizer update or new game and do not read validation/test data. Real full
+model token admission, a saved optimizer integration control, a registered
+parent/budget and eventual full policy evaluation remain pending. Passing these
+checks is not evidence that the revised weighting improves Mahjong.
+
 This artifact is a prospective data/loss recipe, not a training result. A future
 adapter must verify real encoded-target alignment, replacement-scalar loss and
 gradient accounting, actual source/class exposure and basic/RI preservation.
