@@ -1,0 +1,12 @@
+kind,metric,label,step0,step625,change
+validation,loss,Validation objective,1.0492375956337903,1.0424206692181557,-0.006816926415634583
+validation,ce,Validation weighted target CE,1.038893870170814,1.0348643494872654,-0.00402952068354856
+validation,natural_target_ce,Validation natural target CE,0.9319505447905346,0.9334459992320066,0.0014954544414719217
+validation,new_route_objective,New-route weighted objective contribution,0.18540688183074966,0.17971264283770158,-0.005694238993048079
+evaluation,top2_rate,Top-two rate,0.875,0.8125,-0.0625
+evaluation,net_points,Net points per match,4306.25,10412.5,6106.25
+evaluation,hand_win_rate,Hand win rate,0.2244543650793651,0.25629960317460315,0.031845238095238065
+evaluation,dealin_hand_rate,Dealin hand rate,0.06421130952380952,0.0367063492063492,-0.027504960317460317
+evaluation,first_rate,First-place rate,0.5625,0.5,-0.0625
+evaluation,fourth_rate,Fourth-place rate,0.125,0.125,0.0
+evaluation,reward,Match reward (net /8000),0.5382812499999999,1.3015625000000002,0.7632812500000002
