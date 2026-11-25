@@ -91,6 +91,30 @@ The loss/retention/outcome directions make objective tradeoffs and source-label
 balance relevant next diagnoses. They do not prove one exclusive cause from
 this checkpoint, nor justify assuming that more updates will automatically help.
 
+A separate local gradient probe fixed eight TRAIN examples per source before
+predictions,152 examples across all19 sources. It differentiated all372 LoRA
+and four head tensors,11,347,456 trainable parameters, with dropout disabled
+and no optimizer. Exact loaded adapter/head tensors and the checkpoint bundle
+were unchanged before/after. No VAL/test example was encoded or differentiated.
+
+Some individual new-source mean gradients oppose RI means, but the
+source-mass-weighted new-task mean and full19-source mean are positively aligned
+with both legacy and teacher RI gradients on this panel. This does not support
+a blanket explanation that the combined new objective locally pushes against
+TRAIN RI loss. It is a small deterministic TRAIN panel in eval mode, not a global
+causal test or simulation of AdamW, dropout and the actual update trajectory.
+Per-source gradients, norms, sample identifiers and alignment details stay private.
+
+There is also an objective/decision distinction: the retained RI component
+compares reach against the maximum discard logit, whereas execution requires
+reach probability at least0.5 against all discard mass. This alone does not
+establish the cause or an untested fix. The previous full-group/class-weight2
+trial already completed2,400 updates and failed its retention/native criteria
+([actual prior result](curriculum-3A-paired-final2400-20261124.md)). Do not silently
+repeat it as a newly discovered solution. Next diagnoses should compare cached
+ranking, probability/margin movement and correct-to-incorrect transitions,
+separating coverage/generalization and calibration before registering a new fit.
+
 Keep the frozen run and its declared1236/1854/2472 observations. Only the final
 registered budget may qualify for advancement under the unchanged criteria;
 618 is not a replacement candidate. Full fit, independent audit, later-course
