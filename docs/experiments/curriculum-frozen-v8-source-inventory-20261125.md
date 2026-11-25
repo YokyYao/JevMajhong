@@ -68,8 +68,9 @@ and2 SQLite files. Hash agreement does not classify their source semantics or
 replace raw-rollout/SQLite checks. In particular, this larger upstream graph
 must not be confused with the37 classified direct protocol binary inputs.
 Two earlier data roots have no flat manifest at that location. Their original
-pool identities and selected-mixture reproduction are checked below; upstream
-raw-pool generation and source-family evidence remain unfinished.
+pool identities, selected mixtures and raw-pool derivation edges are reproduced
+below. Complete recursive source-family and target-generation evidence still
+requires its own closure; these checks are not a final source seal.
 
 ## Byte-exact early-mixture reproduction
 
@@ -93,8 +94,51 @@ The first attempt reproduced one root, then stopped at its strict archived
 module-path check because a different historical package was cached in that
 process. Preserve that failure and first result. Fresh isolated processes then
 ran both original loops successfully, retaining the strict import-path check.
-This reproduces selected data from frozen pools, not the upstream generation
-of those pools, complete raw reward targets or any model-training outcome.
+This mixture-only check reproduces selected data from frozen pools. The
+raw-pool derivations have separate evidence below. Neither check reproduces a
+model-training outcome or closes every upstream source/target dependency.
+
+## Actual ancestral raw-pool derivation reproduction
+
+The original basic pool was rebuilt from its recorded catalog and raw sources
+with the archived pool producer bound in the actual basic-model protocol.
+Only the output directory changed. All79,196 retained database rows, including
+every complete target payload string, match the original in canonical row
+order. The source-priority file and full producer-input manifest reproduce
+byte exactly, and the original strata/statistics agree.
+
+The SQLite database file itself has a different byte hash. This result is
+therefore full row/target reproduction, not a byte-identical database claim.
+Both databases were compared read only and contain only TRAIN/validation
+cases. Original sources/pools and the current student were unchanged; the
+reproduced pool is private and never substitutes for a registered input.
+The second ancestral pool's three actual derivation edges were also rerun with
+the archived functions bound in its actual ancestor protocol. Each edge uses
+the original hash-bound parent input and changes only its output directory.
+
+| Actual pool stage | Full rows compared | All row/target payloads equal | SQLite file byte equal |
+|---|---:|---|---|
+|First basic raw pool|79,196|Yes|No|
+|Second raw pool|126,628|Yes|No|
+|Second pool after original validation reservation|126,569|Yes|Yes|
+|Second pool after original source extension|126,744|Yes|Yes|
+
+All three second-pool producer-input manifests reproduce byte exactly, and
+all original summary statistics, strata and reservation/extension accounting
+agree. These rows overlap across pool versions; they are not additive new
+independent training examples. The original selected-mixture byte reproduction
+continues to use its original registered pool bytes.
+
+The first derivation-driver attempt was stopped after a duplicate progress-log
+field was detected. Its original source, partial outputs and cancellation
+observation were preserved; a separate corrected driver completed all three
+edges with the numerical producer functions unchanged. Original inputs and
+current student weights were never modified.
+
+This closes the two identified ancestral raw-pool derivation gaps. Full
+source-family exclusion, recursive upstream provenance/teacher/target evidence
+and final candidate evidence remain unfinished. Reproducing the conversion of
+stored raw outcomes does not reproduce the generation of those outcomes.
 
 ## Additional checks on the four-manifest upstream subset
 
@@ -117,8 +161,8 @@ source identity/locator metadata. The pool case-payload query is restricted to
 already-produced TRAIN and validation cases; no test case payload was opened.
 Literal/numeric scans do not infer opaque or otherwise encoded seed semantics.
 
-Upstream generation of the two earlier pools, complete source-family exclusion
-and final candidate evidence remain unfinished.
+Complete upstream source-family/target evidence and final candidate evidence
+remain unfinished.
 These additional checks do not establish a final source seal or model strength.
 
 ## What this does and does not establish
