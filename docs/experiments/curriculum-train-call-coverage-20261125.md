@@ -44,8 +44,8 @@ execution threshold.
 
 ## Re-accounted training coverage
 
-After the completed 3A2400 result, a finite companion step in GPU allocation
-324570 counted all 87,595 registered TRAIN records without loading a model,
+After the completed 3A2400 result, a finite companion step in an allocated
+GPU job counted all 87,595 registered TRAIN records without loading a model,
 reading validation/test data or changing the active trial. These are source-row
 counts and canonical loss-mass summaries, not independent simulated situations,
 new teacher labels or evidence of strategic optimality.

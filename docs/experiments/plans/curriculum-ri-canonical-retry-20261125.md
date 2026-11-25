@@ -7,7 +7,7 @@ compared with frozen v8's 59.38% and +4,290.63 on the same cells. This is not
 independent confirmation; the net difference's clustered 95% interval crosses
 zero. Keep v8 as the production model.
 
-The subsequent balanced-replay attempt, scheduler job 324550, failed before
+The subsequent balanced-replay attempt, the original replay fit, failed before
 optimizer updates at strict unique-row admission. Preserve that attempt's exact
 sources, registration, partial initialization output, traceback and real failed
 scheduler terminal. Do not report it as a strategy result or reuse its weights.
