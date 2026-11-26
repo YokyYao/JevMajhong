@@ -1,0 +1,45 @@
+# Terminal placement: targeted data and teacher plan
+
+Updated2026-11-22, Asia/Dubai. Stage4 fitting is not registered. The [native-world and score-context preparation](../results/curriculum-history-worlds-20261121.md) is verified; training labels remain zero. [Recovery362 has completed its audit](../results/curriculum-attack-recovery-final-20261122.md), with failed strategy-quality and additional recovery criteria. Any future experimental parent transfer requires prospective registration and must preserve that failure; no automatic qualified advancement follows. Keep the original failed calls grade, fixed-final rules and unchanged final-v8 objective.
+
+## Source cases and grouping
+
+Register a fresh source cohort and whole-family train/validation split before collecting or labelling. Existing diagnostic families are development checks. Reserved final2026300000–2026300031 cannot enter collection or tuning. The first64 logical source families beginning2026500000 supply169 decisions/845 views but no train open wins. The [coverage report](../results/curriculum-stage4-input-coverage-20261121.md) verifies the separate64-family Mortal supplement beginning2026501000:185 decisions/925 views, including18 distinct train open wins, with two canonical runs identical and full replay/encoding passed. Two/three-riichi is still sparse. Prefer mining missing threat strata from already saved registered native prefixes under the same whole-family split before more source games; use no reward/outcome-based selection. Freeze every exact cohort/split/configuration/mining rule before generation; do not overwrite earlier receipts or reinterpret score views/repeated runs as independent sources.
+
+The first registered prefix-mining pass is now complete:96 extra decisions/480 views,14 new two-riichi and3 new three-riichi windows, no additional source games and no duplicated parent views. All new native inputs/menus replay and encode. Combined Mortal source coverage is281 decisions/1,405 views from the same64 registered families. Rare multi-riichi world sampling remains to be validated; these are still unlabelled inputs.
+
+Collect scheduled East4 and extension decisions in three categories: ordinary self-draw progression/riichi/kan, discard-response calls, and legal win/decline. Win-only examples cannot teach earlier decisions that create a sufficient hand or protect an existing top-two position. Version the native constructor for non-win decisions before admitting those categories.
+
+Replay the same hand/action prefix under the implemented five score contexts: first, second, third gap3,000, fourth gap5,000 and fourth gap13,000. Use exact current scores after deposits, preserving source/payer seat, honba, sticks, dealer continuation and native match-end rules. Record observed score gaps and menu identities. Every score variant and decision from the same logical wall family belongs to one split, even when hand/actor differs. Keep public source tags and targets out of the model input.
+
+Include small and large public solo-win values, sufficient and insufficient immediate transfers, and both dealer-repeat and nondealer-ending situations. Estimate a public value without unknown ura, retain its sole-winner assumption, and let paired worlds determine actual simultaneous-win/bonus outcomes. The first verified score-context example is one dealer hand whose acceptance performs well; it does not supply the difficult low-value nondealer pursuit examples by itself. Coverage must include those cases before labelling.
+
+Within the new placement loss, initially propose15% mass each for ranks1/2 and35% each for ranks3/4. The two fourth-place gap variants share that rank's mass. Freeze the actual mixture after coverage checks; balance gradient mass without treating duplicated score views as new independent hands. Audit ordinary/seven-pairs possibilities, open/closed hands, ron/tsumo, dealers, extensions, paying seats and0/1/2/3-riichi threats separately.
+
+Preserve earlier-course expert and informative simulation replay, with all ancestral held-out groups excluded. Keep data roles explicit: this case collection supplies public inputs, future simulation supplies conditional targets, and the reserved complete-game grid supplies final strength evidence.
+
+## Continuation teacher and worlds
+
+Choose and freeze the continuation teacher before producing admitted labels. Evaluate the existing Mortal teacher and frozen v8 as candidates for ordinary public decisions using separate development families, measuring legal input/output alignment, score-sensitive behavior and throughput. A teacher that requires private-history reconstruction must be compatible with newly sampled hands; do not feed an inconsistent original concealed prefix. Prefer a verified stateless public-state route when that reconstruction is unavailable.
+
+Future late win decisions also need a declared continuation strategy. Compare a conventional win-taking continuation with a public-information pursuit planner so that the first declined win is not followed automatically by another insufficient win. Any nested planner must resample from the acting player's public information, rather than consult the outer world's hidden truth. Preserve the observer's known missed-win state after earlier declines, while separately certifying sampled opponents' history restrictions.
+
+Use paired full-match futures through dealer repeats and extensions. Preserve the sampled current hand/wall and fresh paired later-hand seeds. The current adapter supports ordinary discard/self-draw win windows; add and audit non-win and current robbed-kan constructors before using them. Multi-riichi rejection cost and coverage remain outstanding. If an importance sampler is introduced, store its proposal weights/effective sample size and use weighted outcome/bootstrap calculations throughout. Keep direct uniform rejection as a diagnostic reference; do not average weighted proposals as uniform worlds.
+
+## Labels and rare pursuit
+
+Store terminal top-two, rank, score gain from the anchor, hand-win/dealin outcomes and completion evidence per paired world. Primary utility is terminal top-two probability. Predeclare rank/point tie-break handling so that fourth-to-third progress supplies useful information when a small pilot sees no top-two outcome. Fourth place may accept greater fourth-place risk to pursue second; an unconditional nondecreasing escape-fourth constraint is not part of the per-state objective.
+
+Use enough independent futures for rare fourth-to-second events. A proposed schedule is32 scouting worlds followed by64–128 for admitted ambiguous/sparse cases, with the allocation/reliability rule frozen before results. Account for sampler weights and clustered uncertainty. Keep uncertain alternatives as soft or masked targets; a positive-confidence-only filter can remove nearly all difficult useful examples. Unobserved alternatives remain unlabelled.
+
+Full native settlement determines whether a win is sufficient: direct-hit transfers, tsumo payments, pool/honba bonuses, tie order and repeats can change the answer. The student should learn the choice from public context and simulated outcomes. These data rules do not add a fixed score-gap override to live recommendations.
+
+## Fit, evaluation and artifacts
+
+After labelled-data and parent audits, register the same LoRA/pointer architecture with a new optimizer and complete data exposure. A75% retained-replay/25% placement-loss proposal is a starting point, not an active fit. Derive the update budget from admitted rows/accumulation and at least two complete source exposures; freeze validation cadence and the sole final candidate before updates.
+
+Version the late input contract, including ron/tsumo/source-seat information, and audit canonical replay plus raw-public serving parity. Report validation by source, starting rank, gap, win acceptance/decline and counterfactual score context. Retain actual loss, reward, win/top-two/net/dealin curves on matched process grids and separate full-stage results.
+
+Consider explicit public rank/gap summaries using the existing `public_placement` calculation if a controlled preflight shows that raw score tokens are insufficient. Such fields summarize observable scores; they do not choose an action. Any representation change needs its own version, an enriched-parent baseline and raw-public/replay checks before registration, rather than silently changing a running model's input.
+
+Evaluate complete games against the selected parent, pre-calls reference and frozen v8, retaining paired whole-seed intervals. After freezing the full-curriculum candidate, open the untouched32-seed ×four-seat ×two-profile grid:256 complete matches per policy. Comparable means with insufficient uncertainty evidence do not complete the goal. Publish source, plans, aggregate outcomes and real curves; keep new weights, raw hands/worlds/targets and detailed diagnostics private. All computation stays in bounded scheduler GPU jobs with logs, timeouts and exits.

@@ -1,0 +1,23 @@
+{
+  "method": "final32_joint_primary_lower_bounds_and_secondary_disclosure_v1",
+  "seed_start": 2026300000,
+  "seed_groups": 32,
+  "seats": [0, 1, 2, 3],
+  "opponent_profiles": ["efficiency", "calling"],
+  "matches_per_policy": 256,
+  "primary_metrics": ["top2_rate", "net_points"],
+  "primary_regression_margins": {"top2_rate": 0.0, "net_points": 0.0},
+  "nominal_joint_primary_lower_confidence": 0.95,
+  "primary_bound_method": "two97.5_percent_one_sided_t_lower_bounds_Bonferroni_alpha0.05",
+  "require_positive_primary_cluster_variance": true,
+  "secondary_metrics": ["hand_win_rate", "first_rate", "fourth_rate", "dealin_hand_rate"],
+  "secondary_interpretation": "report_every_point_direction_and_interval_supported_regression_qualify_claim_scope",
+  "no_conditional_fourth_escape_veto": true,
+  "no_secondary_point_estimate_veto": true,
+  "sole_registered_final_candidate_before_outcomes": true,
+  "no_intermediate_results_for_selection": true,
+  "no_adaptive_extra_games_or_rescue_seed_replacement": true,
+  "require_native_ledgers_and_source_provenance_audit": true,
+  "automatic_goal_completion_or_release": false,
+  "raw_matches_private": true
+}

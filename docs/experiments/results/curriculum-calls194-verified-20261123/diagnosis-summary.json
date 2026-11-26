@@ -1,0 +1,129 @@
+{
+  "status": "actual194_snapshot_archived_with_cached_development_diagnosis",
+  "matches_per_policy": 16,
+  "independent_seed_groups": 2,
+  "comparison_to_parent": {
+    "net_points": {
+      "difference": 1581.25,
+      "ci95": [
+        -57105.53312520687,
+        60268.03312520687
+      ],
+      "seed_clusters": 2,
+      "interval_method": "paired_seed_cluster_student_t_df1",
+      "interval_limitation": "two consumed clusters; zero sample variance is not evidence of certainty",
+      "consumed_development_not_independent_strength": true
+    },
+    "top2_rate": {
+      "difference": 0.125,
+      "ci95": [
+        -1.4632755920218372,
+        1.7132755920218372
+      ],
+      "seed_clusters": 2,
+      "interval_method": "paired_seed_cluster_student_t_df1",
+      "interval_limitation": "two consumed clusters; zero sample variance is not evidence of certainty",
+      "consumed_development_not_independent_strength": true
+    },
+    "hand_win_rate": {
+      "difference": 0.0392609126984127,
+      "ci95": [
+        -0.49426102724066867,
+        0.5727828526374941
+      ],
+      "seed_clusters": 2,
+      "interval_method": "paired_seed_cluster_student_t_df1",
+      "interval_limitation": "two consumed clusters; zero sample variance is not evidence of certainty",
+      "consumed_development_not_independent_strength": true
+    },
+    "dealin_hand_rate": {
+      "difference": -0.06034226190476191,
+      "ci95": [
+        -1.649563256064707,
+        1.5288787322551831
+      ],
+      "seed_clusters": 2,
+      "interval_method": "paired_seed_cluster_student_t_df1",
+      "interval_limitation": "two consumed clusters; zero sample variance is not evidence of certainty",
+      "consumed_development_not_independent_strength": true
+    }
+  },
+  "comparison_to_frozen_v8": {
+    "net_points": {
+      "difference": -2843.75,
+      "ci95": [
+        -7052.680318857868,
+        1365.1803188578679
+      ],
+      "seed_clusters": 2,
+      "interval_method": "paired_seed_cluster_student_t_df1",
+      "interval_limitation": "two consumed clusters; zero sample variance is not evidence of certainty",
+      "consumed_development_not_independent_strength": true
+    },
+    "top2_rate": {
+      "difference": 0.0,
+      "ci95": null,
+      "seed_clusters": 2,
+      "interval_method": "paired_seed_cluster_student_t_df1",
+      "interval_limitation": "two consumed clusters; zero sample variance is not evidence of certainty",
+      "consumed_development_not_independent_strength": true
+    },
+    "hand_win_rate": {
+      "difference": -0.023834325396825395,
+      "ci95": [
+        -0.7766895613770175,
+        0.7290209105833667
+      ],
+      "seed_clusters": 2,
+      "interval_method": "paired_seed_cluster_student_t_df1",
+      "interval_limitation": "two consumed clusters; zero sample variance is not evidence of certainty",
+      "consumed_development_not_independent_strength": true
+    },
+    "dealin_hand_rate": {
+      "difference": -0.053149801587301586,
+      "ci95": [
+        -1.160215705312046,
+        1.053916102137443
+      ],
+      "seed_clusters": 2,
+      "interval_method": "paired_seed_cluster_student_t_df1",
+      "interval_limitation": "two consumed clusters; zero sample variance is not evidence of certainty",
+      "consumed_development_not_independent_strength": true
+    }
+  },
+  "source_operation_balanced_accuracy": {
+    "0": {
+      "per_operation": {
+        "chi": 0.6830098425739571,
+        "pon": 0.5481557658028247,
+        "ankan": 0.512216292676654,
+        "daiminkan": 0.5489647786768206,
+        "kakan": 0.4023474178403756
+      },
+      "macro_five": 0.5389388195141265,
+      "riichi_pooled": 0.6927409010742345
+    },
+    "194": {
+      "per_operation": {
+        "chi": 0.6951026072252396,
+        "pon": 0.685568353215412,
+        "ankan": 0.6073426348614415,
+        "daiminkan": 0.5030640171346978,
+        "kakan": 0.5197183098591549
+      },
+      "macro_five": 0.6021591844591891,
+      "riichi_pooled": 0.6734407567740901
+    }
+  },
+  "cached_reference_ledgers_checked": 16,
+  "actual_train_rows": 194,
+  "actual_record_exposures": 49022,
+  "visual_PNG_inspection_completed": true,
+  "new_model_calls": 0,
+  "new_games": 0,
+  "new_student_updates": 0,
+  "raw_records_probabilities_journals_gradients_weights_private": true,
+  "completed_fit": false,
+  "advancement_not_decided": true,
+  "goal_achieved": false
+}

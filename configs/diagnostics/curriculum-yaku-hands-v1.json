@@ -1,0 +1,14 @@
+{
+  "method": "same_yaku512_sources_actual_mortal_first_hand_continuations_v1",
+  "source_summary": "runs/curriculum-yaku-scenarios-v1/scenarios-v1/summary-private.json",
+  "initial_teacher_summary": "runs/curriculum-yaku-scenarios-v1/teacher-v1/summary-private.json",
+  "source_registration": "runs/curriculum-progression-v1/fit-plan/registered.json",
+  "teacher_root": "../jev-baseline-evaluation",
+  "out": "runs/curriculum-yaku-scenarios-v1/trajectories-v1",
+  "source_cases": 512,
+  "maximum_action_batches_per_hand": 2000,
+  "preserve_source_partitions": true,
+  "filter_by_yaku_success": false,
+  "capture_initial_window_again": false,
+  "automatic_student_fit": false
+}

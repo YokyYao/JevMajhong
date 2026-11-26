@@ -1,0 +1,287 @@
+{
+  "status": "actual_final388_curves_and_matched64_reference_aggregates_verified",
+  "actual_updates": 388,
+  "actual_exposures": 98044,
+  "original_route_parameter_identity": "c55106d33768f4b05aff802d575032edb4e5e493c6bedda4183ea000026f5455",
+  "original_route_policy_identity": "3b4628f37f5a8311ab3b71f5c3aa29a5ce50abef5e31ebbbf583483e9b14f870",
+  "actual_full64_comparisons": [
+    {
+      "policy": "calls13-parent-final608",
+      "matches": 64,
+      "seed_groups": 8,
+      "hand_win_rate": 0.1962611607142857,
+      "dealin_hand_rate": 0.1536892361111111,
+      "first_rate": 0.234375,
+      "top2_rate": 0.515625,
+      "fourth_rate": 0.1875,
+      "net_points": 967.1875,
+      "reward": 0.1208984375
+    },
+    {
+      "policy": "calls13-final388",
+      "matches": 64,
+      "seed_groups": 8,
+      "hand_win_rate": 0.2534164186507936,
+      "dealin_hand_rate": 0.0916108630952381,
+      "first_rate": 0.3125,
+      "top2_rate": 0.65625,
+      "fourth_rate": 0.140625,
+      "net_points": 2656.25,
+      "reward": 0.33203125
+    },
+    {
+      "policy": "frozen-v8",
+      "matches": 64,
+      "seed_groups": 8,
+      "hand_win_rate": 0.24317618145743145,
+      "dealin_hand_rate": 0.1044400477994228,
+      "first_rate": 0.421875,
+      "top2_rate": 0.59375,
+      "fourth_rate": 0.140625,
+      "net_points": 4290.625,
+      "reward": 0.536328125
+    }
+  ],
+  "paired_eight_seed_cluster_comparisons": {
+    "reference-parent": {
+      "net_points": {
+        "gain": 1689.0625,
+        "ci95": [
+          -2358.3234871097384,
+          5736.448487109738
+        ],
+        "seed_groups": 8
+      },
+      "top2": {
+        "gain": 0.140625,
+        "ci95": [
+          -0.05637203221241699,
+          0.337622032212417
+        ],
+        "seed_groups": 8
+      },
+      "hand_win": {
+        "gain": 0.057155257936507935,
+        "ci95": [
+          -0.04444386543417663,
+          0.1587543813071925
+        ],
+        "seed_groups": 8
+      },
+      "dealin": {
+        "gain": -0.06207837301587302,
+        "ci95": [
+          -0.1288526601957281,
+          0.0046959141639820595
+        ],
+        "seed_groups": 8
+      },
+      "first": {
+        "gain": 0.078125,
+        "ci95": [
+          -0.15176378805532317,
+          0.3080137880553232
+        ],
+        "seed_groups": 8
+      },
+      "fourth": {
+        "gain": -0.046875,
+        "ci95": [
+          -0.26276478596850106,
+          0.16901478596850109
+        ],
+        "seed_groups": 8
+      }
+    },
+    "reference-v8": {
+      "net_points": {
+        "gain": -1634.375,
+        "ci95": [
+          -7433.1866839520035,
+          4164.4366839520035
+        ],
+        "seed_groups": 8
+      },
+      "top2": {
+        "gain": 0.0625,
+        "ci95": [
+          -0.16781254654962008,
+          0.2928125465496201
+        ],
+        "seed_groups": 8
+      },
+      "hand_win": {
+        "gain": 0.01024023719336219,
+        "ci95": [
+          -0.08560000009949342,
+          0.1060804744862178
+        ],
+        "seed_groups": 8
+      },
+      "dealin": {
+        "gain": -0.012829184704184706,
+        "ci95": [
+          -0.090573957304194,
+          0.06491558789582459
+        ],
+        "seed_groups": 8
+      },
+      "first": {
+        "gain": -0.109375,
+        "ci95": [
+          -0.32162081477268323,
+          0.10287081477268326
+        ],
+        "seed_groups": 8
+      },
+      "fourth": {
+        "gain": 0.0,
+        "ci95": [
+          -0.1368260412496844,
+          0.1368260412496844
+        ],
+        "seed_groups": 8
+      }
+    }
+  },
+  "original_registered_stage2_grade": {
+    "passed": true,
+    "development_only_not_strength_proof": true
+  },
+  "current_selected_basic_source_quality": {
+    "original_aggregate_gate": {
+      "passed": true,
+      "riichi_acceptance": 0.6728395061728395,
+      "riichi_correct_decline": 0.7337662337662337,
+      "min_both_riichi_recall": 0.6,
+      "min_plain_exact": 0.4845576407506702,
+      "max_plain_ce": 1.4164213098822704,
+      "development_gate_not_match_strength_proof": true
+    },
+    "unchanged_legacy_gate": {
+      "passed": true,
+      "riichi_acceptance": 0.7027027027027027,
+      "riichi_correct_decline": 0.7142857142857143
+    },
+    "independent_teacher_source_gate": {
+      "passed": true,
+      "riichi_acceptance": 0.6689895470383276,
+      "riichi_correct_decline": 0.7394957983193278
+    },
+    "all_source_quality_passed": true,
+    "not_policy_strength_proof": true
+  },
+  "current_raw_basic_source_quality": {
+    "original_aggregate_gate": {
+      "passed": false,
+      "riichi_acceptance": 0.7808641975308642,
+      "riichi_correct_decline": 0.5227272727272727,
+      "min_both_riichi_recall": 0.6,
+      "min_plain_exact": 0.4845576407506702,
+      "max_plain_ce": 1.4164213098822704,
+      "development_gate_not_match_strength_proof": true
+    },
+    "unchanged_legacy_gate": {
+      "passed": false,
+      "riichi_acceptance": 0.8108108108108109,
+      "riichi_correct_decline": 0.5571428571428572
+    },
+    "independent_teacher_source_gate": {
+      "passed": false,
+      "riichi_acceptance": 0.7770034843205574,
+      "riichi_correct_decline": 0.5126050420168067
+    },
+    "all_source_quality_passed": false,
+    "not_policy_strength_proof": true
+  },
+  "source_specific_retention": {
+    "passed": true,
+    "basic_source_quality": {
+      "original_aggregate_gate": {
+        "passed": true,
+        "riichi_acceptance": 0.6728395061728395,
+        "riichi_correct_decline": 0.7337662337662337,
+        "min_both_riichi_recall": 0.6,
+        "min_plain_exact": 0.4845576407506702,
+        "max_plain_ce": 1.4164213098822704,
+        "development_gate_not_match_strength_proof": true
+      },
+      "unchanged_legacy_gate": {
+        "passed": true,
+        "riichi_acceptance": 0.7027027027027027,
+        "riichi_correct_decline": 0.7142857142857143
+      },
+      "independent_teacher_source_gate": {
+        "passed": true,
+        "riichi_acceptance": 0.6689895470383276,
+        "riichi_correct_decline": 0.7394957983193278
+      },
+      "all_source_quality_passed": true,
+      "not_policy_strength_proof": true
+    },
+    "plain_gain_by_source": {
+      "legacy": 0.025201072386058954,
+      "teacher": 0.020806241872561748
+    },
+    "riichi_balanced_gain_by_source": {
+      "legacy": 0.0071428571428571175,
+      "teacher": 0.009018241442918629
+    },
+    "development_only_not_policy_strength": true
+  },
+  "five_call_balanced_accuracy_gain": 0.06243485211932792,
+  "final_hard_operation_counts": {
+    "reach": {
+      "tp": 225,
+      "fn": 109,
+      "tn": 236,
+      "fp": 90
+    },
+    "chi": {
+      "tp": 182,
+      "fn": 233,
+      "tn": 2577,
+      "fp": 45
+    },
+    "ankan": {
+      "tp": 78,
+      "fn": 73,
+      "tn": 137,
+      "fp": 69
+    },
+    "pon": {
+      "tp": 323,
+      "fn": 238,
+      "tn": 1348,
+      "fp": 82
+    },
+    "kakan": {
+      "tp": 26,
+      "fn": 45,
+      "tn": 39,
+      "fp": 36
+    },
+    "daiminkan": {
+      "tp": 1,
+      "fn": 87,
+      "tn": 190,
+      "fp": 1
+    }
+  },
+  "actual_final12k_reload_probability_error": 1.9025336883693456e-07,
+  "independent_audit_complete_games_checked": 224,
+  "actual_curve_points": [
+    0,
+    194,
+    388
+  ],
+  "curve_native_grid16_with_full64_separate": true,
+  "supervised_reward": null,
+  "actual_game_reward": "terminal_net_points_div8000",
+  "visual_PNG_review_completed": true,
+  "no_new_inference_games_or_updates": true,
+  "raw_records_predictions_gradients_and_weights_private": true,
+  "final_reserved_grid_unused": true,
+  "independent_v8_parity_not_proven": true,
+  "goal_achieved": false
+}

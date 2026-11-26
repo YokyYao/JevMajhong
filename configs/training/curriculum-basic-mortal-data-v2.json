@@ -1,0 +1,25 @@
+{
+  "method": "fresh_basic_mortal_true_trajectory_v1",
+  "source_registration": "runs/curriculum-optimization-v2/fit-plan/registered.json",
+  "out": "runs/curriculum-basic-teacher-data-v2/data",
+  "teacher_root": "../jev-baseline-evaluation",
+  "seed_start": 2026600000,
+  "source_games": 256,
+  "validation_period": 5,
+  "validation_residue": 4,
+  "game_mode": "4p-red-east",
+  "engine_version": "0.4.11",
+  "seed_scheme": "spaced-v1",
+  "plain_own_discard_slots": [1, 4, 8, 12],
+  "all_eligible_riichi_windows": true,
+  "no_outcome_filter": true,
+  "student_fit_automatic": false,
+  "driver_cpu_threads": 1,
+  "driver_gpu_memory_fraction": 0.15,
+  "protected_source_ranges": [
+    {"start": 2026200000, "count": 8},
+    {"start": 2026300000, "count": 32},
+    {"start": 2026400000, "count": 10000},
+    {"start": 2026500000, "count": 100000}
+  ]
+}

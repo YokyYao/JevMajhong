@@ -1,0 +1,13 @@
+{
+  "method": "fixed_validation_yaku92_first_hand_public_mortal_opponents_v1",
+  "runtime_registration": "runs/curriculum-progression-v1/fit-plan/registered.json",
+  "source_summary": "runs/curriculum-yaku-scenarios-v1/scenarios-v1/summary-private.json",
+  "source_partition": "validation",
+  "expected_cases": 92,
+  "maximum_action_batches": 2000,
+  "checkpoint_from_reference_registration": true,
+  "policy_method": "original_policy_agent",
+  "model_role": "frozen_v8",
+  "teacher_root": "../jev-baseline-evaluation",
+  "out": "runs/curriculum-yaku-cases-v1/reference-v8"
+}

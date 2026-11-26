@@ -1,0 +1,10 @@
+# Native current public event for terminal win decisions
+
+Native verification318842 failed before any student update because the reconstructed `RiichiEnv.get_obs_py` observation had an empty `events` list. The first exact win window returned a forced-win shortcut, model calls0, so the asserted one-forward win/continue interface was not actually working. The failed verifier, code, log and exit are preserved. Neither the main3A fit nor independent teacher collection is restarted.
+
+The corrected rank-win v2 agent accepts an explicit keyword `current_public_event` from the game loop. `build_win_request` still allowlists/verifies the public trigger, winning tile and source actor against the native legal window and own public observation. Missing history never authorizes guessing the payer from a previous river; missing or unsupported source retains the existing win shortcut. Existing normalized visible input/schema is unchanged. Early and current robbed-kan shortcuts remain; ordinary complete-legal RI execution is unchanged.
+
+The explicit complete-current-win-menu research policy uses the same event interface, one shared model call, and a new policy method identity. This enables riichi/kan/call/discard alternatives when legally present beside a win. A future stage4 native game loop must pass the current public event; simply constructing the new agent in the old one-argument loop is insufficient and must not count as placement evaluation.
+
+The replacement verifier repeats all263 actual native views and526 scripted one-forward win/continue choices, encoding and24516 unchanged ordinary-input checks, actual early-win shortcut and tiny frozen-v8 probes. It records empty-event incidence and uses a separate verification-v2 output, preserving the failed v1 path. Data/input bridge jobs must depend on this actual successful proof and use its v2 receipt. Full-menu win controls require an additional actual full-menu/native route proof before fit admission. No new model-strength claim, raw publication or production replacement follows from interface checks.
+

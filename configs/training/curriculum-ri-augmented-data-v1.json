@@ -1,0 +1,19 @@
+{
+  "method": "audited_basic256_plus_exact_original19_source_union_v1",
+  "current_registration": "runs/curriculum-ri-balanced-replay-fit-v2/fit-plan/registered.json",
+  "supplement_audit": "runs/curriculum-basic-teacher-data-v2/audit-driver-completion-binding-private.json",
+  "out": "runs/curriculum-ri-augmented-data-v1/data-v1",
+  "expected_original": {"train": 87595, "validation": 23688},
+  "expected_supplement": {"train": 4975, "validation": 1310},
+  "expected_union": {"train": 92570, "validation": 24998},
+  "expected_RI_TRAIN": 4244,
+  "source_mass": "unchanged_retained19",
+  "epochs": 2,
+  "accumulation": 73,
+  "baseline_seed": 2026112304,
+  "exposure_seeds": [2026112502, 2026112503],
+  "max_repeat": 8,
+  "max_example_weight": 16.0,
+  "loss_candidate": "retained19_plus_fixed4_parent_Bernoulli_RI_KL_v1",
+  "student_fit_automatic": false
+}

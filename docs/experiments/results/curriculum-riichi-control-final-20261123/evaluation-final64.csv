@@ -1,0 +1,2 @@
+local_step,matches,seed_groups,hand_win_rate,dealin_hand_rate,first_rate,top2_rate,fourth_rate,net_points,reward
+608,64,8,0.1712797619047619,0.1443328373015873,0.203125,0.46875,0.1875,176.5625,0.022070312499999998

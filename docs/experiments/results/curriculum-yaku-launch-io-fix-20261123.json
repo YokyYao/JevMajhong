@@ -1,0 +1,27 @@
+{
+  "status": "3B_preupdate_nested_config_directory_issue_repaired_before_student_start",
+  "reason": "The first conditional benchmark configuration parent directory was not created before exclusive write.",
+  "implementation_revision": 2,
+  "original_bound_v1_sources_preserved": true,
+  "GPU_check_job": 318805,
+  "node": "ws-l3-004",
+  "scheduler_state": "COMPLETED",
+  "scheduler_exit": "0:0",
+  "runtime_seconds": 4,
+  "actual_nested_write_passed": true,
+  "existing_config_overwrite_refused": true,
+  "original24516_synthetic_profile_binding_unchanged": true,
+  "model_or_full_validation_benchmark_repeated": false,
+  "student_updates": 0,
+  "stage3A_unmodified": true,
+  "old_pending_B_jobs_cancelled": [
+    318793,
+    318795,
+    318797
+  ],
+  "replacement_prepare_job": 318811,
+  "replacement_fit_job": 318813,
+  "budget_and_objective_unchanged": true,
+  "parent_final_grade_required": true,
+  "raw_records_and_weights_private": true
+}

@@ -1,0 +1,10 @@
+{
+  "method": "actual_mortal_public_kan_source_choices_v1",
+  "source_summary": "runs/curriculum-kan-sources-v1/sources-v1/summary-private.json",
+  "source_registration": "runs/curriculum-progression-riichi-paired-v1/fit-plan/registered.json",
+  "out": "runs/curriculum-kan-sources-v1/teacher-v1",
+  "teacher_root": "../jev-baseline-evaluation",
+  "expected_source_cases": 189,
+  "source_motif_is_teacher_input": false,
+  "automatic_fit": false
+}

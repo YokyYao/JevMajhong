@@ -1,0 +1,40 @@
+{
+  "method": "audited_scalar_hard_ce_loss_riichi_reward_rate_curves_v1",
+  "input_files": {
+    "/home/junchi.yao/mahjong-discard-defense/runs/curriculum-basic-repair-v1/public-scalar-ready-v1/train-curve.csv": "c0876120ad1f6bc3f3f5bccd475008f479c905636c4e2619a97a6f15f319b7fa",
+    "/home/junchi.yao/mahjong-discard-defense/runs/curriculum-basic-repair-v1/public-scalar-ready-v1/validation-curve.csv": "6297456d97cf46df0745ab76c18dc55481d60dd48acfcf27dae9b03b60453294",
+    "/home/junchi.yao/mahjong-discard-defense/runs/curriculum-basic-repair-v1/public-scalar-ready-v1/evaluation-matched16.csv": "a41011af2583de6bce5f1a8d1f5e0d23c94e51db5e77068304a2db73159efd9b",
+    "/home/junchi.yao/mahjong-discard-defense/runs/curriculum-basic-repair-v1/public-scalar-ready-v1/evaluation-final64.csv": "4d51b46d4d745b3fc04b610bebf92afcbc26c9a15c8379deee87cf0036519503",
+    "/home/junchi.yao/mahjong-discard-defense/runs/curriculum-basic-repair-v1/public-scalar-ready-v1/provenance.json": "e204f6337bf82902d2194c2c87ce95cf3fa91b28cee7f0d06dbc80b6f257d693",
+    "/home/junchi.yao/mahjong-discard-defense/tools/export_curriculum_basic_repair_curves_v1.py": "13fd94603a215d8376131d3866fc7332e02bec879f72bd5776d128484534c191"
+  },
+  "train_points": 608,
+  "validation_points": 9,
+  "matched16_game_points": 5,
+  "final64_drawn_on_curve": false,
+  "supervised_training_reward": null,
+  "game_reward_definition": "terminal_raw_net_points_div8000_v1",
+  "no_smoothing_or_synthetic_observation_points": true,
+  "note": "Straight segments connect observed points only; all game points use the same16-game development grid.",
+  "no_new_games_or_model_updates": true,
+  "raw_private_records_exported": false,
+  "actual_final64_scalars": {
+    "local_step": "608",
+    "matches": "64",
+    "seed_groups": "8",
+    "hand_win_rate": "0.2411954365079365",
+    "dealin_hand_rate": "0.16808655753968255",
+    "first_rate": "0.25",
+    "top2_rate": "0.4375",
+    "fourth_rate": "0.296875",
+    "net_points": "-678.125",
+    "reward": "-0.084765625"
+  },
+  "registered_final_only": true,
+  "goal_achieved": false,
+  "output_files": {
+    "basic-repair-curves.svg": "927c1391bdd1506e0b96ba3025947efe5eb509478d03b2da7abe512147099e03",
+    "basic-repair-curves.png": "e9dcb0eaef4d8359467c188252c95722a898abbaa62e7680704bfa435cd99d1b",
+    "basic-repair-curves.pdf": "b85dc3571f72ebf296cf47cb5b2db866f0fc5f928886214b9164b9b590c6ed84"
+  }
+}

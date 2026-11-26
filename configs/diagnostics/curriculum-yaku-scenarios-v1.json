@@ -1,0 +1,13 @@
+{
+  "method": "constrained_full_wall_native_initial_yaku_decisions_unlabelled_v1",
+  "source_registration": "runs/curriculum-progression-v1/fit-plan/registered.json",
+  "out": "runs/curriculum-yaku-scenarios-v1/scenarios-v1",
+  "routes": ["kokushi", "chuuren", "suuankou", "daisangen", "chiitoitsu"],
+  "templates_per_route": 16,
+  "removed_target_tiles": [1, 3, 6],
+  "world_variants_per_public13": 2,
+  "natural_control_templates": 16,
+  "seed_start": 2026560000,
+  "new_teacher_labels": false,
+  "automatic_training": false
+}

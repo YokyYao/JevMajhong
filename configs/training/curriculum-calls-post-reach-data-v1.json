@@ -1,0 +1,18 @@
+{
+  "calls_data": "runs/curriculum-calls-repair-data-v1/data",
+  "post_reach_data": "runs/curriculum-post-reach-teacher-data-v2/audit-v1",
+  "source_registration": "runs/curriculum-riichi-class-control-v1/fit-plan/registered.json",
+  "out": "runs/curriculum-calls-post-reach-data-v1/data",
+  "audit_out": "runs/curriculum-calls-post-reach-data-v1/audit-v1",
+  "old_relative_loss_mass": 0.98,
+  "post_reach_loss_mass": 0.02,
+  "post_reach_stratum": "followup:teacher:post_reach_discard",
+  "epochs": 2,
+  "order_seed": 2026112209,
+  "accumulation_search_min": 192,
+  "accumulation_search_max": 512,
+  "minimum_tail_fraction": 0.75,
+  "maximum_example_weight": 16,
+  "automatic_parent_admission": false,
+  "automatic_fit": false
+}

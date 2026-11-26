@@ -1,0 +1,44 @@
+{
+  "method": "real_calls13_minimal_curves_v1",
+  "registered_sha256": "6cc8011a0ca388507bb2223ae59c09bd7bbc62f0b7f0af13df0d2ed6764a42ae",
+  "exporter_source_sha256": "33395d639bb03eeaec31b0d3c7fd4eb17ac43885c70dbcc5e2073544fa946cd2",
+  "captured_journal_sha256": {
+    "train_metrics.jsonl": "fdb5105961ba002f5b4eeb72801d6f311ffc0e46272df589353faf36c4524b9c",
+    "validation_metrics.jsonl": "a04094498be5b66904d85ec712ed87b4b28af04fd7320253d119f0a5374442d4",
+    "evaluation_metrics.jsonl": "49475270e35c810b209b949f69444244948e84c8c35177352a6356118c808c70"
+  },
+  "actual_train_through": 194,
+  "actual_validation_steps": [
+    0,
+    194
+  ],
+  "actual_matched16_steps": [
+    0,
+    194
+  ],
+  "actual_final64_steps": [],
+  "checked_cached_validation_menus": 24958,
+  "checked_actual_native_ledgers": 32,
+  "registered_final_step": 388,
+  "loss_method": "calls13_basic_maxclass_rest_ce_v1",
+  "original_action_ce_separate": true,
+  "supervised_reward": null,
+  "game_reward_definition": "terminal_raw_net_points_div8000_v1",
+  "independent_full_final_audit_checked": false,
+  "stage2_advancement": null,
+  "snapshots_private": true,
+  "publication_ready_not_automatically_published": true,
+  "no_raw_cases_predictions_gradients_sources_per_update_or_weights_in_public": true,
+  "no_new_model_inference_games_updates_smoothing_or_synthetic_observations": true,
+  "goal_achieved": false,
+  "output_files": {
+    "train-curve.csv": "401b5932cb4316b2816dd1e2b6d2923a39497baa91daf3b5b66159ccb003f9db",
+    "validation-curve.csv": "c2d9dcc232ace00398bc6a76a415be65d3ccb081023825aec40442e2f87537eb",
+    "calls13-curves.svg": "acb34b7b07977226df99bffd60fd270f1b770961e85ce63179e07e8c42690d92",
+    "operation-validation.csv": "5048c6f5b5fce53b85d0afef2c9be52fbe15e5abd28f37290ec9d11efbe94412",
+    "calls13-curves.png": "1418e94efa1d326bd4ba060ae650bb8fd10f06eb901e956d38e55e9655943be0",
+    "calls13-curves.pdf": "c3a0daa82b0dd991fc74ed4c1e1375ea20f97e7ff298d122e72e9557507dc53b",
+    "evaluation-matched16.csv": "36e12c43feaf8bc9eed5ac1374771473cc74e9c4deabb01369ae711ec21796d8",
+    "evaluation-final64.csv": "2a3b0aba20a6ce205326bfdda72071b8242a5edc670551a5b6782d4050003eff"
+  }
+}

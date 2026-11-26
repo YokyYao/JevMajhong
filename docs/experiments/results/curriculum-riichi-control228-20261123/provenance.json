@@ -1,0 +1,42 @@
+{
+  "method": "real_riichi_class_curves_minimal_public_scalars_v1",
+  "registration_sha256": "62604405150d54fc6dfed833edfabb79c53cc9fcbd8a44646bb206e02a3315f2",
+  "export_source_sha256": "ab0bbae65c77b5e81eaa481b58005f90d826068561c1e135bd6352325a72108f",
+  "captured_journal_sha256": {
+    "train_metrics.jsonl": "d5b052bce04b3aa02e88a76fa445cb3d3ca2b3456091d1d01c406dda55d0f8f1",
+    "validation_metrics.jsonl": "513f3fc1e398748bbe9d4e6dcdd7ad1420c65a17ba8c369ba95a0d1a34b7851b",
+    "evaluation_metrics.jsonl": "927a53e46c8fcff8a9bf4d86f18c2ef4ca9866157266545221de635fe1560d86"
+  },
+  "actual_train_through": 228,
+  "actual_validation_steps": [
+    0,
+    76,
+    152,
+    228
+  ],
+  "actual_matched16_steps": [
+    0,
+    152
+  ],
+  "actual_final64_steps": [],
+  "registered_final_step": 608,
+  "independent_full_final_audit_checked": false,
+  "loss_is_RI_class_objective": true,
+  "ce_is_original_action_CE": true,
+  "supervised_reward": null,
+  "game_reward_definition": "terminal_raw_net_points_div8000_v1",
+  "snapshot_may_lag_live_training": true,
+  "source_journals_captured_privately": true,
+  "no_gradient_source_per_update_diagnostics_raw_hands_or_weights_in_public": true,
+  "no_new_inference_games_updates_smoothing_or_synthetic_observations": true,
+  "goal_achieved": false,
+  "output_files": {
+    "validation-curve.csv": "51d733dd684b2038f8704b8e640650264d5668e78a1bb05e6b6fc2ccefb22ba1",
+    "riichi-class-curves.pdf": "fd906a5f3718b155ee9a0b9132ee7ce73ad3fee62047340037c80773b0c6ff65",
+    "riichi-class-curves.png": "1f75ddaf3450117263ccde97421955f271f631ae1c29e358fd9f027afda9f635",
+    "riichi-class-curves.svg": "8728fe046b6889b5cf2f9c216dbbe450260e497470fdf458e7b462ab44abe57c",
+    "evaluation-matched16.csv": "919e619bf26533cbb96e201b6c973f7598c4c83b40a7cb5ff344dfef90a46436",
+    "train-curve.csv": "759c13985154b8a3c23f74df1d98dd332286324bef6e468a8ed54bceeac4504c",
+    "evaluation-final64.csv": "2a3b0aba20a6ce205326bfdda72071b8242a5edc670551a5b6782d4050003eff"
+  }
+}

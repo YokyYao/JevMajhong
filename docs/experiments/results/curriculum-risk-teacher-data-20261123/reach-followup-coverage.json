@@ -1,0 +1,40 @@
+{
+  "status": "all1393_actual_source_reach_followup_training_coverage_audited",
+  "counts": {
+    "basic:train": {
+      "source_selected_reach": 1075,
+      "following_discard_forced": 651,
+      "following_multi_action_already_recorded": 116,
+      "following_multi_action_missing_from_all_three_teacher_cohorts": 308
+    },
+    "basic:validation": {
+      "source_selected_reach": 287,
+      "following_discard_forced": 177,
+      "following_multi_action_already_recorded": 35,
+      "following_multi_action_missing_from_all_three_teacher_cohorts": 75
+    },
+    "advanced:train": {
+      "source_selected_reach": 26,
+      "following_discard_forced": 15,
+      "following_multi_action_already_recorded": 7,
+      "following_multi_action_missing_from_all_three_teacher_cohorts": 4
+    },
+    "advanced:validation": {
+      "source_selected_reach": 5,
+      "following_discard_forced": 3,
+      "following_multi_action_already_recorded": 2
+    }
+  },
+  "total": {
+    "source_selected_reach": 1393,
+    "following_discard_forced": 846,
+    "following_multi_action_already_recorded": 160,
+    "following_multi_action_missing_from_all_three_teacher_cohorts": 387
+  },
+  "all_existing_three_teacher_contexts_checked": 44964,
+  "no_new_teacher_labels_or_training_rows": true,
+  "no_model_loaded_or_updated": true,
+  "missing_coverage_not_proof_of_causal_playing_strength_failure": true,
+  "current_data_fit_serving_and_source_bindings_unchanged": true,
+  "raw_cases_private": true
+}

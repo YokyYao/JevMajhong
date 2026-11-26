@@ -1,0 +1,28 @@
+{
+  "method": "stage4_grouped_score_context_inputs_v1",
+  "source_registration": "runs/curriculum-optimization-v2/fit-plan/registered.json",
+  "source_registration_is_code_reference_not_training_parent": true,
+  "out": "runs/curriculum-stage4-placement-data-v1/data",
+  "seed_start": 2026500000,
+  "source_games": 64,
+  "validation_period": 5,
+  "validation_residue": 4,
+  "group_scope": "entire_logical_source_family_all_hands_actors_and_score_contexts",
+  "source_behavior": "efficiency_hero_rotates_and_calling_next_opponent_on_odd_offsets_v1",
+  "game_mode": "4p-red-east",
+  "engine_version": "0.4.11",
+  "seed_scheme": "spaced-v1",
+  "late_scope": "scheduled_east4_and_extensions",
+  "per_source_category_caps": {"progression_draw": 1, "call_response": 1, "win": 1},
+  "score_contexts": ["hold_first", "hold_second", "third_gap3000", "fourth_gap5000", "fourth_gap13000"],
+  "protected_source_ranges": [
+    {"start": 2026200000, "count": 8},
+    {"start": 2026300000, "count": 32},
+    {"start": 2026400000, "count": 10000}
+  ],
+  "source_split_registered_before_generation": true,
+  "labels_generated": false,
+  "training_parent_admitted": false,
+  "automatic_fit": false,
+  "publication": "source_and_aggregate_summary_only"
+}

@@ -1,0 +1,12 @@
+{
+  "parent_selection": "actual_registered_final2500_only",
+  "admission_mode": "original_stage3B_grade_pass_required",
+  "parent_registration": "runs/curriculum-yaku-course-v1/fit-plan/registered.json",
+  "parent_terminal": "runs/curriculum-placement-course-v1/parent-terminal-v1/terminal-evidence-private.json",
+  "parent_fit_job": 318985,
+  "parent_audit_job": 318986,
+  "child_data_ready": "runs/curriculum-placement-exposures-v1/data-v1/data-ready-private.json",
+  "original_child_data_ready": "runs/curriculum-placement-data-v3/data-v1/data-ready-private.json",
+  "out": "runs/curriculum-placement-course-v1/parent",
+  "automatic_fit": false
+}

@@ -1,0 +1,94 @@
+{
+  "status": "same_calls388_complete_legal64_cached_independent_accounting_audit_passed",
+  "checked_complete_game_records": 128,
+  "actual_old_route_reproductions_preserved": 16,
+  "actual_candidate_prefix_games_preserved": 2,
+  "parameter_identity": "c55106d33768f4b05aff802d575032edb4e5e493c6bedda4183ea000026f5455",
+  "complete_legal_policy_identity": "656e02d8feb76de620cb24c5d8ffe06e7d3b10067fc690f8c09ef5a4ac43d1ba",
+  "original_policy_identity": "3b4628f37f5a8311ab3b71f5c3aa29a5ce50abef5e31ebbbf583483e9b14f870",
+  "summaries": {
+    "original": {
+      "matches": 64,
+      "seed_groups": 8,
+      "net_points": 2656.25,
+      "hand_win_rate": 0.2534164186507936,
+      "dealin_hand_rate": 0.0916108630952381,
+      "first_rate": 0.3125,
+      "top2_rate": 0.65625,
+      "fourth_rate": 0.140625
+    },
+    "proposed": {
+      "matches": 64,
+      "seed_groups": 8,
+      "net_points": 2457.8125,
+      "hand_win_rate": 0.25702504960317457,
+      "dealin_hand_rate": 0.09347098214285714,
+      "first_rate": 0.25,
+      "top2_rate": 0.59375,
+      "fourth_rate": 0.109375
+    }
+  },
+  "comparisons": {
+    "net_points": {
+      "gain": -198.4375,
+      "ci95": [
+        -2796.922396989321,
+        2400.047396989321
+      ],
+      "seed_groups": 8
+    },
+    "top2": {
+      "gain": -0.0625,
+      "ci95": [
+        -0.2639024794339203,
+        0.13890247943392034
+      ],
+      "seed_groups": 8
+    },
+    "first": {
+      "gain": -0.0625,
+      "ci95": [
+        -0.15925062161056208,
+        0.03425062161056208
+      ],
+      "seed_groups": 8
+    },
+    "fourth": {
+      "gain": -0.03125,
+      "ci95": [
+        -0.15299186244487867,
+        0.09049186244487868
+      ],
+      "seed_groups": 8
+    },
+    "hand_win": {
+      "gain": 0.0036086309523809517,
+      "ci95": [
+        -0.01870881443837267,
+        0.02592607634313457
+      ],
+      "seed_groups": 8
+    },
+    "dealin": {
+      "gain": 0.0018601190476190462,
+      "ci95": [
+        -0.033826017952506796,
+        0.03754625604774489
+      ],
+      "seed_groups": 8
+    }
+  },
+  "source_grade_preserved": {
+    "passed": true,
+    "development_only_not_strength_proof": true
+  },
+  "shadow_counter_scope_not_extended": "new62_games_only",
+  "new_inference_games_labels_or_optimizer_updates": 0,
+  "full_v8_goal_not_proven": true,
+  "fit_or_release_admitted": false,
+  "final_grid_unopened": true,
+  "active_fit_dependencies_unchanged": 224,
+  "raw_records_private": true,
+  "node": "ws-l1-015",
+  "job_id": "318194"
+}

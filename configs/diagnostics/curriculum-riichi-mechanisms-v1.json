@@ -1,0 +1,9 @@
+{
+  "method":"fixed_riichi_snapshot_mechanisms_v1",
+  "steps":[0,76,152,228],
+  "class_threshold":0.5,
+  "calibration_bins":10,
+  "mix_extreme_bounds":[0.25,0.75],
+  "no_threshold_search":true,
+  "no_model_or_policy_changes":true
+}

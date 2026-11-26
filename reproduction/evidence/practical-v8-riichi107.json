@@ -1,0 +1,23 @@
+{
+  "status": "reference_riichi_gate_diagnostic_complete",
+  "node": "ws-l1-011",
+  "job_id": "311884",
+  "windows": 107,
+  "groups": 74,
+  "counts": {
+    "fp": 39,
+    "tn": 31,
+    "tp": 19,
+    "fn": 18
+  },
+  "riichi_acceptance": 0.5135135135135135,
+  "riichi_correct_decline": 0.44285714285714284,
+  "both_recalls_ge60": false,
+  "checkpoint_sha256": "5ebce6af3777854cbec55ba29db2dc90be0f959193114bb3154179c5552370fa",
+  "reference_public_input_unchanged": true,
+  "flat_pointer_before_native_discard_guard": true,
+  "new_games": 0,
+  "optimizer_updates": 0,
+  "current_fit_or_gate_changed": false,
+  "note": "Same consumed107-window development diagnostic as the curriculum gate. V8 may have trained on some groups before the new curriculum reservation, so this is not held-out generalization, an optimal-action teacher certificate, or independent game strength. It helps assess whether this imitation gate is aligned with the practical comparison model; complete-game evidence and frozen final candidates remain separate."
+}

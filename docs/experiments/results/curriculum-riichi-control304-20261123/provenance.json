@@ -1,0 +1,44 @@
+{
+  "method": "real_riichi_class_curves_minimal_public_scalars_v1",
+  "registration_sha256": "62604405150d54fc6dfed833edfabb79c53cc9fcbd8a44646bb206e02a3315f2",
+  "export_source_sha256": "ab0bbae65c77b5e81eaa481b58005f90d826068561c1e135bd6352325a72108f",
+  "captured_journal_sha256": {
+    "train_metrics.jsonl": "70a146cdd76c414883786535e6601c2139af96d2c6713861d1964a2318e06108",
+    "validation_metrics.jsonl": "fa716463ce060387188398d72f775f472f63943ab5e00f26f07c31968df6b0f1",
+    "evaluation_metrics.jsonl": "df476a1360c805d80581e4862eaf7cf52ff107c69b5e15a8351033de3ab5903e"
+  },
+  "actual_train_through": 304,
+  "actual_validation_steps": [
+    0,
+    76,
+    152,
+    228,
+    304
+  ],
+  "actual_matched16_steps": [
+    0,
+    152,
+    304
+  ],
+  "actual_final64_steps": [],
+  "registered_final_step": 608,
+  "independent_full_final_audit_checked": false,
+  "loss_is_RI_class_objective": true,
+  "ce_is_original_action_CE": true,
+  "supervised_reward": null,
+  "game_reward_definition": "terminal_raw_net_points_div8000_v1",
+  "snapshot_may_lag_live_training": true,
+  "source_journals_captured_privately": true,
+  "no_gradient_source_per_update_diagnostics_raw_hands_or_weights_in_public": true,
+  "no_new_inference_games_updates_smoothing_or_synthetic_observations": true,
+  "goal_achieved": false,
+  "output_files": {
+    "validation-curve.csv": "6f4afc7101ec5bd8390b6e00915b2f911146d696f7e293980a9c3403c318d427",
+    "riichi-class-curves.svg": "afb5bd983eb6edad819be2756bc47a9a74a87b54f8e643d56eafeecb05ef40f8",
+    "evaluation-matched16.csv": "0c81219d6757563f1c88976c1ff6b16eb68aaeb3154e78913e5ab734fc1ade3b",
+    "riichi-class-curves.png": "ecbe2b688c9ef91a3748d93cbfeca2a7270ae4fc080c05ba8acc01935ba012ff",
+    "riichi-class-curves.pdf": "b7b4cf01862cef13b8ef8a11c305005b70e0749df949f13bc4cbaf8f168484a7",
+    "train-curve.csv": "95f62b10886c26305a260c22ffc9625cc06a00b5599c3acc33f673a76a535698",
+    "evaluation-final64.csv": "2a3b0aba20a6ce205326bfdda72071b8242a5edc670551a5b6782d4050003eff"
+  }
+}

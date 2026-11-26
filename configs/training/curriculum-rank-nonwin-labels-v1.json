@@ -1,0 +1,53 @@
+{
+  "method": "public32_rank_priority_nonwin_four_candidate_bootstrap_v1",
+  "source_registration": "runs/curriculum-progression-v1/fit-plan/registered.json",
+  "data_root": "runs/curriculum-reused-terminal-v1",
+  "out": "runs/curriculum-rank-nonwin-labels-v1",
+  "categories": [
+    "progression_draw",
+    "post_call",
+    "call_response"
+  ],
+  "contexts": [
+    "hold_second",
+    "third_gap3000",
+    "fourth_gap5000",
+    "fourth_gap13000"
+  ],
+  "physical_families_per_category": {
+    "train": 8,
+    "validation": 2
+  },
+  "unique_families_across_categories": true,
+  "expected_views": {
+    "train": 96,
+    "validation": 24
+  },
+  "expected_families": {
+    "train": 24,
+    "validation": 6
+  },
+  "candidate_cap": 4,
+  "preferred_public_operations": {
+    "progression_draw": ["reach", "ankan", "kakan"],
+    "post_call": [],
+    "call_response": ["daiminkan", "chi", "pon"]
+  },
+  "outer_seeds": [
+    202611232000,
+    202611232001
+  ],
+  "worlds_per_block": 16,
+  "future_planner_seed": 202611232002,
+  "future_worlds": 4,
+  "maximum_future_plans_per_outer_arm": 4,
+  "bootstrap_samples": 512,
+  "views_per_shard": 40,
+  "shards": 3,
+  "maximum_outer_terminal_arms": 15360,
+  "no_future_value_based_selection": true,
+  "no_fourth_escape_veto": true,
+  "uncertain_rows_retained": true,
+  "whole_phase4_input_and_fit_pending": true,
+  "automatic_release": false
+}

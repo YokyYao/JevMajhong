@@ -1,0 +1,53 @@
+{
+  "method": "real_riichi_class_curves_minimal_public_scalars_v1",
+  "registration_sha256": "62604405150d54fc6dfed833edfabb79c53cc9fcbd8a44646bb206e02a3315f2",
+  "export_source_sha256": "ab0bbae65c77b5e81eaa481b58005f90d826068561c1e135bd6352325a72108f",
+  "captured_journal_sha256": {
+    "train_metrics.jsonl": "1fef380f6eca328b22109f7b63a6249967e8bc28ac9469d8213ea93fa4a225da",
+    "validation_metrics.jsonl": "363ab6fdc785f9b4895849a595a457f7ee63b5282b9d82c8df9189ddc2a138b1",
+    "evaluation_metrics.jsonl": "8c293a28763ec92fa5a3263006d62156d0ff9dd90a4e27b2fce490677e99a456",
+    "final-evidence-private.json": "938c3d5f74bac2b382b646a2d2901ef587638aae57894a0e670913950c13f43e"
+  },
+  "actual_train_through": 608,
+  "actual_validation_steps": [
+    0,
+    76,
+    152,
+    228,
+    304,
+    380,
+    456,
+    532,
+    608
+  ],
+  "actual_matched16_steps": [
+    0,
+    152,
+    304,
+    456,
+    608
+  ],
+  "actual_final64_steps": [
+    608
+  ],
+  "registered_final_step": 608,
+  "independent_full_final_audit_checked": true,
+  "loss_is_RI_class_objective": true,
+  "ce_is_original_action_CE": true,
+  "supervised_reward": null,
+  "game_reward_definition": "terminal_raw_net_points_div8000_v1",
+  "snapshot_may_lag_live_training": true,
+  "source_journals_captured_privately": true,
+  "no_gradient_source_per_update_diagnostics_raw_hands_or_weights_in_public": true,
+  "no_new_inference_games_updates_smoothing_or_synthetic_observations": true,
+  "goal_achieved": false,
+  "output_files": {
+    "validation-curve.csv": "26893dd2dd27749e9f24c79c60fdde1cee9bdb65b90768d32e09e99c121de669",
+    "evaluation-final64.csv": "ed8caaba553b928523f288ba7e49f169b886bfc2acbc59349f16c76b6911442d",
+    "evaluation-matched16.csv": "540c642c5a4be9767347c478b8fed30b4803ee003b4556e8aaa2e0724e30f7c2",
+    "train-curve.csv": "9c895df5a6a8defd473e8f0242c1aab0061dd00ce55c32b488afe1b492a7025a",
+    "riichi-class-curves.svg": "f65098f0c4b64fa1210ccf8649db16b9a5b2579922fb66f8df67656792ace87a",
+    "riichi-class-curves.pdf": "934ed7e995ec229fe91a87800e9fb0c8669ee028d89d40bb60f335baabab4df5",
+    "riichi-class-curves.png": "b46eb028dbecac27b11cb86e83f27a471d218f4ec8310141f586911906f9804c"
+  }
+}

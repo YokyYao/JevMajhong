@@ -1,0 +1,44 @@
+{
+  "method": "public32_rank_priority_depth1_win_replanning_soft_bootstrap_v1",
+  "source_registration": "runs/curriculum-progression-v1/fit-plan/registered.json",
+  "data_root": "runs/curriculum-reused-terminal-v1",
+  "out": "runs/curriculum-rank-win-labels-v1",
+  "score_contexts": [
+    "third_gap3000",
+    "fourth_gap5000",
+    "fourth_gap13000"
+  ],
+  "leading_controls": [
+    "hold_first",
+    "hold_second"
+  ],
+  "expected_selected": {
+    "train": 218,
+    "validation": 45
+  },
+  "expected_families": {
+    "train": 47,
+    "validation": 10
+  },
+  "outer_seeds": [
+    202611231500,
+    202611231501
+  ],
+  "worlds_per_block": 16,
+  "future_planner_seed": 202611231502,
+  "future_worlds": 4,
+  "maximum_future_plans_per_outer_arm": 4,
+  "bootstrap_samples": 512,
+  "views_per_shard": 64,
+  "shards": 5,
+  "expected_outer_terminal_arms": 16832,
+  "current_arms": "one_legal_win_vs_native_ron_PASS_or_one_frozen_guarded_tsumo_discard",
+  "future_policy": "bounded_rank_priority_replanning_depth1_then_ordinary_frozen_v8",
+  "opponents": "two_public_efficiency_and_one_public_calling_all_legal_wins_accepted",
+  "uncertain_rows_filtered": false,
+  "fourth_escape_veto": false,
+  "positive_confidence_gate": false,
+  "teacher_optimality_claim": false,
+  "student_fit": false,
+  "final_grid_opened": false
+}

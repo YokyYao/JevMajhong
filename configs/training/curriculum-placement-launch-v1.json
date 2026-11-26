@@ -1,0 +1,9 @@
+{
+  "status": "planned_full_placement_launch_after_actual_integration",
+  "registered": "runs/curriculum-placement-course-v1/fit-plan/registered.json",
+  "integration_out": "runs/curriculum-placement-course-v1/upstream-integration-v1",
+  "integration_job": 319427,
+  "criteria_config": "configs/training/curriculum-placement-assessment-v1.json",
+  "automatic_release": false,
+  "open_independent_confirmation": false
+}

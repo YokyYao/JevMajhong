@@ -1,0 +1,26 @@
+{
+  "method": "public32_rank_priority_complete_current_win_menu_controls_v1",
+  "source_ready": "runs/curriculum-targeted-win-v1/source-v1/data-ready-private.json",
+  "out": "runs/curriculum-targeted-win-labels-v1",
+  "outer_seeds": [
+    202611234000,
+    202611234001
+  ],
+  "worlds_per_block": 16,
+  "future_planner_seed": 202611234002,
+  "future_worlds": 4,
+  "maximum_future_plans_per_outer_arm": 4,
+  "bootstrap_samples": 512,
+  "views_per_shard": 27,
+  "shards": 4,
+  "expected_views": {
+    "train": 72,
+    "validation": 36
+  },
+  "maximum_current_actions": 16,
+  "maximum_outer_terminal_arms": 55296,
+  "source_groups_fixed_before_values": true,
+  "student_fit": false,
+  "raw_private": true
+}
+

@@ -1,0 +1,10 @@
+{
+  "method": "native_daiminkan_meld_state_by_discarder_context576_v1",
+  "planned": 576,
+  "contexts": ["closed", "open_value_pon", "open_simple_pon"],
+  "discarders": [0, 3, 2],
+  "source_registration": "runs/curriculum-progression-parent-retention-v1/fit-plan/registered.json",
+  "out": "runs/curriculum-daiminkan-context-v1/sources-v1",
+  "automatic_fit": false,
+  "teacher_labels": false
+}

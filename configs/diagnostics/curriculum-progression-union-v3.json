@@ -1,0 +1,14 @@
+{
+  "calls_manifest": "runs/curriculum-calls-post-reach-data-v1/audit-v1/summary-private.json",
+  "risk_manifest": "runs/curriculum-risk-teacher-data-v1/audit-v1/summary-private.json",
+  "ordinary_manifest": "runs/curriculum-ordinary-completion-v1/audit-v1/summary-private.json",
+  "clean_manifest": "runs/curriculum-reproduction-v1/clean-data-v1/data-ready.json",
+  "reserved_groups": "runs/curriculum-reproduction-v1/clean-data-v1/reserved-public-groups.json",
+  "legacy_mc_manifest": "runs/curriculum-stage3-attack-v1/data/data-ready.json",
+  "legacy_mc_world_audit": "runs/curriculum-optimization-v2/stage3-world-audit-v1/summary-private.json",
+  "expected_rows": {"train": 87595, "validation": 23688},
+  "expected_structural_quarantine": {"train": 136, "validation": 41},
+  "preserve_all_source_row_objects": true,
+  "historical_partition_authority": "hash_bound_current_file_and_whole_family_exclusions_preserve_stale_or_missing_origin_marker_do_not_move_rows",
+  "automatic_fit": false
+}

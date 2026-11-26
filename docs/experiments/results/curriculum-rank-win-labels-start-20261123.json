@@ -1,0 +1,38 @@
+{
+  "status": "rank32_teacher_population_frozen_and_actual_GPU_label_array_started",
+  "prepare_job": 318812,
+  "prepare_node": "ws-l1-020",
+  "scheduler_state": "COMPLETED",
+  "scheduler_exit": "0:0",
+  "prepare_seconds": 108,
+  "semantic_tests_passed": 3,
+  "selected_views": {
+    "train": 218,
+    "validation": 45
+  },
+  "source_families": {
+    "train": 47,
+    "validation": 10
+  },
+  "outer_worlds_per_view": 32,
+  "independent_blocks": 2,
+  "future_planner_worlds": 4,
+  "maximum_future_plans_per_outer_arm": 4,
+  "bootstrap_samples": 512,
+  "student_updates": 0,
+  "teacher_is_approximate_search_not_Mortal_counterfactual_Bot": true,
+  "frozen_v8_and_public_heuristic_continuations": true,
+  "uncertain_targets_retained": true,
+  "fourth_escape_veto": false,
+  "positive_confidence_gate": false,
+  "labels_are_not_calibrated_optimal_action_probabilities": true,
+  "array_job": 318814,
+  "array_tasks": 5,
+  "maximum_active_label_tasks": 1,
+  "merge_revision": 2,
+  "merge_ties_respect_take_win_and_ignore_menu_order": true,
+  "whole_stage4_not_complete": true,
+  "non_win_labels_and_input_serving_contract_pending": true,
+  "raw_data_and_new_weights_private": true,
+  "final_reserved_grid_unused": true
+}

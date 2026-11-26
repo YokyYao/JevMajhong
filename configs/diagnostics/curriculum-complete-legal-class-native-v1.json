@@ -1,0 +1,11 @@
+{
+  "method": "complete_native_legal_menu_with_fixed_full_class_RI0_5_v1",
+  "step": 388,
+  "groups": 8,
+  "old_route_exact_cached_reproductions": 16,
+  "new_route_complete_matches": 64,
+  "same_actual_parameter_bundle": true,
+  "retain_original_quality_grade_even_if_failed": true,
+  "final_confirmation_seeds_opened": false,
+  "automatic_fit_or_release": false
+}

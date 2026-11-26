@@ -1,0 +1,23 @@
+{
+  "method": "all256_verified_actor_free_terminal_inputs_v1",
+  "source_root": "runs/curriculum-basic-teacher-data-v1/data",
+  "preflight_root": "runs/curriculum-source-event-replay-v1",
+  "existing_teacher_sources": [
+    "runs/curriculum-basic-teacher-data-v1/data",
+    "runs/curriculum-advanced-teacher-data-v1/data",
+    "runs/curriculum-risk-teacher-data-v1/data",
+    "runs/curriculum-post-reach-teacher-data-v2/data"
+  ],
+  "source_games": 256,
+  "preserve_original_family_splits": true,
+  "new_model_inference": false,
+  "new_source_games": false,
+  "expert_labels_from_inferred_actions": false,
+  "automatic_student_fit": false,
+  "maximum_native_batches_per_match": 30000,
+  "late_scope": "scheduled_east4_and_extensions",
+  "simultaneous_order": "ascending_absolute_seat",
+  "per_family_category_caps": {"progression_draw": 1, "post_call": 1, "call_response": 1, "win": 1},
+  "score_contexts": ["hold_first", "hold_second", "third_gap3000", "fourth_gap5000", "fourth_gap13000"],
+  "out": "runs/curriculum-reused-terminal-v1/collection-v1"
+}

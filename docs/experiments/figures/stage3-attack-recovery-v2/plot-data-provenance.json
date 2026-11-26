@@ -1,0 +1,17 @@
+{
+  "method": "matched16_development_grid_v1",
+  "process_curve_matches": 16,
+  "process_curve_seed_groups": 2,
+  "original_final64_results_unchanged": true,
+  "new_policy_games": 0,
+  "curve_steps": [
+    0,
+    181,
+    362
+  ],
+  "final64_steps": [
+    362
+  ],
+  "source_evaluation_sha256": "4cf5d0b8b0e082000a058523b306bc102be1ee02ab9f78252a202c4fc44ad270",
+  "note": "Same16-game subset for all curve points. Final64 has its own CSV/report; neither is independent confirmation."
+}

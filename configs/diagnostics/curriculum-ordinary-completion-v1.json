@@ -1,0 +1,21 @@
+{
+  "method": "observed_waitact_discard_completion_from_original256_v1",
+  "source_root": "runs/curriculum-basic-teacher-data-v1/data",
+  "verified_replay_root": "runs/curriculum-reused-terminal-v1",
+  "existing_teacher_sources": [
+    "runs/curriculum-basic-teacher-data-v1/data",
+    "runs/curriculum-advanced-teacher-data-v1/data",
+    "runs/curriculum-risk-teacher-data-v1/data",
+    "runs/curriculum-post-reach-teacher-data-v2/data"
+  ],
+  "source_games": 256,
+  "source_scope": "own_draw_no_meld_no_RI_no_opponent_RI_D_only_missing_context",
+  "observed_executed_discard_required": true,
+  "response_intentions_are_never_labels": true,
+  "preserve_original_family_splits": true,
+  "new_model_inference": false,
+  "new_source_games": false,
+  "automatic_student_fit": false,
+  "maximum_native_batches_per_match": 30000,
+  "out": "runs/curriculum-ordinary-completion-v1/collection-v1"
+}

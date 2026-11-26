@@ -1,0 +1,12 @@
+{
+  "method": "native_scripted_kan_opportunities_unlabelled_192_v1",
+  "source_registration": "runs/curriculum-progression-riichi-paired-v1/fit-plan/registered.json",
+  "out": "runs/curriculum-kan-sources-v1/sources-v1",
+  "operations": ["ankan", "daiminkan", "kakan"],
+  "motifs": ["yakuhai_ready_shape", "tanyao_ready_shape", "closed_route_control", "pair_heavy_control"],
+  "templates_per_motif": 8,
+  "worlds_per_operation": 2,
+  "seed_start": 2026680000,
+  "new_teacher_labels": false,
+  "automatic_training": false
+}

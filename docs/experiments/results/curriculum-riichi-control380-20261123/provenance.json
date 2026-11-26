@@ -1,0 +1,45 @@
+{
+  "method": "real_riichi_class_curves_minimal_public_scalars_v1",
+  "registration_sha256": "62604405150d54fc6dfed833edfabb79c53cc9fcbd8a44646bb206e02a3315f2",
+  "export_source_sha256": "ab0bbae65c77b5e81eaa481b58005f90d826068561c1e135bd6352325a72108f",
+  "captured_journal_sha256": {
+    "train_metrics.jsonl": "ce9aa8da1a33da37522051180618c4ced0867d5793efd4480982ac48d0e0da79",
+    "validation_metrics.jsonl": "b9fb3fba25313925f824920f4c4bac0c07a3c1ba37f2d95ae374d8c09dc1bfd2",
+    "evaluation_metrics.jsonl": "df476a1360c805d80581e4862eaf7cf52ff107c69b5e15a8351033de3ab5903e"
+  },
+  "actual_train_through": 380,
+  "actual_validation_steps": [
+    0,
+    76,
+    152,
+    228,
+    304,
+    380
+  ],
+  "actual_matched16_steps": [
+    0,
+    152,
+    304
+  ],
+  "actual_final64_steps": [],
+  "registered_final_step": 608,
+  "independent_full_final_audit_checked": false,
+  "loss_is_RI_class_objective": true,
+  "ce_is_original_action_CE": true,
+  "supervised_reward": null,
+  "game_reward_definition": "terminal_raw_net_points_div8000_v1",
+  "snapshot_may_lag_live_training": true,
+  "source_journals_captured_privately": true,
+  "no_gradient_source_per_update_diagnostics_raw_hands_or_weights_in_public": true,
+  "no_new_inference_games_updates_smoothing_or_synthetic_observations": true,
+  "goal_achieved": false,
+  "output_files": {
+    "validation-curve.csv": "d02e9a55fc3dade45d85ea3cc79ea3acc5106af72e6ffd1026f26b36bac4f43b",
+    "train-curve.csv": "0ea1ab125939319f59c9b289b058fe7571e8664c495b9c38120bd0c7b862891e",
+    "riichi-class-curves.svg": "dbf315a898f5603b272be45cffcf1c78baea394a2d13995bcb0621bf8964cb56",
+    "evaluation-matched16.csv": "0c81219d6757563f1c88976c1ff6b16eb68aaeb3154e78913e5ab734fc1ade3b",
+    "evaluation-final64.csv": "2a3b0aba20a6ce205326bfdda72071b8242a5edc670551a5b6782d4050003eff",
+    "riichi-class-curves.png": "133c0b4e986d330daaa5d2495b4bb5ae636999134e156a53f6e069b478fe327c",
+    "riichi-class-curves.pdf": "c8080d8eef028c04215802b8ac2717fe540822af7011c5613abf0c0969f30935"
+  }
+}

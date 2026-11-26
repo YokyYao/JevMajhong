@@ -1,0 +1,11 @@
+{
+  "status": "prospective_exposure_preparation_not_fit_registration",
+  "source_registration": "runs/curriculum-progression-parent-retention-v1/fit-plan/registered.json",
+  "data_ready": "runs/curriculum-targeted-win-resume-v3/placement-data-v5/data-v1/data-ready-private.json",
+  "mix_proposal": "runs/curriculum-placement-recovered-exposures-v1/proposal-v1/proposal-private.json",
+  "out": "runs/curriculum-placement-recovered-exposures-v1/data-v1",
+  "epochs": 2,
+  "order_seed": 2026112306,
+  "student_fit": false,
+  "automatic_release": false
+}
